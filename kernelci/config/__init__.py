@@ -1,19 +1,9 @@
-# Copyright (C) 2021 Collabora Limited
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2019-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
-#
-# This module is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation; either version 2.1 of the License, or (at your option)
-# any later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this library; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+"""KernelCI YAML pipeline configuration"""
 
 import glob
 import importlib
@@ -24,18 +14,25 @@ import kernelci
 from .base import default_filters_from_yaml
 
 
-def iterate_yaml_files(config_path):
+def iterate_yaml_files(config_path: str):
+    """Load all the YAML files found in config_path
+
+    The `config_path` can be either a single file if it ends with .yaml or a
+    directory path where to find multiple YAML files recursively.  Then iterate
+    over the file(s) as (path, data) 2-tuples.
+    """
     if config_path.endswith('.yaml'):
         yaml_files = [config_path]
     else:
         yaml_files = glob.glob(os.path.join(config_path, "*.yaml"))
     for yaml_path in yaml_files:
-        with open(yaml_path) as yaml_file:
+        with open(yaml_path, encoding='utf8') as yaml_file:
             data = yaml.safe_load(yaml_file)
             yield yaml_path, data
 
 
 def get_config_paths(config_paths):
+    """Get the list of all YAML files to be loaded"""
     if not config_paths:
         config_paths = []
         for config_path in ['config/core', '/etc/kernelci/core']:
@@ -48,6 +45,8 @@ def get_config_paths(config_paths):
 
 
 def validate_yaml(config_paths, entries):
+    """Load all the YAML config and validate the data integrity"""
+    error = None
     try:
         for path in get_config_paths(config_paths):
             for yaml_path, data in iterate_yaml_files(path):
@@ -64,10 +63,13 @@ def validate_yaml(config_paths, entries):
                         keys = []
                     err = kernelci.sort_check(keys)
                     if err:
-                        return "Broken order in {} {}: '{}' is before '{}'"\
-                            .format(yaml_path, name, err[0], err[1])
+                        error = \
+                            f"Broken order in {yaml_path} {name}: "\
+                            f"'{err[0]}' is before '{err[1]}'"
+                        break
     except yaml.scanner.ScannerError as exc:
-        return str(exc)
+        error = str(exc)
+    return error
 
 
 def load_single_yaml(config_path):
@@ -80,8 +82,8 @@ def load_single_yaml(config_path):
     *config_path* is the path to the YAML config directory, or alternative a
                   single YAML file.
     """
-    config = dict()
-    for yaml_path, data in iterate_yaml_files(config_path):
+    config = {}
+    for _, data in iterate_yaml_files(config_path):
         for name, value in data.items():
             config_value = config.setdefault(name, value.__class__())
             if hasattr(config_value, 'update'):
@@ -93,7 +95,7 @@ def load_single_yaml(config_path):
     return config
 
 
-def _merge_trees(old, update):
+def merge_trees(old, update):
     """Merge two values loaded from YAML
 
     This combines two values recursively that have been loaded from
@@ -111,22 +113,21 @@ def _merge_trees(old, update):
 
     Neither *old* nor *update* is modified; any modifications required
     lead to a new value being returned.
-
     """
     if isinstance(old, dict) and isinstance(update, dict):
-        res = dict()
+        merged = {}
         for k in (set(old) | set(update)):
             if (k in old) and (k in update):
-                res[k] = _merge_trees(old[k], update[k])
+                merged[k] = merge_trees(old[k], update[k])
             elif k in old:
-                res[k] = old[k]
+                merged[k] = old[k]
             else:
-                res[k] = update[k]
-        return res
+                merged[k] = update[k]
     elif isinstance(old, list) and isinstance(update, list):
-        return old + update
+        merged = old + update
     else:
-        return update
+        merged = update
+    return merged
 
 
 def load_yaml(config_paths):
@@ -143,10 +144,10 @@ def load_yaml(config_paths):
     """
     if not isinstance(config_paths, list):
         config_paths = [config_paths]
-    config = dict()
+    config = {}
     for path in config_paths:
         data = load_single_yaml(path)
-        config = _merge_trees(config, data)
+        config = merge_trees(config, data)
     return config
 
 
@@ -158,7 +159,7 @@ def load_data(data):
 
     *data* is the configuration dictionary loaded from YAML
     """
-    config = dict()
+    config = {}
     filters = default_filters_from_yaml(data)
     for module in [
         'kernelci.config.api',
