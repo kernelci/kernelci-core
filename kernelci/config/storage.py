@@ -173,9 +173,15 @@ def from_yaml(data, _):
     """Load storage configuration from YAML data"""
     storage_configs = {
         name: StorageFactory.from_yaml(name, storage)
+        for name, storage in data.get('storage', {}).items()
+    }
+    legacy_storage_configs = {
+        name: StorageFactory.from_yaml(name, storage)
         for name, storage in data.get('storage_configs', {}).items()
     }
+    storage_configs.update(legacy_storage_configs)
 
     return {
-        'storage_configs': storage_configs,
+        'storage_configs': storage_configs,  # deprecated
+        'storage': storage_configs,
     }
