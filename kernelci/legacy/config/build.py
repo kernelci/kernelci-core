@@ -17,7 +17,7 @@
 
 import yaml
 
-from kernelci.config.base import FilterFactory, _YAMLObject, YAMLConfigObject
+from .base import FilterFactory, _YAMLObject, YAMLConfigObject
 
 
 class Tree(YAMLConfigObject):

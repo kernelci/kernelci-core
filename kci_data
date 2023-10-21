@@ -23,7 +23,7 @@ import sys
 
 from kernelci.legacy.cli import Args, Command, parse_opts
 import kernelci.build
-import kernelci.config.db
+import kernelci.legacy.config.db
 import kernelci.db
 
 

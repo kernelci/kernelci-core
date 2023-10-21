@@ -5,7 +5,7 @@
 
 """KernelCI Runtime environment configuration"""
 
-from kernelci.config.base import FilterFactory, YAMLConfigObject
+from .base import FilterFactory, YAMLConfigObject
 
 
 class Runtime(YAMLConfigObject):

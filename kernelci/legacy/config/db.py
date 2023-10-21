@@ -16,7 +16,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from kernelci.config.base import _YAMLObject
+from .base import _YAMLObject
 
 
 class Database(_YAMLObject):

@@ -18,13 +18,17 @@
 import yaml
 
 import kernelci.config
-import kernelci.config.build
+import kernelci.legacy.config.build
+
+# -----------------------------------------------------------------------------
+# Legacy
+#
 
 
 def test_build_configs_parsing():
     """Verify build configs from YAML"""
     data = kernelci.config.load_yaml("config/core")
-    configs = kernelci.config.build.from_yaml(data, {})
+    configs = kernelci.legacy.config.build.from_yaml(data, {})
     assert len(configs) == 4
     for key in ['build_configs', 'build_environments', 'fragments', 'trees']:
         assert key in configs
@@ -34,7 +38,7 @@ def test_build_configs_parsing():
 def test_build_configs_parsing_minimal():
     """Test that minimal build configs can be parsed from YAML"""
     data = kernelci.config.load_yaml("tests/configs/builds-minimal.yaml")
-    configs = kernelci.config.build.from_yaml(data, {})
+    configs = kernelci.legacy.config.build.from_yaml(data, {})
     assert 'agross' in configs['build_configs']
     assert 'agross' in configs['trees']
     assert 'gcc-7' in configs['build_environments']
@@ -44,13 +48,13 @@ def test_build_configs_parsing_minimal():
 def test_build_configs_parsing_empty_architecture():
     """Test that build configs with empty architectures can be parsed"""
     data = kernelci.config.load_yaml("tests/configs/builds-empty-arch.yaml")
-    configs = kernelci.config.build.from_yaml(data, {})
+    configs = kernelci.legacy.config.build.from_yaml(data, {})
     assert len(configs) == 4
 
 
 def test_architecture_init_name_only():
     """Test that build config objects can be created with just a name"""
-    architecture = kernelci.config.build.Architecture("arm")
+    architecture = kernelci.legacy.config.build.Architecture("arm")
     assert architecture.name == 'arm'
     assert architecture.base_defconfig == 'defconfig'
     assert len(architecture.extra_configs) == 0
@@ -163,6 +167,10 @@ class TestTestConfigs(ConfigTest):
             'http://storage.kernelci.org/images/rootfs/debian'
         )
 
+
+# -----------------------------------------------------------------------------
+# API & Pipeline
+#
 
 class TestJobConfigs(ConfigTest):
     """Tests for pipeline job definitions"""

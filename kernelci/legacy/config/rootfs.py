@@ -19,7 +19,7 @@ import sys
 import yaml
 
 from kernelci import sort_check
-from kernelci.config.base import _YAMLObject
+from .base import _YAMLObject
 
 
 class RootFS(_YAMLObject):
