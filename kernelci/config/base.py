@@ -1,30 +1,17 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
 # Copyright (C) 2018-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
-#
-# This module is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation; either version 2.1 of the License, or (at your option)
-# any later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this library; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 # mypy: ignore-errors
 
-import re
-import yaml
+"""Common classes for all YAML pipeline config types"""
+
 import copy
+import re
 
+import yaml
 
-# -----------------------------------------------------------------------------
-# Common classes for all config types
-#
 
 class YAMLConfigObject(yaml.YAMLObject):
     """Base class with helper methods to handle configuration YAML data
@@ -61,7 +48,7 @@ class YAMLConfigObject(yaml.YAMLObject):
         return {
             k: v for k, v in ((k, data.get(k))for k in attributes)
             if v is not None
-        } if data else dict()
+        } if data else {}
 
     @classmethod
     def _get_yaml_attributes(cls):
@@ -114,7 +101,7 @@ class _YAMLObject:
         return {
             k: v for k, v in ((k, data.get(k))for k in attributes)
             if v is not None
-        } if data else dict()
+        } if data else {}
 
     @classmethod
     def _get_yaml_attributes(cls):
@@ -159,19 +146,22 @@ class Filter(YAMLConfigObject):
         """The *items* can be any data used to filter configurations."""
         self._items = items
 
+    @property
+    def items(self):
+        """Filter items"""
+        return self._items
+
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            u'tag:yaml.org,2002:map', {
-                key: value for key, value in data._items.items()
-            }
+            'tag:yaml.org,2002:map', dict(data.items.items())
         )
 
     def match(self, **kw):
         """Return True if the given *kw* keywords match the filter."""
         raise NotImplementedError("Filter.match() is not implemented")
 
-    def combine(self, items):
+    def combine(self, items):  # pylint: disable=unused-argument
         """Try to avoid making a new filter if we can make a combined
         filter matching both our existing data and the new items.
 
@@ -194,7 +184,7 @@ def _merge_filter_lists(old, update):
              represent it.
     """
     for key, value in update.items():
-        old.setdefault(key, list()).extend(value)
+        old.setdefault(key, []).extend(value)
 
 
 class Blocklist(Filter):
@@ -205,15 +195,15 @@ class Blocklist(Filter):
     rejected.
     """
 
-    yaml_tag = u'!BlockList'
+    yaml_tag = '!BlockList'
     name = 'blocklist'
 
-    def match(self, **kw):
-        for k, v in kw.items():
-            bl = self._items.get(k)
-            if not bl:
+    def match(self, **kwargs):
+        for key, value in kwargs.items():
+            blocklist = self._items.get(key)
+            if not blocklist:
                 continue
-            if any(x in v for x in bl):
+            if any(item in value for item in blocklist):
                 return False
 
         return True
@@ -231,15 +221,15 @@ class Passlist(Filter):
     these lists.
     """
 
-    yaml_tag = u'!PassList'
+    yaml_tag = '!PassList'
     name = 'passlist'
 
-    def match(self, **kw):
-        for k, wl in self._items.items():
-            v = kw.get(k)
-            if not v:
+    def match(self, **kwargs):
+        for key, passlist in self._items.items():
+            value = kwargs.get(key)
+            if not value:
                 return False
-            if not any(x in v for x in wl):
+            if not any(item in value for item in passlist):
                 return False
 
         return True
@@ -258,17 +248,17 @@ class Regex(Filter):
     for each key specified in the filter items.
     """
 
-    yaml_tag = u'!Regex'
+    yaml_tag = '!Regex'
     name = 'regex'
 
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._re_items = {k: re.compile(v) for k, v in self._items.items()}
 
-    def match(self, **kw):
-        for k, r in self._re_items.items():
-            v = kw.get(k)
-            return v and r.match(v)
+    def match(self, **kwargs):
+        for key, regex in self._re_items.items():
+            value = kwargs.get(key)
+            return value and regex.match(value)
 
 
 class Combination(Filter):
@@ -281,7 +271,7 @@ class Combination(Filter):
     the order of the keys.
     """
 
-    yaml_tag = u'!Combination'
+    yaml_tag = '!Combination'
     name = 'combination'
 
     def __init__(self, items):
@@ -289,8 +279,8 @@ class Combination(Filter):
         self._keys = tuple(items['keys'])
         self._values = list(tuple(values) for values in items['values'])
 
-    def match(self, **kw):
-        filter_values = tuple(kw.get(k) for k in self._keys)
+    def match(self, **kwargs):
+        filter_values = tuple(kwargs.get(k) for k in self._keys)
         return filter_values in self._values
 
     def combine(self, items):
@@ -320,10 +310,10 @@ class FilterFactory:
         filter_list = []
         filters = {}
 
-        for f in filter_params:
-            for filter_type, items in f.items():
-                for g in filters.get(filter_type, []):
-                    if g.combine(items):
+        for fil in filter_params:
+            for filter_type, items in fil.items():
+                for subfil in filters.get(filter_type, []):
+                    if subfil.combine(items):
                         break
                 else:
                     filter_cls = cls._classes[filter_type]
@@ -334,7 +324,7 @@ class FilterFactory:
                     # filter terms start being applied in other places
                     # unexpectedly.
                     filter_instance = filter_cls(copy.deepcopy(items))
-                    filters.setdefault(filter_type, list()).append(
+                    filters.setdefault(filter_type, []).append(
                         filter_instance)
                     filter_list.append(filter_instance)
 
@@ -353,6 +343,7 @@ class FilterFactory:
 
 
 def default_filters_from_yaml(data):
+    """Load the default YAML filters"""
     return {
         entry_type: FilterFactory.load_from_yaml(filters_data)
         for entry_type, filters_data in data.get('default_filters', {}).items()
