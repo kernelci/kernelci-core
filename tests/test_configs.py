@@ -248,8 +248,8 @@ class TestStorageConfigs(ConfigTest):
         ref_data, config = self._load_config(
             'tests/configs/storage-configs.yaml'
         )
-        ref_configs = ref_data['storage_configs']
-        storage_configs = self._reload(ref_data, config, 'storage_configs')
+        ref_configs = ref_data['storage']
+        storage_configs = self._reload(ref_data, config, 'storage')
         config_names = ['local', 'staging.kernelci.org', 'staging-backend']
         assert all(name in ref_configs for name in config_names)
         assert all(name in storage_configs for name in config_names)

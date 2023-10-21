@@ -1,4 +1,4 @@
-storage_configs:
+storage:
 
   local:
     storage_type: ssh
