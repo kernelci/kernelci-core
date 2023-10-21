@@ -5,7 +5,7 @@
 
 """KernelCI API object configuration"""
 
-from kernelci.config.base import YAMLConfigObject
+from .base import YAMLConfigObject
 
 
 class Storage(YAMLConfigObject):

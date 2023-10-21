@@ -16,20 +16,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import glob
+import importlib
 import os
 import yaml
 
 import kernelci
-import kernelci.config
-import kernelci.config.api
-import kernelci.config.build
-import kernelci.config.db
-import kernelci.config.job
-import kernelci.config.runtime
-import kernelci.config.rootfs
-import kernelci.config.scheduler
-import kernelci.config.storage
-import kernelci.config.test
+from .base import default_filters_from_yaml
 
 
 def iterate_yaml_files(config_path):
@@ -167,16 +159,17 @@ def load_data(data):
     *data* is the configuration dictionary loaded from YAML
     """
     config = dict()
-    filters = kernelci.config.base.default_filters_from_yaml(data)
-    config.update(kernelci.config.api.from_yaml(data, filters))
-    config.update(kernelci.config.build.from_yaml(data, filters))
-    config.update(kernelci.config.db.from_yaml(data, filters))
-    config.update(kernelci.config.job.from_yaml(data, filters))
-    config.update(kernelci.config.runtime.from_yaml(data, filters))
-    config.update(kernelci.config.scheduler.from_yaml(data, filters))
-    config.update(kernelci.config.rootfs.from_yaml(data, filters))
-    config.update(kernelci.config.storage.from_yaml(data, filters))
-    config.update(kernelci.config.test.from_yaml(data, filters))
+    filters = default_filters_from_yaml(data)
+    for module in [
+        'kernelci.config.api',
+        'kernelci.config.job',
+        'kernelci.config.runtime',
+        'kernelci.config.scheduler',
+        'kernelci.config.storage',
+        'kernelci.legacy.config',
+    ]:
+        mod = importlib.import_module(module)
+        config.update(mod.from_yaml(data, filters))
     return config
 
 

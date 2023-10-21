@@ -5,7 +5,7 @@
 
 """KernelCI pipeline job configuration"""
 
-from kernelci.config.base import YAMLConfigObject
+from .base import YAMLConfigObject
 
 
 class Job(YAMLConfigObject):
