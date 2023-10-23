@@ -105,7 +105,7 @@ cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update -builtin_fw_mali_g
 	 build_packages --board=${BOARD}
 
 echo "Building image (${SERIAL})"
-cros_sdk ./build_image --enable_serial ${SERIAL} --board="${BOARD}" --boot_args "earlyprintk=serial,keep console=tty0" --noenable_rootfs_verification test
+cros_sdk build_image --enable_serial ${SERIAL} --board="${BOARD}" --boot_args "earlyprintk=serial,keep console=tty0" --noenable_rootfs_verification test
 
 echo "Creating artifacts dir and copy generated image"
 sudo mkdir -p "${DATA_DIR}/${BOARD}"
