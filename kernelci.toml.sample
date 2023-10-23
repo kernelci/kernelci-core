@@ -1,61 +1,36 @@
+# -*- mode: Conf[TOML] -*- -#
+#
 # Sample kernelci.toml settings file with arbitrary values.
 #
 # These value are only for illustration purposes, they should be manually set
-# by any user to match a particular installation.  The options mentioned here
-# are typical ones that shouldn't change in every command line call when used
-# manually for local development purposes.  Any command line argument can have
-# a default value stored in this file.  Components such as databases and runtimes
-# have their own section too, with a naming convention of the form [db.db-name]
-# or [runtime.runtime-name]. Make sure to surround sub-section name with "" (double-quotes)
-# if it contains "." (dot) in the name e.g [db."staging.kernelci.org"].
-
-[DEFAULT]
+# by every user as required.
+#
+# The settings provided here are typical ones that shouldn't change in every
+# command line call when used manually for local development purposes.  Any
+# argument can have a default value stored in this file.  Each subcommand can
+# have its own setction, for example [kci.docker] for 'kci docker'.
+#
+# A special section [kci.secrets] is used to provide secrets with configuration
+# names, for example API secrets are stored in [kci.secrets.api.<api-name>].
+#
+# Since this relies on the TOML dotted keys syntax, make sure to enclose
+# sub-section names in "" (double-quotes) if they contain "."  (dot) in their
+# name e.g api."staging.kernelci.org".token.
 
 # -- Sample global defaults ---
 #
-# storage = "http://localhost:5002"
-# db_config = "localhost"
-
-# -- Sample runtime --
-#
-# [runtime.my-lava-lab]
-#
-# user = "user-name"
-# runtime_token = "1234-5678"
-
-# -- Sample database --
-#
-[db.localhost]
-#
-# db_token = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-# api = "http://192.168.122.1:5001"
-# callback_id = "kernelci-callback-local"
-# callback_url = "http://localhost:5001"
-
-# [db."staging.kernelci.org"]
-
-# db_token = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-
-# -- Sample command line defaults --
-
-[kci_build]
-
-# mirror = "linux-mirror.git"
-# kdir = "linux"
-# build_env = "gcc-10"
-# j = 3
-
-[kci_test]
-
-# runtime_config = "localhost"
-# bmeta_json = "linux/_install_/bmeta.json"
-# dtbs_json = "linux/_install_/dtbs.json"
-
-[kci_data]
-
-# db_config = "localhost"
+# [kci]
 # verbose = true
+# indent = 2
+# api = 'docker-host'
+# storage = 'docker-host'
 
-[kci_rootfs]
+# -- Sample docker command config --
+#
+# [kci.docker]
+# prefix = 'username/'
 
-# arc = "arm64"
+# -- Sample secrets --
+#
+# [kci.secrets]
+# api.docker-host.token = 'my-secret-token'
