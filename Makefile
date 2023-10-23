@@ -24,14 +24,10 @@ pylint:
 		kci \
 		kernelci.api \
 		kernelci.cli \
-		kernelci.config.api \
-		kernelci.config.job \
-		kernelci.config.runtime \
-		kernelci.config.storage \
-		kernelci.config.scheduler \
-		kernelci.storage \
+		kernelci.config \
 		kernelci.runtime \
 		kernelci.scheduler \
+		kernelci.storage \
 		setup.py \
 		tests
 
