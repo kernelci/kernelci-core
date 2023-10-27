@@ -137,14 +137,17 @@ def kci(ctx, settings):
 def split_attributes(attributes: typing.List[str]):
     """Split attributes into a dictionary.
 
-    Split the attributes string into a dictionary using space as a delimiter
-    between key/value pairs and `=` between the key and the value.  The API
-    operators are expected to be part of the key e.g. score__gte=100 to find
-    objects with a 'score' attribute of 100 or more.
+    Split the attribute strings into a dictionary using `=` as a delimiter
+    between the key and the value e.g. key=value.  The API operators are
+    expected to be part of the key, for example score__gte=100 to find objects
+    with a 'score' attribute with a value greater or equal to 100.
 
     As a syntactic convenience, if the operator matches one of >, <, >=, <=, !=
     then the corresponding API operator '__gt', '__lt', '__gte', '__lte',
-    '__ne' is added to the key name automatically.
+    '__ne' is added to the key name automatically.  Spaces can also be used
+    around the operators, although this typically means adding double quotes on
+    the command line around each attribute.  As such, the example used
+    previously is equivalent to "score >= 100".
     """
     operators = {
         '>': '__gt',
