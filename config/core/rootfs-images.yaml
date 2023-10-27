@@ -41,10 +41,10 @@ file_systems:
     type: debian
   debian_bullseye-gst-fluster_nfs:
     boot_protocol: tftp
-    nfs: bullseye-gst-fluster/20230717.0/{arch}/full.rootfs.tar.xz
+    nfs: bullseye-gst-fluster/20231027.0/{arch}/full.rootfs.tar.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-gst-fluster/20230717.0/{arch}/initrd.cpio.gz
+    ramdisk: bullseye-gst-fluster/20231027.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
   debian_bullseye-igt_ramdisk:
