@@ -7,7 +7,6 @@
 #
 # Things left to add:
 # * instance name (staging, AKS...)
-# * context
 # * priority
 # * timeout
 # * modules
@@ -24,10 +23,10 @@ visibility: public
 
 priority: medium
 
-context:
-  arch: x86_64
-  cpu: qemu64
-  guestfs_interface: ide
+{% if platform_config.context %}
+context:{% for key, value in platform_config.context | items %}
+  {{ key }}: {{ value }}{% endfor %}
+{% endif %}
 
 timeouts:
   action:
