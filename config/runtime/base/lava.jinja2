@@ -7,7 +7,6 @@
 #
 # Things left to add:
 # * instance name (staging, AKS...)
-# * device type
 # * context
 # * priority
 # * timeout
@@ -19,7 +18,7 @@
 
 job_name: "[KernelCI AKS] {{ node.id }} {{ node.name }} {{ node.revision.describe }}"
 
-device_type: qemu
+device_type: {{ platform_config.base_name|default(platform_config.name) }}
 
 visibility: public
 
