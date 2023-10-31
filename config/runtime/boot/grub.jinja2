@@ -1,0 +1,18 @@
+- deploy:
+    kernel:
+      url: {{ node.artifacts.bzImage }}
+      image_arg: -kernel {kernel} -serial stdio --append "console=ttyS0"
+      type: zimage
+    ramdisk:
+      url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/x86/rootfs.cpio.gz
+      image_arg: -initrd {ramdisk}
+      compression: gz
+    os: oe
+    root_partition: 1
+    to: tftp
+
+- boot:
+    method: grub
+    commands: ramdisk
+    prompts:
+    - '/ #'
