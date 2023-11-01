@@ -9,7 +9,6 @@ import enum
 from typing import Optional, Sequence
 
 from cloudevents.http import from_json
-import requests
 
 from . import API
 
@@ -63,21 +62,12 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             },
         ).json()
 
-    def create_token(self, username: str, password: str,
-                     scopes: Optional[Sequence[str]] = None) -> str:
+    def create_token(self, username: str, password: str) -> dict:
         data = {
             'username': username,
             'password': password,
         }
-        # The form field name is scope (in singular), but it is actually a long
-        # string with "scopes" separated by spaces.
-        # https://fastapi.tiangolo.com/tutorial/security/simple-oauth2/#scope
-        if scopes:
-            data['scope'] = ' '.join(scopes)
-        url = self._make_url('/token')
-        resp = requests.post(url, data, timeout=self._timeout)
-        resp.raise_for_status()
-        return resp.json()
+        return self._post('/user/login', data, json_data=False).json()
 
     def subscribe(self, channel: str) -> int:
         resp = self._post(f'subscribe/{channel}')
