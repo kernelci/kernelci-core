@@ -56,14 +56,13 @@ def find(attributes, config, api, indent):
 @Args.config
 @Args.api
 @Args.indent
-@click.option('--scope', multiple=True, help="Security scope(s)")
-def token(username, config, api, indent, scope):
+def token(username, config, api, indent):
     """Create a new API token using a user name and password"""
     password = getpass.getpass()
     configs = kernelci.config.load(config)
     api_config = configs['api'][api]
     api = kernelci.api.get_api(api_config)
-    user_token = api.create_token(username, password, scope)
+    user_token = api.create_token(username, password)
     click.echo(json.dumps(user_token, indent=indent))
 
 

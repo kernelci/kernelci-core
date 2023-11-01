@@ -70,15 +70,8 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
         """Change a password for a given user"""
 
     @abc.abstractmethod
-    def create_token(self, username: str, password: str,
-                     scopes: Optional[Sequence[str]] = None) -> str:
-        """Create a new API token for the current user
-
-        `scopes` contains optional security scope names which needs to be part
-        of API.security_scopes.  Please note that user permissions can limit
-        the available scopes, for example only admin users can create admin
-        tokens.
-        """
+    def create_token(self, username: str, password: str) -> dict:
+        """Create a new API token for the current user"""
 
     # -------
     # Pub/Sub
@@ -180,13 +173,20 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
         resp.raise_for_status()
         return resp
 
-    def _post(self, path, data=None, params=None):
+    def _post(self, path, data=None, params=None, json_data=True):
         url = self._make_url(path)
-        jdata = json.dumps(data)
-        resp = requests.post(
-            url, jdata, headers=self._headers,
-            params=params, timeout=self._timeout
-        )
+        if json_data:
+            jdata = json.dumps(data)
+            resp = requests.post(
+                url, jdata, headers=self._headers,
+                params=params, timeout=self._timeout
+            )
+        else:
+            self._headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            resp = requests.post(
+                url, data, headers=self._headers,
+                params=params, timeout=self._timeout
+            )
         resp.raise_for_status()
         return resp
 
