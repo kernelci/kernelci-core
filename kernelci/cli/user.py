@@ -45,7 +45,7 @@ def find(attributes, config, api, indent):
     configs = kernelci.config.load(config)
     api_config = configs['api'][api]
     api = kernelci.api.get_api(api_config)
-    users = api.get_user_profiles(split_attributes(attributes))
+    users = api.get_users(split_attributes(attributes))
     data = json.dumps(users, indent=indent)
     echo = click.echo_via_pager if len(users) > 1 else click.echo
     echo(data)

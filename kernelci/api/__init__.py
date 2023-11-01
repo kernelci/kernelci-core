@@ -139,15 +139,15 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
         """Get user groups that match the provided attributes"""
 
     # -------------
-    # User profiles
+    # User accounts
     # -------------
 
     @abc.abstractmethod
-    def get_user_profiles(
+    def get_users(
         self, attributes: dict,
         offset: Optional[int] = None, limit: Optional[int] = None
     ) -> Sequence[dict]:
-        """Get user profiles that match the provided attributes"""
+        """Get user accounts that match the provided attributes"""
 
     @abc.abstractmethod
     def create_user(self, username: str, password: str, profile: dict) -> dict:
