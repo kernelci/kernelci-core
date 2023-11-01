@@ -149,12 +149,12 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
         return self._get_api_objs(params=params, path='groups',
                                   limit=limit, offset=offset)
 
-    def get_user_profiles(
+    def get_users(
         self, attributes: dict,
         offset: Optional[int] = None, limit: Optional[int] = None
     ) -> Sequence[dict]:
         params = attributes.copy() if attributes else {}
-        return self._get_api_objs(params=params, path='users/profile',
+        return self._get_api_objs(params=params, path='users',
                                   limit=limit, offset=offset)
 
     def create_user(self, username: str, password: str, profile: dict) -> dict:
