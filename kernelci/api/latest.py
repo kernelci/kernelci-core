@@ -160,12 +160,8 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def create_user(self, user: dict) -> dict:
         return self._post('user/register', user).json()
 
-    def update_user(self, username: str, profile: dict) -> dict:
-        params = {
-            'email': profile['email'],
-            'groups': profile['groups']
-        }
-        return self._put(f'user/{username}', params=params)
+    def update_user(self, user: dict) -> dict:
+        return self._patch('user/me', user).json()
 
 
 def get_api(config, token):

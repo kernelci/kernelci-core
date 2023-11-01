@@ -154,7 +154,7 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
         """Create a new user"""
 
     @abc.abstractmethod
-    def update_user(self, username: str, profile: dict) -> dict:
+    def update_user(self, user: dict) -> dict:
         """Update a user"""
 
     # -------------------------------------------------------------------------
@@ -194,6 +194,16 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
         url = self._make_url(path)
         jdata = json.dumps(data)
         resp = requests.put(
+            url, jdata, headers=self._headers,
+            params=params, timeout=self._timeout
+        )
+        resp.raise_for_status()
+        return resp
+
+    def _patch(self, path, data=None, params=None):
+        url = self._make_url(path)
+        jdata = json.dumps(data)
+        resp = requests.patch(
             url, jdata, headers=self._headers,
             params=params, timeout=self._timeout
         )

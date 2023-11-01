@@ -71,21 +71,30 @@ def user_password():
     """Manage user passwords"""
 
 
-@user_password.command
-@click.argument('username')
+@kci_user.command(secrets=True)
+@click.option('--username')
+@click.option('--email')
+@click.option('--group', multiple=True, help="User group(s)")
 @Args.config
 @Args.api
-def update(username, config, api):
-    """Update the password for a given user"""
-    current = getpass.getpass("Current password: ")
-    new = getpass.getpass("New password: ")
-    retyped = getpass.getpass("Retype new password: ")
-    if new != retyped:
-        raise click.ClickException("Sorry, passwords do not match")
+@Args.indent
+def update(username, email, config,  # pylint: disable=too-many-arguments
+           api, secrets, group, indent):
+    """Update own user account"""
+    user = {}
+    if username:
+        user['username'] = username
+    if email:
+        user['email'] = email
+    if group:
+        user['groups'] = group
+    if not user:
+        raise click.ClickException("Sorry, nothing to update")
     configs = kernelci.config.load(config)
     api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
-    api.change_password(username, current, new)
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    data = api.update_user(user)
+    click.echo(json.dumps(data, indent=indent))
 
 
 @kci_user.command(secrets=True)
