@@ -91,18 +91,25 @@ def update(username, config, api):
 @kci_user.command(secrets=True)
 @click.argument('username')
 @click.argument('email')
+@click.option('--group', multiple=True, help="User group(s)")
 @Args.config
 @Args.api
-def add(username, email, config, api, secrets):
+@Args.indent
+def add(username, email, config,  # pylint: disable=too-many-arguments
+        api, secrets, group, indent):
     """Add a new user account"""
-    profile = {
-        'email': email,
-    }
     password = getpass.getpass()
     retyped = getpass.getpass("Confirm password: ")
     if password != retyped:
         raise click.ClickException("Sorry, passwords do not match")
+    user = {
+        'username': username,
+        'email': email,
+        'password': password,
+        'groups': group
+    }
     configs = kernelci.config.load(config)
     api_config = configs['api'][api]
     api = kernelci.api.get_api(api_config, secrets.api.token)
-    api.create_user(username, password, profile)
+    data = api.create_user(user)
+    click.echo(json.dumps(data, indent=indent))

@@ -157,14 +157,8 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
         return self._get_api_objs(params=params, path='users',
                                   limit=limit, offset=offset)
 
-    def create_user(self, username: str, password: str, profile: dict) -> dict:
-        data = {
-            'password': password,
-        }
-        params = {
-            'email': profile['email'],
-        }
-        return self._post(f'user/{username}', data, params)
+    def create_user(self, user: dict) -> dict:
+        return self._post('user/register', user).json()
 
     def update_user(self, username: str, profile: dict) -> dict:
         params = {
