@@ -150,7 +150,7 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
         """Get user accounts that match the provided attributes"""
 
     @abc.abstractmethod
-    def create_user(self, username: str, password: str, profile: dict) -> dict:
+    def create_user(self, user: dict) -> dict:
         """Create a new user"""
 
     @abc.abstractmethod
