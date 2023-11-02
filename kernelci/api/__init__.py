@@ -164,6 +164,10 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     def get_user(self, user_id: str) -> dict:
         """Get the user matching the given user id"""
 
+    @abc.abstractmethod
+    def update_user_by_id(self, user_id: str, user: dict) -> dict:
+        """Update a user matching the given user id"""
+
     # -------------------------------------------------------------------------
     # Private methods
     #
