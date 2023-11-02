@@ -85,26 +85,26 @@ chromeos_6.6_variants: &chromeos_6_6_variants
     build_environment: clang-17
     architectures:
       arm:
-        base_defconfig: 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/armel/chromiumos-arm.flavour.config'
+        base_defconfig: 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/armel/chromiumos-arm.flavour.config'
         extra_configs:
-          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/armel/chromiumos-rockchip.flavour.config'
+          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/armel/chromiumos-rockchip.flavour.config'
         filters: *cros-filters
       arm64:
-        base_defconfig: 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/arm64/chromiumos-arm64.flavour.config'
+        base_defconfig: 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/arm64/chromiumos-arm64.flavour.config'
         fragments: [arm64-chromebook]
         extra_configs:
-          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/arm64/chromiumos-mediatek.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
-          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/arm64/chromiumos-qualcomm.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
-          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/arm64/chromiumos-rockchip64.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/arm64/chromiumos-mediatek.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/arm64/chromiumos-qualcomm.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/arm64/chromiumos-rockchip64.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
       x86_64:
-        base_defconfig: 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/x86_64/chromiumos-x86_64.flavour.config'
+        base_defconfig: 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/x86_64/chromiumos-x86_64.flavour.config'
         fragments: [x86-chromebook]
         extra_configs:
-          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
-          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
-          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
-          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc4/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://merge%continuous%chromeos-kernelupstream-6.6-rc6/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
 
   clang-17: *clang-17
@@ -134,8 +134,7 @@ build_configs:
 
   chromeos-stable_6.6:
     tree: stable
-    # linux-6.6.y will only be created once 6.6 is released, for now track master
-    branch: 'master'
+    branch: 'linux-6.6.y'
     variants: *chromeos_6_6_variants
 
   collabora-chromeos-kernel:
