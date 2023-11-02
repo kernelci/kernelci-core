@@ -173,3 +173,32 @@ def get(user_id, config, api, indent):
     api = kernelci.api.get_api(api_config)
     data = api.get_user(user_id)
     click.echo(json.dumps(data, indent=indent))
+
+
+@kci_user.command(secrets=True)
+@click.argument('username')
+@click.option('--email')
+@click.option('--group', multiple=True, help="User group(s)")
+@Args.config
+@Args.api
+@Args.indent
+def update_by_username(username, email,  # pylint: disable=too-many-arguments
+                       config, api, secrets, group, indent):
+    """[Scope: admin] Update user account matching given username"""
+    user = {}
+    if email:
+        user['email'] = email
+    if group:
+        user['groups'] = group
+    if not user:
+        raise click.ClickException("Sorry, nothing to update")
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    users = api.get_users({"username": username})
+    if not users:
+        raise click.ClickException(
+            "Sorry, user does not exist with given username")
+    user_id = users[0]["id"]
+    data = api.update_user_by_id(user_id, user)
+    click.echo(json.dumps(data, indent=indent))
