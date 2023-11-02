@@ -154,6 +154,17 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             "token": token
         })
 
+    def request_password_reset_token(self, email: str):
+        return self._post('user/forgot-password', {
+            "email": email
+        })
+
+    def reset_password(self, token: str, password: str):
+        return self._post('user/reset-password', {
+            "token": token,
+            "password": password
+        })
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""

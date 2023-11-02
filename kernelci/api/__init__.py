@@ -152,6 +152,14 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     def verify_user(self, token: str):
         """Verify user's email address"""
 
+    @abc.abstractmethod
+    def request_password_reset_token(self, email: str):
+        """Request password reset token"""
+
+    @abc.abstractmethod
+    def reset_password(self, token: str, password: str):
+        """Reset password"""
+
     # -------------------------------------------------------------------------
     # Private methods
     #
