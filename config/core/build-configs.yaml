@@ -353,6 +353,8 @@ fragments:
       - 'CONFIG_SND_SOC_SOF_MT8195=m'
       # Fix ui.WindowCyclePerf tests on asurada with 6.6
       - 'CONFIG_DEVFREQ_THERMAL=y'
+      # Needed for cherry to be able to run Tast tests on 6.6
+      - 'CONFIG_PHY_MTK_DP=y'
       - 'CONFIG_EXTRA_FIRMWARE="
       mediatek/mt8173/vpu_d.bin
       mediatek/mt8173/vpu_p.bin
