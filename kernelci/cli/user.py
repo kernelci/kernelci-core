@@ -139,3 +139,23 @@ def verify(email, config, api):
     res = api.verify_user(verification_token)
     if res.status_code == 200:
         click.echo("Email verification successful!")
+
+
+@user_password.command
+@click.argument('email')
+@Args.config
+@Args.api
+def reset(email, config, api):
+    """Reset password for a user account"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config)
+    api.request_password_reset_token(email)
+    reset_token = input("Please enter the token we sent to you via email:")
+    password = getpass.getpass("New password: ")
+    retyped = getpass.getpass("Retype new password: ")
+    if password != retyped:
+        raise click.ClickException("Sorry, passwords do not match")
+    res = api.reset_password(reset_token, password)
+    if res.status_code == 200:
+        click.echo("Password reset successful!")
