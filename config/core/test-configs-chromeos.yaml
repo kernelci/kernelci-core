@@ -501,11 +501,11 @@ test_plans:
       <<: *cros-tast-sound-params
       fixed_kernel: true
 
-  cros-tast-ui:
+  cros-tast-ui: &cros-tast-ui
     <<: *cros-tast-base
-    params:
+    params: &cros-tast-ui-params
       <<: *cros-tast-base-params
-      tests: >
+      tests: &cros-tast-ui-tests >
         ui.DesktopControl
         ui.WindowControl
         ui.HotseatAnimation.shelf_with_navigation_widget
@@ -514,6 +514,12 @@ test_plans:
         ui.HotseatAnimation.shelf_with_navigation_widget_lacros
         ui.HotseatAnimation.non_overflow_shelf_lacros
         ui.HotseatAnimation.overflow_shelf_lacros
+
+  cros-tast-ui-fixed:
+    <<: *cros-tast-ui
+    params:
+      <<: *cros-tast-ui-params
+      fixed_kernel: true
 
   cros-tast-video: &cros-tast-video
     <<: *cros-tast-base
@@ -1062,6 +1068,8 @@ test_configs:
       - cros-tast-hardware-fixed
       - cros-tast-kernel
       - cros-tast-kernel-fixed
+      - cros-tast-mm-misc
+      - cros-tast-mm-misc-fixed
       - cros-tast-perf
       - cros-tast-perf-fixed
       - cros-tast-platform
@@ -1069,7 +1077,9 @@ test_configs:
       - cros-tast-power
       - cros-tast-power-fixed
       - cros-tast-sound
+      - cros-tast-sound-fixed
       - cros-tast-ui
+      - cros-tast-ui-fixed
       - cros-tast-video
       - cros-tast-video-fixed
 
@@ -1154,6 +1164,7 @@ test_configs:
       - cros-tast-sound
       - cros-tast-sound-fixed
       - cros-tast-ui
+      - cros-tast-ui-fixed
       - cros-tast-video
       - cros-tast-video-fixed
 
