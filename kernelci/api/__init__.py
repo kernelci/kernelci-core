@@ -144,6 +144,14 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     def update_user(self, user: dict) -> dict:
         """Update a user"""
 
+    @abc.abstractmethod
+    def request_verification_token(self, email: str):
+        """Request email verification token"""
+
+    @abc.abstractmethod
+    def verify_user(self, token: str):
+        """Verify user's email address"""
+
     # -------------------------------------------------------------------------
     # Private methods
     #
