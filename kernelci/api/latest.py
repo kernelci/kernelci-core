@@ -144,6 +144,16 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def update_user(self, user: dict) -> dict:
         return self._patch('user/me', user).json()
 
+    def request_verification_token(self, email: str):
+        return self._post('user/request-verify-token', {
+            "email": email
+        })
+
+    def verify_user(self, token: str):
+        return self._post('user/verify', {
+            "token": token
+        })
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""
