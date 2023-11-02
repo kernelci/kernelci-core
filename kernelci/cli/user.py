@@ -159,3 +159,17 @@ def reset(email, config, api):
     res = api.reset_password(reset_token, password)
     if res.status_code == 200:
         click.echo("Password reset successful!")
+
+
+@kci_user.command
+@click.argument('user_id')
+@Args.config
+@Args.api
+@Args.indent
+def get(user_id, config, api, indent):
+    """Get a user with a given ID"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config)
+    data = api.get_user(user_id)
+    click.echo(json.dumps(data, indent=indent))

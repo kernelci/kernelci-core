@@ -160,6 +160,10 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     def reset_password(self, token: str, password: str):
         """Reset password"""
 
+    @abc.abstractmethod
+    def get_user(self, user_id: str) -> dict:
+        """Get the user matching the given user id"""
+
     # -------------------------------------------------------------------------
     # Private methods
     #
