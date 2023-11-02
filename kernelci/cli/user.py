@@ -122,3 +122,20 @@ def add(username, email, config,  # pylint: disable=too-many-arguments
     api = kernelci.api.get_api(api_config, secrets.api.token)
     data = api.create_user(user)
     click.echo(json.dumps(data, indent=indent))
+
+
+@kci_user.command
+@click.argument('email')
+@Args.config
+@Args.api
+def verify(email, config, api):
+    """Email verification for a user account"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config)
+    api.request_verification_token(email)
+    verification_token = input(
+        "Please enter the token we sent to you via email:")
+    res = api.verify_user(verification_token)
+    if res.status_code == 200:
+        click.echo("Email verification successful!")
