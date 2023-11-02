@@ -165,6 +165,9 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             "password": password
         })
 
+    def get_user(self, user_id: str) -> dict:
+        return self._get(f'user/{user_id}').json()
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""
