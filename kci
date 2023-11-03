@@ -17,6 +17,7 @@ https://kernelci.org/docs/api/.
 from kernelci.cli import kci
 from kernelci.cli import (  # pylint: disable=unused-import
     docker as kci_docker,
+    storage as kci_storage,
     user as kci_user,
 )
 

@@ -39,6 +39,10 @@ class Args:  # pylint: disable=too-few-public-methods
         '-s', '--toml-settings', 'settings',
         help="Path to the TOML user settings"
     )
+    storage = click.option(
+        '--storage',
+        help="Name of the storage config entry"
+    )
     verbose = click.option(
         '-v', '--verbose/--no-verbose', default=None,
         help="Print more details output"
