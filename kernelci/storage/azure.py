@@ -30,17 +30,6 @@ class StorageAzureFiles(Storage):
             credential=self.credentials
         )
 
-    def _get_share(self):
-        share = self._service.get_share_client(share=self.config.share)
-        share_found = None
-        for item in self._service.list_shares():
-            if item['name'] == self.config.share:
-                share_found = item
-                break
-        if share_found is None:
-            share.create_share()
-        return share
-
     def _get_directory(self, share, path):
         directory = share.get_directory_client(directory_path=path)
         if not directory.exists():
@@ -48,7 +37,7 @@ class StorageAzureFiles(Storage):
         return directory
 
     def _upload(self, file_paths, dest_path):
-        share = self._get_share()
+        share = self._service.get_share_client(share=self.config.share)
         root = self._get_directory(share, dest_path or '.')
         urls = {}
         for src, dst in file_paths:
