@@ -28,7 +28,7 @@ class Args:  # pylint: disable=too-few-public-methods
         help="Name of the API config entry"
     )
     config = click.option(
-        '-c', '--yaml-config', 'config',
+        '-c', '--yaml-config', 'config', multiple=True,
         help="Path to the YAML pipeline configuration"
     )
     indent = click.option(
