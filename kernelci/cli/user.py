@@ -202,3 +202,17 @@ def update_by_username(username, email,  # pylint: disable=too-many-arguments
     user_id = users[0]["id"]
     data = api.update_user_by_id(user_id, user)
     click.echo(json.dumps(data, indent=indent))
+
+
+@kci_user.command(secrets=True)
+@click.argument('user_id')
+@Args.config
+@Args.api
+@Args.indent
+def activate(user_id, config, api, secrets, indent):
+    """[Scope: admin] Activate user account"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    data = api.update_user_by_id(user_id, {"is_active": 1})
+    click.echo(json.dumps(data, indent=indent))
