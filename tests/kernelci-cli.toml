@@ -1,5 +1,6 @@
 ["python -m pytest".hey]
 hello = 123
+many = ['a', 'bcd', 'xzy']
 
 ["python -m pytest".secrets]
 foo.bar.baz = 'FooBarBaz'

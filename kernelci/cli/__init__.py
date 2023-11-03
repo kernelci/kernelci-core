@@ -89,12 +89,17 @@ class Kci(click.Command):
 
     def invoke(self, ctx):
         path = self._walk_name(ctx)
+        params = {}
         for key, value in ctx.params.items():
-            if value is None:
-                ctx.params[key] = ctx.obj.get(*path, key)
+            if isinstance(value, (tuple, set)):
+                value = list(value)
+            if value is None or value == []:
+                value = ctx.obj.get(*path, key)
+            params[key] = value
         if self._kci_secrets:
             root = (path[0], 'secrets')
-            ctx.params['secrets'] = ctx.obj.get_secrets(ctx.params, root)
+            params['secrets'] = ctx.obj.get_secrets(params, root)
+        ctx.params = params
         super().invoke(ctx)
 
 

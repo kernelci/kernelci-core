@@ -28,16 +28,22 @@ def test_kci_command():
     @kernelci.cli.kci.command(cls=kernelci.cli.Kci, help="Unit test")
     @click.option('--hello', type=int)
     @click.option('--hack', type=str)
-    def hey(hello, hack):
+    @click.option('--many', type=str, multiple=True)
+    @click.option('--more', type=str, multiple=True)
+    def hey(hello, hack, many, more):
         assert isinstance(hello, int)
         assert hello == 123
         assert isinstance(hack, str)
         assert hack == 'Hack'
+        assert isinstance(many, list)
+        assert many == ['a', 'bcd', 'xzy']
+        assert isinstance(more, list)
+        assert more == ['xyz', 'abc']
 
     try:
         kernelci.cli.kci(args=[  # pylint: disable=no-value-for-parameter
             '--toml-settings', 'tests/kernelci-cli.toml',
-            'hey', '--hack', 'Hack'
+            'hey', '--hack', 'Hack', '--more=xyz', '--more=abc'
         ])
     except SystemExit as exc:
         if exc.code != 0:
