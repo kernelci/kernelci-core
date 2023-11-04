@@ -190,6 +190,15 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def update_user_by_id(self, user_id: str, user: dict) -> dict:
         return self._patch(f'user/{user_id}', user).json()
 
+    def update_password(self, username: str, current_password: str,
+                        new_password: str):
+        data = {
+            "username": username,
+            "password": current_password,
+            "new_password": new_password
+        }
+        return self._post('user/update-password', data, json_data=False)
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""
