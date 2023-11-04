@@ -230,3 +230,22 @@ def deactivate(user_id, config, api, secrets, indent):
     api = kernelci.api.get_api(api_config, secrets.api.token)
     data = api.update_user_by_id(user_id, {"is_active": 0})
     click.echo(json.dumps(data, indent=indent))
+
+
+@user_password.command(name='update')
+@click.argument('username')
+@Args.config
+@Args.api
+def password_update(username, config, api):
+    """Update password for a user account"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config)
+    current_password = getpass.getpass("Current password: ")
+    new_password = getpass.getpass("New password: ")
+    retyped = getpass.getpass("Retype new password: ")
+    if new_password != retyped:
+        raise click.ClickException("Sorry, passwords do not match")
+    res = api.update_password(username, current_password, new_password)
+    if res.status_code == 200:
+        click.echo("Password update successful!")
