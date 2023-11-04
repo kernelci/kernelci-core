@@ -15,6 +15,9 @@ android_variants: &android_variants
                 defconfig:
                   - 'multi_v5_defconfig'
                   - 'multi_v7_defconfig'
+                  - 'imx_v6_v7_defconfig'
+                  - 'omap2plus_defconfig'
+                  - 'vexpress_defconfig'
 # Disabling to reduce load
 #          extra_configs:
 #            - 'allmodconfig'
@@ -50,8 +53,8 @@ android_variants: &android_variants
             - 'allnoconfig'
 
 clang_android_variants: &clang_android_variants
-  clang-14:
-    build_environment: clang-14
+  clang-17:
+    build_environment: clang-17
     architectures: *architectures
 
 build_configs:
