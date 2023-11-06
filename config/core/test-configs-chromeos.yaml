@@ -413,7 +413,6 @@ test_plans:
         platform.CheckDiskSpace
         platform.CheckProcesses
         platform.CheckTracefsInstances
-        platform.ChromeMlocked
         platform.CrosDisks
         platform.CrosDisksArchive
         platform.CrosDisksFilesystem
