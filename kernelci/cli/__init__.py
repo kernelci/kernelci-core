@@ -35,6 +35,14 @@ class Args:  # pylint: disable=too-few-public-methods
         '--indent', type=int,
         help="Intentation level for structured data output"
     )
+    page_length = click.option(
+        '-l', '--page-length', type=int,
+        help="Page length in paginated data"
+    )
+    page_number = click.option(
+        '-n', '--page-number', type=int,
+        help="Page number in paginated data"
+    )
     settings = click.option(
         '-s', '--toml-settings', 'settings',
         help="Path to the TOML user settings"
@@ -190,3 +198,26 @@ def split_attributes(attributes: typing.List[str]):
         ''.join((key, opstr)): value
         for key, (opstr, value) in parsed.items()
     }
+
+
+def get_pagination(page_length: int, page_number: int):
+    """Get the offset and limit values for paginated data
+
+    Return a 2-tuple (offset, limit) which can be used with paginated data from
+    the API.  The `page_length` and `page_number` values are used to get the
+    absolute start `offset`.  The `page_length` value is the same as the
+    `limit` API value, essentially the maximum number of items per page.
+    """
+    if page_length is None:
+        page_length = 10
+    elif page_length < 1:
+        raise click.UsageError(
+            f"Page length must be at least 1, got {page_length}"
+        )
+    if page_number is None:
+        page_number = 0
+    elif page_number < 0:
+        raise click.UsageError(
+            f"Page number must be at least 0, got {page_number}"
+        )
+    return page_number * page_length, page_length
