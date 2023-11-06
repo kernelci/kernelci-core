@@ -113,3 +113,36 @@ def test_split_invalid_attributes():
     for attrs in attributes:
         with pytest.raises(click.ClickException):
             kernelci.cli.split_attributes(attrs)
+
+
+def test_pagination():
+    """Test the logic to get pagination values"""
+    values = {
+        (None, None): (0, 10),
+        (1, 0): (0, 1),
+        (1, 1): (1, 1),
+        (12, 345): (12 * 345, 12),
+        (12345, 3): (3 * 12345, 12345),
+        (4567, 0): (0, 4567),
+    }
+    for (p_len, p_num), (offset, limit) in values.items():
+        result = kernelci.cli.get_pagination(p_len, p_num)
+        assert result == (offset, limit)
+
+
+def test_invalid_pagination():
+    """Test that errors are reported with invalid pagination values"""
+    values = [
+        (0, 1),
+        (0.1, 1),
+        (-1, 0),
+        (0, 0),
+        (0, -1),
+        (1, -1),
+        (-123, -123),
+        (123, -1),
+        (0, 123),
+    ]
+    for p_len, p_num in values:
+        with pytest.raises(click.UsageError):
+            kernelci.cli.get_pagination(p_len, p_num)
