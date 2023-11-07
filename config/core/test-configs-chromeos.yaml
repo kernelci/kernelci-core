@@ -969,7 +969,7 @@ device_types:
       reference_kernel:
         image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231106.0/arm64/Image'
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231106.0/arm64/modules.tar.xz'
-        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231106.0/arm64/dtbs/mediatek/mt8192-asurada-spherion-r0.dtb'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231106.0/arm64/dtbs/mediatek/mt8195-cherry-tomato-r2.dtb'
       block_device: detect
 
 # Test plans temporarily disabled as QEMU build doesnt work
