@@ -582,7 +582,7 @@ test_plans:
 
 device_types:
 
-  acer-R721T-grunt_chromeos:
+  acer-R721T-grunt_chromeos: &chromebook-grunt-type
     base_name: acer-R721T-grunt
     mach: x86
     arch: x86_64
@@ -790,21 +790,13 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20231106.0/amd64/modules.tar.xz'
       block_device: detect
 
+  hp-14-db0003na-grunt_chromeos:
+    <<: *chromebook-grunt-type
+    base_name: hp-14-db0003na-grunt
+
   hp-11A-G6-EE-grunt_chromeos:
-    <<: *chromebook-x86-type
+    <<: *chromebook-grunt-type
     base_name: hp-11A-G6-EE-grunt
-    filters: *stoneyridge-filter
-    params:
-      <<: *chromebook-generic-params
-      cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20231106.0/amd64/'
-        flash_tarball: 'full-cros-flash.tar.gz'
-        flash_tarball_compression: 'gz'
-        tast_tarball: 'tast.tgz'
-      reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20231106.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20231106.0/amd64/modules.tar.xz'
-      block_device: detect
 
   hp-14b-na0052xx-zork_chromeos:
     <<: *chromebook-x86-type
@@ -1111,6 +1103,9 @@ test_configs:
     test_plans: *chromebook-test-plans
 
   - device_type: dell-latitude-5400-8665U-sarien_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: hp-14-db0003na-grunt_chromeos
     test_plans: *chromebook-test-plans
 
   - device_type: hp-14b-na0052xx-zork_chromeos
