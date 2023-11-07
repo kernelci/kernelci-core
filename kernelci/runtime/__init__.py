@@ -122,10 +122,12 @@ class Runtime(abc.ABC):
 
     def get_params(self, job, api_config=None):
         """Get job template parameters"""
+        instanceid = os.environ.get('KCI_INSTANCE')
         params = {
             'api_config': api_config or {},
             'storage_config': job.storage_config or {},
             'platform_config': job.platform_config.to_dict() or {},
+            'instanceid': instanceid,
             'name': job.name,
             'node': job.node,
             'runtime': self.config.lab_type,
