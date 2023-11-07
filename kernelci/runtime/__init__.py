@@ -134,6 +134,7 @@ class Runtime(abc.ABC):
             'runtime_image': job.config.image,
         }
         params.update(job.config.params)
+        params.update(job.platform_config.params)
         return params
 
     @classmethod
