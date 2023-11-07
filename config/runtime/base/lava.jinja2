@@ -15,7 +15,7 @@
 # * rootfs URL
 # * Docker image for QEMU
 
-job_name: "[KernelCI AKS] {{ node.id }} {{ node.name }} {{ node.revision.describe }}"
+job_name: "[{{ instanceid|default('KernelCI AKS')}}] {{ node.id }} {{ node.name }} {{ node.revision.describe }}"
 
 device_type: {{ platform_config.base_name|default(platform_config.name) }}
 
