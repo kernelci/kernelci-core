@@ -1,0 +1,20 @@
+- deploy:
+    kernel:
+      url: {{ node.artifacts.bzImage }}
+    modules:
+      compression: xz
+      url: {{ node.artifacts.modules }}
+    os: oe
+    ramdisk:
+      compression: gz
+      url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/x86/rootfs.cpio.gz
+    timeout:
+      minutes: 10
+    to: tftp
+- boot:
+    commands: ramdisk
+    method: depthcharge
+    prompts:
+    - '/ #'
+    timeout:
+      minutes: 5
