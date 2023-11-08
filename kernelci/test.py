@@ -111,9 +111,17 @@ def get_params(meta, target, plan_config, storage, device_id):
     variant = target.variant
     dtb = dtb_full = target.dtb
     if dtb:
+        # Find which subidrectory (if any) of the kernel output the DTB is in
+        dtb_list = meta.get_single_artifact('dtbs', attr='contents')
+        for d in dtb_list:
+            (p, f) = os.path.split(d)
+            if f == target.dtb:
+                dtb = dtb_full = d
+
+        # Add the prefix we installed the DTBs into
         dtb_dir = meta.get_single_artifact('dtbs', attr='path')
         if dtb_dir:
-            dtb = dtb_full = os.path.join(dtb_dir, target.dtb)
+            dtb = dtb_full = os.path.join(dtb_dir, dtb)
             dtb = os.path.basename(dtb)  # hack for dtbs in subfolders
     publish_path = kernel['publish_path']
     job_px = publish_path.replace('/', '-')
