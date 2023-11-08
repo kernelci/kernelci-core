@@ -111,7 +111,10 @@ def main(args):
             job.submit(results, NODE, API_CONFIG_YAML)
     except requests.exceptions.HTTPError as ex:
         print(ex, file=sys.stderr)
-        detail = ex.response.json().get('detail')
+        try:
+            detail = ex.response.json().get('detail')
+        except requests.exceptions.JSONDecodeError:
+            print(f"Non-JSON response, body: {ex.response.text}", file=sys.stderr)
         if detail:
             print(detail, file=sys.stderr)
         results = None
