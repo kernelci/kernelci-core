@@ -662,6 +662,22 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-puff/20231106.0/amd64/modules.tar.xz'
       block_device: detect
 
+  acer-cp514-2h-1160g7-volteer_chromeos: &chromebook-volteer-type
+    <<: *chromebook-x86-type
+    base_name: acer-cp514-2h-1160g7-volteer
+    filters: *pineview-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20231106.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20231106.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20231106.0/amd64/modules.tar.xz'
+      block_device: nvme0n1
+
   acer-cp514-3wh-r0qs-guybrush_chromeos:
     <<: *chromebook-x86-type
     base_name: acer-cp514-3wh-r0qs-guybrush
@@ -743,20 +759,8 @@ device_types:
       block_device: detect
 
   asus-cx9400-volteer_chromeos:
-    <<: *chromebook-x86-type
+    <<: *chromebook-volteer-type
     base_name: asus-cx9400-volteer
-    filters: *pineview-filter
-    params:
-      <<: *chromebook-generic-params
-      cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20231106.0/amd64/'
-        flash_tarball: 'full-cros-flash.tar.gz'
-        flash_tarball_compression: 'gz'
-        tast_tarball: 'tast.tgz'
-      reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20231106.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20231106.0/amd64/modules.tar.xz'
-      block_device: nvme0n1
 
   dell-latitude-5400-4305U-sarien_chromeos:
     <<: *chromebook-x86-type
@@ -1087,6 +1091,9 @@ test_configs:
     test_plans: *chromebook-test-plans
 
   - device_type: acer-chromebox-cxi4-puff_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: acer-cp514-2h-1160g7-volteer_chromeos
     test_plans: *chromebook-test-plans
 
   - device_type: acer-cp514-3wh-r0qs-guybrush_chromeos
