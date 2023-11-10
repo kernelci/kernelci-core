@@ -254,12 +254,26 @@ test_plans:
       tests: &cros-tast-mm-decode-v4l2-stateful-vp9-tests >
         video.PlatformDecoding.v4l2_stateful_vp9_0_svc
 
+  cros-tast-mm-decode-v4l2-stateless-av1: &cros-tast-mm-decode-v4l2-stateless-av1
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateless-av1-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateless-av1-tests >
+        video.PlatformDecoding.v4l2_stateless_av1_*
+
   cros-tast-mm-decode-v4l2-stateless-h264: &cros-tast-mm-decode-v4l2-stateless-h264
     <<: *cros-tast-base
     params: &cros-tast-mm-decode-v4l2-stateless-h264-params
       <<: *cros-tast-base-params
       tests: &cros-tast-mm-decode-v4l2-stateless-h264-tests >
         video.PlatformDecoding.v4l2_stateless_h264_*
+
+  cros-tast-mm-decode-v4l2-stateless-hevc: &cros-tast-mm-decode-v4l2-stateless-hevc
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateless-hevc-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateless-hevc-tests >
+        video.PlatformDecoding.v4l2_stateless_hevc_*
 
   cros-tast-mm-decode-v4l2-stateless-vp8: &cros-tast-mm-decode-v4l2-stateless-vp8
     <<: *cros-tast-base
@@ -1239,6 +1253,19 @@ test_configs:
   - device_type: mt8195-cherry-tomato-r2_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans: *chromebook-arm64-test-plans
+
+  - device_type: mt8195-cherry-tomato-r2_chromeos
+    filters: *collabora-chromeos-kernel-filter
+    test_plans:
+      - cros-tast-mm-decode
+      - cros-tast-mm-decode-v4l2-stateless-av1
+      - cros-tast-mm-decode-v4l2-stateless-h264
+      - cros-tast-mm-decode-v4l2-stateless-hevc
+      - cros-tast-mm-decode-v4l2-stateless-vp8
+      - cros-tast-mm-decode-v4l2-stateless-vp9-group1
+      - cros-tast-mm-decode-v4l2-stateless-vp9-group2
+      - cros-tast-mm-decode-v4l2-stateless-vp9-group3
+      - cros-tast-mm-decode-v4l2-stateless-vp9-group4
 
   - device_type: mt8195-cherry-tomato-r2_chromeos
     filters: *collabora-chromeos-kernel-filter
