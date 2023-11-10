@@ -141,8 +141,8 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def create_user(self, user: dict) -> dict:
         return self._post('user/register', user).json()
 
-    def update_user(self, user: dict) -> dict:
-        return self._patch('user/me', user).json()
+    def update_user(self, fields: dict, user_id: Optional[str] = None) -> dict:
+        return self._patch(f'user/{user_id or "me"}', fields).json()
 
     def request_verification_token(self, email: str):
         return self._post('user/request-verify-token', {
@@ -167,9 +167,6 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
 
     def get_user(self, user_id: str) -> dict:
         return self._get(f'user/{user_id}').json()
-
-    def update_user_by_id(self, user_id: str, user: dict) -> dict:
-        return self._patch(f'user/{user_id}', user).json()
 
     def update_password(self, username: str, current_password: str,
                         new_password: str):

@@ -141,8 +141,14 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
         """Create a new user"""
 
     @abc.abstractmethod
-    def update_user(self, user: dict) -> dict:
-        """Update a user"""
+    def update_user(self, fields: dict, user_id: Optional[str] = None) -> dict:
+        """Update a user matching the given user id with the provided fields
+
+        The `fields` dictionary contains a subset of the key/value pairs to
+        update in the user data.  If `user_id` is `None` then the current user
+        associated with the API token in the request will be used by default.
+        Updating other users requires superuser permission.
+        """
 
     @abc.abstractmethod
     def request_verification_token(self, email: str):
@@ -163,10 +169,6 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     @abc.abstractmethod
     def get_user(self, user_id: str) -> dict:
         """Get the user matching the given user id"""
-
-    @abc.abstractmethod
-    def update_user_by_id(self, user_id: str, user: dict) -> dict:
-        """Update a user matching the given user id"""
 
     @abc.abstractmethod
     def update_password(self, username: str, current_password: str,
