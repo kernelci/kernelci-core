@@ -200,7 +200,7 @@ def update_by_username(username, email,  # pylint: disable=too-many-arguments
         raise click.ClickException(
             "Sorry, user does not exist with given username")
     user_id = users[0]["id"]
-    data = api.update_user_by_id(user_id, user)
+    data = api.update_user(user, user_id)
     click.echo(json.dumps(data, indent=indent))
 
 
@@ -214,7 +214,7 @@ def activate(user_id, config, api, secrets, indent):
     configs = kernelci.config.load(config)
     api_config = configs['api'][api]
     api = kernelci.api.get_api(api_config, secrets.api.token)
-    data = api.update_user_by_id(user_id, {"is_active": 1})
+    data = api.update_user({"is_active": 1}, user_id)
     click.echo(json.dumps(data, indent=indent))
 
 
@@ -228,7 +228,7 @@ def deactivate(user_id, config, api, secrets, indent):
     configs = kernelci.config.load(config)
     api_config = configs['api'][api]
     api = kernelci.api.get_api(api_config, secrets.api.token)
-    data = api.update_user_by_id(user_id, {"is_active": 0})
+    data = api.update_user({"is_active": 0}, user_id)
     click.echo(json.dumps(data, indent=indent))
 
 
