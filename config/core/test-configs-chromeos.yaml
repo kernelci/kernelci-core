@@ -1270,7 +1270,9 @@ test_configs:
   - device_type: mt8195-cherry-tomato-r2_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans:
+      - v4l2-decoder-conformance-av1_chromeos
       - v4l2-decoder-conformance-h264_chromeos
+      - v4l2-decoder-conformance-h265_chromeos
       - v4l2-decoder-conformance-vp8_chromeos
       - v4l2-decoder-conformance-vp9_chromeos
 
