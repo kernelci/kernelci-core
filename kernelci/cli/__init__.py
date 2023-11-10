@@ -13,10 +13,13 @@ the Click framework, it adds support for loading default values and secrets
 from TOML settings.
 """
 
+import email.policy
+import functools
 import re
 import typing
 
 import click
+import requests
 
 import kernelci.settings
 
@@ -55,6 +58,28 @@ class Args:  # pylint: disable=too-few-public-methods
         '-v', '--verbose/--no-verbose', default=None,
         help="Print more details output"
     )
+
+
+def catch_http_error(func):
+    """Decorator to catch HTTPError exceptions and raise a ClickException"""
+    @functools.wraps(func)
+    def call(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except requests.exceptions.HTTPError as ex:
+            raw_content_type = ex.response.headers.get('content-type')
+            header = email.policy.EmailPolicy.header_factory(
+                'content-type', raw_content_type
+            )
+            detail = (
+                ex.response.json().get('detail')
+                if header.content_type == 'application/json'
+                else None
+            )
+            raise click.ClickException(
+                '\n'.join((str(ex), detail)) if detail else ex
+            ) from ex
+    return call
 
 
 class CommandSettings:
