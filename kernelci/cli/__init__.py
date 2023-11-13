@@ -168,6 +168,7 @@ def split_attributes(attributes: typing.List[str]):
     }
     pattern = re.compile(r'^([.a-zA-Z0-9_-]+) *([<>!=]+) *(.*)')
 
+    attributes = attributes or []
     parsed = {}
     for attribute in attributes:
         match = pattern.match(attribute)

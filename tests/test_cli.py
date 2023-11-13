@@ -73,6 +73,8 @@ def test_kci_command_with_secrets():
 def test_split_valid_attributes():
     """Test the logic to split valid attribute with operators"""
     attributes = [
+        (None, {}),
+        ([], {}),
         (['name=value'], {'name': 'value'}),
         (['name>value'], {'name__gt': 'value'}),
         (['name>=value'], {'name__gte': 'value'}),
