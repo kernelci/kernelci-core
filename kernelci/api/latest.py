@@ -37,30 +37,11 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def node_states(self):
         return NodeStates
 
-    @property
-    def security_scopes(self) -> Sequence[str]:
-        return ['users', 'admin']
-
     def hello(self) -> dict:
         return self._get('/').json()
 
     def whoami(self) -> dict:
         return self._get('/whoami').json()
-
-    def password_hash(self, password: str) -> dict:
-        return self._post('/hash', {'password': password}).json()
-
-    def change_password(self, username: str, current: str, new: str) -> dict:
-        return self._post(
-            '/password',
-            {
-                'current_password': {'password': current},
-                'new_password': {'password': new},
-            },
-            {
-                'username': username,
-            },
-        ).json()
 
     def create_token(self, username: str, password: str) -> dict:
         data = {
