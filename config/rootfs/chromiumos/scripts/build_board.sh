@@ -142,31 +142,43 @@ gzip -1 "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
 
 echo "Extracting additional artifacts"
 sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./chroot/build/${BOARD} lib/modules
-sudo cp "./chroot/build/${BOARD}/boot/vmlinuz" "${DATA_DIR}/${BOARD}/bzImage"
 sudo cp ./chroot/build/${BOARD}/boot/config* "${DATA_DIR}/${BOARD}/kernel.config"
 # Extract CR50 firmware, but dont crash in case it is missing
 sudo mv ./chroot/build/${BOARD}/opt/google/cr50/firmware/* "${DATA_DIR}/${BOARD}/" || true
 
-echo "Extracting ${BOARD} specific artifacts"
-case ${BOARD} in
-    trogdor)
-    # arm64 needs dtb to boot
-    mkdir -p ${DATA_DIR}/${BOARD}/dtbs/qcom
-    sudo cp ./chroot/build/${BOARD}/var/cache/portage/sys-kernel/chromeos-kernel-*/arch/arm64/boot/dts/qcom/*.dtb ${DATA_DIR}/${BOARD}/dtbs/qcom
-    # ARM64 depthcharge need different kernel image file
-    sudo cp ./chroot/build/${BOARD}/boot/Image* "${DATA_DIR}/${BOARD}/Image"
-    ;;
-    asurada|jacuzzi|cherry|geralt)
-    mkdir -p ${DATA_DIR}/${BOARD}/dtbs/mediatek
-    sudo cp ./chroot/build/${BOARD}/var/cache/portage/sys-kernel/*kernel*/arch/arm64/boot/dts/mediatek/*.dtb \
-	 ${DATA_DIR}/${BOARD}/dtbs/mediatek
-    sudo cp ./chroot/build/${BOARD}/boot/Image* "${DATA_DIR}/${BOARD}/Image"
-    ;;
-    *)
-    echo "No issues found for this board"
-    ;;
-esac
+# Identify baseboard and chipset
+BASEBOARD="$(grep baseboard ./src/overlays/overlay-${BOARD}/profiles/base/parent | sed 's/:.*//')"
+CHIPSET="$(grep chipset ./src/overlays/${BASEBOARD}/profiles/base/parent | sed 's/:.*//')"
+# Source chipset config for $CHROMEOS_KERNEL_ARCH
+. ./src/overlays/${CHIPSET}/profiles/base/make.defaults
 
+echo "Extracting ${BOARD} specific artifacts"
+if [ "${CHROMEOS_KERNEL_ARCH}" = "arm64" ]; then
+    for vendor in mediatek qualcomm; do
+        if echo "${USE}" | grep -q "${vendor}_cpu"; then
+            BOARD_VENDOR="${vendor}"
+            break
+        fi
+    done
+
+    if [ "${BOARD_VENDOR}" = "qualcomm" ]; then
+        BOARD_VENDOR="qcom"
+    fi
+
+    # Source the base config for $CHROMEOS_DTBS
+    . ./src/overlays/${BASEBOARD}/profiles/base/make.defaults
+
+    # ARM64 needs dtb to boot
+    mkdir -p ${DATA_DIR}/${BOARD}/dtbs/${BOARD_VENDOR}
+    sudo cp ./chroot/build/${BOARD}/var/cache/portage/sys-kernel/*kernel*/arch/arm64/boot/dts/${BOARD_VENDOR}/${CHROMEOS_DTBS} \
+            ${DATA_DIR}/${BOARD}/dtbs/${BOARD_VENDOR}
+
+    # Copy kernel image for ARM64 board
+    sudo cp ./chroot/build/${BOARD}/boot/Image* "${DATA_DIR}/${BOARD}/Image"
+else
+    # Copy kernel image for x86-64 board
+    sudo cp "./chroot/build/${BOARD}/boot/vmlinuz" "${DATA_DIR}/${BOARD}/bzImage"
+fi
 
 echo "Creating artifacts manifest file"
 python3 "${SCRIPTPATH}/create_artifacts_manifest.py" "${BOARD}" "${DATA_DIR}/${BOARD}"
