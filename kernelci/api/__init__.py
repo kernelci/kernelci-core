@@ -48,11 +48,6 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     def node_states(self):
         """An enum with all the valid node state names"""
 
-    @property
-    @abc.abstractmethod
-    def security_scopes(self) -> Sequence[str]:
-        """All the user token security scope names"""
-
     @abc.abstractmethod
     def hello(self) -> dict:
         """Get the hello message"""
@@ -60,14 +55,6 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     @abc.abstractmethod
     def whoami(self) -> dict:
         """Get information about the current user"""
-
-    @abc.abstractmethod
-    def password_hash(self, password: str) -> dict:
-        """Get an encryption hash for a given password"""
-
-    @abc.abstractmethod
-    def change_password(self, username: str, current: str, new: str) -> dict:
-        """Change a password for a given user"""
 
     @abc.abstractmethod
     def create_token(self, username: str, password: str) -> dict:
