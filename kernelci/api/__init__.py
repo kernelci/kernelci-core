@@ -108,6 +108,30 @@ class Base:
         resp.raise_for_status()
         return resp
 
+    def _get_paginated(self, input_params, path, offset=None, limit=None):
+        params = input_params.copy()
+
+        if any((offset, limit)):
+            params.update({
+                'offset': offset or None,
+                'limit': limit or None,
+            })
+            return self._get(path, params=params)
+
+        objs = []
+        offset = 0
+        limit = 100
+        params['limit'] = limit
+        while True:
+            params['offset'] = offset
+            resp = self._get(path, params=params)
+            items = resp.json()['items']
+            objs.extend(items)
+            if len(items) < limit:
+                break
+            offset += limit
+        return objs
+
 
 class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     """KernelCI API Python bindings abstraction"""
