@@ -18,8 +18,8 @@ import requests
 import kernelci.config.api
 
 
-class API(abc.ABC):  # pylint: disable=too-many-public-methods
-    """Base class for the KernelCI API Python bindings"""
+class Data:
+    """Convenience class to keep common data in API bindings implementation"""
 
     def __init__(self, config: kernelci.config.api.API, token: str):
         self._config = config
@@ -31,8 +31,95 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
 
     @property
     def config(self) -> kernelci.config.api.API:
-        """API configuration data"""
+        """API config object"""
         return self._config
+
+    @property
+    def timeout(self) -> float:
+        """Timeout duration in seconds"""
+        return self._timeout
+
+    @property
+    def headers(self) -> dict:
+        """HTTP headers with content type, authorization token etc."""
+        return self._headers
+
+
+class Base:
+    """Common primitive methods used in API bindings implementation"""
+
+    def __init__(self, data: Data):
+        self._data = data
+
+    @property
+    def data(self) -> Data:
+        """Internal Data object instance"""
+        return self._data
+
+    def make_url(self, path: str) -> str:
+        """Make a full URL for a given API endpoint path"""
+        version_path = '/'.join((self.data.config.version, path))
+        return urllib.parse.urljoin(self.data.config.url, version_path)
+
+    def _get(self, path, params=None):
+        url = self.make_url(path)
+        resp = requests.get(
+            url, params, headers=self.data.headers,
+            timeout=self.data.timeout
+        )
+        resp.raise_for_status()
+        return resp
+
+    def _post(self, path, data=None, params=None, json_data=True):
+        url = self.make_url(path)
+        if json_data:
+            jdata = json.dumps(data)
+            resp = requests.post(
+                url, jdata, headers=self.data.headers,
+                params=params, timeout=self.data.timeout
+            )
+        else:
+            headers = self.data.headers.copy()
+            headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            resp = requests.post(
+                url, data, headers=headers,
+                params=params, timeout=self.data.timeout
+            )
+        resp.raise_for_status()
+        return resp
+
+    def _put(self, path, data=None, params=None):
+        url = self.make_url(path)
+        jdata = json.dumps(data)
+        resp = requests.put(
+            url, jdata, headers=self.data.headers,
+            params=params, timeout=self.data.timeout
+        )
+        resp.raise_for_status()
+        return resp
+
+    def _patch(self, path, data=None, params=None):
+        url = self.make_url(path)
+        jdata = json.dumps(data)
+        resp = requests.patch(
+            url, jdata, headers=self.data.headers,
+            params=params, timeout=self.data.timeout
+        )
+        resp.raise_for_status()
+        return resp
+
+
+class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
+    """KernelCI API Python bindings abstraction"""
+
+    def __init__(self, config: kernelci.config.api.API, token: str):
+        data = Data(config, token)
+        Base.__init__(self, data)
+
+    @property
+    def config(self) -> kernelci.config.api.API:
+        """API configuration data"""
+        return self.data.config
 
     # -------------------------------------------------------------------------
     # Abstract interface to be implemented
@@ -174,59 +261,6 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     def update_password(self, username: str, current_password: str,
                         new_password: str):
         """Update password"""
-
-    # -------------------------------------------------------------------------
-    # Private methods
-    #
-
-    def _make_url(self, path):
-        version_path = '/'.join((self.config.version, path))
-        return urllib.parse.urljoin(self.config.url, version_path)
-
-    def _get(self, path, params=None):
-        url = self._make_url(path)
-        resp = requests.get(
-            url, params, headers=self._headers, timeout=self._timeout
-        )
-        resp.raise_for_status()
-        return resp
-
-    def _post(self, path, data=None, params=None, json_data=True):
-        url = self._make_url(path)
-        if json_data:
-            jdata = json.dumps(data)
-            resp = requests.post(
-                url, jdata, headers=self._headers,
-                params=params, timeout=self._timeout
-            )
-        else:
-            self._headers['Content-Type'] = 'application/x-www-form-urlencoded'
-            resp = requests.post(
-                url, data, headers=self._headers,
-                params=params, timeout=self._timeout
-            )
-        resp.raise_for_status()
-        return resp
-
-    def _put(self, path, data=None, params=None):
-        url = self._make_url(path)
-        jdata = json.dumps(data)
-        resp = requests.put(
-            url, jdata, headers=self._headers,
-            params=params, timeout=self._timeout
-        )
-        resp.raise_for_status()
-        return resp
-
-    def _patch(self, path, data=None, params=None):
-        url = self._make_url(path)
-        jdata = json.dumps(data)
-        resp = requests.patch(
-            url, jdata, headers=self._headers,
-            params=params, timeout=self._timeout
-        )
-        resp.raise_for_status()
-        return resp
 
 
 def get_api(config, token=None):
