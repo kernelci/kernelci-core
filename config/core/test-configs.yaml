@@ -2514,6 +2514,7 @@ test_configs:
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-kcmp
+      - kselftest-landlock
       - kselftest-lib
       - kselftest-membarrier
       - kselftest-mincore
