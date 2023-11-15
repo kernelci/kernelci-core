@@ -765,6 +765,7 @@ build_configs_defaults:
 # Disabling to reduce load
 #            - 'allmodconfig'
             - 'allnoconfig'
+            - 'virtconfig'
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'defconfig+arm64-chromebook+kselftest'
 # Disabling to reduce load
@@ -818,6 +819,7 @@ arch_clang_configs: &arch_clang_configs
 #      - 'allmodconfig'
       - 'allnoconfig'
       - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
+      - 'virtconfig'
   arm:
     base_defconfig: 'multi_v7_defconfig'
     filters:
@@ -1275,6 +1277,7 @@ build_configs:
 # Disabling to reduce load
 #              - 'allmodconfig'
               - 'allnoconfig'
+              - 'virtconfig'
               - 'defconfig+CONFIG_ARM64_16K_PAGES=y'
               - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
               - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
