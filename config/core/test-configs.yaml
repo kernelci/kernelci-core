@@ -2998,6 +2998,7 @@ test_configs:
       - kselftest-cpufreq
       - kselftest-futex
       - kselftest-kvm
+      - kselftest-landlock
       - kselftest-lib
       - kselftest-seccomp
       - ltp-crypto
