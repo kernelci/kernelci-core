@@ -3055,6 +3055,7 @@ test_configs:
       - igt-kms-mediatek
       - kselftest-arm64
       - kselftest-cpufreq
+      - kselftest-dt
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -3084,6 +3085,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-cpufreq
+      - kselftest-dt
       - kselftest-lkdtm
       - kselftest-rtc
       - kselftest-seccomp
@@ -3103,6 +3105,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-cpufreq
+      - kselftest-dt
       - kselftest-lkdtm
       - kselftest-rtc
       - kselftest-seccomp
@@ -3125,6 +3128,7 @@ test_configs:
   - device_type: mt8195-cherry-tomato-r2
     test_plans:
       - baseline
+      - kselftest-dt
 
   - device_type: mt8195-cherry-tomato-r2
     test_plans:
@@ -3413,6 +3417,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest-alsa
+      - kselftest-dt
       - kselftest-tpm2
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
@@ -3425,6 +3430,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest-alsa
+      - kselftest-dt
       - kselftest-tpm2
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
@@ -3441,6 +3447,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-cpufreq
+      - kselftest-dt
       - kselftest-rtc
       - kselftest-timens
       - kselftest-timers
