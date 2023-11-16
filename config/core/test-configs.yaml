@@ -3120,7 +3120,9 @@ test_configs:
 
   - device_type: mt8195-cherry-tomato-r2
     test_plans:
+      - v4l2-decoder-conformance-av1
       - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
     filters: *chromebook-decoders-filter
