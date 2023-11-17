@@ -18,9 +18,9 @@ android_variants: &android_variants
                   - 'imx_v6_v7_defconfig'
                   - 'omap2plus_defconfig'
                   - 'vexpress_defconfig'
+          extra_configs:
+            - 'allmodconfig'
 # Disabling to reduce load
-#          extra_configs:
-#            - 'allmodconfig'
 #            - 'allnoconfig'
 #            - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
 #            - 'multi_v7_defconfig+CONFIG_SMP=n'
@@ -29,8 +29,7 @@ android_variants: &android_variants
 
         arm64: &arm64_arch
           extra_configs:
-# Disabling to reduce load
-#            - 'allmodconfig'
+            - 'allmodconfig'
             - 'allnoconfig'
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
@@ -48,8 +47,7 @@ android_variants: &android_variants
         x86_64: &x86_64_arch
           base_defconfig: 'x86_64_defconfig'
           extra_configs:
-# Disabling to reduce load
-#            - 'allmodconfig'
+            - 'allmodconfig'
             - 'allnoconfig'
 
 clang_android_variants: &clang_android_variants
