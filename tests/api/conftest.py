@@ -260,7 +260,7 @@ def mock_api_unsubscribe(mocker):
 def mock_api_get_node_from_id(mocker):
     """Mocks call to LatestAPI class method used to get node from node ID"""
     mocker.patch(
-        'kernelci.api.latest.LatestAPI.get_node',
+        'kernelci.api.latest.LatestAPI.Node.get',
         return_value=APIHelperTestData().checkout_node,
     )
 

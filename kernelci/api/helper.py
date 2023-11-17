@@ -51,7 +51,7 @@ class APIHelper:
     def get_node_from_event(self, event_data):
         """Listen for an event and get the matching node object from it"""
         if 'id' in event_data:
-            return self.api.get_node(event_data['id'])
+            return self.api.node.get(event_data['id'])
         return None
 
     def pubsub_event_filter(self, sub_id, event):
@@ -169,7 +169,7 @@ class APIHelper:
             'node': root_node,
             'child_nodes': results['child_nodes'],
         }
-        parent = self.api.get_node(root['parent'])
+        parent = self.api.node.get(root['parent'])
         base = {
             'revision': root['revision'],
             'group': root['name'],
