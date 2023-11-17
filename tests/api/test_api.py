@@ -248,7 +248,7 @@ def test_prepare_results(get_api_config, mock_api_get_node_from_id):
             'group': root['name'],
             'state': 'done',
         }
-        parent = api.get_node(root['parent'])
+        parent = api.node.get(root['parent'])
         resp = helper._prepare_results(  # pylint: disable=protected-access
             results, parent, base
         )

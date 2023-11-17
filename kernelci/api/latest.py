@@ -7,7 +7,7 @@
 
 import enum
 import json
-from typing import Optional, Sequence
+from typing import Dict, Optional, Sequence
 
 from cloudevents.http import from_json
 
@@ -34,10 +34,6 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def version(self) -> str:
         return self.config.version
 
-    @property
-    def node_states(self):
-        return NodeStates
-
     def hello(self) -> dict:
         return self._get('/').json()
 
@@ -50,6 +46,32 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             'password': password,
         }
         return self._post('/user/login', data, json_data=False).json()
+
+    class Node(API.Node):
+        """Node bindings for the latest API version"""
+
+        @property
+        def states(self):
+            return NodeStates
+
+        def get(self, node_id: str) -> dict:
+            return self._get(f'node/{node_id}').json()
+
+        def find(
+            self, attributes: Dict[str, str],
+            offset: Optional[int] = None, limit: Optional[int] = None
+        ) -> Sequence[dict]:
+            params = attributes.copy() if attributes else {}
+            return self._get_paginated(params, 'nodes', offset, limit)
+
+        def count(self, attributes: dict) -> int:
+            return self._get('count', params=attributes).json()
+
+        def add(self, node: dict) -> dict:
+            return self._post('node', node).json()
+
+        def update(self, node: dict) -> dict:
+            return self._put('/'.join(['node', node['id']]), node).json()
 
     def subscribe(self, channel: str) -> int:
         resp = self._post(f'subscribe/{channel}')
@@ -83,25 +105,6 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             data = json.dumps(resp.json())
             event = from_json(data)
             return event
-
-    def get_node(self, node_id: str) -> dict:
-        return self._get(f'node/{node_id}').json()
-
-    def get_nodes(
-        self, attributes: dict,
-        offset: Optional[int] = None, limit: Optional[int] = None
-    ) -> Sequence[dict]:
-        params = attributes.copy() if attributes else {}
-        return self._get_paginated(params, 'nodes', offset, limit)
-
-    def count_nodes(self, attributes: dict) -> int:
-        return self._get('count', params=attributes).json()
-
-    def create_node(self, node: dict) -> dict:
-        return self._post('node', node).json()
-
-    def update_node(self, node: dict) -> dict:
-        return self._put('/'.join(['node', node['id']]), node).json()
 
     def get_group(self, group_id: str) -> dict:
         return self._get(f'group/{group_id}').json()

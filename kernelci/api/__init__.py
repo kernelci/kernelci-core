@@ -10,7 +10,7 @@ import enum
 import importlib
 import json
 import urllib
-from typing import Optional, Sequence
+from typing import Dict, Optional, Sequence
 
 from cloudevents.http import CloudEvent
 import requests
@@ -147,9 +147,11 @@ class Base:
 class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     """KernelCI API Python bindings abstraction"""
 
+    # pylint: disable=abstract-class-instantiated
     def __init__(self, config: kernelci.config.api.API, token: str):
         data = Data(config, token)
         Base.__init__(self, data)
+        self._node = self.Node(self.data)  # type: ignore[abstract]
 
     @property
     def config(self) -> kernelci.config.api.API:
@@ -165,11 +167,6 @@ class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     def version(self) -> str:
         """API version"""
 
-    @property
-    @abc.abstractmethod
-    def node_states(self):
-        """An enum with all the valid node state names"""
-
     @abc.abstractmethod
     def hello(self) -> dict:
         """Get the hello message"""
@@ -181,6 +178,42 @@ class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     @abc.abstractmethod
     def create_token(self, username: str, password: str) -> dict:
         """Create a new API token for the current user"""
+
+    class Node(abc.ABC, Base):
+        """Interface to manage node objects"""
+
+        @property
+        @abc.abstractmethod
+        def states(self):
+            """An enum with all the valid node state names"""
+
+        @abc.abstractmethod
+        def get(self, node_id: str) -> dict:
+            """Get the node matching the given node id"""
+
+        @abc.abstractmethod
+        def find(
+            self, attributes: Dict[str, str],
+            offset: Optional[int] = None, limit: Optional[int] = None
+        ) -> Sequence[dict]:
+            """Find nodes that match the provided attributes"""
+
+        @abc.abstractmethod
+        def count(self, attributes: dict) -> int:
+            """Count nodes that match the provided attributes"""
+
+        @abc.abstractmethod
+        def add(self, node: dict) -> dict:
+            """Create a new node object (no id)"""
+
+        @abc.abstractmethod
+        def update(self, node: dict) -> dict:
+            """Update an existing node object (with id)"""
+
+    @property
+    def node(self) -> Node:
+        """API.Node part of the interface"""
+        return self._node
 
     # -------
     # Pub/Sub
@@ -212,33 +245,6 @@ class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     @abc.abstractmethod
     def pop_event(self, list_name: str) -> CloudEvent:
         """Listen and pop an event from a given List"""
-
-    # -----
-    # Nodes
-    # -----
-
-    @abc.abstractmethod
-    def get_node(self, node_id: str) -> dict:
-        """Get the node matching the given node id"""
-
-    @abc.abstractmethod
-    def get_nodes(
-        self, attributes: dict,
-        offset: Optional[int] = None, limit: Optional[int] = None
-    ) -> Sequence[dict]:
-        """Get nodes that match the provided attributes"""
-
-    @abc.abstractmethod
-    def count_nodes(self, attributes: dict) -> int:
-        """Count nodes that match the provided attributes"""
-
-    @abc.abstractmethod
-    def create_node(self, node: dict) -> dict:
-        """Create a new node object (no id)"""
-
-    @abc.abstractmethod
-    def update_node(self, node: dict) -> dict:
-        """Update an existing node object (with id)"""
 
     # -----------
     # User groups
