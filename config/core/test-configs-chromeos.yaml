@@ -383,8 +383,10 @@ test_plans:
         ui.IdlePerf
         ui.DesksAnimationPerf
         ui.DragTabInTabletPerf.touch
+        ui.OverviewWithExpandedDesksBarPerf
         filemanager.UIPerf.directory_list
         filemanager.UIPerf.list_apps
+        settings.DeviceMouseScrollAcceleration
 
   cros-tast-perf-fixed:
     <<: *cros-tast-perf
@@ -404,6 +406,7 @@ test_plans:
         ui.DragTabInClamshellPerf
         ui.DragTabInTabletPerf
         filemanager.ZipPerf
+        storage.WriteZeroPerf
 
   cros-tast-perf_qemu:
     <<: *cros-tast-base-qemu
@@ -437,10 +440,14 @@ test_plans:
         platform.Memd
         platform.Mtpd
         platform.TPMResponsive
+        platform.TPMStatus
         platform.CheckDiskSpace
         platform.CheckProcesses
         platform.DeviceHwid
         platform.SerialNumber
+        storage.HealthInfo
+        storage.InternalStorage
+        storage.LowPowerStateResidence
 
 
   cros-tast-platform-fixed:
