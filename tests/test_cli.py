@@ -8,6 +8,7 @@
 import pytest
 
 import click
+import requests
 
 import kernelci.cli
 import kernelci.settings
@@ -87,9 +88,10 @@ def test_split_valid_attributes():
         (['a=b', 'c=123', 'x3 = 1.2', 'abc >= 4', 'z != x[2]'], {
             'a': 'b', 'c': '123', 'x3': '1.2', 'abc__gte': '4', 'z__ne': 'x[2]'
         }),
+        (['x>=1', 'x<=3'], {'x__gte': '1', 'x__lte': '3'}),
+        (['foo=bar', 'foo=baz', 'foo=zap'], {'foo': ['bar', 'baz', 'zap']}),
     ]
     for attrs, parsed in attributes:
-        print(attrs, parsed)
         result = kernelci.cli.split_attributes(attrs)
         assert result == parsed
 
@@ -107,12 +109,26 @@ def test_split_invalid_attributes():
         ['foo=<bar'],
         ['foo<>bar'],
         ['foo=!bar'],
-        ['a=1', 'a=again'],
-        ['key = 123', 'key >= 456']
     ]
     for attrs in attributes:
         with pytest.raises(click.ClickException):
             kernelci.cli.split_attributes(attrs)
+
+
+def test_split_attributes_request():
+    """Test the generated URL with parameters from split attributes"""
+    attributes = [
+        (['x=y'], '/?x=y'),
+        (['x >= 2'], '/?x__gte=2'),
+        (['x >= 2', 'x != 3'], '/?x__gte=2&x__ne=3'),
+        (['x >= 2', 'y < 5'], '/?x__gte=2&y__lt=5'),
+        (['name=bob', 'name=alice'], '/?name=bob&name=alice'),
+    ]
+    for attrs, path in attributes:
+        params = kernelci.cli.split_attributes(attrs)
+        req = requests.Request('GET', 'http://a.b', params=params)
+        prepared = req.prepare()
+        assert prepared.path_url == path
 
 
 def test_pagination():

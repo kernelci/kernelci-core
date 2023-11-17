@@ -208,20 +208,14 @@ def split_attributes(attributes: typing.List[str]):
         if not match:
             raise click.ClickException(f"Invalid attribute: {attribute}")
         name, operator, value = match.groups()
-        ex_op, ex_value = parsed.get(name, (None, None))
-        if ex_value:
-            raise click.ClickException(
-                f"Conflicting values for {name}: \
-                {name}{value}, {ex_op}{ex_value}"
-            )
         opstr = operators.get(operator)
         if opstr is None:
             raise click.ClickException(f"Invalid operator: {operator}")
-        parsed[name] = (opstr, value)
+        parsed.setdefault(''.join((name, opstr)), []).append(value)
 
     return {
-        ''.join((key, opstr)): value
-        for key, (opstr, value) in parsed.items()
+        name: value[0] if len(value) == 1 else value
+        for name, value in parsed.items()
     }
 
 
