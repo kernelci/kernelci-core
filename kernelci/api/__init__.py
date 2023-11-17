@@ -152,6 +152,7 @@ class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
         data = Data(config, token)
         Base.__init__(self, data)
         self._node = self.Node(self.data)  # type: ignore[abstract]
+        self._user = self.User(self.data)  # type: ignore[abstract]
 
     @property
     def config(self) -> kernelci.config.api.API:
@@ -171,13 +172,67 @@ class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     def hello(self) -> dict:
         """Get the hello message"""
 
-    @abc.abstractmethod
-    def whoami(self) -> dict:
-        """Get information about the current user"""
+    class User(abc.ABC, Base):
+        """Interface to manage API user accounts"""
 
-    @abc.abstractmethod
-    def create_token(self, username: str, password: str) -> dict:
-        """Create a new API token for the current user"""
+        @abc.abstractmethod
+        def whoami(self) -> dict:
+            """Get information about the current user"""
+
+        @abc.abstractmethod
+        def create_token(self, username: str, password: str) -> dict:
+            """Create a new API token for the current user"""
+
+        @abc.abstractmethod
+        def get(self, user_id: str) -> dict:
+            """Get the user matching the given user id"""
+
+        @abc.abstractmethod
+        def find(
+            self, attributes: Dict[str, str],
+            offset: Optional[int] = None, limit: Optional[int] = None
+        ) -> Sequence[dict]:
+            """Find user accounts that match the provided attributes"""
+
+        @abc.abstractmethod
+        def add(self, user: dict) -> dict:
+            """Create a new user"""
+
+        @abc.abstractmethod
+        def update(self, fields: dict, user_id: Optional[str] = None) -> dict:
+            """Update a user matching with the provided fields
+
+            The `fields` dictionary contains a subset of the key/value pairs to
+            update in the user data.  If `user_id` is `None` then the current
+            user associated with the API token in the request will be used by
+            default.  Updating other users requires superuser permission.
+            """
+
+        @abc.abstractmethod
+        def request_verification_token(self, email: str):
+            """Request an email verification token"""
+
+        @abc.abstractmethod
+        def verify_email(self, token: str):
+            """Verify the user's email address"""
+
+        @abc.abstractmethod
+        def request_password_reset_token(self, email: str):
+            """Request password reset token to be sent by email"""
+
+        @abc.abstractmethod
+        def reset_password(self, token: str, password: str):
+            """Reset password"""
+
+        @abc.abstractmethod
+        def update_password(self, username: str, current_password: str,
+                            new_password: str):
+            """Update a user's password"""
+
+    @property
+    def user(self) -> User:
+        """API.User part of the interface"""
+        return self._user
 
     class Node(abc.ABC, Base):
         """Interface to manage node objects"""
@@ -268,56 +323,6 @@ class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     @abc.abstractmethod
     def delete_group(self, group_id: str):
         """Delete a new group"""
-
-    # -------------
-    # User accounts
-    # -------------
-
-    @abc.abstractmethod
-    def get_users(
-        self, attributes: dict,
-        offset: Optional[int] = None, limit: Optional[int] = None
-    ) -> Sequence[dict]:
-        """Get user accounts that match the provided attributes"""
-
-    @abc.abstractmethod
-    def create_user(self, user: dict) -> dict:
-        """Create a new user"""
-
-    @abc.abstractmethod
-    def update_user(self, fields: dict, user_id: Optional[str] = None) -> dict:
-        """Update a user matching the given user id with the provided fields
-
-        The `fields` dictionary contains a subset of the key/value pairs to
-        update in the user data.  If `user_id` is `None` then the current user
-        associated with the API token in the request will be used by default.
-        Updating other users requires superuser permission.
-        """
-
-    @abc.abstractmethod
-    def request_verification_token(self, email: str):
-        """Request email verification token"""
-
-    @abc.abstractmethod
-    def verify_user(self, token: str):
-        """Verify user's email address"""
-
-    @abc.abstractmethod
-    def request_password_reset_token(self, email: str):
-        """Request password reset token"""
-
-    @abc.abstractmethod
-    def reset_password(self, token: str, password: str):
-        """Reset password"""
-
-    @abc.abstractmethod
-    def get_user(self, user_id: str) -> dict:
-        """Get the user matching the given user id"""
-
-    @abc.abstractmethod
-    def update_password(self, username: str, current_password: str,
-                        new_password: str):
-        """Update password"""
 
 
 def get_api(config, token=None):

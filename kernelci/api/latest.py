@@ -37,15 +37,64 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def hello(self) -> dict:
         return self._get('/').json()
 
-    def whoami(self) -> dict:
-        return self._get('/whoami').json()
+    class User(API.User):
+        """User bindings for the latest API version"""
 
-    def create_token(self, username: str, password: str) -> dict:
-        data = {
-            'username': username,
-            'password': password,
-        }
-        return self._post('/user/login', data, json_data=False).json()
+        def whoami(self) -> dict:
+            return self._get('/whoami').json()
+
+        def create_token(self, username: str, password: str) -> dict:
+            data = {
+                'username': username,
+                'password': password,
+            }
+            return self._post('/user/login', data, json_data=False).json()
+
+        def get(self, user_id: str) -> dict:
+            return self._get(f'user/{user_id}').json()
+
+        def find(
+            self, attributes: Dict[str, str],
+            offset: Optional[int] = None, limit: Optional[int] = None
+        ) -> Sequence[dict]:
+            params = attributes.copy() if attributes else {}
+            return self._get_paginated(params, 'users', offset, limit)
+
+        def add(self, user: dict) -> dict:
+            return self._post('user/register', user).json()
+
+        def update(self, fields: dict, user_id: Optional[str] = None) -> dict:
+            return self._patch(f'user/{user_id or "me"}', fields).json()
+
+        def request_verification_token(self, email: str):
+            return self._post('user/request-verify-token', {
+                "email": email
+            })
+
+        def verify_email(self, token: str):
+            return self._post('user/verify', {
+                "token": token
+            })
+
+        def request_password_reset_token(self, email: str):
+            return self._post('user/forgot-password', {
+                "email": email
+            })
+
+        def reset_password(self, token: str, password: str):
+            return self._post('user/reset-password', {
+                "token": token,
+                "password": password
+            })
+
+        def update_password(self, username: str, current_password: str,
+                            new_password: str):
+            data = {
+                "username": username,
+                "password": current_password,
+                "new_password": new_password
+            }
+            return self._post('user/update-password', data, json_data=False)
 
     class Node(API.Node):
         """Node bindings for the latest API version"""
@@ -115,52 +164,6 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     ) -> Sequence[dict]:
         params = attributes.copy() if attributes else {}
         return self._get_paginated(params, 'groups', offset, limit)
-
-    def get_users(
-        self, attributes: dict,
-        offset: Optional[int] = None, limit: Optional[int] = None
-    ) -> Sequence[dict]:
-        params = attributes.copy() if attributes else {}
-        return self._get_paginated(params, 'users', offset, limit)
-
-    def create_user(self, user: dict) -> dict:
-        return self._post('user/register', user).json()
-
-    def update_user(self, fields: dict, user_id: Optional[str] = None) -> dict:
-        return self._patch(f'user/{user_id or "me"}', fields).json()
-
-    def request_verification_token(self, email: str):
-        return self._post('user/request-verify-token', {
-            "email": email
-        })
-
-    def verify_user(self, token: str):
-        return self._post('user/verify', {
-            "token": token
-        })
-
-    def request_password_reset_token(self, email: str):
-        return self._post('user/forgot-password', {
-            "email": email
-        })
-
-    def reset_password(self, token: str, password: str):
-        return self._post('user/reset-password', {
-            "token": token,
-            "password": password
-        })
-
-    def get_user(self, user_id: str) -> dict:
-        return self._get(f'user/{user_id}').json()
-
-    def update_password(self, username: str, current_password: str,
-                        new_password: str):
-        data = {
-            "username": username,
-            "password": current_password,
-            "new_password": new_password
-        }
-        return self._post('user/update-password', data, json_data=False)
 
     def create_group(self, name: str) -> dict:
         return self._post('group', {"name": name}).json()
