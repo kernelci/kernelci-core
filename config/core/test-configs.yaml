@@ -2478,6 +2478,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-dt
 
   - device_type: bcm2711-rpi-4-b
     test_plans:
@@ -2518,6 +2519,7 @@ test_configs:
       - kselftest-capabilities
       - kselftest-cgroup
       - kselftest-clone3
+      - kselftest-dt
       - kselftest-exec
       - kselftest-filesystems
       - kselftest-futex
@@ -2753,6 +2755,7 @@ test_configs:
       - baseline-nfs
       - igt-gpu-etnaviv
       - kselftest-alsa
+      - kselftest-dt
       - ltp-crypto
 
   - device_type: imx6q-nitrogen6x
@@ -2786,6 +2789,7 @@ test_configs:
       - baseline-nfs
       - igt-gpu-etnaviv
       - kselftest-alsa
+      - kselftest-dt
       - ltp-crypto
 
   - device_type: imx6q-var-dt6customboard
@@ -2848,6 +2852,7 @@ test_configs:
       - baseline-nfs
       - igt-gpu-etnaviv
       - kselftest-alsa
+      - kselftest-dt
 
   - device_type: imx8mp-verdin-nonwifi-dahlia
     test_plans:
@@ -2856,6 +2861,7 @@ test_configs:
       - igt-gpu-etnaviv
       - kselftest-alsa
       - kselftest-clone3
+      - kselftest-dt
 
   - device_type: imx8mq-zii-ultra-zest
     test_plans:
@@ -2875,6 +2881,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-cpufreq
+      - kselftest-dt
       - ltp-crypto
       # ltp-mm - runs system out of memory
       - smc
@@ -3004,6 +3011,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-cpufreq
+      - kselftest-dt
       - kselftest-futex
       - kselftest-kvm
       - kselftest-lib
@@ -3507,6 +3515,7 @@ test_configs:
       - igt-gpu-lima
       - kselftest-arm64
       - kselftest-cpufreq
+      - kselftest-dt
       - kselftest-rtc
       - ltp-crypto
       # ltp-mm - runs system out of memory
@@ -3520,6 +3529,7 @@ test_configs:
       - kselftest-arm64
       - kselftest-capabilities
       - kselftest-cpufreq
+      - kselftest-dt
       - kselftest-kvm
       - kselftest-rseq
       - kselftest-sigaltstack
