@@ -19,6 +19,7 @@ from kernelci.cli import (  # pylint: disable=unused-import
     api as kci_api,
     config as kci_config,
     docker as kci_docker,
+    event as kci_event,
     storage as kci_storage,
     user as kci_user,
 )
