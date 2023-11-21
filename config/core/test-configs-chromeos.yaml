@@ -380,7 +380,6 @@ test_plans:
     params: &cros-tast-perf-params
       <<: *cros-tast-base-params
       tests: &cros-tast-perf-tests >
-        ui.IdlePerf
         ui.DesksAnimationPerf
         ui.DragTabInTabletPerf.touch
         ui.OverviewWithExpandedDesksBarPerf
