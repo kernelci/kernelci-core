@@ -381,23 +381,29 @@ test_plans:
       <<: *cros-tast-base-params
       tests: &cros-tast-perf-tests >
         ui.IdlePerf
-        ui.WindowCyclePerf
-        ui.WindowResizePerf
-        ui.BubbleLauncherAnimationPerf
         ui.DesksAnimationPerf
-        ui.DragMaximizedWindowPerf
-        ui.DragTabInClamshellPerf
-        ui.DragTabInTabletPerf
         ui.DragTabInTabletPerf.touch
         filemanager.UIPerf.directory_list
         filemanager.UIPerf.list_apps
-        filemanager.ZipPerf
 
   cros-tast-perf-fixed:
     <<: *cros-tast-perf
     params:
       <<: *cros-tast-perf-params
       fixed_kernel: true
+
+  cros-tast-perf-long-duration:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests:
+        ui.WindowCyclePerf
+        ui.WindowResizePerf
+        ui.BubbleLauncherAnimationPerf
+        ui.DragMaximizedWindowPerf
+        ui.DragTabInClamshellPerf
+        ui.DragTabInTabletPerf
+        filemanager.ZipPerf
 
   cros-tast-perf_qemu:
     <<: *cros-tast-base-qemu
@@ -1072,6 +1078,7 @@ test_configs:
       - cros-tast-mm-misc-fixed
       - cros-tast-perf
       - cros-tast-perf-fixed
+      - cros-tast-perf-long-duration
       - cros-tast-platform
       - cros-tast-platform-fixed
       - cros-tast-power
@@ -1157,6 +1164,7 @@ test_configs:
       - cros-tast-mm-misc-fixed
       - cros-tast-perf
       - cros-tast-perf-fixed
+      - cros-tast-perf-long-duration
       - cros-tast-platform
       - cros-tast-platform-fixed
       - cros-tast-power
