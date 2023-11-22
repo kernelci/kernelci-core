@@ -12,7 +12,6 @@ from .base import Args, Command, parse_opts, sub_main
 from . import (
     api,
     job,
-    node,
     sched,
     show,
     storage,
@@ -22,7 +21,6 @@ from . import (
 _COMMANDS = {
     'api': api.main,
     'job': job.main,
-    'node': node.main,
     'sched': sched.main,
     'show': show.main,
     'storage': storage.main,
