@@ -43,6 +43,10 @@ class APIHelper:
         """Receive CloudEvent from Pub/Sub and return its data payload"""
         return self.api.receive_event(sub_id).data
 
+    def pop_event_data(self, list_name):
+        """Receive CloudEvent from Redis list and return its data payload"""
+        return self.api.pop_event(list_name).data
+
     def get_node_from_event(self, event_data):
         """Listen for an event and get the matching node object from it"""
         if 'id' in event_data:

@@ -196,6 +196,14 @@ class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     def receive_event(self, sub_id: int) -> CloudEvent:
         """Listen and receive an event from a given subscription id"""
 
+    @abc.abstractmethod
+    def push_event(self, list_name: str, data):
+        """Push an event to a given Redis List"""
+
+    @abc.abstractmethod
+    def pop_event(self, list_name: str) -> CloudEvent:
+        """Listen and pop an event from a given List"""
+
     # -----
     # Nodes
     # -----

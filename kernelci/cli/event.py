@@ -81,3 +81,39 @@ def receive(config, api, indent, sub_id, secrets):
         click.echo(json.dumps(event, indent=indent))
     else:
         click.echo(event)
+
+
+@kci_event.command(secrets=True)
+@click.option('--is-json', help="Parse input data as JSON", is_flag=True)
+@Args.config
+@Args.api
+@click.argument('list_name')
+def push(config, api, is_json, list_name, secrets):
+    """Read some data on stdin and push it as an event on a list"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    data = sys.stdin.read()
+    if is_json:
+        data = json.loads(data)
+    api.push_event(list_name, {'data': data})
+
+
+@kci_event.command(secrets=True)
+@click.argument('list_name')
+@Args.config
+@Args.api
+@Args.indent
+def pop(config, api, indent, list_name, secrets):
+    """Wait and pop an event from a List when received print on stdout"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    helper = kernelci.api.helper.APIHelper(api)
+    event = helper.pop_event_data(list_name)
+    if isinstance(event, str):
+        click.echo(event.strip())
+    elif isinstance(event, dict):
+        click.echo(json.dumps(event, indent=indent))
+    else:
+        click.echo(event)
