@@ -6,6 +6,7 @@
 """KernelCI API bindings for the latest version"""
 
 import enum
+import json
 from typing import Optional, Sequence
 
 from cloudevents.http import from_json
@@ -70,6 +71,17 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             event = from_json(data)
             if event.data == 'BEEP':
                 continue
+            return event
+
+    def push_event(self, list_name: str, data):
+        self._post('/'.join(['push', list_name]), data)
+
+    def pop_event(self, list_name: str):
+        path = '/'.join(['pop', str(list_name)])
+        while True:
+            resp = self._get(path)
+            data = json.dumps(resp.json())
+            event = from_json(data)
             return event
 
     def get_node(self, node_id: str) -> dict:
