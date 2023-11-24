@@ -414,6 +414,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "net"
 
+  kselftest-net_qemu:
+    <<: *kselftest_qemu
+    params:
+      job_timeout: '90'
+      kselftest_collections: "net"
+
   kselftest-openat2:
     <<: *kselftest
     params:
@@ -1895,10 +1901,11 @@ device_types:
     mach: qemu
     arch: x86_64
     boot_method: qemu
-    context:
+    context: 
       arch: x86_64
       cpu: 'qemu64'
       guestfs_interface: 'ide'
+      memory: 1g
     filters:
       - passlist: {defconfig: ['defconfig']}
 
@@ -3288,6 +3295,7 @@ test_configs:
   - device_type: qemu_x86_64
     test_plans:
       - baseline_qemu
+      - kselftest-net_qemu
       - ltp-timers_qemu
       - v4l2-compliance-vivid
 
