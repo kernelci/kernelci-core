@@ -11,7 +11,9 @@ rootfs_configs:
       - bc
       - ca-certificates
       - iproute2
+      - iputils-ping
       - jdim
+      - jq
       - libasound2
       - libatm1
       - libcap2-bin
@@ -34,6 +36,8 @@ rootfs_configs:
       - publicsuffix
       - python3-minimal
       - python3-unittest2
+      - socat
+      - tcpdump
       - tpm2-tools
       - wget
       - xz-utils
