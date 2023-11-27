@@ -236,6 +236,10 @@ class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     ) -> Sequence[dict]:
         """Get user groups that match the provided attributes"""
 
+    @abc.abstractmethod
+    def create_group(self, name: str) -> dict:
+        """Create a new group"""
+
     # -------------
     # User accounts
     # -------------
