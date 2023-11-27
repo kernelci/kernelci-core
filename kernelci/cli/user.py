@@ -234,3 +234,78 @@ def password_reset(username, config, api):
     if password != retyped:
         raise click.ClickException("Sorry, passwords do not match")
     api.reset_password(reset_token, password)
+
+
+@kci_user.group(name='group')
+def user_group():
+    """Manage user groups"""
+
+
+@user_group.command(name='find')
+@click.argument('attributes', nargs=-1)
+@Args.config
+@Args.api
+@Args.indent
+@catch_http_error
+def find_groups(attributes, config, api, indent):
+    """Find user groups with arbitrary attributes"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config)
+    users = api.get_groups(split_attributes(attributes))
+    data = json.dumps(users, indent=indent)
+    echo = click.echo_via_pager if len(users) > 1 else click.echo
+    echo(data)
+
+
+@user_group.command(name="add", secrets=True)
+@click.argument('name')
+@Args.config
+@Args.api
+@catch_http_error
+def group_add(name, config, api, secrets):
+    """Create a new group"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api.create_group(name)
+
+
+@user_group.command(secrets=True)
+@click.argument('name')
+@click.option('--username', required=True)
+@Args.config
+@Args.api
+@catch_http_error
+def join(name, username, config, api, secrets):
+    """Add a user to a group (admin only)"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    users = api.get_users({"username": username})
+    if not users:
+        raise click.ClickException(f"User not found: {username}")
+    user = users[0]
+    groups = [name]
+    for group in users[0]['groups']:
+        groups.append(group['name'])
+    api.update_user({"groups": groups}, user['id'])
+
+
+@user_group.command(secrets=True)
+@click.argument('name')
+@Args.config
+@Args.api
+@catch_http_error
+def leave(name, config, api, secrets):
+    """Leave a user group"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    user = api.whoami()
+    groups = []
+    for group in user['groups']:
+        groups.append(group['name'])
+    if name in groups:
+        groups.remove(name)
+        api.update_user({"groups": groups}, None)

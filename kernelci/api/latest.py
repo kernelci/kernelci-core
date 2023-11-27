@@ -159,6 +159,9 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
         }
         return self._post('user/update-password', data, json_data=False)
 
+    def create_group(self, name: str) -> dict:
+        return self._post('group', {"name": name}).json()
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""
