@@ -134,6 +134,15 @@ class Base:
             offset += limit
         return objs
 
+    def _delete(self, path):
+        url = self.make_url(path)
+        resp = requests.delete(
+            url, headers=self.data.headers,
+            timeout=self.data.timeout
+        )
+        resp.raise_for_status()
+        return resp
+
 
 class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     """KernelCI API Python bindings abstraction"""
@@ -249,6 +258,10 @@ class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
     @abc.abstractmethod
     def create_group(self, name: str) -> dict:
         """Create a new group"""
+
+    @abc.abstractmethod
+    def delete_group(self, group_id: str):
+        """Delete a new group"""
 
     # -------------
     # User accounts

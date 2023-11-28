@@ -162,6 +162,9 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def create_group(self, name: str) -> dict:
         return self._post('group', {"name": name}).json()
 
+    def delete_group(self, group_id: str):
+        return self._delete(f'group/{group_id}')
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""
