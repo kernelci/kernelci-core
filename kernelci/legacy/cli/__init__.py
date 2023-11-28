@@ -17,7 +17,6 @@ from . import (
     sched,
     show,
     storage,
-    user,
 )
 
 _COMMANDS = {
@@ -28,7 +27,6 @@ _COMMANDS = {
     'sched': sched.main,
     'show': show.main,
     'storage': storage.main,
-    'user': user.main,
 }
 
 
