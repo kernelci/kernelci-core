@@ -45,7 +45,9 @@ class APIHelper:
 
     def get_node_from_event(self, event_data):
         """Listen for an event and get the matching node object from it"""
-        return self.api.get_node(event_data['id'])
+        if 'id' in event_data:
+            return self.api.get_node(event_data['id'])
+        return None
 
     def pubsub_event_filter(self, sub_id, event):
         """Filter Pub/Sub events
@@ -87,6 +89,9 @@ class APIHelper:
         while True:
             event = self.receive_event_data(sub_id)
             node = self.get_node_from_event(event)
+            # Crude (provisional) filtering of non-node events
+            if not node:
+                continue
             if all(self.pubsub_event_filter(sub_id, obj)
                    for obj in [node, event]):
                 return node
