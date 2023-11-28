@@ -309,3 +309,19 @@ def leave(name, config, api, secrets):
     if name in groups:
         groups.remove(name)
         api.update_user({"groups": groups}, None)
+
+
+@user_group.command(secrets=True)
+@click.argument('name')
+@Args.config
+@Args.api
+@catch_http_error
+def delete(name, config, api, secrets):
+    """Delete a user group (admin only)"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    groups = api.get_groups({"name": name})
+    if not groups:
+        raise click.ClickException(f"Group not found: {name}")
+    api.delete_group(groups[0]['id'])
