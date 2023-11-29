@@ -116,7 +116,9 @@ class Base:
                 'offset': offset or None,
                 'limit': limit or None,
             })
-            return self._get(path, params=params)
+            resp = self._get(path, params=params)
+            items = resp.json()['items']
+            return items
 
         objs = []
         offset = 0
