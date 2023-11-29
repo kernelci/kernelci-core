@@ -701,11 +701,28 @@ test_plans:
     filters:
       - passlist: {defconfig: ['videodec']}
 
+  v4l2-decoder-conformance-av1-chromium-10bit:
+    <<: *v4l2-decoder-conformance
+    params:
+      <<: *v4l2-decoder-conformance-params
+      testsuite: 'CHROMIUM-10bit-AV1-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-AV1-V4L2SL-Gst1.0'
+
   v4l2-decoder-conformance-h264:
     <<: *v4l2-decoder-conformance
     params:
       <<: *v4l2-decoder-conformance-params
       testsuite: 'JVT-AVC_V1'
+      decoders:
+        - 'GStreamer-H.264-V4L2-Gst1.0'
+        - 'GStreamer-H.264-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-h264-frext:
+    <<: *v4l2-decoder-conformance
+    params:
+      <<: *v4l2-decoder-conformance-params
+      testsuite: 'JVT-FR-EXT'
       decoders:
         - 'GStreamer-H.264-V4L2-Gst1.0'
         - 'GStreamer-H.264-V4L2SL-Gst1.0'
@@ -3128,6 +3145,7 @@ test_configs:
   - device_type: mt8192-asurada-spherion-r0
     test_plans:
       - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h264-frext
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
     filters: &chromebook-decoders-filter
@@ -3141,7 +3159,9 @@ test_configs:
   - device_type: mt8195-cherry-tomato-r2
     test_plans:
       - v4l2-decoder-conformance-av1
+      - v4l2-decoder-conformance-av1-chromium-10bit
       - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h264-frext
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
@@ -3393,6 +3413,7 @@ test_configs:
   - device_type: rk3399-gru-kevin
     test_plans:
       - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h264-frext
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
     filters: *chromebook-decoders-filter
@@ -3433,6 +3454,7 @@ test_configs:
   - device_type: sc7180-trogdor-kingoftown
     test_plans:
       - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h264-frext
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
@@ -3450,6 +3472,7 @@ test_configs:
   - device_type: sc7180-trogdor-kingoftown-r1
     test_plans:
       - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h264-frext
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
@@ -3475,6 +3498,7 @@ test_configs:
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
       - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h264-frext
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
