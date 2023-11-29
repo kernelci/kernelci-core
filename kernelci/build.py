@@ -1074,6 +1074,14 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 
     def _create_cros_config(self, config):
         [(branch, config)] = re.findall(r"cros://([\w\-%.]+)/(.*)", config)
+        # Map branch names to the actual branch
+        # We cannot use original branchname due to length, special characters,
+        # length, naming conventions.
+        branch_map = {
+            'chromeos-6.6-rc6-up': 'merge%continuous%chromeos-kernelupstream-6.6-rc6'  # noqa
+        }
+        if branch in branch_map:
+            branch = branch_map[branch]
         cros_config = os.path.join(self._output_path, "cros-config.tgz")
         url = CROS_CONFIG_URL.format(branch=branch.replace("%", "/"))
         if not _download_file(url, cros_config):
