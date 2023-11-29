@@ -192,7 +192,9 @@ mkdir -p /opt/fluster && cd /opt/fluster
 git clone $FLUSTER_URL .
 
 download_fluster_testsuite ./test_suites/av1/AV1-TEST-VECTORS.json
+download_fluster_testsuite ./test_suites/av1/CHROMIUM-10bit-AV1-TEST-VECTORS.json
 download_fluster_testsuite ./test_suites/h264/JVT-AVC_V1.json
+download_fluster_testsuite ./test_suites/h264/JVT-FR-EXT.json
 download_fluster_testsuite ./test_suites/h265/JCT-VC-HEVC-V1.json
 download_fluster_testsuite ./test_suites/vp8/VP8-TEST-VECTORS.json
 download_fluster_testsuite ./test_suites/vp9/VP9-TEST-VECTORS.json
