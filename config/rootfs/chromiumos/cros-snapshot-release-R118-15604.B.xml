@@ -74,8 +74,8 @@
   </project>
   <project name="chromiumos/infra_virtualenv" path="infra_virtualenv" revision="39254f97db8d6ab8b3fdef3d2f7038ac42978b78" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B" groups="buildtools,chromeos-admin,labtools,sysmon,devserver"/>
   <project name="chromiumos/manifest" path="manifest" revision="96971cd208fe68ee75ae6dbf5f472a70bea49e57" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B"/>
-  <project name="board-overlays" path="src/overlays" revision="7ecf97a84ea58db028392d5b5f5099d5f0a574d6" upstream="refs/heads/kernelci/release-R118-15604.B" dest-branch="refs/heads/kernelci/release-R118-15604.B" groups="minilayout,paygen,firmware" remote="cros-kernelci-dev"/>
-  <project name="chromiumos-overlay" path="src/third_party/chromiumos-overlay" revision="32528ba43a503c04c895f2fd39bc90320c5afa8a" upstream="refs/heads/kernelci/release-R118-15604.B" dest-branch="refs/heads/kernelci/release-R118-15604.B" groups="minilayout,paygen,firmware,labtools" sync-c="true" remote="cros-kernelci-dev"/>
+  <project name="board-overlays" path="src/overlays" revision="3c4428965362098b6587a632b6f1032d12b42018" upstream="refs/heads/kernelci/release-R118-15604.B" dest-branch="refs/heads/kernelci/release-R118-15604.B" groups="minilayout,paygen,firmware" remote="cros-kernelci-dev"/>
+  <project name="chromiumos-overlay" path="src/third_party/chromiumos-overlay" revision="759a37a08861926128911282563929b308f5c3cc" upstream="refs/heads/kernelci/release-R118-15604.B" dest-branch="refs/heads/kernelci/release-R118-15604.B" groups="minilayout,paygen,firmware,labtools" sync-c="true" remote="cros-kernelci-dev"/>
   <project name="chromiumos/overlays/eclass-overlay" path="src/third_party/eclass-overlay" revision="f7011a42bfa119d9450e35909832288eaff8070b" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B" groups="minilayout,paygen,firmware,labtools"/>
   <project name="chromiumos/overlays/portage-stable" path="src/third_party/portage-stable" revision="6e26a8060ee2c2f566acf6d74ac0f4e627b2c2cd" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B" groups="minilayout,paygen,firmware,labtools"/>
   <project name="chromiumos/overlays/toolchains" path="src/third_party/toolchains-overlay" revision="e6ec5f9eb4e210e861937f5d9a6b0e71126bfa70" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B" groups="minilayout,paygen,firmware,labtools"/>
@@ -156,7 +156,7 @@
   <project name="chromiumos/platform/vkbench" path="src/platform/vkbench" revision="96508848ed7699658496431ed9ad101aaa8853a9" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B"/>
   <project name="chromiumos/platform/vpd" path="src/platform/vpd" revision="d6ff7f1016eed50d307c5bb53d3ecbb0d2689c1a" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B"/>
   <project name="chromiumos/platform/xorg-conf" path="src/platform/xorg-conf" revision="a9ae9e797b261031e82fbc3fd58a867f1e617929" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B"/>
-  <project name="platform2" path="src/platform2" revision="b5abbd7921ed38562eabee08f9ee2ac7f4fb9294" upstream="refs/heads/kernelci/release-R118-15604.B" dest-branch="refs/heads/kernelci/release-R118-15604.B" groups="minilayout,paygen,crosvm,config,partner-config" remote="cros-kernelci-dev"/>
+  <project name="platform2" path="src/platform2" revision="b908d58af2e6451f96e3a16c2809ff9ef89d4ea6" upstream="refs/heads/kernelci/release-R118-15604.B" dest-branch="refs/heads/kernelci/release-R118-15604.B" groups="minilayout,paygen,crosvm,config,partner-config" remote="cros-kernelci-dev"/>
   <project name="chromiumos/project" path="src/project_public" revision="58b3d03f7f4088378072cb26e29c26f366b9cb13" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B" groups="partner-config"/>
   <project name="chromiumos/repohooks" path="src/repohooks" revision="8375853b31f92074c2390bad4bddc6db2839d0fc" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B" groups="minilayout,paygen,firmware,buildtools,labtools,crosvm"/>
   <project name="chromiumos/third_party/OP-TEE/optee_os" path="src/third_party/optee_os" revision="61f78542ec96b05eead8b8371a6eff261390d35c" upstream="refs/heads/release-R118-15604.B" dest-branch="refs/heads/release-R118-15604.B"/>
@@ -295,6 +295,6 @@
   <project name="platform/system/keymaster" path="src/aosp/system/keymaster" remote="aosp" revision="49dfc58d6c4c66f5d0b0d06f0161da4e602a1293"/>
   <project name="platform/system/keymaster" path="src/aosp/system/keymint" remote="aosp" revision="316ee9015b661aae840f2668943eb697a9269643"/>
   <project name="platform/system/libcppbor" path="src/aosp/system/libcppbor" remote="aosp" revision="a7f5ed58d316152dc2fe4cd956be7e6d4ddbf1a3"/>
-  <project remote="cros-kernelci-dev" name="linux-public" path="src/third_party/kernel/next" revision="a741de719995d80e2d689e855712be6a52627338"/>
+  <project remote="cros-kernelci-dev" name="linux-public" path="src/third_party/kernel/next" revision="1a5aa134febfb433a05ac4cba5e21226bbdc6c6d"/>
   <repo-hooks in-project="chromiumos/repohooks" enabled-list="pre-upload"/>
 </manifest>
