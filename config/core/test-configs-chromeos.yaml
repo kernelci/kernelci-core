@@ -926,14 +926,14 @@ device_types:
         modules_compression: 'xz'
         dtb: 'dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20231106.0/arm64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20231201.0/arm64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20231106.0/arm64/Image'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20231106.0/arm64/modules.tar.xz'
-        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20231106.0/arm64/dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20231201.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20231201.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20231201.0/arm64/dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
       block_device: detect
 
   mt8192-asurada-spherion-r0_chromeos:
@@ -951,14 +951,14 @@ device_types:
         modules_compression: 'xz'
         dtb: 'dtbs/mediatek/mt8192-asurada-spherion-r0.dtb'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20231106.0/arm64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20231201.0/arm64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20231106.0/arm64/Image'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20231106.0/arm64/modules.tar.xz'
-        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20231106.0/arm64/dtbs/mediatek/mt8192-asurada-spherion-r0.dtb'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20231201.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20231201.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20231201.0/arm64/dtbs/mediatek/mt8192-asurada-spherion-r0.dtb'
       block_device: detect
 
   mt8195-cherry-tomato-r2_chromeos:
@@ -976,14 +976,14 @@ device_types:
         modules_compression: 'xz'
         dtb: 'dtbs/mediatek/mt8195-cherry-tomato-r2.dtb'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231106.0/arm64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231201.0/arm64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231106.0/arm64/Image'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231106.0/arm64/modules.tar.xz'
-        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231106.0/arm64/dtbs/mediatek/mt8195-cherry-tomato-r2.dtb'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231201.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231201.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20231201.0/arm64/dtbs/mediatek/mt8195-cherry-tomato-r2.dtb'
       block_device: detect
 
 # Test plans temporarily disabled as QEMU build doesnt work
