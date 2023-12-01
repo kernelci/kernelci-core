@@ -952,6 +952,28 @@ device_types:
         dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20231201.0/arm64/dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
       block_device: detect
 
+  mt8186-corsola-steelix-sku131072_chromeos:
+    <<: *chromebook-arm64-type
+    base_name: mt8186-corsola-steelix-sku131072
+    dtb: 'mediatek/mt8186-corsola-steelix-sku131072.dtb'
+    params:
+      <<: *chromebook-arm64-params
+      cros_flash_kernel:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20231207.0/arm64/'
+        image: 'Image'
+        modules: 'modules.tar.xz'
+        modules_compression: 'xz'
+        dtb: 'dtbs/mediatek/mt8186-corsola-steelix-sku131072.dtb'
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20231207.0/arm64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20231207.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20231207.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20231207.0/arm64/dtbs/mediatek/mt8186-corsola-steelix-sku131072.dtb'
+
   mt8192-asurada-spherion-r0_chromeos:
     <<: *chromebook-arm64-type
     base_name: mt8192-asurada-spherion-r0
@@ -1215,6 +1237,16 @@ test_configs:
     filters: *collabora-chromeos-kernel-filter
     test_plans:
       - cros-tast-mm-decode-v4l2-stateless-h264
+
+# Disable this test plan for now as this device can only run with
+# the Collabora-maintained kernel due to missing upstream support
+#   - device_type: mt8186-corsola-steelix-sku131072_chromeos
+#     filters: *mediatek-filter
+#     test_plans: *chromebook-arm64-test-plans
+
+  - device_type: mt8186-corsola-steelix-sku131072_chromeos
+    filters: *collabora-chromeos-kernel-filter
+    test_plans: *chromebook-arm64-test-plans
 
   - device_type: mt8192-asurada-spherion-r0_chromeos
     filters: *collabora-chromeos-kernel-filter
