@@ -3121,7 +3121,7 @@ test_configs:
       - kselftest-tpm2
       - lc-compliance
       - preempt-rt
-      - sleep
+      - sleep_mem
       - v4l2-compliance-mtk-vcodec-enc
       - v4l2-compliance-uvc
 
