@@ -358,6 +358,8 @@ fragments:
       qcom/venus-5.4/venus.mbn
       mediatek/mt8192/scp.img
       mediatek/mt8195/scp.img
+      mediatek/WIFI_MT7961_patch_mcu_1_2_hdr.bin
+      mediatek/WIFI_RAM_CODE_MT7961_1.bin
       "'
 
 
