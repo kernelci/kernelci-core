@@ -58,6 +58,10 @@ class Args:  # pylint: disable=too-few-public-methods
         '-v', '--verbose/--no-verbose', default=None,
         help="Print more details output"
     )
+    runtime = click.option(
+        '--runtime',
+        help="Name of the Runtime environment config entry"
+    )
 
 
 def catch_http_error(func):
