@@ -7,6 +7,7 @@
 """KernelCI API helpers"""
 
 from typing import Dict
+import json
 
 from . import API
 
@@ -171,3 +172,9 @@ class APIHelper:
         node_id = data['node']['id']
         # pylint: disable=protected-access
         return self.api._put(f'nodes/{node_id}', data).json()
+
+    @classmethod
+    def load_json(cls, json_path, encoding='utf-8'):
+        """Read content from JSON file"""
+        with open(json_path, encoding=encoding) as json_file:
+            return json.load(json_file)
