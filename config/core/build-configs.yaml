@@ -1460,7 +1460,7 @@ build_configs:
     variants:
       rustc-1.73:
         build_environment: rustc-1.73
-        fragments: [rust, rust-samples, kselftest]
+        fragments: [rust, rust-for-linux-samples, rust-samples, kselftest]
         architectures:
           x86_64:
             base_defconfig: 'x86_64_defconfig'
