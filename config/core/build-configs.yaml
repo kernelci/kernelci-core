@@ -1465,7 +1465,7 @@ build_configs:
         fragments: [rust, rust-for-linux-samples, rust-samples, kselftest]
         architectures:
           x86_64:
-            base_defconfig: 'x86_64_defconfig'
+            base_defconfig: 'x86_64_defconfig+rust'
 
   samsung:
     tree: samsung
