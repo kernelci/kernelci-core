@@ -137,6 +137,14 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-skyrim:
+    rootfs_type: chromiumos
+    board: skyrim
+    branch: release-R118-15604.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
   chromiumos-trogdor:
     rootfs_type: chromiumos
     board: trogdor
