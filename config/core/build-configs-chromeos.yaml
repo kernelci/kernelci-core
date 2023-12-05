@@ -137,6 +137,11 @@ build_configs:
     branch: 'linux-6.6.y'
     variants: *chromeos_6_6_variants
 
+  chromeos-stable_6.6-backported-arm64:
+    tree: kernelci
+    branch: 'linux-6.6.y-arm64-chromeos'
+    variants: *chromeos_6_6_variants
+
   collabora-chromeos-kernel:
     tree: collabora-chromeos-kernel
     branch: 'for-kernelci'
