@@ -66,6 +66,15 @@ spec:
           name: ssh-key
           readOnly: true
 
+        # FIXME: Request safe defaults to not overload node with
+        # parallel pods
+        resources:
+          limits:
+            cpu: 8
+          requests:
+            cpu: 7.1
+            memory: 8
+
         env:
         - name: KCI_API_TOKEN
           valueFrom:
