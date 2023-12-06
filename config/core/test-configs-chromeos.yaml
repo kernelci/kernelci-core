@@ -780,6 +780,23 @@ device_types:
     <<: *chromebook-volteer-type
     base_name: asus-cx9400-volteer
 
+  dell-latitude-3445-7520c-skyrim_chromeos:
+    <<: *chromebook-x86-type
+    base_name: dell-latitude-3445-7520c-skyrim
+    filters: &generic-x86-filter
+      - passlist: {defconfig: ['chromiumos-x86_64']}
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-skyrim/20231116.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-skyrim/20231116.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-skyrim/20231116.0/amd64/modules.tar.xz'
+      block_device: detect
+
   dell-latitude-5400-4305U-sarien_chromeos:
     <<: *chromebook-x86-type
     base_name: dell-latitude-5400-4305U-sarien
@@ -1127,6 +1144,9 @@ test_configs:
     test_plans: *chromebook-test-plans
 
   - device_type: asus-cx9400-volteer_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: dell-latitude-3445-7520c-skyrim_chromeos
     test_plans: *chromebook-test-plans
 
   - device_type: dell-latitude-5400-4305U-sarien_chromeos
