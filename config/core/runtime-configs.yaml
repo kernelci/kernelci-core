@@ -11,17 +11,8 @@ runtimes:
     queue_timeout:
       days: 1
     filters:
+      - regex: {'tree': '^(kernelci|mainline|next|stable|arm64|riscv|soc|amlogic|matthiasbgg)$'}
       - passlist:
-          tree:
-            - staging
-            - mainline
-            - next
-            - stable
-            - arm64
-            - riscv
-            - soc
-            - amlogic
-            - matthiasbgg
           plan:
             - baseline
             - kselftest
