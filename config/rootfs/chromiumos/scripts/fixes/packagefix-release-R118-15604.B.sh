@@ -19,6 +19,9 @@ case ${BOARD} in
     guybrush)
     grep -q "tpm2" src/overlays/overlay-guybrush/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/overlay-guybrush/profiles/base/make.defaults
     ;;
+    skyrim)
+    grep -q "tpm2" src/overlays/overlay-skyrim/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2 ti50_onboard"' >>src/overlays/overlay-skyrim/profiles/base/make.defaults
+    ;;
     *)
     echo "No workarounds found for this board"
     ;;
