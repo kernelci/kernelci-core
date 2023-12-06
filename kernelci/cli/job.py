@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2023 Collabora Limited
+# Copyright (C) 2022-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
@@ -42,8 +42,9 @@ def new(name, node_id, node_json, config,  # pylint: disable=too-many-arguments
     elif node_json:
         input_node = helper.load_json(node_json)
     else:
-        raise click.ClickException("Either --node-id or --node-json \
-is required.")
+        raise click.ClickException(
+            "Either --node-id or --node-json is required."
+        )
     job_config = configs['jobs'][name]
     job_node = helper.create_job_node(job_config, input_node)
     click.echo(json.dumps(job_node, indent=indent))
@@ -51,10 +52,14 @@ is required.")
 
 @kci_job.command(secrets=True)
 @click.argument('node-id')
-@click.option('--platform', help="Name of the platform to run the job",
-              required=True)
-@click.option('--output', help="Path of the directory where to generate \
-              the job data")
+@click.option(
+    '--platform', required=True,
+    help="Name of the platform to run the job"
+)
+@click.option(
+    '--output',
+    help="Path of the directory where to generate the job data"
+)
 @Args.runtime
 @Args.storage
 @Args.config

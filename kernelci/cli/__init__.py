@@ -46,6 +46,10 @@ class Args:  # pylint: disable=too-few-public-methods
         '-n', '--page-number', type=int,
         help="Page number in paginated data"
     )
+    runtime = click.option(
+        '--runtime',
+        help="Name of the runtime config entry"
+    )
     settings = click.option(
         '-s', '--toml-settings', 'settings',
         help="Path to the TOML user settings"
@@ -57,10 +61,6 @@ class Args:  # pylint: disable=too-few-public-methods
     verbose = click.option(
         '-v', '--verbose/--no-verbose', default=None,
         help="Print more details output"
-    )
-    runtime = click.option(
-        '--runtime',
-        help="Name of the Runtime environment config entry"
     )
 
 
