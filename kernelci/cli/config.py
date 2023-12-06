@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2022, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 """Tool to manage the KernelCI YAML pipeline configuration"""
 
@@ -11,7 +12,7 @@ import click
 import yaml
 
 import kernelci.config
-from . import Args, kci
+from . import Args, kci, split_attributes
 
 
 @kci.group(name='config')
@@ -75,3 +76,12 @@ def dump(section, config, indent, recursive):
     else:
         echo = click.echo_via_pager if recursive else click.echo
         echo(yaml.dump(data, indent=indent))
+
+
+@kci_config.command(name="set")
+@click.argument('path')
+@Args.config
+def set_value(config, path):
+    """Set a value in the YAML config file at the provided path where path is
+    a dotted string of a YAML hierarchy e.g. 'api.docker-host.url=new-url'"""
+    kernelci.config.update_yaml_data(config, split_attributes([path]))

@@ -8,6 +8,7 @@
 import glob
 import importlib
 import os
+import copy
 import yaml
 
 import kernelci
@@ -189,3 +190,39 @@ def load(config_paths):
         return {}
     data = load_yaml(config_paths)
     return load_data(data)
+
+
+def _update_data_dict(data: dict, path: list, new_value):
+    """Lookup for a key from given path and update nested dictionary"""
+    if len(path) == 1:
+        if path[0] in data:
+            data[path[0]] = new_value
+    else:
+        key = path[0]
+        if key in data:
+            _update_data_dict(data[key], path[1:], new_value)
+
+
+def update_yaml_data(config_paths, section):
+    """Update a value in YAML configuration file
+
+    Iterate over YAML files and update a config value.
+
+    *section* is a dictionary with a key as YAML config hierarchy to reach an
+    entry and a value to update the entry with.
+    e.g. {'api.docker-host.url': 'http://172.17.0.1:8001'} will update
+    config value of {'api': {'docker-host': {'url': 'http://172.17.0.1:8001'}}}
+    in the YAML file.
+    """
+    for path in get_config_paths(config_paths):
+        new_value = None
+        for key in section:
+            new_value = section[key]
+            section = key.split(".")
+        for yaml_path, data in iterate_yaml_files(path):
+            data_copy = copy.deepcopy(data)
+            _update_data_dict(data, section, new_value)
+            if data_copy == data:
+                continue
+            with open(yaml_path, 'w', encoding='utf8') as yaml_file:
+                yaml.dump(data, yaml_file)
