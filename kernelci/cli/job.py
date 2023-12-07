@@ -10,11 +10,15 @@ import json
 
 import click
 
-import kernelci.api
 import kernelci.config
-import kernelci.api.helper
 import kernelci.runtime
-from . import Args, kci, catch_http_error
+from . import (
+    Args,
+    catch_http_error,
+    get_api,
+    get_api_helper,
+    kci,
+)
 
 
 @kci.group(name='job')
@@ -34,11 +38,9 @@ def new(name, node_id, node_json, config,  # pylint: disable=too-many-arguments
         api, indent, secrets):
     """Create a new job node"""
     configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
-    helper = kernelci.api.helper.APIHelper(api)
+    helper = get_api_helper(configs, api, secrets)
     if node_id:
-        input_node = api.get_node(node_id)
+        input_node = helper.api.get_node(node_id)
     elif node_json:
         input_node = helper.load_json(node_json)
     else:
@@ -69,8 +71,7 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
              runtime, storage, platform, output, config, api, secrets):
     """Generate a job definition in a file"""
     configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(configs, api, secrets)
     job_node = api.get_node(node_id)
     job = kernelci.runtime.Job(job_node, configs['jobs'][job_node['name']])
     job.platform_config = configs['device_types'][platform]

@@ -9,9 +9,11 @@ import json
 
 import click
 
-import kernelci.api
-import kernelci.config
-from . import Args, kci
+from . import (
+    Args,
+    get_api,
+    kci,
+)
 
 
 @kci.group(name='api')
@@ -23,10 +25,8 @@ def kci_api():
 @Args.config
 @Args.api
 @Args.indent
-def hello(config, indent, api):
+def hello(config, api, indent):
     """Query the API root endpoint"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
+    api = get_api(config, api)
     data = api.hello()
     click.echo(json.dumps(data, indent=indent or None))

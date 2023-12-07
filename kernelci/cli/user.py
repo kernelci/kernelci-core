@@ -12,9 +12,13 @@ import json
 
 import click
 
-import kernelci.api
-import kernelci.config
-from . import Args, kci, split_attributes, catch_http_error
+from . import (
+    Args,
+    catch_http_error,
+    get_api,
+    kci,
+    split_attributes,
+)
 
 
 @kci.group(name='user')
@@ -29,9 +33,7 @@ def kci_user():
 @catch_http_error
 def whoami(config, api, indent, secrets):
     """Get the current user's details with API authentication"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     data = api.whoami()
     click.echo(json.dumps(data, indent=indent))
 
@@ -44,10 +46,9 @@ def whoami(config, api, indent, secrets):
 @catch_http_error
 def find(attributes, config, api, indent, secrets):
     """Find user profiles with arbitrary attributes"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
-    users = api.get_users(split_attributes(attributes))
+    api = get_api(config, api, secrets)
+    attributes = split_attributes(attributes)
+    users = api.get_users(attributes)
     data = json.dumps(users, indent=indent)
     echo = click.echo_via_pager if len(users) > 1 else click.echo
     echo(data)
@@ -60,9 +61,7 @@ def find(attributes, config, api, indent, secrets):
 @catch_http_error
 def token(username, config, api):
     """Create a new API token using a user name and password"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
+    api = get_api(config, api)
     password = getpass.getpass()
     api_token = api.create_token(username, password)
     click.echo(api_token['access_token'])
@@ -81,9 +80,7 @@ def update(attributes, username, config, api, secrets):
         click.echo("No user details to update.")
         return
 
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     if username:
         users = api.get_users({"username": username})
         if not users:
@@ -111,9 +108,7 @@ def add(username, email, config, api, secrets):
         'email': email,
         'password': password,
     }
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     api.create_user(user)
 
 
@@ -124,9 +119,7 @@ def add(username, email, config, api, secrets):
 @catch_http_error
 def verify(username, config, api):
     """Verify the user's email address"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
+    api = get_api(config, api)
     users = api.get_users({"username": username})
     if not users:
         raise click.ClickException(f"User not found: {username}")
@@ -147,9 +140,7 @@ def verify(username, config, api):
 @catch_http_error
 def get(user_id, config, api, indent):
     """Get a user with a given ID"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
+    api = get_api(config, api)
     user = api.get_user(user_id)
     click.echo(json.dumps(user, indent=indent))
 
@@ -161,9 +152,7 @@ def get(user_id, config, api, indent):
 @catch_http_error
 def activate(username, config, api, secrets):
     """Activate user account (admin only)"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     users = api.get_users({"username": username})
     if not users:
         raise click.ClickException(f"User not found: {username}")
@@ -178,9 +167,7 @@ def activate(username, config, api, secrets):
 @catch_http_error
 def deactivate(username, config, api, secrets):
     """Deactivate a user account (admin only)"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     users = api.get_users({"username": username})
     if not users:
         raise click.ClickException(f"User not found: {username}")
@@ -200,9 +187,7 @@ def user_password():
 @catch_http_error
 def password_update(username, config, api):
     """Update password for a user account"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
+    api = get_api(config, api)
     current_password = getpass.getpass("Current password: ")
     new_password = getpass.getpass("New password: ")
     retyped = getpass.getpass("Retype new password: ")
@@ -218,9 +203,7 @@ def password_update(username, config, api):
 @catch_http_error
 def password_reset(username, config, api):
     """Reset password for a user account"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
+    api = get_api(config, api)
     users = api.get_users({"username": username})
     if not users:
         raise click.ClickException(f"User not found: {username}")
@@ -249,10 +232,9 @@ def user_group():
 @catch_http_error
 def find_groups(attributes, config, api, indent):
     """Find user groups with arbitrary attributes"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
-    users = api.get_groups(split_attributes(attributes))
+    api = get_api(config, api)
+    attributes = split_attributes(attributes)
+    users = api.get_groups(attributes)
     data = json.dumps(users, indent=indent)
     echo = click.echo_via_pager if len(users) > 1 else click.echo
     echo(data)
@@ -265,9 +247,7 @@ def find_groups(attributes, config, api, indent):
 @catch_http_error
 def group_add(name, config, api, secrets):
     """Create a new group"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     api.create_group(name)
 
 
@@ -279,9 +259,7 @@ def group_add(name, config, api, secrets):
 @catch_http_error
 def join(name, username, config, api, secrets):
     """Add a user to a group (admin only)"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     users = api.get_users({"username": username})
     if not users:
         raise click.ClickException(f"User not found: {username}")
@@ -299,9 +277,7 @@ def join(name, username, config, api, secrets):
 @catch_http_error
 def leave(name, config, api, secrets):
     """Leave a user group"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     user = api.whoami()
     groups = []
     for group in user['groups']:
@@ -318,9 +294,7 @@ def leave(name, config, api, secrets):
 @catch_http_error
 def delete(name, config, api, secrets):
     """Delete a user group (admin only)"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     groups = api.get_groups({"name": name})
     if not groups:
         raise click.ClickException(f"Group not found: {name}")
