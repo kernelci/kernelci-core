@@ -21,6 +21,9 @@ import typing
 import click
 import requests
 
+import kernelci.api
+import kernelci.api.helper
+import kernelci.config
 import kernelci.settings
 
 
@@ -240,3 +243,24 @@ def get_pagination(page_length: int, page_number: int):
             f"Page number must be at least 0, got {page_number}"
         )
     return page_number * page_length, page_length
+
+
+def get_api(config, api,
+            secrets: typing.Optional[kernelci.settings.Secrets] = None):
+    """Get an API object instance
+
+    Return an API object based on the given `api` config name loaded from the
+    YAML config found in the `config` path or in the `config` dictionary
+    already loaded.
+    """
+    if not isinstance(config, dict):
+        config = kernelci.config.load(config)
+    api_config = config['api'][api]
+    token = secrets.api.token if secrets else None
+    return kernelci.api.get_api(api_config, token)
+
+
+def get_api_helper(*args, **kwargs):
+    """Wrapper around get_api() to get an APIHelper object"""
+    api = get_api(*args, **kwargs)
+    return kernelci.api.helper.APIHelper(api)
