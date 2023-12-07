@@ -11,9 +11,12 @@ import sys
 
 import click
 
-import kernelci.api
-import kernelci.config
-from . import Args, kci, split_attributes
+from . import (
+    Args,
+    get_api,
+    kci,
+    split_attributes,
+)
 
 
 @kci.group(name='node')
@@ -28,9 +31,7 @@ def kci_node():
 @Args.indent
 def get(node_id, config, api, indent):
     """Get a node with a given ID"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
+    api = get_api(config, api)
     node = api.get_node(node_id)
     click.echo(json.dumps(node, indent=indent))
 
@@ -48,10 +49,9 @@ def get(node_id, config, api, indent):
 def find(attributes, config, api,   # pylint: disable=too-many-arguments
          indent, offset, limit):
     """Find nodes with arbitrary attributes"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
-    nodes = api.get_nodes(split_attributes(attributes), offset, limit)
+    api = get_api(config, api)
+    attributes = split_attributes(attributes)
+    nodes = api.get_nodes(attributes, offset, limit)
     data = json.dumps(nodes, indent=indent)
     echo = click.echo_via_pager if len(nodes) > 1 else click.echo
     echo(data)
@@ -63,10 +63,9 @@ def find(attributes, config, api,   # pylint: disable=too-many-arguments
 @Args.api
 def count(attributes, config, api):
     """Count nodes with arbitrary attributes"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
-    click.echo(api.count_nodes(split_attributes(attributes)))
+    api = get_api(config, api)
+    attributes = split_attributes(attributes)
+    click.echo(api.count_nodes(attributes))
 
 
 @kci_node.command(secrets=True)
@@ -75,9 +74,7 @@ def count(attributes, config, api):
 @Args.indent
 def submit(config, api, secrets, indent):
     """Submit a new node or update an existing one from stdin"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
+    api = get_api(config, api, secrets)
     data = json.load(sys.stdin)
     if 'id' in data:
         node = api.update_node(data)
