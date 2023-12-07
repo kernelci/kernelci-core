@@ -101,11 +101,6 @@ class CommandSettings:
         """TOML Settings object"""
         return self._settings
 
-    @property
-    def secrets(self):
-        """Secrets loaded from TOML settings"""
-        return self._secrets
-
     def get(self, *args):
         """Get a settings value like __getattr__()"""
         return self._settings.get(*args)
@@ -131,15 +126,16 @@ class Kci(click.Command):
     def invoke(self, ctx):
         path = self._walk_name(ctx)
         params = {}
+        settings = ctx.obj
         for key, value in ctx.params.items():
             if isinstance(value, (tuple, set)):
                 value = list(value)
             if value is None or value == []:
-                value = ctx.obj.get(*path, key)
+                value = settings.get(*path, key)
             params[key] = value
         if self._kci_secrets:
             root = (path[0], 'secrets')
-            params['secrets'] = ctx.obj.get_secrets(params, root)
+            params['secrets'] = settings.get_secrets(params, root)
         ctx.params = params
         super().invoke(ctx)
 
