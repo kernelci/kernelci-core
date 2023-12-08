@@ -15,6 +15,7 @@ import click
 from . import (
     Args,
     catch_http_error,
+    echo_json,
     get_api,
     kci,
     split_attributes,
@@ -35,7 +36,7 @@ def whoami(config, api, indent, secrets):
     """Get the current user's details with API authentication"""
     api = get_api(config, api, secrets)
     data = api.whoami()
-    click.echo(json.dumps(data, indent=indent))
+    echo_json(data, indent)
 
 
 @kci_user.command(secrets=True)
@@ -49,7 +50,7 @@ def find(attributes, config, api, indent, secrets):
     api = get_api(config, api, secrets)
     attributes = split_attributes(attributes)
     users = api.get_users(attributes)
-    data = json.dumps(users, indent=indent)
+    data = json.dumps(users, indent=indent or None)
     echo = click.echo_via_pager if len(users) > 1 else click.echo
     echo(data)
 
@@ -142,7 +143,7 @@ def get(user_id, config, api, indent):
     """Get a user with a given ID"""
     api = get_api(config, api)
     user = api.get_user(user_id)
-    click.echo(json.dumps(user, indent=indent))
+    echo_json(user, indent)
 
 
 @kci_user.command(secrets=True)
@@ -235,7 +236,7 @@ def find_groups(attributes, config, api, indent):
     api = get_api(config, api)
     attributes = split_attributes(attributes)
     users = api.get_groups(attributes)
-    data = json.dumps(users, indent=indent)
+    data = json.dumps(users, indent=indent or None)
     echo = click.echo_via_pager if len(users) > 1 else click.echo
     echo(data)
 

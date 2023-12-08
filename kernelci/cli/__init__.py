@@ -15,6 +15,7 @@ from TOML settings.
 
 import email.policy
 import functools
+import json
 import re
 import typing
 
@@ -264,3 +265,14 @@ def get_api_helper(*args, **kwargs):
     """Wrapper around get_api() to get an APIHelper object"""
     api = get_api(*args, **kwargs)
     return kernelci.api.helper.APIHelper(api)
+
+
+def echo_json(data, indent):
+    """Dump the JSON data with the provided indent on stdout
+
+    This is a convenience function for a very common use-case where some JSON
+    data received from the API needs to be dumped on stdout.  If indent is 0
+    then no identation is applied rather than indentation with 0 spaces (line
+    returns).
+    """
+    click.echo(json.dumps(data, indent=indent or None))
