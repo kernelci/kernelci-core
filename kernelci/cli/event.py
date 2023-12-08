@@ -12,6 +12,7 @@ import click
 
 from . import (
     Args,
+    catch_http_error,
     echo_json,
     get_api,
     get_api_helper,
@@ -28,6 +29,7 @@ def kci_event():
 @click.argument('channel')
 @Args.config
 @Args.api
+@catch_http_error
 def subscribe(config, api, channel, secrets):
     """Subscribe to a Pub/Sub channel"""
     api = get_api(config, api, secrets)
@@ -39,6 +41,7 @@ def subscribe(config, api, channel, secrets):
 @click.argument('sub_id')
 @Args.config
 @Args.api
+@catch_http_error
 def unsubscribe(config, api, sub_id, secrets):
     """Unsubscribe from a Pub/Sub channel"""
     api = get_api(config, api, secrets)
@@ -47,12 +50,13 @@ def unsubscribe(config, api, sub_id, secrets):
 
 @kci_event.command(secrets=True)
 @click.argument('input_file', type=click.File('r'))
+@click.argument('channel')
 @click.option('--is-json', help="Parse input data as JSON", is_flag=True)
 @Args.config
 @Args.api
-@click.argument('channel')
+@catch_http_error
 # pylint: disable=too-many-arguments
-def send(input_file, is_json, config, api, channel, secrets):
+def send(input_file, channel, is_json, config, api, secrets):
     """Read some data and send it as an event on a channel"""
     api = get_api(config, api, secrets)
     data = json.load(input_file) if is_json else input_file.read()
@@ -64,7 +68,8 @@ def send(input_file, is_json, config, api, channel, secrets):
 @Args.config
 @Args.api
 @Args.indent
-def receive(config, api, indent, sub_id, secrets):
+@catch_http_error
+def receive(sub_id, config, api, indent, secrets):
     """Wait and receive an event from a subscription and print on stdout"""
     helper = get_api_helper(config, api, secrets)
     event = helper.receive_event_data(sub_id)
@@ -82,6 +87,7 @@ def receive(config, api, indent, sub_id, secrets):
 @click.option('--is-json', help="Parse input data as JSON", is_flag=True)
 @Args.config
 @Args.api
+@catch_http_error
 # pylint: disable=too-many-arguments
 def push(input_file, list_name, is_json, config, api, secrets):
     """Read some data and push it as an event on a list"""
@@ -95,7 +101,8 @@ def push(input_file, list_name, is_json, config, api, secrets):
 @Args.config
 @Args.api
 @Args.indent
-def pop(config, api, indent, list_name, secrets):
+@catch_http_error
+def pop(list_name, config, api, indent, secrets):
     """Wait and pop an event from a List when received print on stdout"""
     helper = get_api_helper(config, api, secrets)
     event = helper.pop_event_data(list_name)
