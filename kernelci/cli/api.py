@@ -7,6 +7,7 @@
 
 from . import (
     Args,
+    catch_http_error,
     echo_json,
     get_api,
     kci,
@@ -22,6 +23,7 @@ def kci_api():
 @Args.config
 @Args.api
 @Args.indent
+@catch_http_error
 def hello(config, api, indent):
     """Query the API root endpoint"""
     api = get_api(config, api)

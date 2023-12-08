@@ -12,6 +12,7 @@ import click
 
 from . import (
     Args,
+    catch_http_error,
     echo_json,
     get_api,
     get_pagination,
@@ -30,6 +31,7 @@ def kci_node():
 @Args.config
 @Args.api
 @Args.indent
+@catch_http_error
 def get(node_id, config, api, indent):
     """Get a node with a given ID"""
     api = get_api(config, api)
@@ -44,6 +46,7 @@ def get(node_id, config, api, indent):
 @Args.indent
 @Args.page_length
 @Args.page_number
+@catch_http_error
 # pylint: disable=too-many-arguments
 def find(attributes, config, api, indent, page_length, page_number):
     """Find nodes with arbitrary attributes"""
@@ -60,6 +63,7 @@ def find(attributes, config, api, indent, page_length, page_number):
 @click.argument('attributes', nargs=-1)
 @Args.config
 @Args.api
+@catch_http_error
 def count(attributes, config, api):
     """Count nodes with arbitrary attributes"""
     api = get_api(config, api)
@@ -72,6 +76,7 @@ def count(attributes, config, api):
 @Args.config
 @Args.api
 @Args.indent
+@catch_http_error
 def submit(input_file, config, api, indent, secrets):
     """Submit a new node or update an existing one"""
     api = get_api(config, api, secrets)
