@@ -148,6 +148,11 @@ sudo mv ./chroot/build/${BOARD}/opt/google/cr50/firmware/* "${DATA_DIR}/${BOARD}
 
 # Identify baseboard and chipset
 BASEBOARD="$(grep baseboard ./src/overlays/overlay-${BOARD}/profiles/base/parent | sed 's/:.*//')"
+if [ -z "${BASEBOARD}" ]; then
+    # Some overlays (e.g. skyrim) directly refer to the chipset overlay,
+    # not to an intermediate baseboard
+    BASEBOARD="overlay-${BOARD}"
+fi
 CHIPSET="$(grep chipset ./src/overlays/${BASEBOARD}/profiles/base/parent | sed 's/:.*//')"
 # Source chipset config for $CHROMEOS_KERNEL_ARCH
 . ./src/overlays/${CHIPSET}/profiles/base/make.defaults
