@@ -36,17 +36,17 @@ def whoami(config, api, indent, secrets):
     click.echo(json.dumps(data, indent=indent))
 
 
-@kci_user.command
+@kci_user.command(secrets=True)
 @click.argument('attributes', nargs=-1)
 @Args.config
 @Args.api
 @Args.indent
 @catch_http_error
-def find(attributes, config, api, indent):
+def find(attributes, config, api, indent, secrets):
     """Find user profiles with arbitrary attributes"""
     configs = kernelci.config.load(config)
     api_config = configs['api'][api]
-    api = kernelci.api.get_api(api_config)
+    api = kernelci.api.get_api(api_config, secrets.api.token)
     users = api.get_users(split_attributes(attributes))
     data = json.dumps(users, indent=indent)
     echo = click.echo_via_pager if len(users) > 1 else click.echo
