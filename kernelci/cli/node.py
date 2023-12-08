@@ -14,6 +14,7 @@ import click
 from . import (
     Args,
     get_api,
+    get_pagination,
     kci,
     split_attributes,
 )
@@ -38,18 +39,16 @@ def get(node_id, config, api, indent):
 
 @kci_node.command
 @click.argument('attributes', nargs=-1)
-@click.option('--offset', help="Offset for paginated results")
-@click.option('--limit',
-              help="Maximum number of results to retrieve."
-              "When set to 0, no limit is used and all the "
-              "matching results are retrieved.")
 @Args.config
 @Args.api
 @Args.indent
-def find(attributes, config, api,   # pylint: disable=too-many-arguments
-         indent, offset, limit):
+@Args.page_length
+@Args.page_number
+# pylint: disable=too-many-arguments
+def find(attributes, config, api, indent, page_length, page_number):
     """Find nodes with arbitrary attributes"""
     api = get_api(config, api)
+    offset, limit = get_pagination(page_length, page_number)
     attributes = split_attributes(attributes)
     nodes = api.get_nodes(attributes, offset, limit)
     data = json.dumps(nodes, indent=indent)
