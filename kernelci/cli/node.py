@@ -7,7 +7,6 @@
 """Tool to manage KernelCI API node objects"""
 
 import json
-import sys
 
 import click
 
@@ -69,13 +68,14 @@ def count(attributes, config, api):
 
 
 @kci_node.command(secrets=True)
+@click.argument('input_file', type=click.File('r'))
 @Args.config
 @Args.api
 @Args.indent
-def submit(config, api, secrets, indent):
-    """Submit a new node or update an existing one from stdin"""
+def submit(input_file, config, api, indent, secrets):
+    """Submit a new node or update an existing one"""
     api = get_api(config, api, secrets)
-    data = json.load(sys.stdin)
+    data = json.load(input_file)
     if 'id' in data:
         node = api.update_node(data)
     else:
