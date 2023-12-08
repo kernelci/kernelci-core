@@ -628,6 +628,7 @@ fragments:
       amdgpu/green_sardine_mec.bin
       amdgpu/green_sardine_mec2.bin
       amdgpu/green_sardine_rlc.bin
+      amdgpu/psp_13_0_8_toc.bin
       amdgpu/raven2_asd.bin
       amdgpu/raven2_ce.bin
       amdgpu/raven2_gpu_info.bin
