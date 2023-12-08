@@ -6,8 +6,6 @@
 
 """Tool to generate and run KernelCI jobs"""
 
-import json
-
 import click
 
 import kernelci.config
@@ -15,6 +13,7 @@ import kernelci.runtime
 from . import (
     Args,
     catch_http_error,
+    echo_json,
     get_api,
     get_api_helper,
     kci,
@@ -49,7 +48,7 @@ def new(name, node_id, node_json, config,  # pylint: disable=too-many-arguments
         )
     job_config = configs['jobs'][name]
     job_node = helper.create_job_node(job_config, input_node)
-    click.echo(json.dumps(job_node, indent=indent))
+    echo_json(job_node, indent)
 
 
 @kci_job.command(secrets=True)

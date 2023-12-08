@@ -13,6 +13,7 @@ import click
 
 from . import (
     Args,
+    echo_json,
     get_api,
     get_pagination,
     kci,
@@ -34,7 +35,7 @@ def get(node_id, config, api, indent):
     """Get a node with a given ID"""
     api = get_api(config, api)
     node = api.get_node(node_id)
-    click.echo(json.dumps(node, indent=indent))
+    echo_json(node, indent)
 
 
 @kci_node.command
@@ -51,7 +52,7 @@ def find(attributes, config, api, indent, page_length, page_number):
     offset, limit = get_pagination(page_length, page_number)
     attributes = split_attributes(attributes)
     nodes = api.get_nodes(attributes, offset, limit)
-    data = json.dumps(nodes, indent=indent)
+    data = json.dumps(nodes, indent=indent or None)
     echo = click.echo_via_pager if len(nodes) > 1 else click.echo
     echo(data)
 
@@ -79,4 +80,4 @@ def submit(config, api, secrets, indent):
         node = api.update_node(data)
     else:
         node = api.create_node(data)
-    click.echo(json.dumps(node, indent=indent))
+    echo_json(node, indent)

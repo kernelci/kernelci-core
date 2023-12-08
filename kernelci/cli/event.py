@@ -13,6 +13,7 @@ import click
 
 from . import (
     Args,
+    echo_json,
     get_api,
     get_api_helper,
     kci,
@@ -71,7 +72,7 @@ def receive(config, api, indent, sub_id, secrets):
     if isinstance(event, str):
         click.echo(event.strip())
     elif isinstance(event, dict):
-        click.echo(json.dumps(event, indent=indent))
+        echo_json(event, indent)
     else:
         click.echo(event)
 
@@ -102,6 +103,6 @@ def pop(config, api, indent, list_name, secrets):
     if isinstance(event, str):
         click.echo(event.strip())
     elif isinstance(event, dict):
-        click.echo(json.dumps(event, indent=indent))
+        echo_json(event, indent)
     else:
         click.echo(event)

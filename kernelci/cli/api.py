@@ -5,12 +5,9 @@
 
 """Tool to run generic queries with KernelCI API instances"""
 
-import json
-
-import click
-
 from . import (
     Args,
+    echo_json,
     get_api,
     kci,
 )
@@ -29,4 +26,4 @@ def hello(config, api, indent):
     """Query the API root endpoint"""
     api = get_api(config, api)
     data = api.hello()
-    click.echo(json.dumps(data, indent=indent or None))
+    echo_json(data, indent)
