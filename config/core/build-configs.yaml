@@ -615,6 +615,13 @@ fragments:
       - 'CONFIG_X86_AMD_PLATFORM_DEVICE=y'
       - 'CONFIG_X86_INTEL_LPSS=y'
       - 'CONFIG_EXTRA_FIRMWARE="
+      amdgpu/dcn_3_1_6_dmcub.bin
+      amdgpu/gc_10_3_7_ce.bin
+      amdgpu/gc_10_3_7_me.bin
+      amdgpu/gc_10_3_7_mec2.bin
+      amdgpu/gc_10_3_7_mec.bin
+      amdgpu/gc_10_3_7_pfp.bin
+      amdgpu/gc_10_3_7_rlc.bin
       amdgpu/green_sardine_asd.bin
       amdgpu/green_sardine_ce.bin
       amdgpu/green_sardine_sdma.bin
@@ -627,6 +634,9 @@ fragments:
       amdgpu/green_sardine_mec.bin
       amdgpu/green_sardine_mec2.bin
       amdgpu/green_sardine_rlc.bin
+      amdgpu/psp_13_0_8_asd.bin
+      amdgpu/psp_13_0_8_ta.bin
+      amdgpu/psp_13_0_8_toc.bin
       amdgpu/raven2_asd.bin
       amdgpu/raven2_ce.bin
       amdgpu/raven2_gpu_info.bin
@@ -639,6 +649,7 @@ fragments:
       amdgpu/raven2_ta.bin
       amdgpu/raven2_vcn.bin
       amdgpu/raven_kicker_rlc.bin
+      amdgpu/sdma_5_2_7.bin
       amdgpu/stoney_ce.bin
       amdgpu/stoney_me.bin
       amdgpu/stoney_mec.bin
@@ -647,6 +658,7 @@ fragments:
       amdgpu/stoney_sdma.bin
       amdgpu/stoney_uvd.bin
       amdgpu/stoney_vce.bin
+      amdgpu/yellow_carp_vcn.bin
       i915/glk_dmc_ver1_04.bin
       i915/kbl_dmc_ver1_04.bin
       rtl_nic/rtl8153a-4.fw
