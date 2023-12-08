@@ -120,7 +120,7 @@ sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/libexec/tast/bundle
 sudo gzip -9 "${DATA_DIR}/${BOARD}/tast.tar"
 sudo mv "${DATA_DIR}/${BOARD}/tast.tar.gz" "${DATA_DIR}/${BOARD}/tast.tgz"
 
-echo "Removing CR50 firmware from rootfs"
+echo "Removing CR50/TI50 firmware from rootfs"
 cd "${DATA_DIR}/${BOARD}"
 # This is guestfish commands, even they are similar to bash, it is not shell
 # rm-rf is for example guestfish specific command
@@ -129,6 +129,7 @@ add chromiumos_test_image.bin
 run
 mount /dev/sda3 /
 rm-rf /opt/google/cr50/firmware
+rm-rf /opt/google/ti50/firmware
 write /usr/lib/tmpfiles.d/kernelci.conf "f= /run/dont-modify-ps1-for-testing"
 _EOF_
 # End of guestfish commands
@@ -143,8 +144,8 @@ gzip -1 "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
 echo "Extracting additional artifacts"
 sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./chroot/build/${BOARD} lib/modules
 sudo cp ./chroot/build/${BOARD}/boot/config* "${DATA_DIR}/${BOARD}/kernel.config"
-# Extract CR50 firmware, but dont crash in case it is missing
-sudo mv ./chroot/build/${BOARD}/opt/google/cr50/firmware/* "${DATA_DIR}/${BOARD}/" || true
+# Extract CR50/TI50 firmware, but dont crash in case it is missing
+sudo mv ./chroot/build/${BOARD}/opt/google/{cr,ti}50/firmware/* "${DATA_DIR}/${BOARD}/" > /dev/null 2>&1 || true
 
 # Identify baseboard and chipset
 BASEBOARD="$(grep baseboard ./src/overlays/overlay-${BOARD}/profiles/base/parent | sed 's/:.*//')"
