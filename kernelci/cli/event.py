@@ -6,7 +6,6 @@
 
 """Tool to interact with the Pub/Sub interface and message queues"""
 
-import sys
 import json
 
 import click
@@ -47,16 +46,16 @@ def unsubscribe(config, api, sub_id, secrets):
 
 
 @kci_event.command(secrets=True)
+@click.argument('input_file', type=click.File('r'))
 @click.option('--is-json', help="Parse input data as JSON", is_flag=True)
 @Args.config
 @Args.api
 @click.argument('channel')
-def send(config, api, is_json, channel, secrets):
-    """Read some data on stdin and send it as an event on a channel"""
+# pylint: disable=too-many-arguments
+def send(input_file, is_json, config, api, channel, secrets):
+    """Read some data and send it as an event on a channel"""
     api = get_api(config, api, secrets)
-    data = sys.stdin.read()
-    if is_json:
-        data = json.loads(data)
+    data = json.load(input_file) if is_json else input_file.read()
     api.send_event(channel, {'data': data})
 
 
@@ -78,16 +77,16 @@ def receive(config, api, indent, sub_id, secrets):
 
 
 @kci_event.command(secrets=True)
+@click.argument('input_file', type=click.File('r'))
+@click.argument('list_name')
 @click.option('--is-json', help="Parse input data as JSON", is_flag=True)
 @Args.config
 @Args.api
-@click.argument('list_name')
-def push(config, api, is_json, list_name, secrets):
-    """Read some data on stdin and push it as an event on a list"""
+# pylint: disable=too-many-arguments
+def push(input_file, list_name, is_json, config, api, secrets):
+    """Read some data and push it as an event on a list"""
     api = get_api(config, api, secrets)
-    data = sys.stdin.read()
-    if is_json:
-        data = json.loads(data)
+    data = json.load(input_file) if is_json else input_file.read()
     api.push_event(list_name, {'data': data})
 
 
