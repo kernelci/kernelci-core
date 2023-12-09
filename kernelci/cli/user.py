@@ -132,15 +132,15 @@ def verify(username, config, api):
     click.echo("Email verification successful!")
 
 
-@kci_user.command
+@kci_user.command(secrets=True)
 @click.argument('user_id')
 @Args.config
 @Args.api
 @Args.indent
 @catch_http_error
-def get(user_id, config, api, indent):
+def get(user_id, config, api, indent, secrets):
     """Get a user with a given ID"""
-    api = get_api(config, api)
+    api = get_api(config, api, secrets)
     user = api.get_user(user_id)
     click.echo(json.dumps(user, indent=indent))
 
