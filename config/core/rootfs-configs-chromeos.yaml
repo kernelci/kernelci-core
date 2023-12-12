@@ -57,6 +57,14 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-corsola:
+    rootfs_type: chromiumos
+    board: corsola
+    branch: release-R118-15604.B
+    serial: ttyS0
+    arch_list:
+      - arm64
+
   chromiumos-dedede:
     rootfs_type: chromiumos
     board: dedede
