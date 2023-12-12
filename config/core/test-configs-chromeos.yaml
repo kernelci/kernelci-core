@@ -1260,6 +1260,13 @@ test_configs:
     filters: *collabora-chromeos-kernel-filter
     test_plans: *chromebook-arm64-test-plans
 
+  - device_type: mt8186-corsola-steelix-sku131072_chromeos
+    filters: *collabora-chromeos-kernel-filter
+    test_plans:
+      - v4l2-decoder-conformance-h264_chromeos
+      - v4l2-decoder-conformance-vp8_chromeos
+      - v4l2-decoder-conformance-vp9_chromeos
+
   - device_type: mt8192-asurada-spherion-r0_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans:
