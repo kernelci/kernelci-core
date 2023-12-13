@@ -76,6 +76,7 @@ class DebosBuilder(RootfsBuilder):
             'debian_mirror': config.debian_mirror,
             'keyring_package': config.keyring_package,
             'keyring_file': config.keyring_file,
+            'imagesize': config.imagesize,
         }
 
         debos_opts += ' ' + ' '.join(

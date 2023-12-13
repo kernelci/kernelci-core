@@ -154,6 +154,8 @@ rootfs_configs:
       - wget
     script: "scripts/bullseye-gst-fluster.sh"
     test_overlay: "overlays/fluster"
+    imagesize: 2GB
+    debos_memory: 8G
 
   bullseye-igt:
     rootfs_type: debos

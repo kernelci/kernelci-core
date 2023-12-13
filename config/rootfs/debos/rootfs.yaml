@@ -12,6 +12,7 @@
 {{- $debian_mirror := or .debian_mirror "http://deb.debian.org/debian" -}}
 {{- $keyring_package := or .keyring_package "" -}}
 {{- $keyring_file := or .keyring_file "" -}}
+{{- $imagesize := or .imagesize "1GB" -}}
 
 architecture: {{ $architecture }}
 
@@ -132,7 +133,7 @@ actions:
 
   - action: image-partition
     imagename: rootfs.ext4
-    imagesize: 1GB
+    imagesize: {{ $imagesize }}
     partitiontype: msdos
     mountpoints:
       - mountpoint: /
