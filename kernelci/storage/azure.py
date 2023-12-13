@@ -6,6 +6,7 @@
 """KernelCI storage implementation for Azure Files"""
 
 from urllib.parse import urljoin
+import os
 from azure.storage.fileshare import ShareServiceClient
 from . import Storage
 
@@ -40,6 +41,17 @@ class StorageAzureFiles(Storage):
         share = self._service.get_share_client(share=self.config.share)
         root = self._get_directory(share, dest_path or '.')
         urls = {}
+        dirs = []
+        # if dst include a path, we need to call ._get_directory
+        # to create the directory if it doesn't exist
+        # for example if dst is 'dtb/qcom/apq8016-sbc.dtb'
+        # get list of all directories to create, then create them
+        for src, dst in file_paths:
+            if os.path.dirname(dst) and os.path.dirname(dst) not in dirs:
+                dirs.append(os.path.dirname(dst))
+        for dname in dirs:
+            dstdir = os.path.join(dest_path, dname)
+            self._get_directory(share, dstdir)
         for src, dst in file_paths:
             file_client = root.get_file_client(file_name=dst)
             with open(src, 'rb') as src_file:
