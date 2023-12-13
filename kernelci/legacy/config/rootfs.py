@@ -50,7 +50,7 @@ class RootFS_Debos(RootFS):
                  extra_files_remove=None, script="",
                  test_overlay="", crush_image_options=None, debian_mirror="",
                  keyring_package="", keyring_file="", debos_memory="",
-                 debos_cpus="", debos_scratchsize=""):
+                 debos_cpus="", debos_scratchsize="", imagesize=""):
         super().__init__(name, rootfs_type)
         self._debian_release = debian_release
         self._arch_list = arch_list or list()
@@ -65,6 +65,7 @@ class RootFS_Debos(RootFS):
         self._debian_mirror = debian_mirror
         self._keyring_package = keyring_package
         self._keyring_file = keyring_file
+        self._imagesize = imagesize
         self._debos_memory = debos_memory
         self._debos_cpus = debos_cpus
         self._debos_scratchsize = debos_scratchsize
@@ -83,6 +84,7 @@ class RootFS_Debos(RootFS):
             'debian_mirror',
             'keyring_package',
             'keyring_file',
+            'imagesize',
             'extra_packages',
             'extra_packages_remove',
             'extra_files_remove',
@@ -150,6 +152,10 @@ class RootFS_Debos(RootFS):
         return self._keyring_file
 
     @property
+    def imagesize(self):
+        return self._imagesize
+
+    @property
     def debos_memory(self):
         return self._debos_memory
 
@@ -170,6 +176,7 @@ class RootFS_Debos(RootFS):
             'debian_mirror',
             'keyring_package',
             'keyring_file',
+            'imagesize',
             'extra_packages',
             'extra_packages_remove',
             'extra_files_remove',
@@ -391,6 +398,7 @@ def _dump_config_debos(config_name, config):
     print('\tdebian_mirror: {}'.format(config.debian_mirror))
     print('\tkeyring_package: {}'.format(config.keyring_package))
     print('\tkeyring_file: {}'.format(config.keyring_file))
+    print('\timagesize: {}'.format(config.imagesize))
     print('\tdebos_memory: {}'.format(config.debos_memory))
     print('\tdebos_cpu: {}'.format(config.debos_cpu))
     print('\tdebos_scratchsize: {}'.format(config.debos_scratchsize))
