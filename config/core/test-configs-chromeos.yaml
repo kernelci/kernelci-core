@@ -796,27 +796,11 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-skyrim/20231208.0/amd64/modules.tar.xz'
       block_device: detect
 
-  dell-latitude-5400-4305U-sarien_chromeos:
+  dell-latitude-5300-8145U-arcada_chromeos: &chromebook-sarien-type
     <<: *chromebook-x86-type
-    base_name: dell-latitude-5400-4305U-sarien
+    base_name: dell-latitude-5300-8145U-arcada
     filters: *pineview-filter
-    params:
-      <<: *chromebook-generic-params
-      cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20231106.0/amd64/'
-        flash_tarball: 'full-cros-flash.tar.gz'
-        flash_tarball_compression: 'gz'
-        tast_tarball: 'tast.tgz'
-      reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20231106.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20231106.0/amd64/modules.tar.xz'
-      block_device: nvme0n1
-
-  dell-latitude-5400-8665U-sarien_chromeos:
-    <<: *chromebook-x86-type
-    base_name: dell-latitude-5400-8665U-sarien
-    filters: *pineview-filter
-    params:
+    params: &chromebook-sarien-params
       <<: *chromebook-generic-params
       cros_image:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20231106.0/amd64/'
@@ -827,6 +811,17 @@ device_types:
         image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20231106.0/amd64/bzImage'
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20231106.0/amd64/modules.tar.xz'
       block_device: detect
+
+  dell-latitude-5400-4305U-sarien_chromeos:
+    <<: *chromebook-sarien-type
+    base_name: dell-latitude-5400-4305U-sarien
+    params:
+      <<: *chromebook-sarien-params
+      block_device: nvme0n1
+
+  dell-latitude-5400-8665U-sarien_chromeos:
+    <<: *chromebook-sarien-type
+    base_name: dell-latitude-5400-8665U-sarien
 
   hp-14-db0003na-grunt_chromeos:
     <<: *chromebook-grunt-type
@@ -1168,6 +1163,9 @@ test_configs:
     test_plans: *chromebook-test-plans
 
   - device_type: dell-latitude-3445-7520c-skyrim_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: dell-latitude-5300-8145U-arcada_chromeos
     test_plans: *chromebook-test-plans
 
   - device_type: dell-latitude-5400-4305U-sarien_chromeos
