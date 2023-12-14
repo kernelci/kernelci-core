@@ -8,6 +8,8 @@
 # need methods
 # pylint: disable=too-few-public-methods
 
+# pylint: disable=no-name-in-module
+
 """KernelCI API model definitions used by client-facing endpoints"""
 
 from datetime import datetime, timedelta
