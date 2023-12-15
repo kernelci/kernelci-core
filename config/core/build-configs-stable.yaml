@@ -206,6 +206,11 @@ build_configs:
     branch: 'linux-6.3.y'
     variants: *stable_variants
 
+  stable_6.6:
+    tree: stable
+    branch: 'linux-6.6.y'
+    variants: *stable_variants
+
   stable-rc_3.16:
     tree: stable-rc
     branch: 'linux-3.16.y'
@@ -437,3 +442,11 @@ build_configs:
     reference:
       tree: stable
       branch: 'linux-6.3.y'
+
+  stable-rc_queue-6.6:
+    tree: stable-rc
+    branch: 'queue/6.6'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-6.6.y'
