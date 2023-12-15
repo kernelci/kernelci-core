@@ -416,6 +416,7 @@ test_plans:
 
   kselftest-net_qemu:
     <<: *kselftest_qemu
+    rootfs: debian_bookworm-kselftest_ramdisk
     params:
       job_timeout: '90'
       kselftest_collections: "net"
