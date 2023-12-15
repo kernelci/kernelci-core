@@ -144,7 +144,7 @@ class Base:
         return resp
 
 
-class API(abc.ABC, Base):  # pylint: disable=too-many-public-methods
+class API(abc.ABC, Base):
     """KernelCI API Python bindings abstraction"""
 
     # pylint: disable=abstract-class-instantiated
