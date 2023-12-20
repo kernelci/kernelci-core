@@ -81,7 +81,7 @@ class BaseJob:
             'result': result,
             'state': 'done',
         })
-        api.update_node(node)
+        api.node.update(node)
         return node
 
     def run(self, tarball_url):
