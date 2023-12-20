@@ -111,7 +111,7 @@ class APIHelper:
             'artifacts': input_node['artifacts'],
             'revision': input_node['revision'],
         }
-        return self._api.create_node(job_node)
+        return self._api.node.add(job_node)
 
     def submit_regression(self, regression):
         """Post a regression object
