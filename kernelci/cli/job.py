@@ -39,7 +39,7 @@ def new(name, node_id, node_json, config,  # pylint: disable=too-many-arguments
     configs = kernelci.config.load(config)
     helper = get_api_helper(configs, api, secrets)
     if node_id:
-        input_node = helper.api.get_node(node_id)
+        input_node = helper.api.node.get(node_id)
     elif node_json:
         input_node = helper.load_json(node_json)
     else:
@@ -71,7 +71,7 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
     """Generate a job definition in a file"""
     configs = kernelci.config.load(config)
     api = get_api(configs, api, secrets)
-    job_node = api.get_node(node_id)
+    job_node = api.node.get(node_id)
     job = kernelci.runtime.Job(job_node, configs['jobs'][job_node['name']])
     job.platform_config = configs['device_types'][platform]
     job.storage_config = (
