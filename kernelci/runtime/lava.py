@@ -13,6 +13,8 @@ from collections import namedtuple
 import time
 from urllib.parse import urljoin
 
+import os
+import hashlib
 import requests
 import yaml
 
@@ -180,6 +182,18 @@ class LAVA(Runtime):
         return params
 
     def generate(self, job, params):
+        # if LAVA runtime dont have set notify.callback.token
+        # then use API token from os.environ.get('KCI_API_TOKEN')
+        token = os.environ.get('KCI_API_TOKEN')
+        if not token:
+            raise RuntimeError('LAVA runtime requires KCI_API_TOKEN')
+        t_hash = hashlib.md5(token.encode('utf-8')).hexdigest()
+        if 'notify' not in params or 'callback' not in params['notify'] or \
+           'token' not in params['notify']['callback']:
+            params.setdefault('notify', {}). \
+                   setdefault('callback', {})['token'] = t_hash
+        if not params['notify']['callback']['token']:
+            params['notify']['callback']['token'] = t_hash
         template = self._get_template(job.config)
         return template.render(params)
 
