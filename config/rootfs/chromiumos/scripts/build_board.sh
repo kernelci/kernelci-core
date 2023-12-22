@@ -139,7 +139,7 @@ echo "Updating ownership"
 sudo chown -R "${USERNAME}" "${DATA_DIR}/${BOARD}"
 
 echo "Compressing image"
-gzip -1 "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
+gzip -1 --force "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
 
 echo "Extracting additional artifacts"
 sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./chroot/build/${BOARD} lib/modules
