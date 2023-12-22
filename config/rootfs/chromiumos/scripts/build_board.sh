@@ -66,6 +66,9 @@ if [ -n "${VANILLA_MANIFEST}" ]; then
   echo "Fetching vanilla manifest ${VANILLA_MANIFEST}"
   repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${VANILLA_MANIFEST}
 else
+  # Ensure file ownership issues won't get in the way
+  git config --global safe.directory /kernelci-core
+
   if [ -z "${KCICORE_BRANCH}" ]; then
     KCICORE_BRANCH="$(git -C /kernelci-core branch --show-current 2>/dev/null || true)"
   fi
