@@ -155,6 +155,9 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             event = from_json(data)
             return event
 
+    def subscription_stats(self):
+        return self._get('stats/subscriptions').json()
+
     def get_group(self, group_id: str) -> dict:
         return self._get(f'group/{group_id}').json()
 
