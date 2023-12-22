@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="aosp" fetch="https://android.googlesource.com" review="https://android-review.googlesource.com">
+    <annotation name="public" value="true"/>
+  </remote>
+  <remote name="chromium" fetch="https://chromium.googlesource.com/" alias="cros">
+    <annotation name="public" value="true"/>
+  </remote>
+  <remote name="cros" fetch="https://chromium.googlesource.com" review="https://chromium-review.googlesource.com">
+    <annotation name="public" value="true"/>
+  </remote>
+  <remote name="cros-kernelci-dev" fetch="https://gitlab.collabora.com/chromiumos-kernelci">
+    <annotation name="public" value="true"/>
+  </remote>
+
+  <default remote="cros" sync-j="8"/>
+  
+  <project name="aosp/platform/external/libutf" path="src/aosp/external/libutf" revision="c17bb435be940edf1aff81469215bb6a071f3c38" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/external/modp_b64" path="src/third_party/modp_b64" revision="68a503fff7af8fbf6f78cd496830813d41150817" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/external/uwb" path="src/aosp/external/uwb/local" revision="bd1726205e818ebd52e0cf6ca273e0608cdc998d" upstream="refs/heads/release-R120-15662.B-bd1726205e818ebd52e0cf6ca273e0608cdc998d" dest-branch="refs/heads/release-R120-15662.B-bd1726205e818ebd52e0cf6ca273e0608cdc998d"/>
+  <project name="aosp/platform/external/uwb" path="src/aosp/external/uwb/upstream" revision="85f38f76787c158c3b2fdc3ac115aa5f8412958c" upstream="refs/heads/release-R120-15662.B-upstream-master" dest-branch="refs/heads/release-R120-15662.B-upstream-master"/>
+  <project name="aosp/platform/frameworks/ml" path="src/aosp/frameworks/ml" revision="70f29ed06f63e9711e07708d8713281e6b332504" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/frameworks/native" path="src/aosp/frameworks/native" revision="5e9a89d06c41edf5cf43da8acf5f26ed104887e6" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/hardware/interfaces/neuralnetworks" path="src/aosp/hardware/interfaces/neuralnetworks" revision="84c38b6e3978ab7391ab1a2a696bfd4627401097" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/hardware/nxp/uwb" path="src/aosp/hardware/nxp/uwb" revision="0f5b3cdeff975841895739fbb6475887381c5ae4" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/core/base" path="src/aosp/system/core/base" revision="8cf6479cfd925657da51da04902a68dfe7e84632" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/core/libbacktrace" path="src/aosp/system/core/libbacktrace" revision="d67ee5af5ee2790631aa4f7ca125d12c09840436" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/core/libcutils" path="src/aosp/system/core/libcutils" revision="dcc518ef32993d0171d0849bd3677c9d0948f8bb" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/core/liblog" path="src/aosp/system/core/liblog" revision="9cca7081cb7d158034bffec841f227af52cca401" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/core/libsync" path="src/aosp/system/libsync" revision="074e053f159602aa7558cfb2ae2f3c67878d90e0" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/core/libutils" path="src/aosp/system/core/libutils" revision="6518555263253e9fdf7e37d26866cbe75bc11e97" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/libbase" path="src/aosp/system/libbase" revision="9537e373c71c26c5495be60d267dff5eb88b180f" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="paygen"/>
+  <project name="aosp/platform/system/libfmq" path="src/aosp/system/libfmq" revision="1d72513a44e4cb856c1cc70f95f9b1e88b1b4a78" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/libhidl" path="src/aosp/system/libhidl" revision="49005468bfa1d0c3ed69d8a61b8d0fbaafd1e836" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/logging" path="src/aosp/system/logging" revision="2e909ccdf779939e5caa5ab52851f38f22037ae9" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="aosp/platform/system/update_engine" path="src/aosp/system/update_engine" revision="257c64afd1b83b7f67321eaf1e565807bdd3eab9" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="paygen"/>
+  <project name="apps/libapps" path="src/third_party/libapps" revision="8d67cc6430647aff440f312a9643259355c8a863">
+    <annotation name="branch-mode" value="pin"/>
+  </project>
+  <project name="breakpad/breakpad" path="src/third_party/breakpad" revision="8988364bcddd9b194b0bf931c10bc125987330ed"/>
+  <project name="chromium/src/components/policy" path="src/chromium/src/components/policy" remote="chromium" revision="6f68f47663a6f047176bc9d420fa971fb121408c"/>
+  <project name="chromium/src/media/midi" path="src/chromium/src/media/midi" remote="chromium" revision="77cc36d72b2a07ce056c6dc57290b2e094db7931"/>
+  <project name="chromium/src/net/tools/testserver" path="src/chromium/src/net/tools/testserver" remote="chromium" revision="4496e76d7f5b9814a63000e1daa70b44fd8da245"/>
+  <project name="chromium/src/third_party/Python-Markdown" path="src/chromium/src/third_party/Python-Markdown" remote="chromium" revision="0f4473546172a64636f5d841410c564c0edad625"/>
+  <project name="chromium/src/third_party/private_membership" path="src/chromium/src/third_party/private_membership" remote="chromium" revision="d6f0b22d660f16a6a2e022293fef4925489b77ac"/>
+  <project name="chromium/src/third_party/shell-encryption" path="src/chromium/src/third_party/shell-encryption" remote="chromium" revision="e2594b65e49b64b7fe100f7fd439ec93ff937a3d"/>
+  <project name="chromium/src/third_party/tlslite" path="src/chromium/src/third_party/tlslite" remote="chromium" revision="05d9f22315757117685ad2f5265148f900f18034"/>
+  <project name="chromium/src/tools/md_browser" path="src/chromium/src/tools/md_browser" remote="chromium" revision="6cc8e58a83412dc31de6fb7614fadb0b51748d4b"/>
+  <project name="chromium/tools/depot_tools" path="src/chromium/depot_tools" remote="chromium" revision="ecdcb9a0e135c5816212f173bce160aec1ad7246" groups="minilayout,paygen,firmware,buildtools,labtools"/>
+  <project name="chromiumos/bazel" path="src/bazel" revision="70ccb321c47ed28f39f4986668ba3a9c3c7ed993" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,bazel,fwsdk">
+    <linkfile src="workspace_root/general/WORKSPACE" dest="src/WORKSPACE"/>
+  </project>
+  <project name="chromiumos/chromite" path="chromite" revision="c1a407a45e735d4d577f4bda4de4490b16cf5b8e" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware,buildtools,chromeos-admin,labtools,sysmon,devserver,crosvm,fwsdk">
+    <copyfile src="AUTHORS" dest="AUTHORS"/>
+    <copyfile src="LICENSE" dest="LICENSE"/>
+  </project>
+  <project name="chromiumos/chromite" path="infra/chromite-HEAD" revision="1ce5915679d6afbc55ecec318b61ed989343a46e" upstream="refs/heads/main" dest-branch="refs/heads/main" groups="buildtools,paygen">
+    <annotation name="branch-mode" value="tot"/>
+  </project>
+  <project name="chromiumos/config" path="src/config" revision="06319ab76042c569149904fcc25a251ad6926956" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="paygen,config,partner-config"/>
+  <project name="chromiumos/containers/cros-container-guest-tools" path="src/platform/container-guest-tools" revision="a4cd4665ac1a33499f797ef4f13c6be4351df954" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/docs" path="docs" revision="65e50c8bff477e8002edeccfee77e726a06a823a" groups="crosvm">
+    <annotation name="branch-mode" value="pin"/>
+  </project>
+  <project name="chromiumos/graphyte" path="src/platform/graphyte" revision="f661990d0379f1030bdaa93c573ef4a50e9c6e66" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/infra/build/empty-project" path="src/platform/empty-project" revision="d2d95e8af89939f893b1443135497c1f5572aebc" groups="minilayout,paygen,firmware">
+    <annotation name="branch-mode" value="pin"/>
+  </project>
+  <project name="chromiumos/infra/go" path="infra/go" revision="8f53fa831d621d5d9541f1921ed00d6bcaea49ae" upstream="refs/heads/main" dest-branch="refs/heads/main" groups="chromeos-admin">
+    <annotation name="branch-mode" value="tot"/>
+  </project>
+  <project name="chromiumos/infra/lucifer" path="infra/lucifer" revision="12e9e6bde527c0bf97ff68c1d5f70385e15d1e58" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/infra/proto" path="chromite/infra/proto" revision="391072dee485cdadab6c610a349905a998aede6b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/infra/proto" path="infra/proto" revision="11b2592008492e7ca6bcc911f3ac5a8b11c74cdc" upstream="refs/heads/main" dest-branch="refs/heads/main">
+    <annotation name="branch-mode" value="tot"/>
+  </project>
+  <project name="chromiumos/infra_virtualenv" path="infra_virtualenv" revision="39254f97db8d6ab8b3fdef3d2f7038ac42978b78" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="buildtools,chromeos-admin,labtools,sysmon,devserver"/>
+  <project name="chromiumos/manifest" path="manifest" revision="0c0c21ed9f30805245c62b0ec2861913103aa614" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="board-overlays" path="src/overlays" revision="437ced61398e2366d6edca77b17bcde4cbdb244e" upstream="refs/heads/kernelci/release-R120-15662.B" dest-branch="refs/heads/kernelci/release-R120-15662.B" groups="minilayout,paygen,firmware" remote="cros-kernelci-dev"/>
+  <project name="chromiumos-overlay" path="src/third_party/chromiumos-overlay" revision="78b712ec6d172f48b1c5e38e8dd436dc929bd733" upstream="refs/heads/kernelci/release-R120-15662.B" dest-branch="refs/heads/kernelci/release-R120-15662.B" groups="minilayout,paygen,firmware,labtools" sync-c="true" remote="cros-kernelci-dev"/>
+  <project name="chromiumos/overlays/eclass-overlay" path="src/third_party/eclass-overlay" revision="0ca65aa5c5c79acc633ff1a4e65306e931b4fdac" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware,labtools"/>
+  <project name="chromiumos/overlays/portage-stable" path="src/third_party/portage-stable" revision="58ce2b1ce8a0f9a3f9422b36308092d79fd80082" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware,labtools"/>
+  <project name="chromiumos/overlays/toolchains" path="src/third_party/toolchains-overlay" revision="6fd96089b1f30eb98edaa80ee01b82a930770d20" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware,labtools"/>
+  <project name="chromiumos/platform/assets" path="src/platform/assets" revision="d8590410975b8aee2e9666331691e24d5762c6b0" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/audiotest" path="src/platform/audiotest" revision="8c583d5c11a92f2b0bad0ecb346734dd1d4126c2" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/bisect-kit" path="src/platform/bisect-kit" revision="9f95282fb28e60c0846442cc7eb9af1f222ad24b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/bluetooth" path="src/platform/bluetooth" revision="0b0d5486b03f371fcf71c184c4ed3287baeea062" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/bmpblk" path="src/platform/bmpblk" revision="2edb43ad5359edd4e3cbae813fb7fda0ed2e6651" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/btsocket" path="src/platform/btsocket" revision="d52a38ffface8988da342133161c8a6b462437a0" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/camera" path="src/platform/camera" revision="cf4ec1626080b1806b3494aa3008d289253902da" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/cbor" path="src/platform/cbor" revision="bd1416be85fc5c317a2e6171be066ed98841e643" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/cfm-device-monitor" path="src/platform/cfm-device-monitor" revision="07aabdfb70e88891f587599a13c2303f7decbacc" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/chameleon" path="src/platform/chameleon" revision="9420273f9544a3318d82932f50b1a2d90be8ebaf" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/chromiumos-assets" path="src/platform/chromiumos-assets" revision="de6c118f21ef7130feb30d4b7f703cfe2ba2748f" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/crdyboot" path="src/platform/crdyboot" revision="0986e68f519f72907179600850efa1ad2f80df58" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/crospts" path="src/platform/crospts" revision="6190f3bf0b12dfbd62444d271e56b3b2b11c2bb3" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/crostestutils" path="src/platform/crostestutils" revision="827043f75c1d8126ba8a387a4a3d3e0b47987c84" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware,buildtools"/>
+  <project name="chromiumos/platform/crosutils" path="src/scripts" revision="285d3f0846ca14caeb41e9ef5f8220c68c6c9fdc" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware,buildtools,labtools"/>
+  <project name="chromiumos/platform/crosvm" path="src/platform/crosvm" revision="0a9d1cb8be29e49c355ea8b18cd58506dbbaf6e5" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="crosvm"/>
+  <project name="chromiumos/platform/depthcharge" path="src/platform/depthcharge" revision="d3235d3a119e9cc05d51ceaaf865954c4a6f9ea7" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/platform/dev-util" path="src/platform/dev" revision="1e7a836627664f80fc83188d0a5c9405b8d26727" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware,buildtools,devserver"/>
+  <project name="chromiumos/platform/drm-tests" path="src/platform/drm-tests" revision="5cbdbb3502ede25bd1c1449063fc7e552a85927b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/ec" path="src/platform/cr50" revision="8feb16affd8872e30cd55fcdc9b613af8f2b1e20" upstream="refs/heads/release-R120-15662.B-cr50_stab" dest-branch="refs/heads/release-R120-15662.B-cr50_stab" groups="paygen,firmware"/>
+  <project name="chromiumos/platform/ec" path="src/platform/ec" revision="fb5baf31ef3d685760326f929d234fb9f9130aed" upstream="refs/heads/release-R120-15662.B-main" dest-branch="refs/heads/release-R120-15662.B-main" groups="paygen,firmware,fwsdk"/>
+  <project name="chromiumos/platform/ec" path="src/platform/gsc-utils" revision="8721e7eac7d27fab42207312093c7e6768089db5" upstream="refs/heads/release-R120-15662.B-gsc_utils" dest-branch="refs/heads/release-R120-15662.B-gsc_utils"/>
+  <project name="chromiumos/platform/ec" path="src/platform/ish" revision="dceabef37914104929e3fcb35c8d51a82869f57a" upstream="refs/heads/release-R120-15662.B-ish" dest-branch="refs/heads/release-R120-15662.B-ish" groups="firmware"/>
+  <project name="chromiumos/platform/ec" path="src/platform/release-firmware/fpmcu-bloonchipper" revision="9bcb401cd4903c47c2d8655a273226ba0f50e884" groups="firmware">
+    <annotation name="branch-mode" value="pin"/>
+  </project>
+  <project name="chromiumos/platform/ec" path="src/platform/release-firmware/fpmcu-dartmonkey" revision="23c9539579a49d0558648812a51d4c0d4c2199bc" groups="firmware">
+    <annotation name="branch-mode" value="pin"/>
+  </project>
+  <project name="chromiumos/platform/ec" path="src/platform/release-firmware/fpmcu-nami" revision="23c9539579a49d0558648812a51d4c0d4c2199bc" groups="firmware">
+    <annotation name="branch-mode" value="pin"/>
+  </project>
+  <project name="chromiumos/platform/ec" path="src/platform/release-firmware/fpmcu-nocturne" revision="23c9539579a49d0558648812a51d4c0d4c2199bc" groups="firmware">
+    <annotation name="branch-mode" value="pin"/>
+  </project>
+  <project name="chromiumos/platform/factory" path="src/platform/factory" revision="8cf2a6067856762da7b28150734880f3d2e9f390" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/factory_installer" path="src/platform/factory_installer" revision="9faaf07e39baf005c3bda10ad679eafd68a25f91" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/feature-management" path="src/platform/feature-management" revision="6b283d9b5fa2eb7a93bf1131b52ca01f6d9c25cb" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/firmware" path="src/platform/firmware" revision="67ef12b23f6aad4bd37213828a6243f6df4ce7fd" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/platform/frecon" path="src/platform/frecon" revision="0860239744c1ec759d020d366498b80f029401d3" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/fw-testing-configs" path="src/platform/tast-tests/src/go.chromium.org/tast-tests/cros/remote/firmware/data/fw-testing-configs" revision="1f24bffedd55151cb75db23475b6e303e6b8b6e6" upstream="refs/heads/release-R120-15662.B-main" dest-branch="refs/heads/release-R120-15662.B-main" groups="paygen,buildtools,labtools,devserver"/>
+  <project name="chromiumos/platform/fw-testing-configs" path="src/third_party/autotest/files/server/cros/faft/fw-testing-configs" revision="1f24bffedd55151cb75db23475b6e303e6b8b6e6" upstream="refs/heads/release-R120-15662.B-main" dest-branch="refs/heads/release-R120-15662.B-main" groups="buildtools,labtools,devserver,firmware"/>
+  <project name="chromiumos/platform/gestures" path="src/platform/gestures" revision="558a2420ad3d1ac5ac8ef7f6707abc2bf1d8b8e2" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/glbench" path="src/platform/glbench" revision="4f05441a80bcd4c17e1aea360a360794336dea09" upstream="refs/heads/release-R120-15662.B-main" dest-branch="refs/heads/release-R120-15662.B-main"/>
+  <project name="chromiumos/platform/graphics" path="src/platform/graphics" revision="1073e9376a461c1913c2b9465950565a5592ec2f" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/hps-firmware" path="src/platform/hps-firmware2" revision="95eedb028ac43a045e0c77388a425c2c5f65c53d" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/hps-firmware-images" path="src/platform/hps-firmware-images" revision="7da2ddb1a418232fa0711ed09725ffb1bf56953c" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/human_motion_robot" path="src/platform/human_motion_robot" revision="b65fd9a54e9f42b4abe2ed31051896272dba0aa5" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/initramfs" path="src/platform/initramfs" revision="70d5d42d74bad2e6abf224f43595ce6f9a6612b3" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/inputcontrol" path="src/platform/inputcontrol" revision="b2e50298c1c56bec9e452719798b4dfb9e85c609" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/jabra_vold" path="src/platform/jabra_vold" revision="648d37d2d31341be85b00f8751084c3de88e9bf3" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/libchrome" path="src/platform/libchrome" revision="1a34e0dfe048fb7b4bb0cdbbbc62e3579aaab48b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/libevdev" path="src/platform/libevdev" revision="1f777246665809009a50a37545322ca5954b08a8" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/libevstate" path="src/platform/libevstate" revision="c0b4726937bec74b465396f700614e75cd0c8a9a" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/microbenchmarks" path="src/platform/microbenchmarks" revision="fe0bf1eaf40232031a6b04b76b2a07b38b0bfef5" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/minigbm" path="src/platform/minigbm" revision="c1b8807aad1a6dff2cfeb84250f6bbf4c07fb26b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="crosvm"/>
+  <project name="chromiumos/platform/minijail" path="src/platform/minijail" revision="1b6a48a6776221f1377c82477803b1751049a2ff" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="crosvm"/>
+  <project name="chromiumos/platform/mosys" path="src/platform/mosys" revision="9c741a7b5533732c227de402bc3ece24d8f4c51e" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/mttools" path="src/platform/mttools" revision="5a0a3b753c4e2d02cc14a82020aaf62705e52d3a" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/pinweaver" path="src/platform/pinweaver" revision="41f3c0b526d4929ea3e54786908041ba0a7e8e2a" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="fwsdk"/>
+  <project name="chromiumos/platform/redaction_tool" path="src/platform/redaction_tool" revision="55ec79ce4afc543a9e50b18a9a1f4fd00b81353d" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/rules_cros" path="src/platform/rules_cros" revision="e7b8e288b01a667dba87d7d2c584b950adb6200c" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/rules_cros_firmware" path="src/platform/rules_cros_firmware" revision="c8548e5664b21bcc2b18be1927b2f2c0ad5d5e22" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="fwsdk"/>
+  <project name="chromiumos/platform/spdm" path="src/platform/spdm" revision="2f1cf74817c1c496859f874967681c9edcfd4f2b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/tast" path="src/platform/tast" revision="a5c7f0acaf820ef6900f73b01580e4d6c35753dd" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen"/>
+  <project name="chromiumos/platform/tast-tests" path="src/platform/tast-tests" revision="bf7805c3dc90b290d4070d81eea442dd5ea0ba71" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen"/>
+  <project name="chromiumos/platform/tauto" path="src/platform/tauto" revision="92d90dcc2c288822ea930d5311e0fb412882f2c5" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/touch_firmware_test" path="src/platform/touch_firmware_test" revision="b8b2c09a7965e530eeeba1e7adac51ef542264ee" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware"/>
+  <project name="chromiumos/platform/touch_updater" path="src/platform/touch_updater" revision="c863ea894cf152df8251373d3d6387c881eb4237" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/touchpad-tests" path="src/platform/touchpad-tests" revision="a7fda17019fb0c5ed3ddbd787af288c440ddc21b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/tpm" path="src/third_party/tpm" revision="421593a8cea1083288d5d047b0c43f85c92fe069" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware"/>
+  <project name="chromiumos/platform/tpm_lite" path="src/platform/tpm_lite" revision="ff8b993e0a65a72c0e3c7b51c02d1048816012a6" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/tremplin" path="src/platform/tremplin" revision="46e0c7dc20ec3acaad5c444beab401380e353f7d" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/usi-test" path="src/platform/usi-test" revision="36e36575ca053ff30cdd29ee9bce01def40b7c5e" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/vboot_reference" path="src/platform/vboot_reference" revision="ac2e1a752cdedb3879daa79a657cf4e1ffdd639c" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="paygen,firmware,buildtools,fwsdk"/>
+  <project name="chromiumos/platform/vkbench" path="src/platform/vkbench" revision="3c56fc09c6a15ac40862bc258b1fe863b3f347d9" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/vpd" path="src/platform/vpd" revision="d6ff7f1016eed50d307c5bb53d3ecbb0d2689c1a" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/platform/xorg-conf" path="src/platform/xorg-conf" revision="a9ae9e797b261031e82fbc3fd58a867f1e617929" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="platform2" path="src/platform2" revision="6eef929ad8d189d0beaa3f14385684e3ca7c37e6" upstream="refs/heads/kernelci/release-R120-15662.B" dest-branch="refs/heads/kernelci/release-R120-15662.B" groups="minilayout,paygen,crosvm,config,partner-config" remote="cros-kernelci-dev"/>
+  <project name="chromiumos/project" path="src/project_public" revision="9e31c01de3694809cdec6af3651bcdb8ae199f3d" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="partner-config"/>
+  <project name="chromiumos/repohooks" path="src/repohooks" revision="2d476fb7a8dd218d7ca64c992bfeaab74ceffa4a" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware,buildtools,labtools,crosvm,fwsdk"/>
+  <project name="chromiumos/third_party/OP-TEE/optee_os" path="src/third_party/optee_os" revision="be2dcdccabb39ebf7337a4c099163441963e6e8b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/Wi-FiTestSuite-Linux-DUT" path="src/third_party/Wi-FiTestSuite-Linux-DUT" revision="afe5b18c1b33f03169779851369c8c4ab0bb941d" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/adhd" path="src/third_party/adhd" revision="875caf9df96680b7f24ba73b379fd22fa4e99a15" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="crosvm"/>
+  <project name="chromiumos/third_party/ap_wpsr" path="src/third_party/ap_wpsr" revision="be7a40d5e04178f3b331fbf4345ea3b2a3c60392" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware"/>
+  <project name="chromiumos/third_party/apitrace" path="src/third_party/apitrace" revision="1090464595110ae95d329f2f7b6220443052c215" upstream="refs/heads/release-R120-15662.B-master" dest-branch="refs/heads/release-R120-15662.B-master"/>
+  <project name="chromiumos/third_party/arm-trusted-firmware" path="src/third_party/arm-trusted-firmware" revision="f8363a8e2c1ac8aa7340030f199daa72dcc9126b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/atrusctl" path="src/third_party/atrusctl" revision="1f576eac08b5693eb82390f1a4382057abe6e0cf" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/autotest" path="src/third_party/autotest/files" revision="c6bc1de5a3663e84f1da94061ec895272c9377a8" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="buildtools,labtools,devserver"/>
+  <project name="chromiumos/third_party/aver-updater" path="src/third_party/aver-updater" revision="1197f4dcbee3eb2892c507c5b4ba698dbd70c6f1" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/bluez" path="src/third_party/bluez/current" revision="1b573c1774677730560dc87137dbd6e0d652c2a7" upstream="refs/heads/release-R120-15662.B-chromeos-5.54" dest-branch="refs/heads/release-R120-15662.B-chromeos-5.54"/>
+  <project name="chromiumos/third_party/bluez" path="src/third_party/bluez/next" revision="1b573c1774677730560dc87137dbd6e0d652c2a7" upstream="refs/heads/release-R120-15662.B-chromeos-5.54" dest-branch="refs/heads/release-R120-15662.B-chromeos-5.54"/>
+  <project name="chromiumos/third_party/bluez" path="src/third_party/bluez/upstream" revision="00fdb61d56161f523e975b4c044030f4b40abb6d">
+    <annotation name="branch-mode" value="pin"/>
+  </project>
+  <project name="chromiumos/third_party/cbootimage" path="src/third_party/cbootimage" revision="b7d5b2d6a6dd05874d86ee900ff441d261f9034c" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware"/>
+  <project name="chromiumos/third_party/chre" path="src/third_party/chre" revision="b080d2ca6fc63a5a84cbcb5b1b96a2e2ca40f72f" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/clspv" path="src/third_party/clspv" revision="0f43a2a7bd66ebae38b48de549299cfe4a5ebbe8" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/clvk" path="src/third_party/clvk" revision="1b3b0251dc4647859163e426f9e6ee4e2e60fd71" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/coreboot" path="src/third_party/coreboot" revision="6a16de8e4d696d22cd89388cf34f585ee2d70860" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/third_party/coreboot/amd_blobs" path="src/third_party/coreboot/3rdparty/amd_blobs" revision="992558d181ff4868d25cdc4d12c86e8f914532d0" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/third_party/coreboot/blobs" path="src/third_party/coreboot/3rdparty/blobs" revision="7a051af561fa3ba549839b81e850c4cd0b00ad5c" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/third_party/coreboot/intel-microcode" path="src/third_party/coreboot/3rdparty/intel-microcode" revision="ee319ae7bc59e88b60142f40a9ec1b46656de4db" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/third_party/coreboot/libgfxinit" path="src/third_party/coreboot/3rdparty/libgfxinit" revision="c8c0344f73359f8f31ac148c09e89003cd31cf05" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/third_party/coreboot/libhwbase" path="src/third_party/coreboot/3rdparty/libhwbase" revision="48db0a6fd0b8e12ecd55dfec10183b169c8a4b43" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/third_party/coreboot/qc_blobs" path="src/third_party/coreboot/3rdparty/qc_blobs" revision="a252198ec6544e13904cfe831cec3e784aaa715d" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/third_party/cros-adapta" path="src/third_party/cros-adapta" revision="46fd2136aa799bb17dfb1002278f98e6397e5806" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/cryptoc" path="src/third_party/cryptoc" revision="0dd679081b9c8bfa2583d74e3a17a413709ea362" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,fwsdk"/>
+  <project name="chromiumos/third_party/cups" path="src/third_party/cups" revision="03b0f752346fd71dd93c9bed0c334938c228bf81" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/daisydog" path="src/third_party/daisydog" revision="cd82b41fefe3dbf7fd0bca93aa7fad86938d483f" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/edk2" path="src/third_party/amd-firmware/binarypi/picasso-edk2" revision="e2fc5e5879135d2c7e638a83ca066b2a08e134d5" upstream="refs/heads/release-R120-15662.B-pco" dest-branch="refs/heads/release-R120-15662.B-pco" groups="firmware"/>
+  <project name="chromiumos/third_party/edk2" path="src/third_party/amd-fsp/cezanne-edk2" revision="5dc601a8f5f08a21667e3fa8f2f1858d5adbb893" upstream="refs/heads/release-R120-15662.B-chromeos-czn" dest-branch="refs/heads/release-R120-15662.B-chromeos-czn" groups="firmware"/>
+  <project name="chromiumos/third_party/edk2" path="src/third_party/amd-fsp/mendocino-edk2" revision="4fc70f5f549b469a5afbc4b756799f89563254af" upstream="refs/heads/release-R120-15662.B-chromeos-mdn" dest-branch="refs/heads/release-R120-15662.B-chromeos-mdn" groups="firmware"/>
+  <project name="chromiumos/third_party/edk2" path="src/third_party/amd-fsp/phoenix-edk2" revision="bd02232e63865b816f62f5f5ba5c4834799d092c" upstream="refs/heads/release-R120-15662.B-chromeos-phx" dest-branch="refs/heads/release-R120-15662.B-chromeos-phx" groups="firmware"/>
+  <project name="chromiumos/third_party/edk2" path="src/third_party/edk2" revision="f688669d4c1aa1f3f55b53c91fa0d7a67df3ac56" upstream="refs/heads/release-R120-15662.B-chromeos-v202308" dest-branch="refs/heads/release-R120-15662.B-chromeos-v202308" groups="firmware,fwsdk"/>
+  <project name="chromiumos/third_party/edk2" path="src/third_party/fsp/cml/edk2/branch1" revision="4de539eb3f1bcc304ac2ea88c3a8d4b5cc76a5d6" upstream="refs/heads/release-R120-15662.B-chromeos-cml-branch1" dest-branch="refs/heads/release-R120-15662.B-chromeos-cml-branch1" groups="firmware"/>
+  <project name="chromiumos/third_party/edk2" path="src/third_party/fsp/cnl/edk2" revision="995dede2362e4947c91f631069444552a1d2eeff" upstream="refs/heads/release-R120-15662.B-chromeos-cnl" dest-branch="refs/heads/release-R120-15662.B-chromeos-cnl" groups="firmware"/>
+  <project name="chromiumos/third_party/edk2" path="src/third_party/fsp/glk/edk2" revision="f84e90881271300af73761bbd6a6fa8b8f82c266" upstream="refs/heads/release-R120-15662.B-chromeos-glk" dest-branch="refs/heads/release-R120-15662.B-chromeos-glk" groups="firmware"/>
+  <project name="chromiumos/third_party/em100" path="src/third_party/em100" revision="a1d938f8b4253c76fb31e69de33266cb71bda141" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware"/>
+  <project name="chromiumos/third_party/fastrpc" path="src/third_party/fastrpc" revision="c2d1cdc0fb781ee673077c5d4b243eb239c73bb5" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/flashmap" path="src/third_party/flashmap" revision="e3fc969bdf4e744e2478aeb4d0f5cd5a7fc80f70" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware"/>
+  <project name="chromiumos/third_party/flashrom" path="src/third_party/flashrom" revision="cd6d81aaa0374f437410782b37008f787181433b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="paygen,firmware"/>
+  <project name="chromiumos/third_party/fwupd" path="src/third_party/fwupd" revision="7ee68c2d21501d35eef4063c2b6d6544e1d4408f" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/gmmlib" path="src/third_party/gmmlib" revision="8b97dec1b34c9c8e1b97e5061ffbafcd4cbd7b4e" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/hdctools" path="src/third_party/hdctools" revision="a44c688bafb94b0220169f44d410e04ed2bea313" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="paygen,labtools,fwsdk"/>
+  <project name="chromiumos/third_party/hostap" path="src/third_party/wpa_supplicant" revision="f74eae04b7218ca56439757eff4038b9d9f19075" upstream="refs/heads/release-R120-15662.B-master" dest-branch="refs/heads/release-R120-15662.B-master"/>
+  <project name="chromiumos/third_party/hostap" path="src/third_party/wpa_supplicant-cros/current" revision="9b3ab7b91a7996d4676b7593d3aeef0381e4a7e4" upstream="refs/heads/release-R120-15662.B-wpa_supplicant-2.10.0" dest-branch="refs/heads/release-R120-15662.B-wpa_supplicant-2.10.0"/>
+  <project name="chromiumos/third_party/hostap" path="src/third_party/wpa_supplicant-cros/next" revision="9b3ab7b91a7996d4676b7593d3aeef0381e4a7e4" upstream="refs/heads/release-R120-15662.B-wpa_supplicant-2.10.0" dest-branch="refs/heads/release-R120-15662.B-wpa_supplicant-2.10.0"/>
+  <project name="chromiumos/third_party/huddly-updater" path="src/third_party/huddly-updater" revision="b0192a719683efe067a35d7d7706ab8369541f4c" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/igt-gpu-tools" path="src/third_party/igt-gpu-tools" revision="5e82a8ee42d58c5e183c3d4208ae4ccd977a4830" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/intel-wifi-fw-dump" path="src/third_party/intel-wifi-fw-dump" revision="5b054af75c90713bc45b5c9c0375dca2a843f201" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="linux-public" path="src/third_party/kernel/upstream" revision="5258bcc9972317f1af7491169c8d8ced0421b5fa" upstream="refs/heads/kernelci/6.6/release-R120-15662.B" remote="cros-kernelci-dev">
+    <annotation name="branch-mode" value="pin"/>
+    <annotation name="bisection-branch" value="refs/heads/merge/continuous/kernelupstream-bisect-6.6-rc2_6.6-rc4"/>
+  </project>
+  <project name="chromiumos/third_party/kernel" path="src/third_party/kernel/v4.14" revision="ed51372021187d02a07802e1815b2344e9fea563" upstream="refs/heads/release-R120-15662.B-chromeos-4.14" dest-branch="refs/heads/release-R120-15662.B-chromeos-4.14"/>
+  <project name="chromiumos/third_party/kernel" path="src/third_party/kernel/v4.19" revision="a254e202853f44a79534852ba737d1ae45179c15" upstream="refs/heads/release-R120-15662.B-chromeos-4.19" dest-branch="refs/heads/release-R120-15662.B-chromeos-4.19"/>
+  <project name="chromiumos/third_party/kernel" path="src/third_party/kernel/v5.4" revision="6ffd1c339715693fff2f7b24720824d132a36c69" upstream="refs/heads/release-R120-15662.B-chromeos-5.4" dest-branch="refs/heads/release-R120-15662.B-chromeos-5.4"/>
+  <project name="chromiumos/third_party/kernel" path="src/third_party/kernel/v5.10" revision="26247a29788578f810c319d4a3b001a81991d8a8" upstream="refs/heads/release-R120-15662.B-chromeos-5.10" dest-branch="refs/heads/release-R120-15662.B-chromeos-5.10"/>
+  <project name="chromiumos/third_party/kernel" path="src/third_party/kernel/v5.10-arcvm" revision="3e57724f00323e26143a9f214b94a3009d0a83ab" upstream="refs/heads/release-R120-15662.B-chromeos-5.10-arcvm" dest-branch="refs/heads/release-R120-15662.B-chromeos-5.10-arcvm"/>
+  <project name="chromiumos/third_party/kernel" path="src/third_party/kernel/v5.15" revision="1e0f2f9841744a588125c4928fb6f411be8322c2" upstream="refs/heads/release-R120-15662.B-chromeos-5.15" dest-branch="refs/heads/release-R120-15662.B-chromeos-5.15"/>
+  <project name="chromiumos/third_party/kernel" path="src/third_party/kernel/v6.1" revision="03a802b9a072d654964a13633d1a2c40fbbeb349" upstream="refs/heads/release-R120-15662.B-chromeos-6.1" dest-branch="refs/heads/release-R120-15662.B-chromeos-6.1"/>
+  <project name="chromiumos/third_party/khronos" path="src/third_party/khronos" revision="c9d952582b74f9609bf68e0402856a2fc1e536c0" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/labpack" path="src/third_party/labpack/files" revision="469d15651963aa7470d5ef42568ea69f22e8e68e" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="labtools"/>
+  <project name="chromiumos/third_party/lexmark-fax-pnh" path="src/third_party/lexmark-fax-pnh" revision="d80cce020cf6bd6c29c4008beeffd9635a82173d" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libcamera" path="src/third_party/libcamera/mtkisp7" revision="3ae8a3f5c8d12204e130961a8d414c29374dcada" upstream="refs/heads/release-R120-15662.B-mtkisp7" dest-branch="refs/heads/release-R120-15662.B-mtkisp7"/>
+  <project name="chromiumos/third_party/libcamera" path="src/third_party/libcamera/upstream" revision="a2b740b749dd25db533593c2001a5070ebc6f7d5" upstream="refs/heads/release-R120-15662.B-master" dest-branch="refs/heads/release-R120-15662.B-master"/>
+  <project name="chromiumos/third_party/libdrm" path="src/third_party/libdrm" revision="8a933c778a0eb36526bf3fc8a289e25add9ff8b0" upstream="refs/heads/release-R120-15662.B-upstream-main" dest-branch="refs/heads/release-R120-15662.B-upstream-main"/>
+  <project name="chromiumos/third_party/libiio" path="src/third_party/libiio" revision="213eca340c157b96232242da15539e12efb2d5c9" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libmbim" path="src/third_party/libmbim" revision="a21c665cee0a701ddc44a7fa0c0a98ac8d8f076f" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libqmi" path="src/third_party/libqmi" revision="4bf50d2e88748b7eac82ee9afd9c6fad0dc71dde" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libqrtr" path="src/third_party/libqrtr" revision="ba87335b33afcc0c1e0860ed41d0a98abc804184" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libqrtr-glib" path="src/third_party/libqrtr-glib" revision="87084d72d466cc7b6089d56b7c553c4e2ded0f00" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libtextclassifier" path="src/third_party/libtextclassifier" revision="8deeca979cebbd55099d64f8c04c95b4ece8bfa1" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libv4lplugins" path="src/third_party/libv4lplugins" revision="17e182085b6871f8ab84c3e064ce6e37e3dcbfd4" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libva" path="src/third_party/libva" revision="3bffcf022fecd19d1a7548f5b5d31ded7ff504b2" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libva-intel-driver" path="src/third_party/libva-intel-driver" revision="c678c9def05c34dc6e8ff54daf87358c32e9121e" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libva-intel-media-driver" path="src/third_party/libva-intel-media-driver" revision="51dd100d6cb54f2228957342c49aa13eb791d9b8" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/libva-utils" path="src/third_party/libva-utils" revision="5730404fda6335debbd314ad809feea68503a641" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/linux-firmware" path="src/third_party/linux-firmware" revision="56c2dea0a9c74b111702083bdb3a6ccbcf478f59" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/logitech-updater" path="src/third_party/logitech-updater" revision="5934e995f57a3a84cd9884c2275984c0b6614f99" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/marvell" path="src/third_party/marvell" revision="a1da785c038730d7d900415945688f6fb76175f4" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa" revision="4f892ecc1e143c42a41d32450262e799d4d152af" upstream="refs/heads/release-R120-15662.B-upstream-main" dest-branch="refs/heads/release-R120-15662.B-upstream-main"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-amd" revision="03176ef284cfeeacab3f3fc7cce981624b77ca24" upstream="refs/heads/release-R120-15662.B-chromeos-amd" dest-branch="refs/heads/release-R120-15662.B-chromeos-amd"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-arcvm" revision="2e645ed31444e105d525bf430d57c2dc55ca24f5" upstream="refs/heads/release-R120-15662.B-chromeos-arcvm" dest-branch="refs/heads/release-R120-15662.B-chromeos-arcvm"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-debian" revision="c36b89b82bcd270e1f9ee7d0824c9e265a39e95b" upstream="refs/heads/release-R120-15662.B-debian" dest-branch="refs/heads/release-R120-15662.B-debian"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-debian-bullseye" revision="73e5b58cca35336edd19c6a6907af26e7ddcd17f" upstream="refs/heads/release-R120-15662.B-debian-bullseye" dest-branch="refs/heads/release-R120-15662.B-debian-bullseye"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-debian-buster" revision="08f0c29ee9fcb6bd7d81faa90c1c981e09a84d76" upstream="refs/heads/release-R120-15662.B-debian-buster" dest-branch="refs/heads/release-R120-15662.B-debian-buster"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-freedreno" revision="5fd04290b27641489b5aee7983ed139a393b38b2" upstream="refs/heads/release-R120-15662.B-chromeos-freedreno" dest-branch="refs/heads/release-R120-15662.B-chromeos-freedreno"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-img" revision="2e7833ad916c493969d00871cdf56db4407b80eb" upstream="refs/heads/release-R120-15662.B-mesa-19.0" dest-branch="refs/heads/release-R120-15662.B-mesa-19.0"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-iris" revision="a94f65072353370239f49bff43b6e6e87630695b" upstream="refs/heads/release-R120-15662.B-chromeos-iris" dest-branch="refs/heads/release-R120-15662.B-chromeos-iris"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-radv" revision="eb7c3911c3cde9291cfefcc67c69a26e5561be47" upstream="refs/heads/release-R120-15662.B-chromeos-radv" dest-branch="refs/heads/release-R120-15662.B-chromeos-radv"/>
+  <project name="chromiumos/third_party/mesa" path="src/third_party/mesa-reven" revision="d2938adb9b7642b0febb9b5229a0e8e93bfc99a2" upstream="refs/heads/release-R120-15662.B-chromeos-reven" dest-branch="refs/heads/release-R120-15662.B-chromeos-reven"/>
+  <project name="chromiumos/third_party/mimo-updater" path="src/third_party/mimo-updater" revision="be224cb99905ee962f4010c0fe3287997341b122" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/mmc-utils" path="src/third_party/mmc-utils" revision="0658f9e723f5002b7eddbea80d8f5655d7ef4943" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/modemmanager-next" path="src/third_party/modemmanager-next" revision="e7545644e0dcedcede998e3735508df79fd55236" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/novatek-tcon-fw-update-tool" path="src/third_party/novatek-tcon-fw-update-tool" revision="a78b7b0ba128471af835e44dc97698d39fd89bbf" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/poly-updater" path="src/third_party/poly-updater" revision="87ad2edeea039892515f68c948bc2b8f94999553" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/portage_tool" path="src/third_party/portage_tool" revision="62e5364f490eb4823d6405d40a5ce99c998d52a1" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/pyelftools" path="chromite/third_party/pyelftools" revision="0a7d61a388621fae7c11e66b82b916b0885db320" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware,buildtools"/>
+  <project name="chromiumos/third_party/rootdev" path="src/third_party/rootdev" revision="7082cbf0ae51eb1044fe1a0749245e97e4fcfc89" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/rules_rust" path="bazel_deps/rules_rust" revision="3a78d01631ea8c2f7b747f6f0e7b4d29c735371d" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,bazel,fwsdk"/>
+  <project name="chromiumos/third_party/rust-vmm/vhost" path="src/third_party/rust-vmm/vhost" revision="7c95b4a2c1e378f7328d8bc0510bbb6998f54581" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="crosvm"/>
+  <project name="chromiumos/third_party/rust_crates" path="src/third_party/rust_crates" revision="3c3920b474ffcc026aa08ef15fe5fee628922fe6" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/shellcheck" path="src/third_party/shellcheck" revision="3762bda92e819371eed2c7e8dc43911b7a6a1d44" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/sis-updater" path="src/third_party/sis-updater" revision="a8ca488be43b474e72eb3fc36a669806bdc6883d" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/sound-open-firmware" path="src/third_party/sound-open-firmware" revision="35691bd4813b901c78ab938a4ec8bcc7fcb7f35f" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/svunit" path="src/third_party/svunit" revision="76ffd92958212a8e427a8eb6d24956df6ec19dbe" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/systemd" path="src/third_party/systemd" revision="03cf6f3cead34ccb282536c4d176364f1bcded10" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/tlsdate" path="src/third_party/tlsdate" revision="224a83e39627ff1511a8b94adff8ebbec2fc7ae3" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/toolchain-utils" path="src/third_party/toolchain-utils" revision="429d48e633457521b64e2eada987715378e3eb09" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="minilayout,paygen,firmware"/>
+  <project name="chromiumos/third_party/tpm2" path="src/third_party/tpm2" revision="83955fb8c712b95c8f0f8dfc4fe6557415794184" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,crosvm"/>
+  <project name="chromiumos/third_party/trousers" path="src/third_party/trousers" revision="4213d38358458b14446fcf54c04631d177eb5bc5" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/u-boot" path="src/third_party/u-boot/files" revision="d4ac97d01d7cb6bc0385ec21c04cf798982c52d3" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="fwsdk"/>
+  <project name="chromiumos/third_party/upstart" path="src/third_party/upstart" revision="9443bf3b11fb6a42013300b503731d9ef1106133" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/virglrenderer" path="src/third_party/virglrenderer" revision="48d1bae4b07895f2281f4717ccb4e95374c3a58c" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="crosvm"/>
+  <project name="chromiumos/third_party/virtual-usb-printer" path="src/third_party/virtual-usb-printer" revision="40a88480cce4e9de01e7469c9b6f8cf909d406d9" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/webrtc-apm" path="src/third_party/webrtc-apm" revision="54c9d62447257ab60f7e49b3be230732c9e01158" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B"/>
+  <project name="chromiumos/third_party/zephyr" path="src/third_party/zephyr/main" revision="802895f1ed773f31e46b08e03124b75e75211bd2" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,zephyr,fwsdk"/>
+  <project name="chromiumos/third_party/zephyr/cmsis" path="src/third_party/zephyr/cmsis" revision="42cf183a4a5f1fcc11c8b1ba579e5babc6d15f2b" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,zephyr,fwsdk"/>
+  <project name="chromiumos/third_party/zephyr/hal_intel" path="src/third_party/zephyr/hal_intel_public" revision="1af913e08bec4c31240ccec998ea725713774c31" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,zephyr,fwsdk"/>
+  <project name="chromiumos/third_party/zephyr/hal_stm32" path="src/third_party/zephyr/hal_stm32" revision="73ea0a4fa12b59410c67c6e7e7504f9356d23dc8" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,zephyr,fwsdk"/>
+  <project name="chromiumos/third_party/zephyr/nanopb" path="src/third_party/zephyr/nanopb" revision="5c49b1965125b9ac616080f75c8d9bd7bbfcb07c" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,zephyr,fwsdk"/>
+  <project name="chromiumos/third_party/zephyr/picolibc" path="src/third_party/zephyr/picolibc" revision="6669e41959e4e1c1b24959a1cf3a78f3b0dd9c1e" upstream="refs/heads/release-R120-15662.B" dest-branch="refs/heads/release-R120-15662.B" groups="firmware,zephyr,fwsdk"/>
+  <project name="external/github.com/bazelbuild/bazel-central-registry" path="bazel_deps/bazel-central-registry" revision="a3fbd95e5e98183b2848c89470464f37e28557ba" groups="minilayout,bazel,fwsdk"/>
+  <project name="external/github.com/google/googletest" path="src/third_party/googletest" revision="8fa9461cc28e053d66f17132808d287ae51575e2" groups="firmware"/>
+  <project name="external/github.com/google/gtest-parallel" path="src/third_party/gtest-parallel" revision="f4d65b555894b301699c7c3c52906f72ea052e83" groups="minilayout"/>
+  <project name="external/github.com/include-what-you-use/include-what-you-use" path="src/third_party/include-what-you-use" revision="14e9b208914a84fcdf49bf9f5d08897a4b3dc4b8"/>
+  <project name="external/github.com/rostedt/ureadahead" path="src/third_party/ureadahead" revision="e004b814b2a75abaeb7cd1338e1079416421ba69"/>
+  <project name="external/gitlab.com/libeigen/eigen" path="src/third_party/eigen3" revision="c18f94e3b017104284cd541e553472e62e85e526" groups="firmware"/>
+  <project name="external/gob/boringssl/boringssl" path="src/third_party/boringssl" revision="e0d601a57fde7d67a1c771e7d87468faf1f8fe55" groups="firmware"/>
+  <project name="external/pigweed/pigweed/pigweed" path="src/third_party/pigweed" revision="24bec3ca536ede086a6932a2f84b290914ad8fde"/>
+  <project name="linux-syscall-support" path="src/third_party/breakpad/src/third_party/lss" revision="9719c1e1e676814c456b55f5f070eabad6709d31"/>
+  <project name="platform/external/bsdiff" path="src/aosp/external/bsdiff" remote="aosp" revision="f4333a2fa9beb0c9b6c47a7b9d3eef3f04657515" groups="paygen"/>
+  <project name="platform/external/marisa-trie" path="src/aosp/external/marisa-trie" remote="aosp" revision="c90fe3d1e4f69b3aebd24764868797e76f12dba4">
+    <annotation name="branch-mode" value="pin"/>
+  </project>
+  <project name="platform/external/puffin" path="src/aosp/external/puffin" remote="aosp" revision="b25bc572b5251581630a40a04dc8bad45be58636" groups="paygen"/>
+  <project name="platform/system/keymaster" path="src/aosp/system/keymaster" remote="aosp" revision="49dfc58d6c4c66f5d0b0d06f0161da4e602a1293"/>
+  <project name="platform/system/keymaster" path="src/aosp/system/keymint" remote="aosp" revision="316ee9015b661aae840f2668943eb697a9269643"/>
+  <project name="platform/system/libcppbor" path="src/aosp/system/libcppbor" remote="aosp" revision="2448b24d913368ed2a9e45141e12960992a8862e"/>
+  <project remote="cros-kernelci-dev" name="linux-public" path="src/third_party/kernel/next" revision="1a5aa134febfb433a05ac4cba5e21226bbdc6c6d"/>
+
+  <repo-hooks in-project="chromiumos/repohooks" enabled-list="pre-upload"/>
+</manifest>
