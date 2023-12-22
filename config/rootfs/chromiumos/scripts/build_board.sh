@@ -4,9 +4,15 @@ BOARD=$1
 BRANCH=$2
 SERIAL=$3
 DATA_DIR=$(pwd)
+OUT_DIR="out"
 USERNAME=$(/usr/bin/id -run)
 SCRIPT=$(realpath "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
+
+VERSION=$(echo $BRANCH | sed 's/^.*-R\([[:digit:]]*\)-.*$/\1/')
+if [ $VERSION -lt 120 ]; then
+    OUT_DIR="chroot"
+fi
 
 function cleanup()
 {
@@ -145,10 +151,10 @@ echo "Compressing image"
 gzip -1 --force "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
 
 echo "Extracting additional artifacts"
-sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./chroot/build/${BOARD} lib/modules
-sudo cp ./chroot/build/${BOARD}/boot/config* "${DATA_DIR}/${BOARD}/kernel.config"
+sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./${OUT_DIR}/build/${BOARD} lib/modules
+sudo cp ./${OUT_DIR}/build/${BOARD}/boot/config* "${DATA_DIR}/${BOARD}/kernel.config"
 # Extract CR50/TI50 firmware, but dont crash in case it is missing
-sudo mv ./chroot/build/${BOARD}/opt/google/{cr,ti}50/firmware/* "${DATA_DIR}/${BOARD}/" > /dev/null 2>&1 || true
+sudo mv ./${OUT_DIR}/build/${BOARD}/opt/google/{cr,ti}50/firmware/* "${DATA_DIR}/${BOARD}/" > /dev/null 2>&1 || true
 
 # Identify baseboard and chipset
 BASEBOARD="$(grep -m1 baseboard ./src/overlays/overlay-${BOARD}/profiles/base/parent | sed 's/:.*//')"
@@ -179,14 +185,14 @@ if [ "${CHROMEOS_KERNEL_ARCH}" = "arm64" ]; then
 
     # ARM64 needs dtb to boot
     mkdir -p ${DATA_DIR}/${BOARD}/dtbs/${BOARD_VENDOR}
-    sudo cp ./chroot/build/${BOARD}/var/cache/portage/sys-kernel/*kernel*/arch/arm64/boot/dts/${BOARD_VENDOR}/${CHROMEOS_DTBS} \
+    sudo cp ./${OUT_DIR}/build/${BOARD}/var/cache/portage/sys-kernel/*kernel*/arch/arm64/boot/dts/${BOARD_VENDOR}/${CHROMEOS_DTBS} \
             ${DATA_DIR}/${BOARD}/dtbs/${BOARD_VENDOR}
 
     # Copy kernel image for ARM64 board
-    sudo cp ./chroot/build/${BOARD}/boot/Image* "${DATA_DIR}/${BOARD}/Image"
+    sudo cp ./${OUT_DIR}/build/${BOARD}/boot/Image* "${DATA_DIR}/${BOARD}/Image"
 else
     # Copy kernel image for x86-64 board
-    sudo cp "./chroot/build/${BOARD}/boot/vmlinuz" "${DATA_DIR}/${BOARD}/bzImage"
+    sudo cp "./${OUT_DIR}/build/${BOARD}/boot/vmlinuz" "${DATA_DIR}/${BOARD}/bzImage"
 fi
 
 echo "Creating artifacts manifest file"
