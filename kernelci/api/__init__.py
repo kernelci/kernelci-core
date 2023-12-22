@@ -301,6 +301,10 @@ class API(abc.ABC, Base):
     def pop_event(self, list_name: str) -> CloudEvent:
         """Listen and pop an event from a given List"""
 
+    @abc.abstractmethod
+    def subscription_stats(self):
+        """Get Pub/Sub scribscription statistics"""
+
     # -----------
     # User groups
     # -----------

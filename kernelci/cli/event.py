@@ -112,3 +112,14 @@ def pop(list_name, config, api, indent, secrets):
         echo_json(event, indent)
     else:
         click.echo(event)
+
+
+@kci_event.command(secrets=True)
+@Args.config
+@Args.api
+@Args.indent
+@catch_http_error
+def stats(config, api, indent, secrets):
+    """Get Pub/Sub subscribers statistics (admin only)"""
+    api = get_api(config, api, secrets)
+    echo_json(api.subscription_stats(), indent)
