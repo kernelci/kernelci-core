@@ -20,7 +20,7 @@ rootfs_configs:
   chromiumos-amd64-generic:
     rootfs_type: chromiumos
     board: amd64-generic
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -28,7 +28,7 @@ rootfs_configs:
   chromiumos-asurada:
     rootfs_type: chromiumos
     board: asurada
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - arm64
@@ -36,7 +36,7 @@ rootfs_configs:
   chromiumos-brya:
     rootfs_type: chromiumos
     board: brya
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -44,7 +44,7 @@ rootfs_configs:
   chromiumos-cherry:
     rootfs_type: chromiumos
     board: cherry
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - arm64
@@ -52,7 +52,7 @@ rootfs_configs:
   chromiumos-coral:
     rootfs_type: chromiumos
     board: coral
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS2
     arch_list:
       - amd64
@@ -60,7 +60,7 @@ rootfs_configs:
   chromiumos-corsola:
     rootfs_type: chromiumos
     board: corsola
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - arm64
@@ -68,7 +68,7 @@ rootfs_configs:
   chromiumos-dedede:
     rootfs_type: chromiumos
     board: dedede
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -76,7 +76,7 @@ rootfs_configs:
   chromiumos-grunt:
     rootfs_type: chromiumos
     board: grunt
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -84,7 +84,7 @@ rootfs_configs:
   chromiumos-guybrush:
     rootfs_type: chromiumos
     board: guybrush
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -92,7 +92,7 @@ rootfs_configs:
   chromiumos-hatch:
     rootfs_type: chromiumos
     board: hatch
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -100,7 +100,7 @@ rootfs_configs:
   chromiumos-jacuzzi:
     rootfs_type: chromiumos
     board: jacuzzi
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - arm64
@@ -108,7 +108,7 @@ rootfs_configs:
   chromiumos-nami:
     rootfs_type: chromiumos
     board: nami
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -116,7 +116,7 @@ rootfs_configs:
   chromiumos-octopus:
     rootfs_type: chromiumos
     board: octopus
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS1
     arch_list:
       - amd64
@@ -124,7 +124,7 @@ rootfs_configs:
   chromiumos-puff:
     rootfs_type: chromiumos
     board: puff
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -132,7 +132,7 @@ rootfs_configs:
   chromiumos-rammus:
     rootfs_type: chromiumos
     board: rammus
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -140,7 +140,7 @@ rootfs_configs:
   chromiumos-sarien:
     rootfs_type: chromiumos
     board: sarien
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -148,7 +148,7 @@ rootfs_configs:
   chromiumos-skyrim:
     rootfs_type: chromiumos
     board: skyrim
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -156,7 +156,7 @@ rootfs_configs:
   chromiumos-trogdor:
     rootfs_type: chromiumos
     board: trogdor
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyMSM0
     arch_list:
       - arm64
@@ -164,7 +164,7 @@ rootfs_configs:
   chromiumos-volteer:
     rootfs_type: chromiumos
     board: volteer
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -172,7 +172,7 @@ rootfs_configs:
   chromiumos-zork:
     rootfs_type: chromiumos
     board: zork
-    branch: release-R118-15604.B
+    branch: release-R120-15662.B
     serial: ttyS0
     arch_list:
       - amd64
