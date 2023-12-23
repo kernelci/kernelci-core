@@ -11,7 +11,7 @@ import click
 
 import kernelci.config
 import kernelci.storage
-from . import Args, kci
+from . import Args, kci, catch_error
 
 
 @kci.group(name='storage')
@@ -24,6 +24,7 @@ def kci_storage():
 @click.argument('path', required=False)
 @Args.config
 @Args.storage
+@catch_error
 def upload(filename, path, config, storage, secrets):
     """Upload FILENAME to the designated storage service in PATH"""
     configs = kernelci.config.load(config)
