@@ -14,7 +14,7 @@ import click
 
 from . import (
     Args,
-    catch_http_error,
+    catch_error,
     echo_json,
     get_api,
     kci,
@@ -31,7 +31,7 @@ def kci_user():
 @Args.config
 @Args.api
 @Args.indent
-@catch_http_error
+@catch_error
 def whoami(config, api, indent, secrets):
     """Get the current user's details with API authentication"""
     api = get_api(config, api, secrets)
@@ -44,7 +44,7 @@ def whoami(config, api, indent, secrets):
 @Args.config
 @Args.api
 @Args.indent
-@catch_http_error
+@catch_error
 def find(attributes, config, api, indent, secrets):
     """Find user profiles with arbitrary attributes"""
     api = get_api(config, api, secrets)
@@ -59,7 +59,7 @@ def find(attributes, config, api, indent, secrets):
 @click.argument('username')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def token(username, config, api):
     """Create a new API token using a user name and password"""
     api = get_api(config, api)
@@ -73,7 +73,7 @@ def token(username, config, api):
 @click.option('--username', help="Username of the user to update (admin only)")
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def update(attributes, username, config, api, secrets):
     """Update user account data with the provided attributes"""
     fields = split_attributes(attributes)
@@ -97,7 +97,7 @@ def update(attributes, username, config, api, secrets):
 @click.argument('email')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def add(username, email, config, api, secrets):
     """Add a new user account"""
     password = getpass.getpass()
@@ -117,7 +117,7 @@ def add(username, email, config, api, secrets):
 @click.argument('email')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def verify(email, config, api):
     """Verify the user's email address"""
     api = get_api(config, api)
@@ -133,7 +133,7 @@ def verify(email, config, api):
 @Args.config
 @Args.api
 @Args.indent
-@catch_http_error
+@catch_error
 def get(user_id, config, api, indent, secrets):
     """Get a user with a given ID"""
     api = get_api(config, api, secrets)
@@ -145,7 +145,7 @@ def get(user_id, config, api, indent, secrets):
 @click.argument('username')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def activate(username, config, api, secrets):
     """Activate user account (admin only)"""
     api = get_api(config, api, secrets)
@@ -160,7 +160,7 @@ def activate(username, config, api, secrets):
 @click.argument('username')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def deactivate(username, config, api, secrets):
     """Deactivate a user account (admin only)"""
     api = get_api(config, api, secrets)
@@ -180,7 +180,7 @@ def user_password():
 @click.argument('username')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def password_update(username, config, api):
     """Update password for a user account"""
     api = get_api(config, api)
@@ -196,7 +196,7 @@ def password_update(username, config, api):
 @click.argument('email')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def password_reset(email, config, api):
     """Reset password for a user account"""
     api = get_api(config, api)
@@ -220,7 +220,7 @@ def user_group():
 @Args.config
 @Args.api
 @Args.indent
-@catch_http_error
+@catch_error
 def find_groups(attributes, config, api, indent):
     """Find user groups with arbitrary attributes"""
     api = get_api(config, api)
@@ -235,7 +235,7 @@ def find_groups(attributes, config, api, indent):
 @click.argument('name')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def group_add(name, config, api, secrets):
     """Create a new group"""
     api = get_api(config, api, secrets)
@@ -247,7 +247,7 @@ def group_add(name, config, api, secrets):
 @click.option('--username', required=True)
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def join(name, username, config, api, secrets):
     """Add a user to a group (admin only)"""
     api = get_api(config, api, secrets)
@@ -265,7 +265,7 @@ def join(name, username, config, api, secrets):
 @click.argument('name')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def leave(name, config, api, secrets):
     """Leave a user group"""
     api = get_api(config, api, secrets)
@@ -282,7 +282,7 @@ def leave(name, config, api, secrets):
 @click.argument('name')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def delete(name, config, api, secrets):
     """Delete a user group (admin only)"""
     api = get_api(config, api, secrets)
