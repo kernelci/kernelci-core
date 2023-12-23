@@ -12,7 +12,7 @@ import click
 
 from . import (
     Args,
-    catch_http_error,
+    catch_error,
     echo_json,
     get_api,
     get_api_helper,
@@ -29,7 +29,7 @@ def kci_event():
 @click.argument('channel')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def subscribe(config, api, channel, secrets):
     """Subscribe to a Pub/Sub channel"""
     api = get_api(config, api, secrets)
@@ -41,7 +41,7 @@ def subscribe(config, api, channel, secrets):
 @click.argument('sub_id')
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def unsubscribe(config, api, sub_id, secrets):
     """Unsubscribe from a Pub/Sub channel"""
     api = get_api(config, api, secrets)
@@ -54,7 +54,7 @@ def unsubscribe(config, api, sub_id, secrets):
 @click.option('--is-json', help="Parse input data as JSON", is_flag=True)
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 # pylint: disable=too-many-arguments
 def send(input_file, channel, is_json, config, api, secrets):
     """Read some data and send it as an event on a channel"""
@@ -68,7 +68,7 @@ def send(input_file, channel, is_json, config, api, secrets):
 @Args.config
 @Args.api
 @Args.indent
-@catch_http_error
+@catch_error
 def receive(sub_id, config, api, indent, secrets):
     """Wait and receive an event from a subscription and print on stdout"""
     helper = get_api_helper(config, api, secrets)
@@ -87,7 +87,7 @@ def receive(sub_id, config, api, indent, secrets):
 @click.option('--is-json', help="Parse input data as JSON", is_flag=True)
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 # pylint: disable=too-many-arguments
 def push(input_file, list_name, is_json, config, api, secrets):
     """Read some data and push it as an event on a list"""
@@ -101,7 +101,7 @@ def push(input_file, list_name, is_json, config, api, secrets):
 @Args.config
 @Args.api
 @Args.indent
-@catch_http_error
+@catch_error
 def pop(list_name, config, api, indent, secrets):
     """Wait and pop an event from a List when received print on stdout"""
     helper = get_api_helper(config, api, secrets)
@@ -118,7 +118,7 @@ def pop(list_name, config, api, indent, secrets):
 @Args.config
 @Args.api
 @Args.indent
-@catch_http_error
+@catch_error
 def stats(config, api, indent, secrets):
     """Get Pub/Sub subscribers statistics (admin only)"""
     api = get_api(config, api, secrets)

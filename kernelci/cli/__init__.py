@@ -68,8 +68,9 @@ class Args:  # pylint: disable=too-few-public-methods
     )
 
 
-def catch_http_error(func):
-    """Decorator to catch HTTPError exceptions and raise a ClickException"""
+def catch_error(func):
+    """Decorator to catch HTTPError and KeyError exceptions and raise
+    a ClickException"""
     @functools.wraps(func)
     def call(*args, **kwargs):
         try:
@@ -87,6 +88,9 @@ def catch_http_error(func):
             raise click.ClickException(
                 '\n'.join((str(ex), detail)) if detail else ex
             ) from ex
+        except KeyError as ex:
+            raise click.ClickException(
+                f"KerError: Value not found for {str(ex)}") from ex
     return call
 
 

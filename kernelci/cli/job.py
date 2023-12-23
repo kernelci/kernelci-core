@@ -12,7 +12,7 @@ import kernelci.config
 import kernelci.runtime
 from . import (
     Args,
-    catch_http_error,
+    catch_error,
     echo_json,
     get_api,
     get_api_helper,
@@ -32,7 +32,7 @@ def kci_job():
 @Args.config
 @Args.api
 @Args.indent
-@catch_http_error
+@catch_error
 def new(name, node_id, node_json, config,  # pylint: disable=too-many-arguments
         api, indent, secrets):
     """Create a new job node"""
@@ -65,7 +65,7 @@ def new(name, node_id, node_json, config,  # pylint: disable=too-many-arguments
 @Args.storage
 @Args.config
 @Args.api
-@catch_http_error
+@catch_error
 def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
              runtime, storage, platform, output, config, api, secrets):
     """Generate a job definition in a file"""
@@ -95,7 +95,7 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
 @click.option('--wait', is_flag=True)
 @Args.runtime
 @Args.config
-@catch_http_error
+@catch_error
 def submit(runtime, job_path, wait, config, secrets):
     """Submit a job definition to its designated runtime"""
     configs = kernelci.config.load(config)
