@@ -17,6 +17,7 @@ from . import (
     catch_error,
     echo_json,
     get_api,
+    get_pagination,
     kci,
     split_attributes,
 )
@@ -44,12 +45,16 @@ def whoami(config, api, indent, secrets):
 @Args.config
 @Args.api
 @Args.indent
+@Args.page_length
+@Args.page_number
 @catch_error
-def find(attributes, config, api, indent, secrets):
+# pylint: disable=too-many-arguments
+def find(attributes, config, api, indent, secrets, page_length, page_number):
     """Find user profiles with arbitrary attributes"""
     api = get_api(config, api, secrets)
+    offset, limit = get_pagination(page_length, page_number)
     attributes = split_attributes(attributes)
-    users = api.user.find(attributes)
+    users = api.user.find(attributes, offset, limit)
     data = json.dumps(users, indent=indent or None)
     echo = click.echo_via_pager if len(users) > 1 else click.echo
     echo(data)
