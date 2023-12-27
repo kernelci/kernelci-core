@@ -114,18 +114,13 @@ def add(username, email, config, api, secrets):
 
 
 @kci_user.command
-@click.argument('username')
+@click.argument('email')
 @Args.config
 @Args.api
 @catch_http_error
-def verify(username, config, api):
+def verify(email, config, api):
     """Verify the user's email address"""
     api = get_api(config, api)
-    users = api.user.find({"username": username})
-    if not users:
-        raise click.ClickException(f"User not found: {username}")
-    user = users[0]
-    email = user['email']
     click.echo(f"Sending verification token to {email}")
     api.user.request_verification_token(email)
     verification_token = click.prompt("Verification token")
