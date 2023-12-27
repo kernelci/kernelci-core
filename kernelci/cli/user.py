@@ -193,18 +193,13 @@ def password_update(username, config, api):
 
 
 @user_password.command(name='reset')
-@click.argument('username')
+@click.argument('email')
 @Args.config
 @Args.api
 @catch_http_error
-def password_reset(username, config, api):
+def password_reset(email, config, api):
     """Reset password for a user account"""
     api = get_api(config, api)
-    users = api.user.find({"username": username})
-    if not users:
-        raise click.ClickException(f"User not found: {username}")
-    user = users[0]
-    email = user['email']
     click.echo(f"Sending reset token to {email}")
     api.user.request_password_reset_token(email)
     reset_token = click.prompt("Reset token")
