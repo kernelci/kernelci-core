@@ -101,7 +101,8 @@ class APIHelper:
                    for obj in [node, event]):
                 return node
 
-    def create_job_node(self, job_config, input_node):
+    def create_job_node(self, job_config, input_node,
+                        runtime=None, platform=None):
         """Create a new job node based on input and configuration"""
         job_node = {
             'parent': input_node['id'],
@@ -111,6 +112,16 @@ class APIHelper:
             'artifacts': input_node['artifacts'],
             'revision': input_node['revision'],
         }
+        # This information is highly useful, as we might
+        # extract from it the following, for example:
+        # in case of lab: lab-name, device-name
+        # in case of kubernetes: cluster name
+        if runtime:
+            job_node['data'] = {'runtime': runtime.config.name}
+        if platform:
+            if 'data' not in job_node:
+                job_node['data'] = {}
+            job_node['data']['platform'] = platform.name
         return self._api.node.add(job_node)
 
     def submit_regression(self, regression):
