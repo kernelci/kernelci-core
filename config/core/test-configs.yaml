@@ -1579,6 +1579,12 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
 
+  meson-sm1-s905d3-libretech-cc:
+    mach: amlogic
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+
   meson-sm1-sei610:
     mach: amlogic
     class: arm64-dtb
@@ -3045,6 +3051,16 @@ test_configs:
     test_plans:
       - baseline
       - preempt-rt
+
+  - device_type: meson-sm1-s905d3-libretech-cc
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - igt-gpu-panfrost
+      - kselftest-alsa
+      - kselftest-dt
+      - kselftest-kvm
+      - kselftest-rtc
 
   - device_type: meson-sm1-sei610
     test_plans:
