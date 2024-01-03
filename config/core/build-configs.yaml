@@ -98,7 +98,7 @@ trees:
     url: "https://git.linaro.org/power/linux.git"
 
   qcom-lt:
-    url: "https://git.linaro.org/landing-teams/working/qualcomm/kernel.git"
+    url: "https://git.codelinaro.org/linaro/qcomlt/kernel"
 
   renesas:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
