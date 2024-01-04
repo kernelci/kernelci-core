@@ -34,6 +34,8 @@ SHORTEN_KEYWORDS = {
     'cros---chromeos-5.15': 'cros-5.15',
     'cros---chromeos-6.1': 'cros-6.1',
     'CONFIG_MODULE_COMPRESS_GZIP=n': 'no-gz',
+    'linux-6.6.y-arm64-chromeos': 'arm-6.6-cros',
+    'linux-6.1.y-arm64-chromeos': 'arm-6.1-cros',
 }
 
 
