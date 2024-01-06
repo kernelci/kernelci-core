@@ -2088,6 +2088,13 @@ device_types:
     filters:
       - blocklist: *device_config_filter
 
+  stm32mp157a-dhcor-avenger96:
+    mach: stm32
+    class: arm-dtb
+    boot_method: uboot
+    filters:
+      - blocklist: {defconfig: ['stm32_defconfig']}
+
   stm32mp157c-dk2:
     mach: stm32
     class: arm-dtb
@@ -3553,6 +3560,14 @@ test_configs:
       - baseline
       - baseline-nfs
       - sleep
+
+  - device_type: stm32mp157a-dhcor-avenger96
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - igt-gpu-etnaviv
+      - kselftest-alsa
+      - kselftest-dt
 
   - device_type: stm32mp157c-dk2
     test_plans:
