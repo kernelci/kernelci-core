@@ -1523,6 +1523,11 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  meson-g12b-a311d-libretech-cc:
+    mach: amlogic
+    class: arm64-dtb
+    boot_method: uboot
+
   meson-g12b-odroid-n2:
     mach: amlogic
     class: arm64-dtb
@@ -2999,6 +3004,15 @@ test_configs:
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
+
+  - device_type: meson-g12b-a311d-libretech-cc
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - igt-gpu-panfrost
+      - kselftest-alsa
+      - kselftest-dt
+      - kselftest-rtc
 
   - device_type: meson-g12b-odroid-n2
     test_plans:
