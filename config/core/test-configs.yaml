@@ -3574,6 +3574,11 @@ test_configs:
       - igt-gpu-etnaviv
       - kselftest-alsa
       - kselftest-dt
+      - kselftest-ftrace
+      - kselftest-landlock
+      - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: stm32mp157c-dk2
     test_plans:
