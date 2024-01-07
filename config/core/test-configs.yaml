@@ -317,7 +317,9 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "dt"
-    filters: *kselftest_no_fragment
+    filters:
+      - combination: *arch_defconfig_filter
+      - blocklist: { kernel: ['v3.', 'v4.', 'v5.', v6.0', 'v6.1$', 'v6.2$', 'v6.3', 'v6.4', 'v6.5', 'v6.6'] }
 
   kselftest-exec:
     <<: *kselftest
