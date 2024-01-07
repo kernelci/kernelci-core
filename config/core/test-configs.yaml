@@ -2931,6 +2931,7 @@ test_configs:
       - baseline-nfs
       - kselftest-cpufreq
       - kselftest-dt
+      - kselftest-ftrace
       - ltp-crypto
       # ltp-mm - runs system out of memory
       - smc
