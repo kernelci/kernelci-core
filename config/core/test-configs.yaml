@@ -3074,6 +3074,9 @@ test_configs:
       # ltp-mm - Runs board out of memory
       - ltp-pty
       - ltp-timers
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h265
+      - v4l2-decoder-conformance-vp9
 
   - device_type: meson-gxm-khadas-vim2
     test_plans:
