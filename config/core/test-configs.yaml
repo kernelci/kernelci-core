@@ -3039,6 +3039,9 @@ test_configs:
       - kselftest-alsa
       - kselftest-dt
       - kselftest-rtc
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h265
+      - v4l2-decoder-conformance-vp9
 
   - device_type: meson-g12b-odroid-n2
     test_plans:
