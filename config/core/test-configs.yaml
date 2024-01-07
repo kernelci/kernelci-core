@@ -2904,6 +2904,10 @@ test_configs:
       - igt-gpu-etnaviv
       - kselftest-alsa
       - kselftest-dt
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h265
+      - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
 
   - device_type: imx8mp-verdin-nonwifi-dahlia
     test_plans:
@@ -2913,6 +2917,11 @@ test_configs:
       - kselftest-alsa
       - kselftest-clone3
       - kselftest-dt
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h265
+      - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
+
 
   - device_type: imx8mq-zii-ultra-zest
     test_plans:
