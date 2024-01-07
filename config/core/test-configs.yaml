@@ -3099,6 +3099,9 @@ test_configs:
       - kselftest-dt
       - kselftest-kvm
       - kselftest-rtc
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h265
+      - v4l2-decoder-conformance-vp9
 
   - device_type: meson-sm1-sei610
     test_plans:
