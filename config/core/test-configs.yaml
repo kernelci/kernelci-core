@@ -2879,6 +2879,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-dt
       - ltp-crypto
+      - v4l2-decoder-conformance-h264
 
   - device_type: imx6q-nitrogen6x
     test_plans:
@@ -2913,6 +2914,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-dt
       - ltp-crypto
+      - v4l2-decoder-conformance-h264
 
   - device_type: imx6q-var-dt6customboard
     test_plans:
