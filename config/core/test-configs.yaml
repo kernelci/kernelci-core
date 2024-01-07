@@ -333,6 +333,12 @@ test_plans:
       kselftest_collections: "filesystems"
     filters: *kselftest_no_fragment
 
+  kselftest-ftrace:
+    <<: *kselftest
+    params:
+      job_timeout: '20'
+      kselftest_collections: "ftrace"
+
   kselftest-futex:
     <<: *kselftest
     params:
