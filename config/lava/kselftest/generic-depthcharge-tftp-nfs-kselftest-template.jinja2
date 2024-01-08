@@ -1,5 +1,15 @@
 {% extends 'boot-nfs/generic-depthcharge-tftp-nfs-template.jinja2' %}
+{% block main %}
+{{ super () }}
 
+{%- if tags %}
+tags:
+  {%- for tag in tags %}
+  - {{ tag }}
+  {%- endfor -%}
+{% endif %}
+
+{% endblock %}
 {% block actions %}
 {{ super () }}
 
