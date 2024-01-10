@@ -20,24 +20,26 @@ class APIHelperTestData:
     def __init__(self):
         self._checkout_node = {
             "id": "6332d8f51a45d41c279e7a01",
-            "kind": "node",
+            "kind": "checkout",
             "name": "checkout",
             "path": [
                 "checkout"
             ],
             "group": None,
-            "revision": {
-                "tree": "kernelci",
-                "url": "https://github.com/kernelci/linux.git",
-                "branch": "staging-mainline",
-                "commit": "7f036eb8d7a5ff2f655c5d949343bac6a2928bce",
-                "describe": "staging-mainline-20220927.0",
-                "version": {
-                    "version": 6,
-                    "patchlevel": 0,
-                    "sublevel": None,
-                    "extra": "-rc7-36-g7f036eb8d7a5",
-                    "name": None
+            "data": {
+                "kernel_revision": {
+                    "tree": "kernelci",
+                    "url": "https://github.com/kernelci/linux.git",
+                    "branch": "staging-mainline",
+                    "commit": "7f036eb8d7a5ff2f655c5d949343bac6a2928bce",
+                    "describe": "staging-mainline-20220927.0",
+                    "version": {
+                        "version": 6,
+                        "patchlevel": 0,
+                        "sublevel": None,
+                        "extra": "-rc7-36-g7f036eb8d7a5",
+                        "name": None
+                    }
                 }
             },
             "parent": None,
@@ -60,19 +62,9 @@ class APIHelperTestData:
                 "kver"
             ],
             "group": "kver",
-            "revision": {
-                "tree": "kernelci",
-                "url": "https://github.com/kernelci/linux.git",
-                "branch": "staging-mainline",
-                "commit": "cef45fe0b71c5f51ef956a026bd71a64ca7f8300",
-                "describe": "staging-mainline-20221101.1",
-                "version": {
-                    "version": 6,
-                    "patchlevel": 1,
-                    "sublevel": None,
-                    "extra": "-rc3-13-gcef45fe0b71c",
-                    "name": None
-                }
+            "data": {
+                "fail_node": "636143c38f94e20c6826b0b6",
+                "pass_node": "636143c38f94e20c6826b0b5"
             },
             "parent": "6361440f8f94e20c6826b0b7",
             "state": "done",
@@ -84,44 +76,7 @@ class APIHelperTestData:
             "created": "2022-11-01T16:07:09.770000",
             "updated": "2022-11-01T16:07:09.770000",
             "timeout": "2022-11-02T16:07:09.770000",
-            "holdoff": None,
-            "regression_data": [
-                {
-                    "id": "6361440f8f94e20c6826b0b7",
-                    "kind": "node",
-                    "name": "kver",
-                    "path": [
-                        "checkout",
-                        "kver"
-                    ],
-                    "group": "kver",
-                    "revision": {
-                        "tree": "kernelci",
-                        "url": "https://github.com/kernelci/linux.git",
-                        "branch": "staging-mainline",
-                        "commit": "cef45fe0b71c5f51ef956a026bd71a64ca7f8300",
-                        "describe": "staging-mainline-20221101.1",
-                        "version": {
-                            "version": 6,
-                            "patchlevel": 1,
-                            "sublevel": None,
-                            "extra": "-rc3-13-gcef45fe0b71c",
-                            "name": None
-                        }
-                    },
-                    "parent": "636143c38f94e20c6826b0b6",
-                    "state": "done",
-                    "result": "pass",
-                    "artifacts": {
-                        "tarball": "http://staging.kernelci.org:9080/linux-\
-        kernelci-staging-mainline-staging-mainline-20221101.1.tar.gz"
-                    },
-                    "created": "2022-11-01T16:06:39.509000",
-                    "updated": "2022-11-01T16:07:09.633000",
-                    "timeout": "2022-11-02T16:06:39.509000",
-                    "holdoff": None
-                }
-            ]
+            "holdoff": None
         }
         self._kunit_node = {
             "id": "6332d92f1a45d41c279e7a06",
@@ -132,18 +87,20 @@ class APIHelperTestData:
                 "kunit"
             ],
             "group": "kunit",
-            "revision": {
-                "tree": "kernelci",
-                "url": "https://github.com/kernelci/linux.git",
-                "branch": "staging-mainline",
-                "commit": "7f036eb8d7a5ff2f655c5d949343bac6a2928bce",
-                "describe": "staging-mainline-20220927.0",
-                "version": {
-                    "version": 6,
-                    "patchlevel": 0,
-                    "sublevel": None,
-                    "extra": "-rc7-36-g7f036eb8d7a5",
-                    "name": None
+            "data": {
+                "kernel_revision": {
+                    "tree": "kernelci",
+                    "url": "https://github.com/kernelci/linux.git",
+                    "branch": "staging-mainline",
+                    "commit": "7f036eb8d7a5ff2f655c5d949343bac6a2928bce",
+                    "describe": "staging-mainline-20220927.0",
+                    "version": {
+                        "version": 6,
+                        "patchlevel": 0,
+                        "sublevel": None,
+                        "extra": "-rc7-36-g7f036eb8d7a5",
+                        "name": None
+                    }
                 }
             },
             "parent": "6332d8f51a45d41c279e7a01",
@@ -156,6 +113,8 @@ class APIHelperTestData:
         }
         self._kunit_child_node = {
             "name": "time_test_cases",
+            "kind": "node",
+            "data": {},
             "parent": "6332d92f1a45d41c279e7a06",
             "result": "pass",
             "artifacts": {
@@ -213,10 +172,12 @@ class APIHelperTestData:
             "path": (
                 self._kunit_node["path"] + [self._kunit_child_node["name"]]
             ),
-            "revision": self._kunit_node["revision"],
             "state": self._kunit_node["state"],
             "timeout": "2022-11-02T16:06:39.509000",
             "updated": "2022-11-01T16:07:09.633000",
+        })
+        self._kunit_child_node["data"].update({
+            "kernel_revision": self._kunit_node["data"]["kernel_revision"],
         })
         return self._kunit_child_node
 
