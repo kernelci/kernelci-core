@@ -22,6 +22,7 @@ from pydantic import (
     BaseModel,
     Field,
     FileUrl,
+    Extra,
 )
 from .models_base import (
     PyObjectId,
@@ -111,7 +112,7 @@ class DefaultTimeout:
 
 
 class Node(DatabaseModel):
-    """KernelCI primitive node object model for generic test results"""
+    """KernelCI primitive object to model a node in a hierarchy"""
     kind: str = Field(
         default='node',
         description="Type of the object"
@@ -124,9 +125,6 @@ class Node(DatabaseModel):
     )
     group: Optional[str] = Field(
         description="Name of a group this node belongs to"
-    )
-    revision: Revision = Field(
-        description="Git revision object"
     )
     parent: Optional[PyObjectId] = Field(
         description="Parent commit SHA"
@@ -169,6 +167,10 @@ class Node(DatabaseModel):
 
     _OBJECT_ID_FIELDS = ['parent']
     _TIMESTAMP_FIELDS = ['created', 'updated', 'timeout', 'holdoff']
+
+    class Config:
+        """Configuration attributes for Node"""
+        extra = Extra.forbid
 
     def update(self):
         self.updated = datetime.utcnow()
@@ -268,6 +270,110 @@ class Hierarchy(BaseModel):
 Hierarchy.update_forward_refs()
 
 
+class CheckoutData(BaseModel):
+    """Model for the data field of a Checkout node"""
+    kernel_revision: Revision = Field(
+        description="Kernel repo revision data"
+    )
+
+    class Config:
+        """Configuration attributes for CheckoutData"""
+        extra = Extra.forbid
+
+
+class Checkout(Node):
+    """API model for checkout nodes"""
+    kind: str = Field(
+        default='checkout',
+        description='Type of the object',
+        const=True
+    )
+    data: CheckoutData = Field(
+        description="Checkout details"
+    )
+
+
+class KbuildData(BaseModel):
+    """Model for the data field of a Kbuild node"""
+    # [TODO] Can be fetched from parent checkout node
+    kernel_revision: Revision = Field(
+        description="Kernel repo revision data"
+    )
+    arch: str = Field(
+        description="CPU architecture family"
+    )
+    defconfig: str = Field(
+        description="Kernel defconfig identifier"
+    )
+    compiler: str = Field(
+        description="Compiler used for the build"
+    )
+    fragments: Optional[List[str]] = Field(
+        description="List of additional configuration fragments used"
+    )
+
+    class Config:
+        """Configuration attributes for KbuildData"""
+        extra = Extra.forbid
+
+
+class Kbuild(Node):
+    """API model for kbuild (kernel builds) nodes"""
+    kind: str = Field(
+        default='kbuild',
+        description='Type of the object',
+        const=True
+    )
+    data: KbuildData = Field(
+        description="Kbuild details"
+    )
+
+
+class TestData(BaseModel):
+    """Model for the data field of a Test node"""
+    # [TODO] Can be fetched from parent checkout node
+    kernel_revision: Revision = Field(
+        description="Kernel repo revision data"
+    )
+    # [TODO] Specify the source code file/function too?
+    test_source: Optional[AnyUrl] = Field(
+        description="Repository containing the test source code"
+    )
+    test_revision: Optional[Revision] = Field(
+        description="Test repo revision data"
+    )
+
+    class Config:
+        """Configuration attributes for TestData"""
+        extra = Extra.forbid
+
+
+class Test(Node):
+    """API model for test nodes"""
+    kind: str = Field(
+        default='test',
+        description='Type of the object',
+        const=True
+    )
+    data: TestData = Field(
+        description="Test details"
+    )
+
+
+class RegressionData(BaseModel):
+    """Model for the data field of a Regression node"""
+    fail_node: PyObjectId = Field(
+        description="Node where the regression was introduced"
+    )
+    pass_node: PyObjectId = Field(
+        description="Previous passing Node"
+    )
+
+    class Config:
+        """Configuration attributes for RegressionData"""
+        extra = Extra.forbid
+
+
 class Regression(Node):
     """API model for regression tracking"""
 
@@ -276,18 +382,23 @@ class Regression(Node):
         description='Type of the object',
         const=True
     )
-    regression_data: List[Node] = Field(
-        description='Regression details'
+    data: RegressionData = Field(
+        description="Regression details"
     )
 
     _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
-        'regression_data.parent',
+        'data.fail_node',
+        'data.pass_node',
     ]
     _TIMESTAMP_FIELDS = Node._TIMESTAMP_FIELDS + [
-        'regression_data.created',
-        'regression_data.updated',
-        'regression_data.timeout',
-        'regression_data.holdoff',
+        'data.fail_node.created',
+        'data.fail_node.updated',
+        'data.fail_node.timeout',
+        'data.fail_node.holdoff',
+        'data.pass_node.created',
+        'data.pass_node.updated',
+        'data.pass_node.timeout',
+        'data.pass_node.holdoff',
     ]
 
 
