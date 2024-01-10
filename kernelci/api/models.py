@@ -13,7 +13,7 @@
 """KernelCI API model definitions used by client-facing endpoints"""
 
 from datetime import datetime, timedelta
-from typing import Any, Optional, Dict, List
+from typing import Any, Optional, Dict, List, ClassVar
 import enum
 from bson import ObjectId
 from pydantic import (
@@ -113,6 +113,7 @@ class DefaultTimeout:
 
 class Node(DatabaseModel):
     """KernelCI primitive object to model a node in a hierarchy"""
+    class_kind: ClassVar[str] = 'node'
     kind: str = Field(
         default='node',
         description="Type of the object"
@@ -283,6 +284,7 @@ class CheckoutData(BaseModel):
 
 class Checkout(Node):
     """API model for checkout nodes"""
+    class_kind: ClassVar[str] = 'checkout'
     kind: str = Field(
         default='checkout',
         description='Type of the object',
@@ -319,6 +321,7 @@ class KbuildData(BaseModel):
 
 class Kbuild(Node):
     """API model for kbuild (kernel builds) nodes"""
+    class_kind: ClassVar[str] = 'kbuild'
     kind: str = Field(
         default='kbuild',
         description='Type of the object',
@@ -350,6 +353,7 @@ class TestData(BaseModel):
 
 class Test(Node):
     """API model for test nodes"""
+    class_kind: ClassVar[str] = 'test'
     kind: str = Field(
         default='test',
         description='Type of the object',
@@ -376,7 +380,7 @@ class RegressionData(BaseModel):
 
 class Regression(Node):
     """API model for regression tracking"""
-
+    class_kind: ClassVar[str] = 'regression'
     kind: str = Field(
         default='regression',
         description='Type of the object',
@@ -402,15 +406,6 @@ class Regression(Node):
     ]
 
 
-def get_model_from_kind(kind: str):
-    """Get model from kind parameter"""
-    models = {
-            "node": Node,
-            "regression": Regression
-        }
-    return models[kind]
-
-
 class PublishEvent(BaseModel):
     """API model for the data of a <publish> event"""
     data: Any = Field(
@@ -425,3 +420,13 @@ class PublishEvent(BaseModel):
     attributes: Optional[Dict] = Field(
         description="Extra Cloudevents Extension Context Attributes"
     )
+
+
+def parse_node_obj(node: Node):
+    """Parses a generic Node object using the appropriate Node submodel
+    depending on its 'kind'.
+    """
+    for submodel in type(node).__subclasses__():
+        if node.kind == submodel.class_kind:
+            return submodel.parse_obj(node)
+    raise ValueError(f"Unsupported node kind: {node.kind}")
