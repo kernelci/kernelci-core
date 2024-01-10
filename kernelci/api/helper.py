@@ -110,7 +110,9 @@ class APIHelper:
             'path': input_node['path'] + [job_config.name],
             'group': job_config.name,
             'artifacts': input_node['artifacts'],
-            'revision': input_node['revision'],
+            'data': {
+                'kernel_revision': input_node['data']['kernel_revision'],
+            },
         }
         # This information is highly useful, as we might
         # extract from it the following, for example:
@@ -127,13 +129,11 @@ class APIHelper:
     def submit_regression(self, regression):
         """Post a regression object
 
-        It is still unclear whether regressions should have their own separate
-        endpoint or just be added to the nodes collection with a different
-        'kind' field.  For now, treat this as a middleware feature on top of
-        the established API endpoints.
+        [TODO] Leave this function in place in case we'll need any other
+        processing or formatting before submitting the regression node
         """
         # pylint: disable=protected-access
-        return self.api._post('regression', regression)
+        return self.api._post('node', regression)
 
     def _prepare_results(self, results, parent, base):
         node = results['node'].copy()
@@ -182,7 +182,9 @@ class APIHelper:
         }
         parent = self.api.node.get(root['parent'])
         base = {
-            'revision': root['revision'],
+            'data': {
+                'kernel_revision': root['data']['kernel_revision'],
+            },
             'group': root['name'],
             'state': 'done',
         }
