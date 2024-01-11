@@ -551,6 +551,7 @@ class KBuild():
                         'config_full': self._config_full,
                         'src_tarball': self._srctarball,
                     },
+                    'kernel_revision': self._node['data']['kernel_revision'],
                 },
             },
             'child_nodes': [],
