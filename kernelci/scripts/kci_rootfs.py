@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2019 Collabora Limited
+# Author: Michal Galka <michal.galka@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent.parent))
+
+
+from kernelci.legacy.cli import Args, Command, parse_opts
+import kernelci.config
+import kernelci.rootfs
+import kernelci.storage
+
+
+# -----------------------------------------------------------------------------
+# Commands
+#
+
+class cmd_validate(Command):
+    help = "Validate the YAML configuration"
+    opt_args = [Args.verbose]
+
+    def __call__(self, config_data, args, **kwargs):
+        # ToDo: Use jsonschema
+
+        entries = [
+            'rootfs_configs',
+        ]
+        err = kernelci.config.validate_yaml(args.yaml_config, entries)
+        if err:
+            print(err)
+            return False
+
+        return True
+
+
+class cmd_list_configs(Command):
+    help = "List all rootfs config names"
+    opt_args = [Args.rootfs_type]
+
+    def __call__(self, config_data, args, **kwargs):
+        rootfs_configs = config_data['rootfs_configs']
+        if args.rootfs_type is None:
+            config_names = rootfs_configs
+        else:
+            config_names = (name
+                            for name, config_data in rootfs_configs.items()
+                            if config_data.rootfs_type == args.rootfs_type)
+        for config_name in config_names:
+            print(config_name)
+        return True
+
+
+class cmd_list_variants(Command):
+    help = "List all rootfs variants"
+    append_action = {
+        'action': 'append'
+    }
+    arch_arg = Args.arch.copy()
+    arch_arg.update(append_action)
+    rootfs_type_arg = Args.rootfs_type.copy()
+    rootfs_type_arg.update(append_action)
+    opt_args = [Args.rootfs_config, arch_arg, rootfs_type_arg]
+
+    def __call__(self, configs, args, **kwargs):
+        rootfs_configs = configs['rootfs_configs']
+        arch_requested = set(args.arch) if args.arch else set()
+
+        if args.rootfs_config and args.rootfs_type:
+            print("--rootfs-config and --rootfs-type can't be used at once")
+            return False
+
+        if args.rootfs_config:
+            config = rootfs_configs.get(args.rootfs_config)
+            if not config:
+                print("{} : invalid config entry".format(args.rootfs_config))
+                return False
+            build_configs = [config]
+        elif args.rootfs_type:
+            build_configs = list(
+                config
+                for config in rootfs_configs.values()
+                if config.rootfs_type in args.rootfs_type
+            )
+        else:
+            build_configs = list(rootfs_configs.values())
+        for config in build_configs:
+            arch_available = set(config.arch_list)
+            arch_set = (arch_requested & arch_available
+                        if arch_requested
+                        else arch_available)
+            for arch in arch_set:
+                print(' '.join([config.name, arch, config.rootfs_type]))
+
+        return True
+
+
+class cmd_build(Command):
+    help = "Build a rootfs image"
+    args = [Args.rootfs_config, Args.arch, Args.output]
+    opt_args = [Args.data_path]
+
+    def __call__(self, config_data, args, **kwargs):
+        config_name = args.rootfs_config
+        config = config_data['rootfs_configs'].get(config_name)
+        if not config:
+            print("{} invalid. Check 'kci_rootfs list_configs' for valid \
+                    entries".format(config_name))
+            return False
+        data_path = (
+            args.data_path or 'config/rootfs/{}'.format(config.rootfs_type)
+        )
+        return kernelci.rootfs.build(config_name, config, data_path,
+                                     args.arch, args.output)
+
+
+class cmd_upload(Command):
+    help = "Upload a rootfs image"
+    args = [Args.rootfs_dir, Args.upload_path, Args.storage_config]
+    opt_args = [Args.storage_cred]
+
+    def __call__(self, configs, args):
+        storage_conf = configs['storage_configs'][args.storage_config]
+        storage = kernelci.storage.get_storage(storage_conf, args.storage_cred)
+        kernelci.rootfs.upload(storage, args.upload_path, args.rootfs_dir)
+        return True
+
+
+# -----------------------------------------------------------------------------
+# Main
+#
+
+def main():
+    opts = parse_opts("kci_rootfs", globals())
+    configs = kernelci.config.load(opts.get_yaml_configs())
+    status = opts.command(configs, opts)
+    sys.exit(0 if status is True else 1)
+
+
+if __name__ == '__main__':
+    main()
