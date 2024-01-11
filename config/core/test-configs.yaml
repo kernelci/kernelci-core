@@ -2932,6 +2932,7 @@ test_configs:
       - kselftest-cpufreq
       - kselftest-dt
       - kselftest-ftrace
+      - kselftest-lkdtm
       - ltp-crypto
       # ltp-mm - runs system out of memory
       - smc
