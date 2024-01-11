@@ -119,10 +119,8 @@ class APIHelper:
         # in case of lab: lab-name, device-name
         # in case of kubernetes: cluster name
         if runtime:
-            job_node['data'] = {'runtime': runtime.config.name}
+            job_node['data']['runtime'] = runtime.config.name
         if platform:
-            if 'data' not in job_node:
-                job_node['data'] = {}
             job_node['data']['platform'] = platform.name
         return self._api.node.add(job_node)
 
