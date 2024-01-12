@@ -59,9 +59,20 @@ KERNEL_IMAGE_NAMES = {
     'x86': {'bzImage'},
 }
 
+'''
+Following convention is used for artifacts key
+and filename mapping:
+filename_regex - artifact name_regex
+'''
 ARTIFACT_NAMES = {
-    'modules.tar.gz': 'modules',
-    'modules.tar.xz': 'modules',
+    r'modules\.tar\.gz': 'modules',
+    r'modules\.tar\.xz': 'modules',
+    r'build\.log': 'build_log',
+    r'build_kimage\.log': 'build_kimage_stdout',
+    r'build_kimage_stderr\.log': 'build_kernel_errors',
+    r'build_modules\.log': 'build_modules_stdout',
+    r'build_modules_stderr\.log': 'build_modules_errors',
+    r'fragment/(\d)\.config': 'fragment\\1',
 }
 
 
@@ -487,6 +498,17 @@ class KBuild():
             raise ValueError("KCI_STORAGE_CREDENTIALS not set")
         return kernelci.storage.get_storage(storage_config, storage_cred)
 
+    def map_artifact_name(self, artifact):
+        '''
+        Map artifact name to filename
+        '''
+        for key in ARTIFACT_NAMES:
+            if re.match(key, artifact):
+                return re.sub(key, ARTIFACT_NAMES[key], artifact)
+        # otherwise map all dots to underscores
+        artifact = artifact.replace('.', '_')
+        return artifact
+
     def upload_artifacts(self):
         '''
         Upload artifacts to storage
@@ -502,10 +524,9 @@ class KBuild():
             stored_url = storage.upload_single(
                 (artifact_path, artifact), root_path
             )
-            # Map ARTIFACT NAMES to ARTIFACT filename
-            artifact = ARTIFACT_NAMES.get(artifact, artifact)
+            artifact_key = self.map_artifact_name(artifact)
 
-            node_af[artifact] = stored_url
+            node_af[artifact_key] = stored_url
             print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
         print("[_upload_artifacts] Artifacts uploaded to storage")
         return node_af
