@@ -578,6 +578,7 @@ class KBuild():
         }
 
         node = self._node.copy()
+        results['node']['data']['kernel_revision'] = node['data']['kernel_revision']  # noqa
         node.update(results['node'])
         api_helper = kernelci.api.helper.APIHelper(api)
         print(json.dumps(node, indent=2))
