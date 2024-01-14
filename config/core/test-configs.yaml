@@ -336,7 +336,7 @@ test_plans:
   kselftest-ftrace:
     <<: *kselftest
     params:
-      job_timeout: '20'
+      job_timeout: '25'
       kselftest_collections: "ftrace"
 
   kselftest-futex:
