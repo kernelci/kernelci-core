@@ -362,6 +362,11 @@ fragments:
       mediatek/mt8195/scp.img
       mediatek/WIFI_MT7961_patch_mcu_1_2_hdr.bin
       mediatek/WIFI_RAM_CODE_MT7961_1.bin
+      mrvl/sd8897_uapsta.bin
+      ath10k/QCA6174/hw3.0/firmware-sdio-6.bin
+      ath10k/QCA6174/hw3.0/board-2.bin
+      ath10k/WCN3990/hw1.0/firmware-5.bin
+      ath10k/WCN3990/hw1.0/board-2.bin
       "'
 
 
@@ -510,6 +515,8 @@ fragments:
   x86-board:
     path: "kernel/configs/x86-board.config"
     configs:
+      - 'CONFIG_ATH10K_PCI=m'
+      - 'CONFIG_ATH10K=m'
       - 'CONFIG_BLK_DEV_NVME=y'
       - 'CONFIG_CHARGER_CROS_USBPD=m'
       - 'CONFIG_CHARGER_WILCO=m'
@@ -545,6 +552,9 @@ fragments:
       - 'CONFIG_IIO_CROS_EC_SENSORS=m'
       - 'CONFIG_IIO=m'
       - 'CONFIG_INTEL_ISH_HID=m'
+      - 'CONFIG_IWLDVM=m'
+      - 'CONFIG_IWLMVM=m'
+      - 'CONFIG_IWLWIFI=m'
       - 'CONFIG_KEYBOARD_CROS_EC=m'
       - 'CONFIG_MEDIA_CAMERA_SUPPORT=y'
       - 'CONFIG_MEDIA_SUPPORT=y'
@@ -556,6 +566,7 @@ fragments:
       - 'CONFIG_MMC_SDHCI_PCI=y'
       - 'CONFIG_MMC_SDHCI=y'
       - 'CONFIG_MMC=y'
+      - 'CONFIG_MT7921E=m'
       - 'CONFIG_NFS_FS=y'
       - 'CONFIG_NFS_V2=y'
       - 'CONFIG_NFS_V3_ACL=y'
@@ -567,6 +578,10 @@ fragments:
       - 'CONFIG_PINCTRL_SX150X=y'
       - 'CONFIG_ROOT_NFS=y'
       - 'CONFIG_RTC_DRV_CROS_EC=m'
+      - 'CONFIG_RTW88_8822CE=m'
+      - 'CONFIG_RTW88=m'
+      - 'CONFIG_RTW89_8852AE=m'
+      - 'CONFIG_RTW89=m'
       - 'CONFIG_SERIAL_8250_DW=y'
       - 'CONFIG_SERIAL_8250=y'
       - 'CONFIG_SND_DESIGNWARE_I2S=m'
@@ -638,6 +653,19 @@ fragments:
       i915/kbl_dmc_ver1_04.bin
       rtl_nic/rtl8153a-4.fw
       rtl_nic/rtl8153b-2.fw
+      ath10k/QCA6174/hw3.0/firmware-6.bin
+      ath10k/QCA6174/hw3.0/board-2.bin
+      rtw88/rtw8822c_fw.bin
+      rtw88/rtw8822c_wow_fw.bin
+      rtw89/rtw8852a_fw.bin
+      iwlwifi-so-a0-gf-a0-86.ucode
+      iwlwifi-so-a0-gf-a0.pnvm
+      iwlwifi-QuZ-a0-hr-b0-77.ucode
+      iwlwifi-7265D-29.ucode
+      iwlwifi-cc-a0-77.ucode
+      mediatek/WIFI_RAM_CODE_MT7961_1.bin
+      mediatek/WIFI_MT7961_patch_mcu_1_2_hdr.bin
+      iwlwifi-9000-pu-b0-jf-b0-46.ucode
       "'
 
   x86_kvm_guest:
