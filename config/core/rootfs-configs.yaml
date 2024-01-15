@@ -355,6 +355,19 @@ rootfs_configs:
       - e2fsprogs
     script: "scripts/bullseye-vdso.sh"
 
+  bullseye-wifi:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - rfkill
+      - iw
+      - iproute2
+    test_overlay: "overlays/wifi"
+
   sid:
     rootfs_type: debos
     debian_release: sid
