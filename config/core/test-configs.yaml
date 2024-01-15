@@ -2536,11 +2536,13 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-arm64
+      - kselftest-dt
 
   - device_type: bcm2835-rpi-b-rev2
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-dt
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
