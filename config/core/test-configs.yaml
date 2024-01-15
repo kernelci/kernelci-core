@@ -823,6 +823,12 @@ test_plans:
     params:
       job_timeout: '20'
 
+  wifi-basic: &wifi-basic
+    rootfs: debian_bullseye-wifi_nfs
+    pattern: 'wifi/{category}-{method}-{protocol}-{rootfs}-wifi-template.jinja2'
+    params: &wifi-basic-params
+      job_timeout: '10'
+
 device_types:
 
   acer-R721T-grunt:
