@@ -28,7 +28,6 @@ pylint:
 		kernelci.runtime \
 		kernelci.scheduler \
 		kernelci.storage \
-		setup.py \
 		tests
 
 pycodestyle:
@@ -37,7 +36,6 @@ pycodestyle:
 	pycodestyle kci_*
 	pycodestyle scripts/*
 	pycodestyle tests/*
-	pycodestyle setup.py
 
 unit-tests:
 	python3 -m pytest tests
