@@ -2403,6 +2403,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-cpufreq
+      - wifi-basic
 
   - device_type: acer-cb317-1h-c3z6-dedede
     test_plans:
@@ -2413,6 +2414,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - wifi-basic
 
   - device_type: acer-chromebox-cxi4-puff
     test_plans:
@@ -2428,6 +2430,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - wifi-basic
 
   - device_type: alpine-db
     test_plans:
@@ -2558,6 +2561,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-cpufreq
+      - wifi-basic
 
   - device_type: asus-cx9400-volteer
     test_plans:
@@ -2570,6 +2574,7 @@ test_configs:
       - kselftest-mm
       - kselftest-vm
       - ltp-ipc
+      - wifi-basic
 
   - device_type: at91-sama5d2_xplained
     test_plans:
@@ -2683,6 +2688,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-cpufreq
+      - wifi-basic
 
   - device_type: dove-cubox
     test_plans:
@@ -2796,6 +2802,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-cpufreq
       - kselftest-landlock
+      - wifi-basic
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -3073,6 +3080,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-cpufreq
+      - wifi-basic
 
   - device_type: meson-g12a-sei510
     test_plans:
@@ -3234,6 +3242,7 @@ test_configs:
       - preempt-rt
       - sleep
       - v4l2-compliance-uvc
+      - wifi-basic
 
   - device_type: mt8183-kukui-jacuzzi-juniper-sku16
     test_plans:
@@ -3254,6 +3263,7 @@ test_configs:
       - preempt-rt
       - sleep
       - v4l2-compliance-uvc
+      - wifi-basic
 
   - device_type: mt8192-asurada-spherion-r0
     test_plans:
@@ -3289,6 +3299,7 @@ test_configs:
     test_plans:
       - baseline
       - kselftest-dt
+      - wifi-basic
 
   - device_type: mt8195-cherry-tomato-r2
     test_plans:
