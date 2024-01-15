@@ -13,7 +13,7 @@ WORKDIR /tmp/kernelci-core
 RUN git fetch origin $core_rev
 RUN git checkout FETCH_HEAD
 RUN pip3 install -r requirements-dev.txt
-RUN python3 setup.py install
+RUN python3 -m pip install .
 RUN cp -R config /etc/kernelci/
 WORKDIR /root
 RUN rm -rf /tmp/kernelci-core
