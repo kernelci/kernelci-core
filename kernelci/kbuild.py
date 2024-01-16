@@ -104,6 +104,7 @@ class KBuild():
             self._firmware_dir = None
             self._af_dir = None
             self._node = node
+            self._api_yaml = None
             return
         # load class from serialized json
         if jsonobj:
@@ -124,6 +125,7 @@ class KBuild():
             self._apijobname = jsonobj['apijobname']
             self._storage_config = jsonobj['storage_config']
             self._fragments_dir = jsonobj['fragments_dir']
+            self._api_yaml = jsonobj['api_yaml']
             return
         raise ValueError("No valid arguments provided")
 
@@ -155,9 +157,10 @@ class KBuild():
         self._srcdir = os.path.join(self._workspace, "linux")
         self.init_steps()
 
-    def set_api_config(self, api_config):
+    def set_api_config(self, api_yaml):
         """ Set API config """
-        self._api_config = api_config
+        print(f"[_set_api_yaml] CONTENT: {api_yaml}")
+        self._api_yaml = api_yaml
 
     def set_storage_config(self, storage_config):
         """ Set storage config """
@@ -519,10 +522,9 @@ class KBuild():
         api_token = os.environ.get('KCI_API_TOKEN')
         if not api_token:
             raise ValueError("KCI_API_TOKEN is not set")
-        config = '/etc/kernelci/core/api-configs.yaml'
-        configs = kernelci.config.load(config)
-        api = 'staging.kernelci.org'
-        api_config = configs['api'][api]
+        api_config = kernelci.config.api.API.load_from_yaml(
+            yaml.safe_load(self._api_yaml), name='api'
+        )
         api = kernelci.api.get_api(api_config, api_token)
         # TODO/FIXME: real detailed job result
         # pass fail skip incomplete
