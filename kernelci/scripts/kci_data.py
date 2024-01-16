@@ -23,11 +23,12 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
+sys.path.append(str(Path(__file__).parent))
 
-from kernelci.legacy.cli import Args, Command, parse_opts
-import kernelci.build
-import kernelci.legacy.config.db
-import kernelci.db
+from kernelci.legacy.cli import Args, Command, parse_opts  # noqa: E402
+import kernelci.build  # noqa: E402
+import kernelci.legacy.config.db  # noqa: E402
+import kernelci.db  # noqa: E402
 
 
 class cmd_validate(Command):

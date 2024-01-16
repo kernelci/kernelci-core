@@ -21,7 +21,6 @@ mypy:
 
 pylint:
 	pylint --reports=y \
-		kci \
 		kernelci.api \
 		kernelci.cli \
 		kernelci.config \
@@ -32,9 +31,6 @@ pylint:
 
 pycodestyle:
 	pycodestyle kernelci
-	pycodestyle kci
-	pycodestyle kci_*
-	pycodestyle scripts/*
 	pycodestyle tests/*
 
 unit-tests:

@@ -21,12 +21,12 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
+sys.path.append(str(Path(__file__).parent))
 
-
-from kernelci.legacy.cli import Args, Command, parse_opts
-import kernelci.config
-import kernelci.rootfs
-import kernelci.storage
+from kernelci.legacy.cli import Args, Command, parse_opts  # noqa: E402
+import kernelci.config  # noqa: E402
+import kernelci.rootfs  # noqa: E402
+import kernelci.storage  # noqa: E402
 
 
 # -----------------------------------------------------------------------------
