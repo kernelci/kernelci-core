@@ -235,6 +235,34 @@ test_plans:
       <<: *igt-kms-test-list
       drm_driver: "tegra"
 
+  igt-kms-vc4:
+    <<: *igt-kms
+    params:
+      drm_driver: "vc4"
+      tests: >
+        core_auth
+        core_getclient
+        core_getstats
+        core_getversion
+        core_setmaster_vs_auth
+        drm_read
+        kms_addfb_basic
+        kms_atomic
+        kms_flip_event_leak
+        kms_prop_blob
+        kms_setmode
+        kms_vblank
+        vc4/vc4_create_bo
+        vc4/vc4_dmabuf_poll
+        vc4/vc4_label_bo
+        vc4/vc4_lookup_fail
+        vc4/vc4_mmap
+        vc4/vc4_prefmon
+        vc4/vc4_purgeable_bo
+        vc4/vc4_tiling
+        vc4/vc4_wait_bo
+        vc4/vc4_wait_seqno
+
   kselftest: &kselftest
     rootfs: debian_bullseye-kselftest_nfs
     pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
@@ -2539,6 +2567,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - igt-kms-vc4
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-dt
