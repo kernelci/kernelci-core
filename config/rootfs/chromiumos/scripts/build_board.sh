@@ -72,6 +72,9 @@ if [ -n "${VANILLA_MANIFEST}" ]; then
   echo "Fetching vanilla manifest ${VANILLA_MANIFEST}"
   repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${VANILLA_MANIFEST}
 else
+  # Ensure file ownership issues won't get in the way
+  git config --global safe.directory /kernelci-core
+
   if [ -z "${KCICORE_BRANCH}" ]; then
     KCICORE_BRANCH="$(git -C /kernelci-core branch --show-current 2>/dev/null || true)"
   fi
@@ -145,7 +148,7 @@ echo "Updating ownership"
 sudo chown -R "${USERNAME}" "${DATA_DIR}/${BOARD}"
 
 echo "Compressing image"
-gzip -1 "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
+gzip -1 --force "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
 
 echo "Extracting additional artifacts"
 sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./${OUT_DIR}/build/${BOARD} lib/modules
@@ -154,13 +157,13 @@ sudo cp ./${OUT_DIR}/build/${BOARD}/boot/config* "${DATA_DIR}/${BOARD}/kernel.co
 sudo mv ./${OUT_DIR}/build/${BOARD}/opt/google/{cr,ti}50/firmware/* "${DATA_DIR}/${BOARD}/" > /dev/null 2>&1 || true
 
 # Identify baseboard and chipset
-BASEBOARD="$(grep baseboard ./src/overlays/overlay-${BOARD}/profiles/base/parent | sed 's/:.*//')"
+BASEBOARD="$(grep -m1 baseboard ./src/overlays/overlay-${BOARD}/profiles/base/parent | sed 's/:.*//')"
 if [ -z "${BASEBOARD}" ]; then
     # Some overlays (e.g. skyrim) directly refer to the chipset overlay,
     # not to an intermediate baseboard
     BASEBOARD="overlay-${BOARD}"
 fi
-CHIPSET="$(grep chipset ./src/overlays/${BASEBOARD}/profiles/base/parent | sed 's/:.*//')"
+CHIPSET="$(grep -m1 chipset ./src/overlays/${BASEBOARD}/profiles/base/parent | sed 's/:.*//')"
 # Source chipset config for $CHROMEOS_KERNEL_ARCH
 . ./src/overlays/${CHIPSET}/profiles/base/make.defaults
 
