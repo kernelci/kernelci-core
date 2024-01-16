@@ -27,15 +27,15 @@ import requests
 import yaml
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
+sys.path.append(str(Path(__file__).parent))
 
-
-from kernelci.legacy.cli import Args, Command, parse_opts
-import kernelci
-import kernelci.legacy.config.test
-import kernelci.build
-import kernelci.runtime
-import kernelci.legacy
-import kernelci.test
+from kernelci.legacy.cli import Args, Command, parse_opts  # noqa: E402
+import kernelci  # noqa: E402
+import kernelci.legacy.config.test  # noqa: E402
+import kernelci.build  # noqa: E402
+import kernelci.runtime  # noqa: E402
+import kernelci.legacy  # noqa: E402
+import kernelci.test  # noqa: E402
 
 RELEASE_RE = re.compile(r'(.*)([0-9.]{10})(.*)')
 

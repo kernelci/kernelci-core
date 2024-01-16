@@ -21,10 +21,11 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
+sys.path.append(str(Path(__file__).parent))
 
-from kernelci.legacy.cli import Args, Command, parse_opts
-import kernelci.bisect
-import kernelci.config
+from kernelci.legacy.cli import Args, Command, parse_opts  # noqa: E402
+import kernelci.bisect  # noqa: E402
+import kernelci.config  # noqa: E402
 
 
 class cmd_get_recipients(Command):

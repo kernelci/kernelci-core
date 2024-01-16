@@ -12,9 +12,10 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
+sys.path.append(str(Path(__file__).parent))
 
-from kernelci.cli import kci
-from kernelci.cli import (  # pylint: disable=unused-import
+from kernelci.cli import kci  # noqa: E402
+from kernelci.cli import (  # pylint: disable=unused-import  # noqa: E402
     api as kci_api,
     config as kci_config,
     docker as kci_docker,
