@@ -1276,6 +1276,17 @@ test_configs:
     test_plans: *chromebook-arm64-test-plans
 
   - device_type: mt8192-asurada-spherion-r0_chromeos
+    filters: &mediatek-6_6-filter
+      - passlist: {defconfig: ['chromiumos-mediatek'], tree: ['kernelci'], branch: ['linux-6.6.y-arm64-chromeos']}
+    test_plans:
+      - cros-tast-decoder-v4l2-sl-h264
+      - cros-tast-decoder-v4l2-sl-vp8
+      - cros-tast-decoder-v4l2-sl-vp9-group1
+      - cros-tast-decoder-v4l2-sl-vp9-group2
+      - cros-tast-decoder-v4l2-sl-vp9-group3
+      - cros-tast-decoder-v4l2-sl-vp9-group4
+
+  - device_type: mt8192-asurada-spherion-r0_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans: *chromebook-arm64-test-plans
 
