@@ -1311,6 +1311,18 @@ test_configs:
     test_plans: *chromebook-arm64-test-plans
 
   - device_type: mt8195-cherry-tomato-r2_chromeos
+    filters: *mediatek-6_6-filter
+    test_plans:
+      - cros-tast-decoder-v4l2-sl-av1
+      - cros-tast-decoder-v4l2-sl-h264
+      - cros-tast-decoder-v4l2-sl-hevc
+      - cros-tast-decoder-v4l2-sl-vp8
+      - cros-tast-decoder-v4l2-sl-vp9-group1
+      - cros-tast-decoder-v4l2-sl-vp9-group2
+      - cros-tast-decoder-v4l2-sl-vp9-group3
+      - cros-tast-decoder-v4l2-sl-vp9-group4
+
+  - device_type: mt8195-cherry-tomato-r2_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans: *chromebook-arm64-test-plans
 
