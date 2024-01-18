@@ -225,6 +225,8 @@ def send_report(args, log_file_name, token, api):
         cc = set()
         for r in to:
             print("  {}".format(r))
+    else:
+        raise Exception("NOT SENDING PUBLIC EMAIL REPORTS ON STAGING")
 
     data.update({
         'report_type': 'bisect',
