@@ -301,13 +301,14 @@ class KbuildData(BaseModel):
     kernel_revision: Revision = Field(
         description="Kernel repo revision data"
     )
-    arch: str = Field(
+    # [TODO]: review which of these Fields should be optional or mandatory
+    arch: Optional[str] = Field(
         description="CPU architecture family"
     )
-    defconfig: str = Field(
+    defconfig: Optional[str] = Field(
         description="Kernel defconfig identifier"
     )
-    compiler: str = Field(
+    compiler: Optional[str] = Field(
         description="Compiler used for the build"
     )
     fragments: Optional[List[str]] = Field(
