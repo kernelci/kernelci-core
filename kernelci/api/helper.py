@@ -8,6 +8,7 @@
 
 from typing import Dict
 import json
+import requests
 
 from . import API
 
@@ -122,7 +123,11 @@ class APIHelper:
             job_node['data']['runtime'] = runtime.config.name
         if platform:
             job_node['data']['platform'] = platform.name
-        return self._api.node.add(job_node)
+            job_node['data']['asdf'] = 'asdf'
+        try:
+            return self._api.node.add(job_node)
+        except requests.exceptions.HTTPError as error:
+            raise RuntimeError(json.loads(error.response.text)) from error
 
     def submit_regression(self, regression):
         """Post a regression object
