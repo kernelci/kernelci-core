@@ -345,6 +345,12 @@ class TestData(BaseModel):
     test_revision: Optional[Revision] = Field(
         description="Test repo revision data"
     )
+    platform: Optional[str] = Field(
+        description="Test platform"
+    )
+    runtime: Optional[str] = Field(
+        description="Runtime that runs the test"
+    )
 
     class Config:
         """Configuration attributes for TestData"""
