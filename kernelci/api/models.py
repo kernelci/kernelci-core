@@ -307,6 +307,12 @@ class KbuildData(BaseModel):
     fragments: Optional[List[str]] = Field(
         description="List of additional configuration fragments used"
     )
+    platform: Optional[str] = Field(
+        description="Build platform"
+    )
+    runtime: Optional[str] = Field(
+        description="Runtime that runs the build"
+    )
 
 
 class Kbuild(Node):
