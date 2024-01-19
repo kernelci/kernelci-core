@@ -2538,6 +2538,11 @@ test_configs:
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-dt
+      - ltp-dio
+      - ltp-fsx
+      - ltp-smoketest
+      - ltp-timers
+      - preempt-rt
 
   - device_type: bcm2835-rpi-b-rev2
     test_plans:
