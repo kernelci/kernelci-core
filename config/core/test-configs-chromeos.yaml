@@ -101,6 +101,132 @@ test_plans:
       <<: *cros-tast-base-params
       base_template: 'chromeos/cros-boot-qemu.jinja2'
 
+  cros-tast-decoder-v4l2-sf-h264: &cros-tast-decoder-v4l2-sf-h264
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sf-h264-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sf-h264-tests >
+        video.PlatformDecoding.v4l2_stateful_h264_*
+
+  cros-tast-decoder-v4l2-sf-hevc: &cros-tast-decoder-v4l2-sf-hevc
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sf-hevc-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sf-hevc-tests >
+        video.PlatformDecoding.v4l2_stateful_hevc_*
+
+  cros-tast-decoder-v4l2-sf-vp8: &cros-tast-decoder-v4l2-sf-vp8
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sf-vp8-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sf-vp8-tests >
+        video.PlatformDecoding.v4l2_stateful_vp8_*
+
+  cros-tast-decoder-v4l2-sf-vp9-group1: &cros-tast-decoder-v4l2-sf-vp9-group1
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sf-vp9-group1-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sf-vp9-group1-tests >
+        video.PlatformDecoding.v4l2_stateful_vp9_0_group1_*
+
+  cros-tast-decoder-v4l2-sf-vp9-group2: &cros-tast-decoder-v4l2-sf-vp9-group2
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sf-vp9-group2-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sf-vp9-group2-tests >
+        video.PlatformDecoding.v4l2_stateful_vp9_0_group2_*
+
+  cros-tast-decoder-v4l2-sf-vp9-group3: &cros-tast-decoder-v4l2-sf-vp9-group3
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sf-vp9-group3-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sf-vp9-group3-tests >
+        video.PlatformDecoding.v4l2_stateful_vp9_0_group3_*
+
+  cros-tast-decoder-v4l2-sf-vp9-group4: &cros-tast-decoder-v4l2-sf-vp9-group4
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sf-vp9-group4-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sf-vp9-group4-tests >
+        video.PlatformDecoding.v4l2_stateful_vp9_0_group4_*
+
+  cros-tast-decoder-v4l2-sf-vp9-level5: &cros-tast-decoder-v4l2-sf-vp9-level5
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sf-vp9-level5-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sf-vp9-level5-tests >
+        video.PlatformDecoding.v4l2_stateful_vp9_0_level5_*
+
+  cros-tast-decoder-v4l2-sf-vp9-svc: &cros-tast-decoder-v4l2-sf-vp9
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sf-vp9-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sf-vp9-tests >
+        video.PlatformDecoding.v4l2_stateful_vp9_0_svc
+
+  cros-tast-decoder-v4l2-sl-av1: &cros-tast-decoder-v4l2-sl-av1
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sl-av1-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sl-av1-tests >
+        video.PlatformDecoding.v4l2_stateless_av1_*
+
+  cros-tast-decoder-v4l2-sl-h264: &cros-tast-decoder-v4l2-sl-h264
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sl-h264-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sl-h264-tests >
+        video.PlatformDecoding.v4l2_stateless_h264_*
+
+  cros-tast-decoder-v4l2-sl-hevc: &cros-tast-decoder-v4l2-sl-hevc
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sl-hevc-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sl-hevc-tests >
+        video.PlatformDecoding.v4l2_stateless_hevc_*
+
+  cros-tast-decoder-v4l2-sl-vp8: &cros-tast-decoder-v4l2-sl-vp8
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sl-vp8-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sl-vp8-tests >
+        video.PlatformDecoding.v4l2_stateless_vp8_*
+
+  cros-tast-decoder-v4l2-sl-vp9-group1: &cros-tast-decoder-v4l2-sl-vp9-group1
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sl-vp9-group1-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sl-vp9-group1-tests >
+        video.PlatformDecoding.v4l2_stateless_vp9_0_group1_*
+
+  cros-tast-decoder-v4l2-sl-vp9-group2: &cros-tast-decoder-v4l2-sl-vp9-group2
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sl-vp9-group2-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sl-vp9-group2-tests >
+        video.PlatformDecoding.v4l2_stateless_vp9_0_group2_*
+
+  cros-tast-decoder-v4l2-sl-vp9-group3: &cros-tast-decoder-v4l2-sl-vp9-group3
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sl-vp9-group3-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sl-vp9-group3-tests >
+          video.PlatformDecoding.v4l2_stateless_vp9_0_group3_*
+
+  cros-tast-decoder-v4l2-sl-vp9-group4: &cros-tast-decoder-v4l2-sl-vp9-group4
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sl-vp9-group4-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sl-vp9-group4-tests >
+          video.PlatformDecoding.v4l2_stateless_vp9_0_group4_*
+
+  cros-tast-decoder-v4l2-sl-vp9-level5: &cros-tast-decoder-v4l2-sl-vp9-level5
+    <<: *cros-tast-base
+    params: &cros-tast-decoder-v4l2-sl-vp9-level5-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-decoder-v4l2-sl-vp9-level5-tests >
+        video.PlatformDecoding.v4l2_stateless_vp9_0_level5_*
+
   cros-tast-hardware: &cros-tast-hardware
     <<: *cros-tast-base
     params: &cros-tast-hardware-params
@@ -190,132 +316,6 @@ test_plans:
     params:
       <<: *cros-tast-mm-decode-params
       fixed_kernel: true
-
-  cros-tast-mm-decode-v4l2-stateful-h264: &cros-tast-mm-decode-v4l2-stateful-h264
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateful-h264-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateful-h264-tests >
-        video.PlatformDecoding.v4l2_stateful_h264_*
-
-  cros-tast-mm-decode-v4l2-stateful-hevc: &cros-tast-mm-decode-v4l2-stateful-hevc
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateful-hevc-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateful-hevc-tests >
-        video.PlatformDecoding.v4l2_stateful_hevc_*
-
-  cros-tast-mm-decode-v4l2-stateful-vp8: &cros-tast-mm-decode-v4l2-stateful-vp8
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateful-vp8-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateful-vp8-tests >
-        video.PlatformDecoding.v4l2_stateful_vp8_*
-
-  cros-tast-mm-decode-v4l2-stateful-vp9-group1: &cros-tast-mm-decode-v4l2-stateful-vp9-group1
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateful-vp9-group1-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-group1-tests >
-        video.PlatformDecoding.v4l2_stateful_vp9_0_group1_*
-
-  cros-tast-mm-decode-v4l2-stateful-vp9-group2: &cros-tast-mm-decode-v4l2-stateful-vp9-group2
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateful-vp9-group2-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-group2-tests >
-        video.PlatformDecoding.v4l2_stateful_vp9_0_group2_*
-
-  cros-tast-mm-decode-v4l2-stateful-vp9-group3: &cros-tast-mm-decode-v4l2-stateful-vp9-group3
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateful-vp9-group3-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-group3-tests >
-        video.PlatformDecoding.v4l2_stateful_vp9_0_group3_*
-
-  cros-tast-mm-decode-v4l2-stateful-vp9-group4: &cros-tast-mm-decode-v4l2-stateful-vp9-group4
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateful-vp9-group4-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-group4-tests >
-        video.PlatformDecoding.v4l2_stateful_vp9_0_group4_*
-
-  cros-tast-mm-decode-v4l2-stateful-vp9-level5: &cros-tast-mm-decode-v4l2-stateful-vp9-level5
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateful-vp9-level5-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-level5-tests >
-        video.PlatformDecoding.v4l2_stateful_vp9_0_level5_*
-
-  cros-tast-mm-decode-v4l2-stateful-vp9-svc: &cros-tast-mm-decode-v4l2-stateful-vp9
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateful-vp9-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-tests >
-        video.PlatformDecoding.v4l2_stateful_vp9_0_svc
-
-  cros-tast-mm-decode-v4l2-stateless-av1: &cros-tast-mm-decode-v4l2-stateless-av1
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateless-av1-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateless-av1-tests >
-        video.PlatformDecoding.v4l2_stateless_av1_*
-
-  cros-tast-mm-decode-v4l2-stateless-h264: &cros-tast-mm-decode-v4l2-stateless-h264
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateless-h264-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateless-h264-tests >
-        video.PlatformDecoding.v4l2_stateless_h264_*
-
-  cros-tast-mm-decode-v4l2-stateless-hevc: &cros-tast-mm-decode-v4l2-stateless-hevc
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateless-hevc-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateless-hevc-tests >
-        video.PlatformDecoding.v4l2_stateless_hevc_*
-
-  cros-tast-mm-decode-v4l2-stateless-vp8: &cros-tast-mm-decode-v4l2-stateless-vp8
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateless-vp8-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateless-vp8-tests >
-        video.PlatformDecoding.v4l2_stateless_vp8_*
-
-  cros-tast-mm-decode-v4l2-stateless-vp9-group1: &cros-tast-mm-decode-v4l2-stateless-vp9-group1
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateless-vp9-group1-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-group1-tests >
-        video.PlatformDecoding.v4l2_stateless_vp9_0_group1_*
-
-  cros-tast-mm-decode-v4l2-stateless-vp9-group2: &cros-tast-mm-decode-v4l2-stateless-vp9-group2
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateless-vp9-group2-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-group2-tests >
-        video.PlatformDecoding.v4l2_stateless_vp9_0_group2_*
-
-  cros-tast-mm-decode-v4l2-stateless-vp9-group3: &cros-tast-mm-decode-v4l2-stateless-vp9-group3
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateless-vp9-group3-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-group3-tests >
-          video.PlatformDecoding.v4l2_stateless_vp9_0_group3_*
-
-  cros-tast-mm-decode-v4l2-stateless-vp9-group4: &cros-tast-mm-decode-v4l2-stateless-vp9-group4
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateless-vp9-group4-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-group4-tests >
-          video.PlatformDecoding.v4l2_stateless_vp9_0_group4_*
-
-  cros-tast-mm-decode-v4l2-stateless-vp9-level5: &cros-tast-mm-decode-v4l2-stateless-vp9-level5
-    <<: *cros-tast-base
-    params: &cros-tast-mm-decode-v4l2-stateless-vp9-level5-params
-      <<: *cros-tast-base-params
-      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-level5-tests >
-        video.PlatformDecoding.v4l2_stateless_vp9_0_level5_*
 
   cros-tast-mm-encode: &cros-tast-mm-encode
     <<: *cros-tast-base
@@ -1266,7 +1266,7 @@ test_configs:
   - device_type: mt8183-kukui-jacuzzi-juniper-sku16_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans:
-      - cros-tast-mm-decode-v4l2-stateless-h264
+      - cros-tast-decoder-v4l2-sl-h264
 
 # Disable this test plan for now as this device can only run with
 # the Collabora-maintained kernel due to missing upstream support
@@ -1288,17 +1288,28 @@ test_configs:
   - device_type: mt8192-asurada-spherion-r0_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans:
+      - cros-tast-decoder-v4l2-sl-h264
+      - cros-tast-decoder-v4l2-sl-vp8
+      - cros-tast-decoder-v4l2-sl-vp9-group1
+      - cros-tast-decoder-v4l2-sl-vp9-group2
+      - cros-tast-decoder-v4l2-sl-vp9-group3
+      - cros-tast-decoder-v4l2-sl-vp9-group4
       - cros-tast-mm-decode
-      - cros-tast-mm-decode-v4l2-stateless-h264
-      - cros-tast-mm-decode-v4l2-stateless-vp8
-      - cros-tast-mm-decode-v4l2-stateless-vp9-group1
-      - cros-tast-mm-decode-v4l2-stateless-vp9-group2
-      - cros-tast-mm-decode-v4l2-stateless-vp9-group3
-      - cros-tast-mm-decode-v4l2-stateless-vp9-group4
 
   - device_type: mt8192-asurada-spherion-r0_chromeos
     filters: *mediatek-filter
     test_plans: *chromebook-arm64-test-plans
+
+  - device_type: mt8192-asurada-spherion-r0_chromeos
+    filters: &mediatek-6_6-filter
+      - passlist: {defconfig: ['chromiumos-mediatek'], tree: ['kernelci'], branch: ['linux-6.6.y-arm64-chromeos']}
+    test_plans:
+      - cros-tast-decoder-v4l2-sl-h264
+      - cros-tast-decoder-v4l2-sl-vp8
+      - cros-tast-decoder-v4l2-sl-vp9-group1
+      - cros-tast-decoder-v4l2-sl-vp9-group2
+      - cros-tast-decoder-v4l2-sl-vp9-group3
+      - cros-tast-decoder-v4l2-sl-vp9-group4
 
   - device_type: mt8192-asurada-spherion-r0_chromeos
     filters: *collabora-chromeos-kernel-filter
@@ -1326,21 +1337,33 @@ test_configs:
     test_plans: *chromebook-arm64-test-plans
 
   - device_type: mt8195-cherry-tomato-r2_chromeos
+    filters: *mediatek-6_6-filter
+    test_plans:
+      - cros-tast-decoder-v4l2-sl-av1
+      - cros-tast-decoder-v4l2-sl-h264
+      - cros-tast-decoder-v4l2-sl-hevc
+      - cros-tast-decoder-v4l2-sl-vp8
+      - cros-tast-decoder-v4l2-sl-vp9-group1
+      - cros-tast-decoder-v4l2-sl-vp9-group2
+      - cros-tast-decoder-v4l2-sl-vp9-group3
+      - cros-tast-decoder-v4l2-sl-vp9-group4
+
+  - device_type: mt8195-cherry-tomato-r2_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans: *chromebook-arm64-test-plans
 
   - device_type: mt8195-cherry-tomato-r2_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans:
+      - cros-tast-decoder-v4l2-sl-av1
+      - cros-tast-decoder-v4l2-sl-h264
+      - cros-tast-decoder-v4l2-sl-hevc
+      - cros-tast-decoder-v4l2-sl-vp8
+      - cros-tast-decoder-v4l2-sl-vp9-group1
+      - cros-tast-decoder-v4l2-sl-vp9-group2
+      - cros-tast-decoder-v4l2-sl-vp9-group3
+      - cros-tast-decoder-v4l2-sl-vp9-group4
       - cros-tast-mm-decode
-      - cros-tast-mm-decode-v4l2-stateless-av1
-      - cros-tast-mm-decode-v4l2-stateless-h264
-      - cros-tast-mm-decode-v4l2-stateless-hevc
-      - cros-tast-mm-decode-v4l2-stateless-vp8
-      - cros-tast-mm-decode-v4l2-stateless-vp9-group1
-      - cros-tast-mm-decode-v4l2-stateless-vp9-group2
-      - cros-tast-mm-decode-v4l2-stateless-vp9-group3
-      - cros-tast-mm-decode-v4l2-stateless-vp9-group4
 
   - device_type: mt8195-cherry-tomato-r2_chromeos
     filters: *collabora-chromeos-kernel-filter
@@ -1358,29 +1381,29 @@ test_configs:
 
   - device_type: sc7180-trogdor-kingoftown_chromeos
     test_plans:
+      - cros-tast-decoder-v4l2-sf-h264
+      - cros-tast-decoder-v4l2-sf-hevc
+      - cros-tast-decoder-v4l2-sf-vp8
+      - cros-tast-decoder-v4l2-sf-vp9-group1
+      - cros-tast-decoder-v4l2-sf-vp9-group2
+      - cros-tast-decoder-v4l2-sf-vp9-group3
+      - cros-tast-decoder-v4l2-sf-vp9-group4
+      - cros-tast-decoder-v4l2-sf-vp9-level5
+      - cros-tast-decoder-v4l2-sf-vp9-svc
       - cros-tast-mm-decode
-      - cros-tast-mm-decode-v4l2-stateful-h264
-      - cros-tast-mm-decode-v4l2-stateful-hevc
-      - cros-tast-mm-decode-v4l2-stateful-vp8
-      - cros-tast-mm-decode-v4l2-stateful-vp9-group1
-      - cros-tast-mm-decode-v4l2-stateful-vp9-group2
-      - cros-tast-mm-decode-v4l2-stateful-vp9-group3
-      - cros-tast-mm-decode-v4l2-stateful-vp9-group4
-      - cros-tast-mm-decode-v4l2-stateful-vp9-level5
-      - cros-tast-mm-decode-v4l2-stateful-vp9-svc
 
   - device_type: sc7180-trogdor-lazor-limozeen_chromeos
     test_plans: *chromebook-arm64-test-plans
 
   - device_type: sc7180-trogdor-lazor-limozeen_chromeos
     test_plans:
+      - cros-tast-decoder-v4l2-sf-h264
+      - cros-tast-decoder-v4l2-sf-hevc
+      - cros-tast-decoder-v4l2-sf-vp8
+      - cros-tast-decoder-v4l2-sf-vp9-group1
+      - cros-tast-decoder-v4l2-sf-vp9-group2
+      - cros-tast-decoder-v4l2-sf-vp9-group3
+      - cros-tast-decoder-v4l2-sf-vp9-group4
+      - cros-tast-decoder-v4l2-sf-vp9-level5
+      - cros-tast-decoder-v4l2-sf-vp9-svc
       - cros-tast-mm-decode
-      - cros-tast-mm-decode-v4l2-stateful-h264
-      - cros-tast-mm-decode-v4l2-stateful-hevc
-      - cros-tast-mm-decode-v4l2-stateful-vp8
-      - cros-tast-mm-decode-v4l2-stateful-vp9-group1
-      - cros-tast-mm-decode-v4l2-stateful-vp9-group2
-      - cros-tast-mm-decode-v4l2-stateful-vp9-group3
-      - cros-tast-mm-decode-v4l2-stateful-vp9-group4
-      - cros-tast-mm-decode-v4l2-stateful-vp9-level5
-      - cros-tast-mm-decode-v4l2-stateful-vp9-svc
