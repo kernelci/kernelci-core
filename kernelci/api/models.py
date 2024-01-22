@@ -22,7 +22,6 @@ from pydantic import (
     BaseModel,
     Field,
     FileUrl,
-    Extra,
 )
 from .models_base import (
     PyObjectId,
@@ -172,10 +171,6 @@ class Node(DatabaseModel):
     _OBJECT_ID_FIELDS = ['parent']
     _TIMESTAMP_FIELDS = ['created', 'updated', 'timeout', 'holdoff']
 
-    class Config:
-        """Configuration attributes for Node"""
-        extra = Extra.forbid
-
     def update(self):
         self.updated = datetime.utcnow()
 
@@ -276,13 +271,9 @@ Hierarchy.update_forward_refs()
 
 class CheckoutData(BaseModel):
     """Model for the data field of a Checkout node"""
-    kernel_revision: Revision = Field(
+    kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data"
     )
-
-    class Config:
-        """Configuration attributes for CheckoutData"""
-        extra = Extra.forbid
 
 
 class Checkout(Node):
@@ -301,25 +292,21 @@ class Checkout(Node):
 class KbuildData(BaseModel):
     """Model for the data field of a Kbuild node"""
     # [TODO] Can be fetched from parent checkout node
-    kernel_revision: Revision = Field(
+    kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data"
     )
-    arch: str = Field(
+    arch: Optional[str] = Field(
         description="CPU architecture family"
     )
-    defconfig: str = Field(
+    defconfig: Optional[str] = Field(
         description="Kernel defconfig identifier"
     )
-    compiler: str = Field(
+    compiler: Optional[str] = Field(
         description="Compiler used for the build"
     )
     fragments: Optional[List[str]] = Field(
         description="List of additional configuration fragments used"
     )
-
-    class Config:
-        """Configuration attributes for KbuildData"""
-        extra = Extra.forbid
 
 
 class Kbuild(Node):
@@ -338,7 +325,7 @@ class Kbuild(Node):
 class TestData(BaseModel):
     """Model for the data field of a Test node"""
     # [TODO] Can be fetched from parent checkout node
-    kernel_revision: Revision = Field(
+    kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data"
     )
     # [TODO] Specify the source code file/function too?
@@ -348,10 +335,6 @@ class TestData(BaseModel):
     test_revision: Optional[Revision] = Field(
         description="Test repo revision data"
     )
-
-    class Config:
-        """Configuration attributes for TestData"""
-        extra = Extra.forbid
 
 
 class Test(Node):
@@ -369,16 +352,12 @@ class Test(Node):
 
 class RegressionData(BaseModel):
     """Model for the data field of a Regression node"""
-    fail_node: PyObjectId = Field(
+    fail_node: Optional[PyObjectId] = Field(
         description="Node where the regression was introduced"
     )
-    pass_node: PyObjectId = Field(
+    pass_node: Optional[PyObjectId] = Field(
         description="Previous passing Node"
     )
-
-    class Config:
-        """Configuration attributes for RegressionData"""
-        extra = Extra.forbid
 
 
 class Regression(Node):
