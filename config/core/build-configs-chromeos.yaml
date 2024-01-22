@@ -12,13 +12,13 @@ chromeos_5.15_variants: &chromeos_5_15_variants
     build_environment: clang-17
     architectures:
       arm:
-        base_defconfig: 'cros://chromeos-5.15/armel/chromiumos-arm.flavour.config'
+        base_defconfig: 'cros://chromeos-5.15/armel/chromiumos-arm-generic.flavour.config'
         extra_configs:
           - 'cros://chromeos-5.15/armel/chromiumos-rockchip.flavour.config'
         filters: &cros-filters
           - regex: { defconfig: 'cros' }
       arm64:
-        base_defconfig: 'cros://chromeos-5.15/arm64/chromiumos-arm64.flavour.config'
+        base_defconfig: 'cros://chromeos-5.15/arm64/chromiumos-arm64-generic.flavour.config'
         fragments: [arm64-chromebook]
         extra_configs:
           - 'cros://chromeos-5.15/arm64/chromiumos-mediatek.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
@@ -26,13 +26,13 @@ chromeos_5.15_variants: &chromeos_5_15_variants
           - 'cros://chromeos-5.15/arm64/chromiumos-rockchip64.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
       x86_64:
-        base_defconfig: 'cros://chromeos-5.15/x86_64/chromiumos-x86_64.flavour.config'
+        base_defconfig: 'cros://chromeos-5.15/x86_64/chromiumos-x86_64-generic.flavour.config'
         fragments: [x86-chromebook]
         extra_configs:
           - 'cros://chromeos-5.15/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
           - 'cros://chromeos-5.15/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
           - 'cros://chromeos-5.15/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
-          - 'cros://chromeos-5.15/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://chromeos-5.15/x86_64/chromiumos-x86_64-generic.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
 
   clang-17: &clang-17
@@ -55,12 +55,12 @@ chromeos_6.1_variants: &chromeos_6_1_variants
     build_environment: clang-17
     architectures:
       arm:
-        base_defconfig: 'cros://chromeos-6.1/armel/chromiumos-arm.flavour.config'
+        base_defconfig: 'cros://chromeos-6.1/armel/chromiumos-arm-generic.flavour.config'
         extra_configs:
           - 'cros://chromeos-6.1/armel/chromiumos-rockchip.flavour.config'
         filters: *cros-filters
       arm64:
-        base_defconfig: 'cros://chromeos-6.1/arm64/chromiumos-arm64.flavour.config'
+        base_defconfig: 'cros://chromeos-6.1/arm64/chromiumos-arm64-generic.flavour.config'
         fragments: [arm64-chromebook]
         extra_configs:
           - 'cros://chromeos-6.1/arm64/chromiumos-mediatek.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
@@ -68,13 +68,13 @@ chromeos_6.1_variants: &chromeos_6_1_variants
           - 'cros://chromeos-6.1/arm64/chromiumos-rockchip64.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
       x86_64:
-        base_defconfig: 'cros://chromeos-6.1/x86_64/chromiumos-x86_64.flavour.config'
+        base_defconfig: 'cros://chromeos-6.1/x86_64/chromiumos-x86_64-generic.flavour.config'
         fragments: [x86-chromebook]
         extra_configs:
           - 'cros://chromeos-6.1/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
           - 'cros://chromeos-6.1/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
           - 'cros://chromeos-6.1/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
-          - 'cros://chromeos-6.1/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://chromeos-6.1/x86_64/chromiumos-x86_64-generic.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
 
   clang-17: *clang-17
@@ -85,12 +85,12 @@ chromeos_6.6_variants: &chromeos_6_6_variants
     build_environment: clang-17
     architectures:
       arm:
-        base_defconfig: 'cros://chromeos-6.6/armel/chromiumos-arm.flavour.config'
+        base_defconfig: 'cros://chromeos-6.6/armel/chromiumos-arm-generic.flavour.config'
         extra_configs:
           - 'cros://chromeos-6.6/armel/chromiumos-rockchip.flavour.config'
         filters: *cros-filters
       arm64:
-        base_defconfig: 'cros://chromeos-6.6/arm64/chromiumos-arm64.flavour.config'
+        base_defconfig: 'cros://chromeos-6.6/arm64/chromiumos-arm64-generic.flavour.config'
         fragments: [arm64-chromebook]
         extra_configs:
           - 'cros://chromeos-6.6/arm64/chromiumos-mediatek.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
@@ -98,13 +98,13 @@ chromeos_6.6_variants: &chromeos_6_6_variants
           - 'cros://chromeos-6.6/arm64/chromiumos-rockchip64.flavour.config+arm64-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
       x86_64:
-        base_defconfig: 'cros://chromeos-6.6/x86_64/chromiumos-x86_64.flavour.config'
+        base_defconfig: 'cros://chromeos-6.6/x86_64/chromiumos-x86_64-generic.flavour.config'
         fragments: [x86-chromebook]
         extra_configs:
           - 'cros://chromeos-6.6/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
           - 'cros://chromeos-6.6/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
           - 'cros://chromeos-6.6/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
-          - 'cros://chromeos-6.6/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://chromeos-6.6/x86_64/chromiumos-x86_64-generic.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
 
   clang-17: *clang-17
