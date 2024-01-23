@@ -72,7 +72,10 @@ ARTIFACT_NAMES = {
     r'build_kimage_stderr\.log': 'build_kernel_errors',
     r'build_modules\.log': 'build_modules_stdout',
     r'build_modules_stderr\.log': 'build_modules_errors',
+    r'build_dtbs\.log': 'build_dtbs_stdout',
+    r'build_dtbs_stderr\.log': 'build_dtbs_errors',
     r'fragment/(\d)\.config': 'fragment\\1',
+    r'metadata\.json': 'metadata',
 }
 
 
@@ -105,6 +108,14 @@ class KBuild():
             self._compiler = params['compiler']
             self._defconfig = params['defconfig']
             self._fragments = params['fragments']
+            if 'cross_compile' in params:
+                self._cross_compile = params['cross_compile']
+            else:
+                self._cross_compile = None
+            if 'cross_compile_compat' in params:
+                self._cross_compile_compat = params['cross_compile_compat']
+            else:
+                self._cross_compile_compat = None
             self._apijobname = jobname
             self._steps = []
             self._artifacts = []
@@ -123,6 +134,8 @@ class KBuild():
             self._compiler = jsonobj['compiler']
             self._defconfig = jsonobj['defconfig']
             self._fragments = jsonobj['fragments']
+            self._cross_compile = jsonobj['cross_compile']
+            self._cross_compile_compat = jsonobj['cross_compile_compat']
             self._steps = jsonobj['steps']
             self._artifacts = jsonobj['artifacts']
             self._current_job = jsonobj['current_job']
@@ -195,13 +208,23 @@ class KBuild():
         self.addcomment("  fragments: " + str(self._fragments))
         self.addcomment("  src_tarball: " + self._srctarball)
         self.addcomment("  apijobname: " + self._apijobname)
+        if self._cross_compile:
+            self.addcomment("  cross_compile: " + self._cross_compile)
+        if self._cross_compile_compat:
+            self.addcomment("  cross_compile_compat: " +
+                            self._cross_compile_compat)
         self.addspacer()
         # set environment variables
         self.addcomment("Set environment variables")
         self.addcmd("export ARCH=" + self._arch)
-        # self.addcmd("export CROSS_COMPILE=" + self._compiler + "-")
+        if self._cross_compile:
+            self.addcmd("export CROSS_COMPILE=" + self._cross_compile)
+        if self._cross_compile_compat:
+            self.addcmd("export CROSS_COMPILE_COMPAT=" +
+                        self._cross_compile_compat)
         self.addcmd("export INSTALL_MOD_PATH=_modules_")
         self.addcmd("export INSTALL_MOD_STRIP=1")
+        self.addcmd("export INSTALL_DTBS_PATH=_dtbs_")
         # set -x for echo
         self._steps.append("set -x")
         # touch build.log
@@ -217,6 +240,7 @@ class KBuild():
         self._artifacts.append("build_kimage_stderr.log")
         self._artifacts.append("build_modules.log")
         self._artifacts.append("build_modules_stderr.log")
+        self._artifacts.append("metadata.json")
         # download tarball
         self.addcomment("Download tarball")
         self.addcmd("cd " + self._workspace)
@@ -374,6 +398,7 @@ class KBuild():
             self.addcmd("./scripts/kconfig/merge_config.sh" +
                         f" -m .config {self._fragments_dir}/{i}.config")
         # TODO: olddefconfig should be optional/configurable
+        # TODO: log all warnings/errors of olddefconfig to separate file
         self.addcmd("make olddefconfig")
         self.addcmd("cd ..")
 
@@ -381,13 +406,19 @@ class KBuild():
         """ Generate shell script for complete build """
         # TODO(nuclearcat): Fetch firmware only if needed
         print("Generating shell script")
-        self._fetch_firmware()
         fragnum = self._parse_fragments(firmware=True)
         self._merge_frags(fragnum)
+        # TODO: verify if CONFIG_EXTRA_FIRMWARE have any files
+        # We can check that if fragments have CONFIG_EXTRA_FIRMWARE
+        self._fetch_firmware()
         self._build_kernel()
         self._build_modules()
+        # TODO: verify if OF_FLATTREE is set
+        self._build_dtbs()
         self._package_kimage()
         self._package_modules()
+        # TODO: verify if OF_FLATTREE is set
+        self._package_dtbs()
         self._write_metadata()
         # dtb
 
@@ -423,7 +454,16 @@ class KBuild():
         self.addcmd("make -j$(nproc) modules" + " 1> " +
                     self._af_dir + "/build_modules.log" +
                     " 2> " + self._af_dir + "/build_modules_stderr.log")
+        self.addcmd("cd ..")
 
+    def _build_dtbs(self):
+        """ Add kernel dtbs build steps """
+        self.startjob("build_dtbs")
+        self.addcmd("cd " + self._srcdir)
+        # output to separate build_dtbs.log
+        self.addcmd("make -j$(nproc) dtbs" + " 1> " +
+                    self._af_dir + "/build_dtbs.log" +
+                    " 2> " + self._af_dir + "/build_dtbs_stderr.log", False)  # noqa
         self.addcmd("cd ..")
 
     def _package_kimage(self):
@@ -449,6 +489,17 @@ class KBuild():
         # add modules to artifacts relative to artifacts dir
         self._artifacts.append("modules.tar.xz")
 
+    def _package_dtbs(self):
+        """ Add kernel dtbs packaging steps """
+        self.startjob("package_dtbs")
+        self.addcmd("cd " + self._srcdir)
+        self.addcmd("make dtbs_install", False)
+        # create dtbs dir in artifacts
+        self.addcmd(f"mkdir -p {self._af_dir}/dtbs")
+        # copy dtbs to artifacts
+        self.addcmd(f"cp -r _dtbs_/* {self._af_dir}/dtbs", False)
+        self.addcmd("cd ..")
+
     def _write_metadata(self):
         '''
         metadata.json for final step, that includes build info, artifacts, etc
@@ -462,6 +513,13 @@ class KBuild():
         metadata['build']['srcdir'] = self._srcdir
         metadata['build']['config_full'] = self._config_full
         metadata['artifacts'] = self._artifacts
+        # if we have 'dtbs/' in artifacts, add dtbs to metadata
+        for artifact in self._artifacts:
+            if artifact.startswith("dtbs/"):
+                if 'dtbs' not in metadata:
+                    metadata['dtbs'] = []
+                metadata['dtbs'].append(artifact)
+
         with open(os.path.join(self._af_dir, "metadata.json"), 'w') as f:
             json.dump(metadata, f, indent=4)
 
@@ -485,6 +543,19 @@ class KBuild():
             else:
                 new_artifacts.append(artifact)
         self._artifacts = new_artifacts
+        # If we have dtbs dir, add it to artifacts
+        dtbs_dir = os.path.join(self._af_dir, "dtbs")
+        if os.path.exists(dtbs_dir):
+            # walk and add each dtb file
+            for root, dirs, files in os.walk(dtbs_dir):
+                for file in files:
+                    if file.endswith(".dtb"):
+                        # we need to truncate abs path to relative to artifacts
+                        file = os.path.relpath(os.path.join(root, file),
+                                               self._af_dir)
+                        self._artifacts.append(file)
+        # Update manifest/metadata
+        self._write_metadata()
         print("Artifacts verified")
 
     def _get_storage(self):
