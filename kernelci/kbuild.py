@@ -628,6 +628,10 @@ class KBuild():
         for artifact in self._artifacts:
             artifacts.append(os.path.join(self._af_dir, artifact))
 
+        # filter dtbs/ from af_uri
+        af_uri = {k: v for k, v in af_uri.items()
+                  if not k.startswith('dtbs/')}
+
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
         results = {

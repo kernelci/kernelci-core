@@ -32,10 +32,21 @@ class StorageAzureFiles(Storage):
         )
 
     def _get_directory(self, share, path):
-        directory = share.get_directory_client(directory_path=path)
-        if not directory.exists():
-            directory.create_directory()
-        return directory
+        directoryp = share.get_directory_client(directory_path=path)
+        if not directoryp.exists():
+            # split directory path into components
+            # and create each one in turn
+            # As we might have newdirectory/newdirectory2/newdir3
+            components = path.split('/')
+            for i in range(1, len(components)):
+                directory2 = share.get_directory_client(
+                    directory_path='/'.join(components[:i])
+                )
+                if not directory2.exists():
+                    directory2.create_directory()
+            directoryp.create_directory()
+
+        return directoryp
 
     def _upload(self, file_paths, dest_path):
         share = self._service.get_share_client(share=self.config.share)
@@ -45,14 +56,17 @@ class StorageAzureFiles(Storage):
         # if dst include a path, we need to call ._get_directory
         # to create the directory if it doesn't exist
         # for example if dst is 'dtb/qcom/apq8016-sbc.dtb'
-        # get list of all directories to create, then create them
+        # get list of all directories to create
         for src, dst in file_paths:
-            if os.path.dirname(dst) and os.path.dirname(dst) not in dirs:
-                dirs.append(os.path.dirname(dst))
+            dstdir = os.path.dirname(dst)
+            if dstdir and dstdir not in dirs:
+                dirs.append(dstdir)
+        # create all directories
         for dname in dirs:
             dstdir = os.path.join(dest_path, dname)
             self._get_directory(share, dstdir)
         for src, dst in file_paths:
+            print(f"upload: src={src} dst={dst}")
             file_client = root.get_file_client(file_name=dst)
             with open(src, 'rb') as src_file:
                 file_client.upload_file(src_file)
