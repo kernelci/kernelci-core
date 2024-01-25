@@ -30,7 +30,8 @@ LC_ALL=C type lava-test-set > /dev/null || alias lava-test-set='echo - '
 LC_ALL=C type lava-test-case > /dev/null || alias lava-test-case='echo --- '
 
 # Standard installation path for i-g-t test binaries
-export PATH=/usr/libexec/igt-gpu-tools:/usr/libexec/igt-gpu-tools/amdgpu:$PATH
+export PATH=/usr/libexec/igt-gpu-tools:/usr/libexec/igt-gpu-tools/amdgpu:${PATH}
+export PATH=/usr/libexec/igt-gpu-tools/v3d:/usr/libexec/igt-gpu-tools/vc4:${PATH}
 
 # See lib/igt_core.h
 IGT_EXIT_SUCCESS=0

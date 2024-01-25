@@ -188,6 +188,22 @@ test_plans:
         panfrost_prime
         panfrost_submit
 
+  igt-gpu-v3d:
+    <<: *igt
+    params:
+      drm_driver: "v3d"
+      tests: >
+        v3d_create_bo
+        v3d_get_bo_offset
+        v3d_get_param
+        v3d_job_submission
+        v3d_mmap
+        v3d_perfmon
+        v3d_submit_cl
+        v3d_submit_csd
+        v3d_wait_bo
+
+  # Test list is duplicated for extension in igt-kms-vc4
   igt-kms: &igt-kms
     <<: *igt
     params: &igt-kms-test-list
@@ -252,16 +268,16 @@ test_plans:
         kms_prop_blob
         kms_setmode
         kms_vblank
-        vc4/vc4_create_bo
-        vc4/vc4_dmabuf_poll
-        vc4/vc4_label_bo
-        vc4/vc4_lookup_fail
-        vc4/vc4_mmap
-        vc4/vc4_prefmon
-        vc4/vc4_purgeable_bo
-        vc4/vc4_tiling
-        vc4/vc4_wait_bo
-        vc4/vc4_wait_seqno
+        vc4_create_bo
+        vc4_dmabuf_poll
+        vc4_label_bo
+        vc4_lookup_fail
+        vc4_mmap
+        vc4_prefmon
+        vc4_purgeable_bo
+        vc4_tiling
+        vc4_wait_bo
+        vc4_wait_seqno
 
   kselftest: &kselftest
     rootfs: debian_bullseye-kselftest_nfs
@@ -2567,6 +2583,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - igt-gpu-v3d
       - igt-kms-vc4
       - kselftest-alsa
       - kselftest-arm64
