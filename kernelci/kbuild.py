@@ -513,12 +513,6 @@ class KBuild():
         metadata['build']['srcdir'] = self._srcdir
         metadata['build']['config_full'] = self._config_full
         metadata['artifacts'] = self._artifacts
-        # if we have 'dtbs/' in artifacts, add dtbs to metadata
-        for artifact in self._artifacts:
-            if artifact.startswith("dtbs/"):
-                if 'dtbs' not in metadata:
-                    metadata['dtbs'] = []
-                metadata['dtbs'].append(artifact)
 
         with open(os.path.join(self._af_dir, "metadata.json"), 'w') as f:
             json.dump(metadata, f, indent=4)
@@ -599,11 +593,26 @@ class KBuild():
                 (artifact_path, artifact), root_path
             )
             artifact_key = self.map_artifact_name(artifact)
-
             node_af[artifact_key] = stored_url
+            # map also bzImage, zImage, Image to kernel
+            # for template simplicity
+            if artifact in KERNEL_IMAGE_NAMES[self._arch]:
+                node_af['kernel'] = stored_url
             print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
         print("[_upload_artifacts] Artifacts uploaded to storage")
         return node_af
+
+    def _update_metadata(self, af_uri, job_result):
+        '''
+        Update metadata.json with artifacts and job result
+        '''
+        metadata_file = os.path.join(self._af_dir, "metadata.json")
+        with open(metadata_file, 'r') as f:
+            metadata = json.load(f)
+        metadata['artifacts_full'] = af_uri
+        metadata['build']['result'] = job_result
+        with open(metadata_file, 'w') as f:
+            json.dump(metadata, f, indent=4)
 
     def submit(self, retcode):
         '''
@@ -627,6 +636,8 @@ class KBuild():
         artifacts = []
         for artifact in self._artifacts:
             artifacts.append(os.path.join(self._af_dir, artifact))
+        # Add full artifacts path to metadata.json
+        self._update_metadata(af_uri, job_result)
 
         # filter dtbs/ from af_uri
         af_uri = {k: v for k, v in af_uri.items()
