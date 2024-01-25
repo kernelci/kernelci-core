@@ -313,6 +313,9 @@ class KbuildData(BaseModel):
     runtime: Optional[str] = Field(
         description="Runtime that runs the build"
     )
+    job_id: Optional[str] = Field(
+        description="Runtime job ID"
+    )
 
 
 class Kbuild(Node):
@@ -346,6 +349,9 @@ class TestData(BaseModel):
     )
     runtime: Optional[str] = Field(
         description="Runtime that runs the test"
+    )
+    job_id: Optional[str] = Field(
+        description="Runtime job ID"
     )
 
 
