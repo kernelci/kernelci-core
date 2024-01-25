@@ -124,7 +124,6 @@ class APIHelper:
             job_node['data']['runtime'] = runtime.config.name
         if platform:
             job_node['data']['platform'] = platform.name
-            job_node['data']['asdf'] = 'asdf'
         try:
             return self._api.node.add(job_node)
         except requests.exceptions.HTTPError as error:
