@@ -634,32 +634,31 @@ class KBuild():
 
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
+
         results = {
             'node': {
                 'name': self._apijobname,
                 'result': job_result,
                 'state': 'done',
                 'artifacts': af_uri,
-                'data': {
-                    'kernel': {
-                        'arch': self._arch,
-                        'compiler': self._compiler,
-                        'defconfig': self._defconfig,
-                        'fragments': self._fragments,
-                        'config_full': self._config_full,
-                        'src_tarball': self._srctarball,
-                    },
-                },
             },
             'child_nodes': [],
         }
 
+        cfg_full = self._defconfig + '+' + self._config_full
+        # TODO: Fix this hack
         node = self._node.copy()
+        results['node']['data'] = node['data']
         results['node']['data']['kernel_revision'] = node['data']['kernel_revision']  # noqa
-        node.update(results['node'])
-        api_helper = kernelci.api.helper.APIHelper(api)
+        results['node']['data']['arch'] = self._arch
+        results['node']['data']['compiler'] = self._compiler
+        results['node']['data']['defconfig'] = self._defconfig
+        results['node']['data']['fragments'] = self._fragments
+        results['node']['data']['config_full'] = cfg_full
         print(json.dumps(node, indent=2))
         print(json.dumps(results, indent=2))
-        api_helper.submit_results(results, node)
+        node.update(results['node'])
+        print(json.dumps(node, indent=2))
+        api.node.update(node)
         print(f"[_submit] Results submitted to API, node: {node['id']}")
         return results
