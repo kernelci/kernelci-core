@@ -82,6 +82,8 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
     runtime = kernelci.runtime.get_runtime(
         runtime_config, token=secrets.api.runtime_token)
     params = runtime.get_params(job, api.config)
+    if not params:
+        raise click.ClickException("Invalid job parameters, aborting...")
     job_data = runtime.generate(job, params)
     if output:
         output_file = runtime.save_file(job_data, output, params)

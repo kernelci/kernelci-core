@@ -176,7 +176,8 @@ class LAVA(Runtime):
 
     def get_params(self, job, api_config=None):
         params = super().get_params(job, api_config)
-        params['notify'] = self.config.notify
+        if params:
+            params['notify'] = self.config.notify
         return params
 
     def generate(self, job, params):

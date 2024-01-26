@@ -9,6 +9,7 @@ import abc
 import importlib
 import json
 import os
+import requests
 import yaml
 
 from jinja2 import Environment, FileSystemLoader
@@ -123,6 +124,17 @@ class Runtime(abc.ABC):
     def get_params(self, job, api_config=None):
         """Get job template parameters"""
         instanceid = os.environ.get('KCI_INSTANCE')
+        if job.platform_config.dtb:
+            # Fetch metadata.json and add platform dtb to artifacts list
+            metadata_url = job.node['artifacts']['metadata']
+            req = requests.get(metadata_url, timeout=60)
+            if req.status_code == 200:
+                metadata = req.json()
+                if job.platform_config.dtb not in metadata['artifacts']:
+                    print(f"dtb file {job.platform_config.dtb} not found!")
+                    return None
+                dtb_url = metadata['artifacts'][job.platform_config.dtb]
+                job.node['artifacts']['dtb'] = dtb_url
         params = {
             'api_config': api_config or {},
             'storage_config': job.storage_config or {},
