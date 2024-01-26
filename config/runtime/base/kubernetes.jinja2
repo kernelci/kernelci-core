@@ -18,11 +18,11 @@ spec:
       terminationGracePeriodSeconds: 10
 
       volumes:
-      - name: scratch-volume
-        emptyDir: { medium: "Memory" }
-
       - name: dev-shm
         emptyDir: { medium: "Memory" }
+
+      - name: compile-volume
+        emptyDir: { }
 
       # FIXME: add template conditional based on storage type
       - name: ssh-key
@@ -36,32 +36,17 @@ spec:
         value: "spot"
         effect: "NoSchedule"
 
-      initContainers:
-      - name: kernelci-setup
-        image: debian:bullseye-slim
-
-        volumeMounts:
-        - mountPath: "/scratch"
-          name: scratch-volume
-
-        command: ["/bin/bash", "-x", "-c"]
-        args: ["mkdir -p /tmp/kci"]
-
       containers:
       - name: kernelci
         image: {{ runtime_image }}
         imagePullPolicy: Always
 
         volumeMounts:
-        - mountPath: "/scratch"
-          name: scratch-volume
-
-        volumeMounts:
+        - mountPath: "/tmp/kci"
+          name: compile-volume
         - mountPath: "/dev/shm"
           name: dev-shm
-
         # FIXME: add template conditional based on storage type
-        volumeMounts:
         - mountPath: "/home/kernelci/.ssh"
           name: ssh-key
           readOnly: true
