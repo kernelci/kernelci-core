@@ -1,13 +1,17 @@
 - deploy:
     kernel:
-      url: {{ node.artifacts.bzImage }}
+      url: {{ node.artifacts.kernel }}
     modules:
       compression: xz
       url: {{ node.artifacts.modules }}
+{%- if platform_config.dtb %}
+    dtb:
+      url: {{ node.artifacts.dtb }}
+{%- endif %}
     os: oe
     ramdisk:
       compression: gz
-      url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/x86/rootfs.cpio.gz
+      url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/{{ platform_config.arch }}/rootfs.cpio.gz
     timeout:
       minutes: 10
     to: tftp
