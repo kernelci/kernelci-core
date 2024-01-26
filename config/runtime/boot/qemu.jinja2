@@ -3,10 +3,15 @@
       kernel:
         image_arg: -kernel {kernel} -append "console=ttyS0,115200 root=/dev/ram0 debug
           verbose console_msg_format=syslog earlycon"
-        url: {{ node.artifacts.bzImage }}
+        url: {{ node.artifacts.kernel }}
       ramdisk:
         image_arg: -initrd {ramdisk}
-        url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/x86/rootfs.cpio.gz
+        url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/{{ platform_config.arch }}/rootfs.cpio.gz
+{%- if platform_config.dtb %}
+      dtb:
+        url: {{ node.artifacts.dtb }}
+        image_arg: -dtb {dtb}
+{%- endif %}
     os: oe
     timeout:
       minutes: 3
@@ -14,7 +19,7 @@
 
 - boot:
     docker:
-      binary: qemu-system-x86_64
+      binary: qemu-system-{{ platform_config.arch }}
       image: kernelci/qemu
     media: tmpfs
     method: qemu
