@@ -127,6 +127,7 @@ class KBuild():
             self._af_dir = None
             self._node = node
             self._api_yaml = None
+            self._full_artifacts = {}
             return
         # load class from serialized json
         if jsonobj:
@@ -150,6 +151,7 @@ class KBuild():
             self._storage_config = jsonobj['storage_config']
             self._fragments_dir = jsonobj['fragments_dir']
             self._api_yaml = jsonobj['api_yaml']
+            self._full_artifacts = jsonobj['full_artifacts']
             return
         raise ValueError("No valid arguments provided")
 
@@ -356,6 +358,7 @@ class KBuild():
     def _parse_fragments(self, firmware=False):
         """ Parse fragments kbuild config and create config fragments """
         num = 0
+        self._config_full = self._defconfig
         for fragment in self._fragments:
             content = ''
             if len(self._config_full) > 0:
@@ -512,7 +515,6 @@ class KBuild():
         metadata['build']['fragments'] = self._fragments
         metadata['build']['srcdir'] = self._srcdir
         metadata['build']['config_full'] = self._config_full
-        metadata['artifacts'] = self._artifacts
 
         with open(os.path.join(self._af_dir, "metadata.json"), 'w') as f:
             json.dump(metadata, f, indent=4)
@@ -592,24 +594,40 @@ class KBuild():
             stored_url = storage.upload_single(
                 (artifact_path, artifact), root_path
             )
+            self._full_artifacts[artifact] = stored_url
             artifact_key = self.map_artifact_name(artifact)
-            node_af[artifact_key] = stored_url
-            # map also bzImage, zImage, Image to kernel
-            # for template simplicity
+            # map bzImage, zImage, Image,etc to "kernel"
             if artifact in KERNEL_IMAGE_NAMES[self._arch]:
                 node_af['kernel'] = stored_url
+            else:
+                node_af[artifact_key] = stored_url
             print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
         print("[_upload_artifacts] Artifacts uploaded to storage")
         return node_af
 
-    def _update_metadata(self, af_uri, job_result):
+    def upload_metadata(self):
+        '''
+        Upload metadata.json to storage
+        '''
+        print("[_upload_metadata] Uploading metadata.json to storage")
+        storage = self._get_storage()
+        root_path = '-'.join([self._apijobname, self._node['id']])
+        metadata_path = os.path.join(self._af_dir, "metadata.json")
+        stored_url = storage.upload_single(
+            (metadata_path, "metadata.json"), root_path
+        )
+        print(f"[_upload_metadata] Uploaded metadata.json to {stored_url}")
+        print("[_upload_metadata] metadata.json uploaded to storage")
+        return stored_url
+
+    def _update_metadata(self, job_result):
         '''
         Update metadata.json with artifacts and job result
         '''
         metadata_file = os.path.join(self._af_dir, "metadata.json")
         with open(metadata_file, 'r') as f:
             metadata = json.load(f)
-        metadata['artifacts_full'] = af_uri
+        metadata['artifacts'] = self._full_artifacts
         metadata['build']['result'] = job_result
         with open(metadata_file, 'w') as f:
             json.dump(metadata, f, indent=4)
@@ -618,8 +636,8 @@ class KBuild():
         '''
         Submit results to API and artifacts to storage
         '''
-        af_uri = self.upload_artifacts()
         print("[_submit] Submitting results to API")
+        af_uri = self.upload_artifacts()
         api_token = os.environ.get('KCI_API_TOKEN')
         if not api_token:
             raise ValueError("KCI_API_TOKEN is not set")
@@ -637,15 +655,26 @@ class KBuild():
         for artifact in self._artifacts:
             artifacts.append(os.path.join(self._af_dir, artifact))
         # Add full artifacts path to metadata.json
-        self._update_metadata(af_uri, job_result)
+        # We do it after full artifacts upload, twice
+        # as we can get urls of artifacts AFTER upload
+        self._update_metadata(job_result)
+        # Upload metadata.json to storage
+        metadata_uri = self.upload_metadata()
+        af_uri['metadata'] = metadata_uri
 
-        # filter dtbs/ from af_uri
-        af_uri = {k: v for k, v in af_uri.items()
-                  if not k.startswith('dtbs/')}
+        # do we have dtbs/ in af_uri?
+        dtb_present = False
+        for artifact in af_uri:
+            if artifact.startswith('dtbs/'):
+                dtb_present = True
+                break
+
+        if dtb_present:
+            af_uri = {k: v for k, v in af_uri.items()
+                      if not k.startswith('dtbs/')}
 
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
-
         results = {
             'node': {
                 'name': self._apijobname,
@@ -655,8 +684,6 @@ class KBuild():
             },
             'child_nodes': [],
         }
-
-        cfg_full = self._defconfig + '+' + self._config_full
         # TODO: Fix this hack
         node = self._node.copy()
         results['node']['data'] = node['data']
@@ -665,9 +692,8 @@ class KBuild():
         results['node']['data']['compiler'] = self._compiler
         results['node']['data']['defconfig'] = self._defconfig
         results['node']['data']['fragments'] = self._fragments
-        results['node']['data']['config_full'] = cfg_full
-        print(json.dumps(node, indent=2))
-        print(json.dumps(results, indent=2))
+        results['node']['data']['config_full'] = self._config_full
+        results['node']['data']['dtb_present'] = dtb_present
         node.update(results['node'])
         print(json.dumps(node, indent=2))
         api.node.update(node)
