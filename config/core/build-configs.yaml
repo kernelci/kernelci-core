@@ -1309,8 +1309,8 @@ build_configs:
         architectures:
           <<: *arch_clang_configs
 
-      rustc-1.74:
-        build_environment: rustc-1.74
+      rustc-1.75:
+        build_environment: rustc-1.75
         fragments: [rust, rust-samples, kselftest]
         architectures:
           x86_64:
@@ -1468,8 +1468,8 @@ build_configs:
     tree: rust-for-linux
     branch: 'rust-next'
     variants:
-      rustc-1.74:
-        build_environment: rustc-1.74
+      rustc-1.75:
+        build_environment: rustc-1.75
         fragments: [rust, rust-for-linux-samples, rust-samples, kselftest]
         architectures:
           x86_64:
