@@ -496,6 +496,12 @@ test_plans:
           defconfig: ['kselftest']
           kernel: ['v3.', 'v4.', 'v5.', 'v6.0', 'v6,1', 'v6.2']
 
+  kvm-unit-tests:
+    rootfs: debian_bookworm-kvm-unit-tests_nfs
+    pattern: 'kvm-unit-tests/{category}-{method}-{protocol}-{rootfs}-kvm-unit-tests-template.jinja2'
+    params:
+      job_timeout: '45'
+
   lc-compliance:
     rootfs: debian_bullseye-libcamera_nfs
     pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
@@ -2540,6 +2546,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-dt
+      - kvm-unit-tests
       - ltp-dio
       - ltp-fsx
       - ltp-smoketest
@@ -3100,6 +3107,7 @@ test_configs:
       - kselftest-kvm
       - kselftest-lib
       - kselftest-seccomp
+      - kvm-unit-tests
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ipc

@@ -80,6 +80,23 @@ file_systems:
     ramdisk: bullseye-kselftest/20230623.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
+  debian_bookworm-kvm-unit-tests_nfs:
+    boot_protocol: tftp
+    nfs: bookworm-kvm-unit-tests/20230114.0/{arch}/full.rootfs.tar.xz
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bookworm-kvm-unit-tests/20230114.0/{arch}/initrd.cpio.gz
+    root_type: nfs
+    type: debian
+  debian_bookworm-kvm-unit-tests_ramdisk:
+    boot_protocol: ramdisk
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bookworm-kvm-unit-tests/20221230.0/{arch}/rootfs.cpio.gz
+    root_type: ramdisk
+    type: debian
   debian_bullseye-libcamera_nfs:
     boot_protocol: tftp
     nfs: bullseye-libcamera/20230623.0/{arch}/full.rootfs.tar.xz
