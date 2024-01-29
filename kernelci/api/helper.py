@@ -196,7 +196,10 @@ class APIHelper:
         # self.api.create_node_hierarchy(data)
         node_id = data['node']['id']
         # pylint: disable=protected-access
-        return self.api._put(f'nodes/{node_id}', data).json()
+        try:
+            return self.api._put(f'nodes/{node_id}', data).json()
+        except requests.exceptions.HTTPError as error:
+            raise RuntimeError(json.loads(error.response.text)) from error
 
     @classmethod
     def load_json(cls, json_path, encoding='utf-8'):
