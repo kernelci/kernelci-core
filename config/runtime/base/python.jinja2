@@ -91,6 +91,10 @@ class BaseJob:
         print("Running job...")
         return self._run(src_path)
 
+    def dry_run(self, result):
+        print(f"Dry-running job (result: {result})...")
+        return result
+
     def submit(self, result, node, api_config_yaml):
         api = self._get_api(api_config_yaml)
         self._submit(result, node, api)
@@ -105,8 +109,11 @@ class Job(BaseJob):
 def main(args):
     job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
     try:
-        tarball_url = NODE['artifacts'].get('tarball')
-        results = job.run(tarball_url)
+        if 'debug' in NODE and NODE['debug'].get('dry_run'):
+            results = job.dry_run(NODE['debug']['result'])
+        else:
+            tarball_url = NODE['artifacts'].get('tarball')
+            results = job.run(tarball_url)
         if NODE and API_CONFIG_YAML:
             job.submit(results, NODE, API_CONFIG_YAML)
     except requests.exceptions.HTTPError as ex:
