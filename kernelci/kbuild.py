@@ -124,7 +124,12 @@ class KBuild():
             self._artifacts = []
             self._current_job = None
             self._config_full = ''
-            self._srctarball = node['artifacts']['tarball']
+            if node.get('artifacts') and 'tarball' in node['artifacts']:
+                self._srctarball = node['artifacts']['tarball']
+            elif node.get('debug') and 'tarball' in node['debug']:
+                self._srctarball = node['debug']['tarball']
+            else:
+                raise ValueError("No tarball artifact in input node")
             self._srcdir = None
             self._firmware_dir = None
             self._af_dir = None
@@ -635,10 +640,17 @@ class KBuild():
         with open(metadata_file, 'w') as f:
             json.dump(metadata, f, indent=4)
 
-    def submit(self, retcode):
+    def submit(self, retcode, dry_run=False):
         '''
         Submit results to API and artifacts to storage
         '''
+        if dry_run:
+            if self._node.get('artifacts'):
+                af_uri = self._node['artifacts']
+            else:
+                af_uri = {'tarball': 'http://dry-run.test/tarball'}
+        else:
+            af_uri = self.upload_artifacts()
         print("[_submit] Submitting results to API")
         af_uri = self.upload_artifacts()
         api_token = os.environ.get('KCI_API_TOKEN')
