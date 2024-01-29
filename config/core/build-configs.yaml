@@ -344,6 +344,7 @@ fragments:
       - 'CONFIG_VIDEO_OV02A10=m'
       - 'CONFIG_VIDEO_OV5695=m'
       - 'CONFIG_VIDEO_OV8856=m'
+      - 'CONFIG_VIDEO_ROCKCHIP_VDEC=m'
       - '# CONFIG_ARM_DSU_PMU is not set'
       - 'CONFIG_CROS_KBD_LED_BACKLIGHT=m'
       - 'CONFIG_SND_SOC_MT8195=m'
@@ -496,11 +497,6 @@ fragments:
   tinyconfig:
     path: "kernel/configs/tiny.config"
     defconfig: 'tinyconfig'
-
-  videodec:
-    path: "kernel/configs/videodec.config"
-    configs:
-      - 'CONFIG_VIDEO_ROCKCHIP_VDEC=m'
 
   virtualvideo:
     path: "kernel/configs/virtualvideo.config"
@@ -822,8 +818,7 @@ build_configs_defaults:
             - 'defconfig+arm64-chromebook+kselftest'
 # Disabling to reduce load
 #            - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
-#            - 'defconfig+arm64-chromebook+videodec'
-#          fragments: [arm64-chromebook, crypto, ima, videodec]
+#          fragments: [arm64-chromebook, crypto, ima]
           fragments: [arm64-chromebook]
 
         i386: &i386_arch
@@ -1217,8 +1212,7 @@ build_configs:
               - 'allnoconfig'
               - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
               - 'defconfig+arm64-chromebook+kselftest'
-              - 'defconfig+arm64-chromebook+videodec'
-            fragments: [arm64-chromebook, videodec]
+            fragments: [arm64-chromebook]
 
       # Minimum version
       clang-11:
@@ -1333,8 +1327,7 @@ build_configs:
               - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
               - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
               - 'defconfig+arm64-chromebook+kselftest'
-              - 'defconfig+arm64-chromebook+videodec'
-            fragments: [arm64-chromebook, videodec]
+            fragments: [arm64-chromebook]
           arm:
             base_defconfig: 'multi_v7_defconfig'
             extra_configs:
