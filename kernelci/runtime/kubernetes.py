@@ -36,7 +36,15 @@ class Kubernetes(Runtime):
         return template.render(params)
 
     def submit(self, job_path):
-        kubernetes.config.load_kube_config(context=self.config.context)
+        # if context is array, pick any random context to load-balance
+        if isinstance(self.config.context, list):
+            kcontext = random.choice(self.config.context)
+        else:
+            kcontext = self.config.context
+        # TODO: Add temporary logging to debug
+        # We must add context name to jobid
+        print(f"Submitting job to context: ", kcontext)
+        kubernetes.config.load_kube_config(context=kcontext)
         client = kubernetes.client.ApiClient()
         return kubernetes.utils.create_from_yaml(client, job_path)
 
