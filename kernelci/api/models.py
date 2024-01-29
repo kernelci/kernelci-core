@@ -145,6 +145,9 @@ class Node(DatabaseModel):
     data: Optional[Dict[str, Any]] = Field(
         description="Arbitrary data stored in the node"
     )
+    debug: Optional[Dict[str, Any]] = Field(
+        description="Debug info fields (for development purposes)"
+    )
     created: datetime = Field(
         default_factory=datetime.utcnow,
         description="Timestamp of node creation"
