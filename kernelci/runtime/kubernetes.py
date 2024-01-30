@@ -41,9 +41,6 @@ class Kubernetes(Runtime):
             kcontext = random.choice(self.config.context)
         else:
             kcontext = self.config.context
-        # TODO: Add temporary logging to debug
-        # We must add context name to jobid
-        print(f"Submitting job to context: ", kcontext)
         kubernetes.config.load_kube_config(context=kcontext)
         client = kubernetes.client.ApiClient()
         return kubernetes.utils.create_from_yaml(client, job_path)
