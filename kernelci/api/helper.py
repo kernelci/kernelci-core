@@ -142,6 +142,8 @@ class APIHelper:
         node = results['node'].copy()
         node.update(base)
         node['path'] = (parent['path'] if parent else []) + [node['name']]
+        if 'kind' not in node:
+            node['kind'] = parent['kind']
         child_nodes = []
         for child_node in results['child_nodes']:
             child_nodes.append(self._prepare_results(child_node, node, base))
