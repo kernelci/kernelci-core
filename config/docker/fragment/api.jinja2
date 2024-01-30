@@ -1,0 +1,12 @@
+# Set up kernelci user
+RUN useradd kernelci -u 1000 -d /home/kernelci -s /bin/bash
+RUN mkdir -p /home/kernelci
+RUN chown kernelci: /home/kernelci
+USER kernelci
+ENV PATH=$PATH:/home/kernelci/.local/bin
+WORKDIR /home/kernelci
+
+# Install kernelci Python package from kernelci-api
+ARG api_url=https://github.com/kernelci/kernelci-api.git
+ARG api_rev=main
+RUN pip install git+$api_url@$api_rev

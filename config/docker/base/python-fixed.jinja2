@@ -1,0 +1,21 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2024 Collabora Limited
+ # Author: Paweł Wieczorek <pawiecz@collabora.com>
+-#}
+
+FROM python:3.10
+MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
+
+# Upgrade pip3 - never mind the warning about running this as root
+RUN pip3 install --upgrade "pip==23.2.1"
+
+# Upgrade setuptools for full pyproject.toml support
+RUN pip3 install "setuptools==68.1.2"
+
+{%- block fragments %}
+{%- for fragment in fragments %}
+
+{% include fragment %}
+{%- endfor %}
+{%- endblock %}
