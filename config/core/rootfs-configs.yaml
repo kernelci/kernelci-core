@@ -55,6 +55,7 @@ rootfs_configs:
       - armel
       - mipsel
       - riscv
+      - sparc64
       - x86
     frags:
       - baseline
