@@ -24,12 +24,6 @@ spec:
       - name: compile-volume
         emptyDir: { }
 
-      # FIXME: add template conditional based on storage type
-      - name: ssh-key
-        secret:
-          # FIXME: convert to template parameter
-          secretName: {{ "kci-storage-ssh-staging" }}
-
       tolerations:
       - key: "kubernetes.azure.com/scalesetpriority"
         operator: "Equal"
@@ -46,10 +40,6 @@ spec:
           name: compile-volume
         - mountPath: "/dev/shm"
           name: dev-shm
-        # FIXME: add template conditional based on storage type
-        - mountPath: "/home/kernelci/.ssh"
-          name: ssh-key
-          readOnly: true
 
         # FIXME: Request safe defaults to not overload node with
         # parallel pods
