@@ -124,10 +124,10 @@ class KBuild():
             self._artifacts = []
             self._current_job = None
             self._config_full = ''
-            if node.get('artifacts') and 'tarball' in node['artifacts']:
-                self._srctarball = node['artifacts']['tarball']
-            elif node.get('debug') and 'tarball' in node['debug']:
+            if node.get('debug') and 'tarball' in node['debug']:
                 self._srctarball = node['debug']['tarball']
+            elif node.get('artifacts') and 'tarball' in node['artifacts']:
+                self._srctarball = node['artifacts']['tarball']
             else:
                 raise ValueError("No tarball artifact in input node")
             self._srcdir = None
