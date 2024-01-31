@@ -144,6 +144,9 @@ class APIHelper:
         node['path'] = (parent['path'] if parent else []) + [node['name']]
         if 'kind' not in node:
             node['kind'] = parent['kind']
+        if 'data' not in node:
+            node['data'] = parent['data']
+
         child_nodes = []
         for child_node in results['child_nodes']:
             child_nodes.append(self._prepare_results(child_node, node, base))
@@ -187,9 +190,6 @@ class APIHelper:
         }
         parent = self.api.node.get(root['parent'])
         base = {
-            'data': {
-                'kernel_revision': root['data']['kernel_revision'],
-            },
             'group': root['name'],
             'state': 'done',
         }
