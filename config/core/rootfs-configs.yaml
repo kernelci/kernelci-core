@@ -1,4 +1,61 @@
 rootfs_configs:
+  bookworm-igt:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+        - amd64
+        - arm64
+        - armhf
+    extra_packages:
+        - libcairo2
+        - libdw1
+        - libglib2.0-0
+        - libpciaccess0
+        - libproc2-0
+        - libudev1
+        - libunwind8
+    extra_packages_remove:
+        - bash
+        - e2fslibs
+        - e2fsprogs
+        - fonts-dejavu-core
+        - klibc-utils
+        - libext2fs2
+        - libgio3.0-cil
+        - libgnutls30
+        - libklibc
+        - libncursesw6
+        - libp11-kit0
+        - libunistring2
+        - libx11-data
+        - sensible-utils
+    extra_files_remove:
+        - '*networkd*'
+        - '*resolved*'
+        - tar
+        - patch
+        - diff
+        - dir
+        - partx
+        - find
+    extra_firmware:
+        - amdgpu/stoney_ce.bin
+        - amdgpu/stoney_me.bin
+        - amdgpu/stoney_mec.bin
+        - amdgpu/stoney_pfp.bin
+        - amdgpu/stoney_rlc.bin
+        - amdgpu/stoney_sdma.bin
+        - amdgpu/stoney_uvd.bin
+        - amdgpu/stoney_vce.bin
+        - i915/bxt_dmc_ver1_07.bin
+        - i915/kbl_dmc_ver1_04.bin
+        - i915/glk_dmc_ver1_04.bin
+        - qcom/a630_gmu.bin
+        - qcom/a630_sqe.fw
+    linux_fw_version: d526e044bddaa2c2ad855c7296147e49be0ab03c
+    script: "scripts/debian-igt.sh"
+    test_overlay: "overlays/igt"
+
   bookworm-kselftest:
     rootfs_type: debos
     debian_release: bookworm
@@ -161,62 +218,6 @@ rootfs_configs:
     imagesize: 2GB
     debos_memory: 8G
 
-  bullseye-igt:
-    rootfs_type: debos
-    debian_release: bullseye
-    arch_list:
-        - amd64
-        - arm64
-        - armhf
-    extra_packages:
-        - libcairo2
-        - libdw1
-        - libglib2.0-0
-        - libpciaccess0
-        - libprocps8
-        - libudev1
-        - libunwind8
-    extra_packages_remove:
-        - bash
-        - e2fslibs
-        - e2fsprogs
-        - fonts-dejavu-core
-        - klibc-utils
-        - libext2fs2
-        - libgio3.0-cil
-        - libgnutls30
-        - libklibc
-        - libncursesw6
-        - libp11-kit0
-        - libunistring2
-        - libx11-data
-        - sensible-utils
-    extra_files_remove:
-        - '*networkd*'
-        - '*resolved*'
-        - tar
-        - patch
-        - diff
-        - dir
-        - partx
-        - find
-    extra_firmware:
-        - amdgpu/stoney_ce.bin
-        - amdgpu/stoney_me.bin
-        - amdgpu/stoney_mec.bin
-        - amdgpu/stoney_pfp.bin
-        - amdgpu/stoney_rlc.bin
-        - amdgpu/stoney_sdma.bin
-        - amdgpu/stoney_uvd.bin
-        - amdgpu/stoney_vce.bin
-        - i915/bxt_dmc_ver1_07.bin
-        - i915/kbl_dmc_ver1_04.bin
-        - i915/glk_dmc_ver1_04.bin
-        - qcom/a630_gmu.bin
-        - qcom/a630_sqe.fw
-    linux_fw_version: d526e044bddaa2c2ad855c7296147e49be0ab03c
-    script: "scripts/bullseye-igt.sh"
-    test_overlay: "overlays/igt"
 
   bullseye-kselftest:
     rootfs_type: debos

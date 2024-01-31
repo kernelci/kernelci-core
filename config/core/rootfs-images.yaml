@@ -47,11 +47,11 @@ file_systems:
     ramdisk: bullseye-gst-fluster/20240103.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
-  debian_bullseye-igt_ramdisk:
+  debian_bookworm-igt_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-igt/20230623.0/{arch}/rootfs.cpio.gz
+    ramdisk: bookworm-igt/20240129.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_bullseye-kselftest_diskfile:
