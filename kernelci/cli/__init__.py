@@ -192,12 +192,14 @@ def split_attributes(attributes: typing.List[str]):
     expected to be part of the key, for example score__gte=100 to find objects
     with a 'score' attribute with a value greater or equal to 100.
 
-    As a syntactic convenience, if the operator matches one of >, <, >=, <=, !=
-    then the corresponding API operator '__gt', '__lt', '__gte', '__lte',
-    '__ne' is added to the key name automatically.  Spaces can also be used
-    around the operators, although this typically means adding double quotes on
-    the command line around each attribute.  As such, the example used
-    previously is equivalent to "score >= 100".
+    As a syntactic convenience, if the operator matches one of >, <, >=,
+    <=, !=, =~, then the corresponding API operator '__gt', '__lt',
+    '__gte', '__lte', '__ne', '__re' is added to the key name
+    automatically.  Spaces can also be used around the operators,
+    although this typically means adding double quotes on the command
+    line around each attribute.  As such, the example used previously is
+    equivalent to "score >= 100".
+
     """
     operators = {
         '>': '__gt',
@@ -205,9 +207,10 @@ def split_attributes(attributes: typing.List[str]):
         '>=': '__gte',
         '<=': '__lte',
         '!=': '__ne',
+        '=~': '__re',
         '=': '',
     }
-    pattern = re.compile(r'^([.a-zA-Z0-9_-]+) *([<>!=]+) *(.*)')
+    pattern = re.compile(r'^([.a-zA-Z0-9_-]+) *([<>!~=]+) *(.*)')
 
     attributes = attributes or []
     parsed = {}
