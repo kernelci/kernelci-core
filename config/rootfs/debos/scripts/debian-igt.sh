@@ -19,7 +19,7 @@ BUILD_DEPS="\
     libkmod-dev \
     liblzma-dev \
     libpciaccess-dev \
-    libprocps-dev \
+    libproc2-dev \
     libtool \
     libudev-dev  \
     libunwind-dev  \

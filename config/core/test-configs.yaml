@@ -112,7 +112,7 @@ test_plans:
     rootfs: debian_bullseye-cros-ec_ramdisk
 
   igt: &igt
-    rootfs: debian_bullseye-igt_ramdisk
+    rootfs: debian_bookworm-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
 
   igt-gpu-amd:
