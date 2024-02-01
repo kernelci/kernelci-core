@@ -84,6 +84,7 @@ rootfs_configs:
       - libpcre2-8-0
       - libperl5.36
       - libpsl5
+      - liburing2
       - libxtables12
       - netbase
       - openssl
@@ -245,6 +246,7 @@ rootfs_configs:
       - libpcre2-8-0
       - libperl5.32
       - libpsl5
+      - liburing1
       - libxtables12
       - netbase
       - openssl
@@ -403,6 +405,7 @@ rootfs_configs:
       - libpcre2-8-0
       - libperl5.36
       - libpsl5
+      - liburing2
       - libxtables12
       - netbase
       - openssl
