@@ -43,6 +43,8 @@ MAKE_TARGETS = {
     'i386': 'bzImage',
     'x86_64': 'bzImage',
     'mips': 'uImage.gz',
+    'riscv': 'Image',
+    'riscv64': 'Image',
     'sparc': 'zImage',
 }
 
@@ -54,6 +56,7 @@ KERNEL_IMAGE_NAMES = {
     'i386': {'bzImage'},
     'mips': {'uImage.gz', 'vmlinux.gz.itb', 'vmlinuz'},
     'riscv': {'Image', 'Image.gz'},
+    'riscv64': {'Image', 'Image.gz'},
     'sparc': {'zImage'},
     'x86_64': {'bzImage'},
     'x86': {'bzImage'},
