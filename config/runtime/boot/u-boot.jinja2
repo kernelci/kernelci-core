@@ -1,6 +1,6 @@
 - deploy:
     kernel:
-      type: image
+      type: {{ node.data.kernel_type }}
       url: {{ node.artifacts.kernel }}
     modules:
       compression: xz
