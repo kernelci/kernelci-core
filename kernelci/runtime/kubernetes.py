@@ -22,6 +22,10 @@ class Kubernetes(Runtime):
 
     JOB_NAME_CHARACTERS = string.ascii_lowercase + string.digits
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.kcontext = None
+
     @classmethod
     def _get_job_file_name(cls, params):
         return '.'.join([params['k8s_job_name'], 'yaml'])
@@ -38,15 +42,19 @@ class Kubernetes(Runtime):
     def submit(self, job_path):
         # if context is array, pick any random context to load-balance
         if isinstance(self.config.context, list):
-            kcontext = random.choice(self.config.context)
+            self.kcontext = random.choice(self.config.context)
         else:
-            kcontext = self.config.context
-        kubernetes.config.load_kube_config(context=kcontext)
+            self.kcontext = self.config.context
+        kubernetes.config.load_kube_config(context=self.kcontext)
         client = kubernetes.client.ApiClient()
         return kubernetes.utils.create_from_yaml(client, job_path)
 
     def get_job_id(self, job_object):
         return job_object[0][0].metadata.labels['job-name']
+
+    def get_context(self):
+        """Get kubernetes cluster name the job submitted to"""
+        return self.kcontext
 
     def wait(self, job_object):
         watch = kubernetes.watch.Watch()
