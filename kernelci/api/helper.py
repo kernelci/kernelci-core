@@ -196,6 +196,7 @@ class APIHelper:
         data = self._prepare_results(root_results, parent, base)
         # Once this has been consolidated at the API level:
         # self.api.create_node_hierarchy(data)
+        print(f"[submit_results] data: {data}")
         node_id = data['node']['id']
         # pylint: disable=protected-access
         try:
