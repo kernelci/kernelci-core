@@ -607,6 +607,10 @@ class KBuild():
             # map bzImage, zImage, Image,etc to "kernel"
             if artifact in KERNEL_IMAGE_NAMES[self._arch]:
                 node_af['kernel'] = stored_url
+                # Future jobs can expect the kernel "type" as a parameter,
+                # which is actually the lowercase version of the kernel image
+                # filename
+                self._node['data']['kernel_type'] = artifact.lower()
             else:
                 node_af[artifact_key] = stored_url
             print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
@@ -644,14 +648,14 @@ class KBuild():
         '''
         Submit results to API and artifacts to storage
         '''
+        af_uri = None
+        # When in dry run, get the node's artifacts first otherwise
+        # they could be overwritten by refreshing the node further down
         if dry_run:
             if self._node.get('artifacts'):
                 af_uri = self._node['artifacts']
             else:
                 af_uri = {'tarball': 'http://dry-run.test/tarball'}
-        else:
-            af_uri = self.upload_artifacts()
-        print("[_submit] Submitting results to API")
         api_token = os.environ.get('KCI_API_TOKEN')
         if not api_token:
             raise ValueError("KCI_API_TOKEN is not set")
@@ -663,6 +667,11 @@ class KBuild():
         # such as k8s_context
         node_id = self._node['id']
         self._node = api.node.get(node_id)
+        # Ensure upload_artifacts() is called *after* refreshing the node
+        # as we add a new field to its data in this function
+        if af_uri is None:
+            af_uri = self.upload_artifacts()
+        print("[_submit] Submitting results to API")
         # TODO/FIXME: real detailed job result
         # pass fail skip incomplete
         if retcode != 0:
