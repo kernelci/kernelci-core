@@ -319,6 +319,9 @@ class KbuildData(BaseModel):
     job_id: Optional[str] = Field(
         description="Runtime job ID"
     )
+    job_context: Optional[str] = Field(
+        description="Kubernetes cluster name the job submitted to"
+    )
 
 
 class Kbuild(Node):
@@ -355,6 +358,9 @@ class TestData(BaseModel):
     )
     job_id: Optional[str] = Field(
         description="Runtime job ID"
+    )
+    job_context: Optional[str] = Field(
+        description="Kubernetes cluster name the job submitted to"
     )
 
 
