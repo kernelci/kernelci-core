@@ -47,6 +47,18 @@ class ResultValues(str, enum.Enum):
     INCOMPLETE = 'incomplete'
 
 
+class ErrorCodes(str, enum.Enum):
+    """Enumeration to declare values to be used for Node.error_code.
+    error_code mostly set if infrastructure error occurs (runtime internal
+    error, scheduler error, etc.). This error code might be used not only
+    for debugging and logging, but also for taking automated decisions, for
+    example, to retry scheduling the job if runtime was temporary unavailable.
+    """
+
+    INVALID_JOB_PARAMS = 'invalid_job_params'
+    SUBMIT_ERROR = 'submit_error'
+
+
 class KernelVersion(BaseModel):
     """Linux kernel version model"""
     version: int = Field(
@@ -147,6 +159,9 @@ class Node(DatabaseModel):
     )
     debug: Optional[Dict[str, Any]] = Field(
         description="Debug info fields (for development purposes)"
+    )
+    error_code: Optional[ErrorCodes] = Field(
+        description="Details of the failure state"
     )
     created: datetime = Field(
         default_factory=datetime.utcnow,
