@@ -140,7 +140,15 @@ class APIHelper:
 
     def _prepare_results(self, results, parent, base):
         node = results['node'].copy()
-        node.update(base)
+        # Merge `Node.data` instead of overwriting it
+        for key, value in base.items():
+            if isinstance(value, dict):
+                if node.get(key):
+                    node[key].update(value)
+                else:
+                    node.update({key: value})
+            else:
+                node[key] = value
         node['path'] = (parent['path'] if parent else []) + [node['name']]
         if 'kind' not in node:
             node['kind'] = parent['kind']
@@ -178,6 +186,8 @@ class APIHelper:
             ]
         }
         """
+        # Get latest node data added after node creation
+        root = self.api.node.get(root['id'])
         root_node = root.copy()
         root_node['result'] = results['node']['result']
         root_node['artifacts'].update(results['node']['artifacts'])
