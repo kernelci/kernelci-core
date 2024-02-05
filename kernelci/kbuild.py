@@ -652,7 +652,6 @@ class KBuild():
         else:
             af_uri = self.upload_artifacts()
         print("[_submit] Submitting results to API")
-        af_uri = self.upload_artifacts()
         api_token = os.environ.get('KCI_API_TOKEN')
         if not api_token:
             raise ValueError("KCI_API_TOKEN is not set")
@@ -660,6 +659,10 @@ class KBuild():
             yaml.safe_load(self._api_yaml), name='api'
         )
         api = kernelci.api.get_api(api_config, api_token)
+        # Update node from API, as we might have new fields
+        # such as k8s_context
+        node_id = self._node['id']
+        self._node = api.node.get(node_id)
         # TODO/FIXME: real detailed job result
         # pass fail skip incomplete
         if retcode != 0:
@@ -699,16 +702,13 @@ class KBuild():
             },
             'child_nodes': [],
         }
-        # TODO: Fix this hack
         node = self._node.copy()
         results['node']['data'] = node['data']
-        results['node']['data']['kernel_revision'] = node['data']['kernel_revision']  # noqa
         results['node']['data']['arch'] = self._arch
         results['node']['data']['compiler'] = self._compiler
         results['node']['data']['defconfig'] = self._defconfig
         results['node']['data']['fragments'] = self._fragments
         results['node']['data']['config_full'] = self._config_full
-        results['node']['data']['dtb_present'] = dtb_present
         node.update(results['node'])
         print(json.dumps(node, indent=2))
         api.node.update(node)
