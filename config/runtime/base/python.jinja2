@@ -76,7 +76,8 @@ class BaseJob:
         raise NotImplementedError("_run() method required to run job")
 
     def _submit(self, result, node, api):
-        node = node.copy()
+        node_from_id = api.node.get(node['id'])
+        node = node_from_id.copy()
         node.update({
             'result': result,
             'state': 'done',
