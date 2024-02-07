@@ -1,22 +1,50 @@
+{%- if kernel_url is not defined %}
+{%-   set kernel_url = node.artifacts.kernel %}
+{%- endif %}
+{%- if modules_url is not defined %}
+{%-   set modules_url = node.artifacts.modules %}
+{%- endif %}
+{%- if platform_config.dtb and dtb_url is not defined %}
+{%-   set dtb_url = node.artifacts.dtb %}
+{%- endif %}
+{%- if boot_commands is not defined %}
+{%-   set boot_commands = 'ramdisk' %}
+{%- endif %}
+
 - deploy:
+{%- if boot_namespace %}
+    namespace: {{ boot_namespace }}
+{%- endif %}
     kernel:
-      url: {{ node.artifacts.kernel }}
+      url: {{ kernel_url }}
     modules:
       compression: xz
-      url: {{ node.artifacts.modules }}
+      url: {{ modules_url }}
 {%- if platform_config.dtb %}
     dtb:
-      url: {{ node.artifacts.dtb }}
+      url: {{ dtb_url }}
 {%- endif %}
-    os: oe
+{%- if boot_commands == 'nfs' and nfsroot %}
+    nfsrootfs:
+      compression: xz
+      url: {{ nfsroot }}/full.rootfs.tar.xz
+    ramdisk:
+      compression: gz
+      url: {{ nfsroot }}/initrd.cpio.gz
+{%- else %}
     ramdisk:
       compression: gz
       url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/{{ platform_config.arch }}/rootfs.cpio.gz
+{%- endif %}
+    os: oe
     timeout:
       minutes: 10
     to: tftp
 - boot:
-    commands: ramdisk
+    commands: {{ boot_commands }}
+{%- if boot_namespace %}
+    namespace: {{ boot_namespace }}
+{%- endif %}
     method: depthcharge
     prompts:
     - '/ #'
