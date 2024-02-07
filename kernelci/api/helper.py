@@ -197,6 +197,13 @@ class APIHelper:
         # Once this has been consolidated at the API level:
         # self.api.create_node_hierarchy(data)
         node_id = data['node']['id']
+        # data['node'] might have some updated fields, such as 'job_id'
+        fresh_node = self.api.node.get(node_id)
+        # Fix this by better API call
+        # For now we just update the node with the new data
+        for key, value in fresh_node['data'].items():
+            if key not in data['node']['data']:
+                data['node']['data'][key] = value
         # pylint: disable=protected-access
         try:
             return self.api._put(f'nodes/{node_id}', data).json()
