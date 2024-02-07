@@ -25,6 +25,26 @@ import kernelci.config.storage
 import kernelci.storage
 {%- endblock %}
 
+{%- block exception_global_hook %}
+# We need to catch all exceptions, otherwise k8s jobs
+# might keep looping forever
+def handle_exception(exc_type, exc_value, exc_traceback):
+    # Your custom exception handling code
+    print("Handling uncaught exception:", exc_value)
+    print("Exception type:", exc_type.__name__)
+    # unfold the traceback
+    print("Traceback (most recent call last):")
+    while exc_traceback:
+        print(f"  File \"{exc_traceback.tb_frame.f_code.co_filename}\", line {exc_traceback.tb_lineno}, in {exc_traceback.tb_frame.f_code.co_name}")
+        exc_traceback = exc_traceback.tb_next
+    # TODO: Call back to home about exception
+    # return code 0 to avoid k8s job looping forever
+    sys.exit(0)
+
+# Set the exception hook
+sys.excepthook = handle_exception
+{%- endblock %}
+
 {%- block python_globals %}
 API_CONFIG_YAML = """
 {{ kci_yaml_dump(api_config) }}"""
