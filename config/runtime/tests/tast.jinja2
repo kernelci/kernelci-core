@@ -1,0 +1,49 @@
+{%- include 'chromeos/base.jinja2' %}
+
+- test:
+    namespace: chromeos
+    timeout:
+      minutes: 30
+    docker:
+      image: kernelci/cros-tast
+      wait:
+        device: true
+    results:
+      location: /home/cros/lava
+    definitions:
+    - from: inline
+      name: tast
+      path: inline/cros-tast.yaml
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: cros-tast
+        run:
+          steps:
+            - cd /home/cros
+            - >-
+              lava-test-case tast-tarball --shell
+              curl -s '{{ platform_config.params.tast_tarball }}'
+              \| tar xzvf -
+              && cp remote_test_runner /usr/bin/remote_test_runner
+              && mkdir -p /usr/libexec/tast/bundles/remote/
+              && cp cros /usr/libexec/tast/bundles/remote/
+            - while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done
+            - >-
+              lava-test-case os-release --shell
+              ./ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              cat /etc/os-release
+            - >-
+              ./tast_parser.py
+              {{ tests|wordwrap(1, False, "\n              ") }}
+            - >-
+              ./ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              sync && poweroff && exit 0
