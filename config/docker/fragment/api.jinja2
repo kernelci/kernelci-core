@@ -1,12 +1,18 @@
-# Set up kernelci user
-RUN useradd kernelci -u 1000 -d /home/kernelci -s /bin/bash
-RUN mkdir -p /home/kernelci
-RUN chown kernelci: /home/kernelci
-USER kernelci
-ENV PATH=$PATH:/home/kernelci/.local/bin
-WORKDIR /home/kernelci
+{% include 'fragment/kernelci.jinja2' %}
 
-# Install kernelci Python package from kernelci-api
+# Install kernelci-api
 ARG api_url=https://github.com/kernelci/kernelci-api.git
 ARG api_rev=main
-RUN pip install git+$api_url@$api_rev
+RUN git clone $api_url /tmp/kernelci-api
+# Install requirements
+WORKDIR /tmp/kernelci-api
+RUN git checkout $api_rev
+RUN pip install --requirement docker/api/requirements.txt
+# Move api,tests,migrations,templates to /home/kernelci
+RUN mv api /home/kernelci
+RUN mv tests /home/kernelci
+RUN mv migrations /home/kernelci
+RUN mv templates /home/kernelci
+# Clean up
+WORKDIR /home/kernelci
+RUN rm -rf /tmp/kernelci-api
