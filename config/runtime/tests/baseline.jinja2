@@ -1,0 +1,26 @@
+- test:
+    definitions:
+    - from: inline
+      lava-signal: kmsg
+      name: dmesg
+      path: inline/dmesg.yaml
+      repository:
+        metadata:
+          description: baseline test plan
+          environment:
+            - lava-test-shell
+          format: Lava-Test Test Definition 1.0
+          name: baseline
+          os:
+            - debian
+          scope:
+            - functional
+        run:
+          steps:
+            - |
+{%- filter indent(width=16) -%}
+{% block commands %}{% endblock %}
+{%- endfilter %}
+
+    timeout:
+      minutes: 1
