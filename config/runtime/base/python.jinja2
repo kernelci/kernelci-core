@@ -110,7 +110,7 @@ class Job(BaseJob):
 def main(args):
     job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
     try:
-        if 'debug' in NODE and NODE['debug'].get('dry_run'):
+        if NODE.get('debug') and NODE['debug'].get('dry_run'):
             results = job.dry_run(NODE['debug']['result'])
         else:
             tarball_url = NODE['artifacts'].get('tarball')
