@@ -57,6 +57,8 @@ class ErrorCodes(str, enum.Enum):
 
     INVALID_JOB_PARAMS = 'invalid_job_params'
     SUBMIT_ERROR = 'submit_error'
+    # Node reached timeout and timeout service forced it to be done
+    NODE_TIMEOUT = 'node_timeout'
 
 
 class KernelVersion(BaseModel):
