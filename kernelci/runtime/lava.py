@@ -66,10 +66,10 @@ class Callback:
 
     # LAVA job result names
     LAVA_JOB_RESULT_NAMES = {
-        COMPLETE: "PASS",
-        INCOMPLETE: "FAIL",
-        CANCELED: "UNKNOWN",
-        CANCELING: "UNKNOWN",
+        COMPLETE: "pass",
+        INCOMPLETE: "incomplete",
+        CANCELED: "incomplete",
+        CANCELING: "incomplete",
     }
 
     def __init__(self, data):
@@ -82,6 +82,11 @@ class Callback:
         if self._meta is None:
             self._meta = yaml.safe_load(self._data['definition'])['metadata']
         return self._meta.get(key)
+
+    def get_job_status(self):
+        """Get the job status"""
+        # map over LAVA_JOB_RESULT_NAMES
+        return self.LAVA_JOB_RESULT_NAMES.get(self._data['status'])
 
     def is_infra_error(self):
         """Determine wether the job has hit an infrastructure error"""
