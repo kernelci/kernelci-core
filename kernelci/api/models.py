@@ -426,6 +426,12 @@ class Test(Node):
         description="Test details"
     )
 
+    def is_test_suite(self):
+        """Returns True if the node represents a test suite, false
+        otherwise (test case)
+        """
+        return self.name == self.group
+
 
 class RegressionData(BaseModel):
     """Model for the data field of a Regression node"""
