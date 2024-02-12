@@ -86,7 +86,7 @@ def catch_error(func):
                 else None
             )
             raise click.ClickException(
-                '\n'.join((str(ex), detail)) if detail else ex
+                '\n'.join((str(ex), str(detail))) if detail else ex
             ) from ex
         except KeyError as ex:
             raise click.ClickException(
