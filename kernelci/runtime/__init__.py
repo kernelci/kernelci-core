@@ -138,7 +138,7 @@ class Runtime(abc.ABC):
         params = {
             'api_config': api_config or {},
             'storage_config': job.storage_config or {},
-            'platform_config': job.platform_config.to_dict() or {},
+            'platform_config': job.platform_config or {},
             'instanceid': instanceid,
             'name': job.name,
             'node': job.node,
@@ -146,7 +146,8 @@ class Runtime(abc.ABC):
             'runtime_image': job.config.image,
         }
         params.update(job.config.params)
-        params.update(job.platform_config.params)
+        if job.platform_config.params:
+            params.update(job.platform_config.params)
         return params
 
     @classmethod
