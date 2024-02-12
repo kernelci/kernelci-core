@@ -486,7 +486,6 @@ class KBuild():
             self.addcmd("cp arch/" + self._arch + "/boot/" + img + " ../artifacts", False)  # noqa
             # add image to artifacts relative to artifacts dir
             self._artifacts.append(img)
-            break
         self.addcmd("cd ..")
 
     def _package_modules(self):
