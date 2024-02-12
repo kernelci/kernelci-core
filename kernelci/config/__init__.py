@@ -164,6 +164,7 @@ def load_data(data):
     for module in [
         'kernelci.config.api',
         'kernelci.config.job',
+        'kernelci.config.platform',
         'kernelci.config.runtime',
         'kernelci.config.scheduler',
         'kernelci.config.storage',
