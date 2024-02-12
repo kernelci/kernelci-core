@@ -99,6 +99,7 @@ class Runtime(abc.ABC):
             extensions=["jinja2.ext.do"]
         )
         jinja2_env.globals.update(self._get_jinja2_functions())
+        print("runtime() template:" + job_config.template)
         return jinja2_env.get_template(job_config.template)
 
     @classmethod
@@ -147,6 +148,8 @@ class Runtime(abc.ABC):
         }
         params.update(job.config.params)
         params.update(job.platform_config.params)
+        print("get_params(): ")
+        print(params)
         return params
 
     @classmethod
