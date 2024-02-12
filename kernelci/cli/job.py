@@ -73,7 +73,7 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
     api = get_api(configs, api, secrets)
     job_node = api.node.get(node_id)
     job = kernelci.runtime.Job(job_node, configs['jobs'][job_node['name']])
-    job.platform_config = configs['device_types'][platform]
+    job.platform_config = configs['platforms'][platform]
     job.storage_config = (
         configs['storage'][storage]
         if storage else None

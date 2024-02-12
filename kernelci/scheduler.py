@@ -27,7 +27,7 @@ class Scheduler:
                 runtime.config.lab_type, []
             )
             runtime_type.append(runtime)
-        self._platforms = configs['device_types']
+        self._platforms = configs['platforms']
 
     def get_configs(self, event, channel='node'):
         """Get the scheduler configs matching a given event"""
