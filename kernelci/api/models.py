@@ -160,9 +160,6 @@ class Node(DatabaseModel):
     debug: Optional[Dict[str, Any]] = Field(
         description="Debug info fields (for development purposes)"
     )
-    error_code: Optional[ErrorCodes] = Field(
-        description="Details of the failure state"
-    )
     created: datetime = Field(
         default_factory=datetime.utcnow,
         description="Timestamp of node creation"
@@ -322,6 +319,9 @@ class KbuildData(BaseModel):
     compiler: Optional[str] = Field(
         description="Compiler used for the build"
     )
+    error_code: Optional[ErrorCodes] = Field(
+        description="Details of the failure state"
+    )
     fragments: Optional[List[str]] = Field(
         description="List of additional configuration fragments used"
     )
@@ -354,6 +354,9 @@ class Kbuild(Node):
 
 class TestData(BaseModel):
     """Model for the data field of a Test node"""
+    error_code: Optional[ErrorCodes] = Field(
+        description="Details of the failure state"
+    )
     # [TODO] Can be fetched from parent checkout node
     kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data"
