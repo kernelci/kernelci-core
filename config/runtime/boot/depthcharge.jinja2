@@ -16,25 +16,25 @@
     namespace: {{ boot_namespace }}
 {%- endif %}
     kernel:
-      url: {{ kernel_url }}
+      url: '{{ kernel_url }}'
     modules:
       compression: xz
-      url: {{ modules_url }}
+      url: '{{ modules_url }}'
 {%- if platform_config.dtb %}
     dtb:
-      url: {{ dtb_url }}
+      url: '{{ dtb_url }}'
 {%- endif %}
 {%- if boot_commands == 'nfs' and nfsroot %}
     nfsrootfs:
       compression: xz
-      url: {{ nfsroot }}/full.rootfs.tar.xz
+      url: '{{ nfsroot }}/full.rootfs.tar.xz'
     ramdisk:
       compression: gz
-      url: {{ nfsroot }}/initrd.cpio.gz
+      url: '{{ nfsroot }}/initrd.cpio.gz'
 {%- else %}
     ramdisk:
       compression: gz
-      url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/{{ platform_config.arch }}/rootfs.cpio.gz
+      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/{{ platform_config.arch }}/rootfs.cpio.gz'
 {%- endif %}
     os: oe
     timeout:
