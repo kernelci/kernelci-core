@@ -1,16 +1,16 @@
 - deploy:
     kernel:
       type: {{ node.data.kernel_type }}
-      url: {{ node.artifacts.kernel }}
+      url: '{{ node.artifacts.kernel }}'
     modules:
       compression: xz
-      url: {{ node.artifacts.modules }}
+      url: '{{ node.artifacts.modules }}'
 {%- if platform_config.dtb %}
     dtb:
-      url: {{ node.artifacts.dtb }}
+      url: '{{ node.artifacts.dtb }}'
 {%- endif %}
     ramdisk:
-      url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/{{ platform_config.arch }}/rootfs.cpio.gz
+      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/{{ platform_config.arch }}/rootfs.cpio.gz'
       compression: gz
     os: oe
     timeout:
