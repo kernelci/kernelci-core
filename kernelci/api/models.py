@@ -422,6 +422,21 @@ class RegressionData(BaseModel):
     pass_node: Optional[PyObjectId] = Field(
         description="Previous passing Node"
     )
+    failed_kernel_revision: Optional[Revision] = Field(
+        description="Kernel repo revision data of the failed test run"
+    )
+    arch: Optional[str] = Field(
+        description="CPU architecture family"
+    )
+    defconfig: Optional[str] = Field(
+        description="Kernel defconfig identifier"
+    )
+    compiler: Optional[str] = Field(
+        description="Compiler used for the build"
+    )
+    platform: Optional[str] = Field(
+        description="Test platform"
+    )
 
 
 class Regression(Node):
