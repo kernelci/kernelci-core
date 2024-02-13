@@ -362,14 +362,6 @@ class TestData(BaseModel):
     error_code: Optional[ErrorCodes] = Field(
         description="Details of the failure state"
     )
-    # [TODO] Can be fetched from parent checkout node
-    kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data"
-    )
-    # [TODO] Can be fetched from parent kbuild node
-    kernel_type: Optional[str] = Field(
-        description="Kernel image type (zimage, bzimage...)"
-    )
     # [TODO] Specify the source code file/function too?
     test_source: Optional[AnyUrl] = Field(
         description="Repository containing the test source code"
@@ -388,6 +380,24 @@ class TestData(BaseModel):
     )
     job_context: Optional[str] = Field(
         description="Kubernetes cluster name the job submitted to"
+    )
+
+    # Fields inherited from the parent kbuild or test case node
+
+    kernel_revision: Optional[Revision] = Field(
+        description="Kernel repo revision data"
+    )
+    arch: Optional[str] = Field(
+        description="CPU architecture family"
+    )
+    defconfig: Optional[str] = Field(
+        description="Kernel defconfig identifier"
+    )
+    compiler: Optional[str] = Field(
+        description="Compiler used for the build"
+    )
+    kernel_type: Optional[str] = Field(
+        description="Kernel image type (zimage, bzimage...)"
     )
 
 
