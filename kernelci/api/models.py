@@ -339,6 +339,9 @@ class KbuildData(BaseModel):
     job_context: Optional[str] = Field(
         description="Kubernetes cluster name the job submitted to"
     )
+    kernel_type: Optional[str] = Field(
+        description="Kernel image type (zimage, bzimage...)"
+    )
 
 
 class Kbuild(Node):
@@ -362,6 +365,10 @@ class TestData(BaseModel):
     # [TODO] Can be fetched from parent checkout node
     kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data"
+    )
+    # [TODO] Can be fetched from parent kbuild node
+    kernel_type: Optional[str] = Field(
+        description="Kernel image type (zimage, bzimage...)"
     )
     # [TODO] Specify the source code file/function too?
     test_source: Optional[AnyUrl] = Field(
