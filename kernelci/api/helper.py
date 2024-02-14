@@ -13,6 +13,27 @@ import requests
 from . import API
 
 
+def merge(primary: dict, secondary: dict):
+    """Deep merges dicts a and b, returning a new dict containing
+    dictionary a updated with the contents of dictionary b.
+    TODO: This might need to be moved elsewhere, with proper fix to
+    https://github.com/kernelci/kernelci-core/issues/2386
+    """
+    result = {}
+    for key in primary:
+        result[key] = primary[key]
+        if key in secondary:
+            if isinstance(primary[key], dict) and \
+               isinstance(secondary[key], dict):
+                result[key] = merge(primary[key], secondary[key])
+            else:
+                result[key] = secondary[key]
+    for key in secondary:
+        if key not in primary:
+            result[key] = secondary[key]
+    return result
+
+
 class APIHelper:
     """API helper base class
 
@@ -185,9 +206,11 @@ class APIHelper:
                 }
             ]
         }
+        Logic need fix:
+        https://github.com/kernelci/kernelci-core/issues/2386
         """
-        # Get latest node data added after node creation
-        root = self.api.node.get(root['id'])
+        root_from_db = self.api.node.get(root['id'])
+        root_node = merge(root_from_db, root)
         root_node = root.copy()
         root_node['result'] = results['node']['result']
         root_node['artifacts'].update(results['node']['artifacts'])
