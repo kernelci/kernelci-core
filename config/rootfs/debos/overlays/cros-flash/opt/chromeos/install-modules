@@ -30,12 +30,13 @@ install_modules()
 
     local mount_dir=$(basename "$image_mountpoint")
     local root_path=$(dirname "$image_mountpoint")
-    local modules_tarball=$(basename "$modules_url")
+    # $modules_url may contain GET parameters, let's get rid of those
+    local modules_tarball=$(basename "$modules_url" | sed 's/?.*//')
 
-    echo "Downloading modules from $modules_url..."
+    echo "Downloading modules from $modules_url as $modules_tarball..."
     mkdir -p "$image_mountpoint"
     cd "$root_path"
-    wget "$modules_url"
+    wget -O "$modules_tarball" "$modules_url"
     mount PARTUUID=566f7961-6765-7220-746f-20756e697665 "$mount_dir"
 
     echo "Installing modules..."
