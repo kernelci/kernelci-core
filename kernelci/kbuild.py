@@ -332,6 +332,19 @@ class KBuild():
 
         return buffer
 
+    def _getcrosdefconfig(self, config):
+        '''
+        Get ChromeOS specific defconfig
+        Identical to other CrOS fragments, except we might need to
+        substitute the actual kernel revision (major.minor) in the config
+        name and update our _defconfig attribute accordingly.
+        '''
+        version = self._node['data']['kernel_revision']['version']
+        krev = f"{version['version']}.{version['patchlevel']}"
+        self._defconfig = config.format(krev=krev)
+
+        return self._getcrosfragment(self._defconfig)
+
     def extract_config(self, frag):
         """ Extract config fragments from legacy config file """
         txt = ''
@@ -402,7 +415,13 @@ class KBuild():
         # defconfig
         self.startjob("config_defconfig")
         self.addcmd("cd " + self._srcdir)
-        self.addcmd("make " + self._defconfig)
+        if self._defconfig.startswith('cros://'):
+            dotconfig = os.path.join(self._srcdir, ".config")
+            with open(dotconfig, 'w') as f:
+                f.write(self._getcrosdefconfig(self._defconfig))
+            self.addcmd("make olddefconfig")
+        else:
+            self.addcmd("make " + self._defconfig)
         # fragments
         self.startjob("config_fragments")
         for i in range(0, fragnum):
