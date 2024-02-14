@@ -4,7 +4,12 @@
  # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 -#}
 
-FROM python:3.11
+{%- if is_api %}
+   FROM python:3.10
+{% else %}
+   FROM python:3.11
+{%- endif %}
+
 MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 
 # Upgrade pip3 - never mind the warning about running this as root

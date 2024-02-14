@@ -5,4 +5,5 @@
 -#}
 
 {%- set fragments = ['fragment/api.jinja2'] + fragments %}
-{%- include 'base/python-fixed.jinja2' %}
+{%- set is_api = true %}
+{%- include 'base/python.jinja2' %}
