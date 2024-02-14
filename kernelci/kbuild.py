@@ -411,7 +411,9 @@ class KBuild():
         # TODO: olddefconfig should be optional/configurable
         # TODO: log all warnings/errors of olddefconfig to separate file
         self.addcmd("make olddefconfig")
+        self.addcmd(f"cp .config {self._af_dir}/")
         self.addcmd("cd ..")
+        self._artifacts.append(".config")
 
     def _generate_script(self):
         """ Generate shell script for complete build """
