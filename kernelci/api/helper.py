@@ -140,7 +140,10 @@ class APIHelper:
         processing or formatting before submitting the regression node
         """
         # pylint: disable=protected-access
-        return self.api._post('node', regression)
+        try:
+            return self.api._post('node', regression)
+        except requests.exceptions.HTTPError as error:
+            raise RuntimeError(error.response.text) from error
 
     def _prepare_results(self, results, parent, base):
         node = results['node'].copy()
