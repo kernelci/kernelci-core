@@ -22,6 +22,7 @@ from pydantic import (
     BaseModel,
     Field,
     FileUrl,
+    StrictInt,
 )
 from .models_base import (
     PyObjectId,
@@ -63,13 +64,13 @@ class ErrorCodes(str, enum.Enum):
 
 class KernelVersion(BaseModel):
     """Linux kernel version model"""
-    version: int = Field(
+    version: StrictInt = Field(
         description="Major version number e.g. 4 in 'v4.19'"
     )
-    patchlevel: int = Field(
+    patchlevel: StrictInt = Field(
         description="Minor version number or 'patch level' e.g. 19 in 'v4.19'"
     )
-    sublevel: Optional[int] = Field(
+    sublevel: Optional[StrictInt] = Field(
         description="Stable version or 'sub-level' e.g. 123 in 'v4.19.123'"
     )
     extra: Optional[str] = Field(
