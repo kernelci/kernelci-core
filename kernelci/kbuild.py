@@ -316,10 +316,11 @@ class KBuild():
     def _getcrosfragment(self, fragment):
         """ Get ChromeOS specific configuration fragments """
         # ChromeOS fragment name can be f-strings with placeholders
-        # for the kernel revision (major.minor)
+        # for the kernel revision (major.minor) and target architecture
         version = self._node['data']['kernel_revision']['version']
         krev = f"{version['version']}.{version['patchlevel']}"
-        real_frag = fragment.format(krev=krev)
+        arch = self._arch
+        real_frag = fragment.format(krev=krev, arch=arch)
         buffer = ''
         [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", real_frag)
         cros_config = "/tmp/cros-config.tgz"
