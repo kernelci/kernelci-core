@@ -94,6 +94,7 @@ rootfs_configs:
       - python3-minimal
       - python3-unittest2
       - socat
+      - tappy
       - tcpdump
       - tpm2-tools
       - wget
