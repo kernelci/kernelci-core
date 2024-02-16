@@ -312,8 +312,13 @@ class KBuild():
 
     def _getcrosfragment(self, fragment):
         """ Get ChromeOS specific configuration fragments """
+        # ChromeOS fragment name can be f-strings with placeholders
+        # for the kernel revision (major.minor)
+        version = self._node['data']['kernel_revision']['version']
+        krev = f"{version['version']}.{version['patchlevel']}"
+        real_frag = fragment.format(krev=krev)
         buffer = ''
-        [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", fragment)
+        [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", real_frag)
         cros_config = "/tmp/cros-config.tgz"
         url = CROS_CONFIG_URL.format(branch=branch)
         if not _download_file(url, cros_config):
@@ -330,20 +335,7 @@ class KBuild():
 
         os.unlink(cros_config)
 
-        return buffer
-
-    def _getcrosdefconfig(self, config):
-        '''
-        Get ChromeOS specific defconfig
-        Identical to other CrOS fragments, except we might need to
-        substitute the actual kernel revision (major.minor) in the config
-        name and update our _defconfig attribute accordingly.
-        '''
-        version = self._node['data']['kernel_revision']['version']
-        krev = f"{version['version']}.{version['patchlevel']}"
-        self._defconfig = config.format(krev=krev)
-
-        return self._getcrosfragment(self._defconfig)
+        return (buffer, real_frag)
 
     def extract_config(self, frag):
         """ Extract config fragments from legacy config file """
@@ -379,15 +371,10 @@ class KBuild():
     def _parse_fragments(self, firmware=False):
         """ Parse fragments kbuild config and create config fragments """
         num = 0
-        self._config_full = self._defconfig
         for fragment in self._fragments:
             content = ''
-            if len(self._config_full) > 0:
-                self._config_full += '+' + fragment
-            else:
-                self._config_full = fragment
             if fragment.startswith("cros://"):
-                content = self._getcrosfragment(fragment)
+                (content, fragment) = self._getcrosfragment(fragment)
             elif fragment.startswith("CONFIG_"):
                 content = fragment + '\n'
             else:
@@ -397,6 +384,7 @@ class KBuild():
                 f.write(content)
             # add fragment to artifacts but relative to artifacts dir
             frag_rel = os.path.relpath(fragfile, self._af_dir)
+            self._config_full += '+' + fragment
             self._artifacts.append(frag_rel)
             num += 1
         if firmware:
@@ -418,10 +406,13 @@ class KBuild():
         if self._defconfig.startswith('cros://'):
             dotconfig = os.path.join(self._srcdir, ".config")
             with open(dotconfig, 'w') as f:
-                f.write(self._getcrosdefconfig(self._defconfig))
+                (content, self._defconfig) = \
+                    self._getcrosfragment(self._defconfig)
+                f.write(content)
             self.addcmd("make olddefconfig")
         else:
             self.addcmd("make " + self._defconfig)
+        self._config_full = self._defconfig + self._config_full
         # fragments
         self.startjob("config_fragments")
         for i in range(0, fragnum):
