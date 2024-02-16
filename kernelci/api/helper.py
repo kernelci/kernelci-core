@@ -116,10 +116,13 @@ class APIHelper:
                 'kernel_revision': input_node['data']['kernel_revision'],
             },
         }
-        # for test kind, if node.data.kernel_type - copy to test node
-        # it is required for LAVA templates
-        if 'kernel_type' in input_node['data'] and job_config.kind == 'test':
-            job_node['data']['kernel_type'] = input_node['data']['kernel_type']
+        # Test-specific fields inherited from parent node (kbuild or
+        # test) if available
+        if job_config.kind == 'test':
+            job_node['data']['kernel_type'] = input_node['data'].get('kernel_type')  # noqa
+            job_node['data']['arch'] = input_node['data'].get('arch')
+            job_node['data']['defconfig'] = input_node['data'].get('defconfig')
+            job_node['data']['compiler'] = input_node['data'].get('compiler')
         # This information is highly useful, as we might
         # extract from it the following, for example:
         # in case of lab: lab-name, device-name
