@@ -27,25 +27,17 @@ def kci_job():
 
 @kci_job.command(secrets=True)
 @click.argument('name')
-@click.option('--node-id')
-@click.option('--node-json')
+@click.argument('input_node_id')
 @Args.config
 @Args.api
 @Args.indent
 @catch_error
-def new(name, node_id, node_json, config,  # pylint: disable=too-many-arguments
+def new(name, input_node_id, config,  # pylint: disable=too-many-arguments
         api, indent, secrets):
     """Create a new job node"""
     configs = kernelci.config.load(config)
     helper = get_api_helper(configs, api, secrets)
-    if node_id:
-        input_node = helper.api.node.get(node_id)
-    elif node_json:
-        input_node = helper.load_json(node_json)
-    else:
-        raise click.ClickException(
-            "Either --node-id or --node-json is required."
-        )
+    input_node = helper.api.node.get(input_node_id)
     job_config = configs['jobs'][name]
     job_node = helper.create_job_node(job_config, input_node)
     echo_json(job_node, indent)
