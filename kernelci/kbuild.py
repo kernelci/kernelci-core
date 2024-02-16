@@ -32,7 +32,10 @@ import kernelci.storage
 
 CROS_CONFIG_URL = \
     "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
-LEGACY_CONFIG = '/etc/kernelci/core/build-configs.yaml'
+LEGACY_CONFIG = [
+    'config/core/build-configs.yaml',
+    '/etc/kernelci/core/build-configs.yaml',
+]
 FW_GIT = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"  # noqa
 
 # Hard-coded make targets for each CPU architecture
@@ -356,11 +359,20 @@ class KBuild():
     def add_legacy_fragment(self, fragname):
         """ Add legacy config fragment from build-configs.yaml """
         buffer = ''
-        with open(LEGACY_CONFIG, 'r') as cfgfile:
-            content = cfgfile.read()
-            yml = yaml.safe_load(content)
+        yml = None
+        for cfg_path in LEGACY_CONFIG:
+            if not os.path.exists(cfg_path):
+                continue
+            with open(cfg_path, 'r') as cfgfile:
+                content = cfgfile.read()
+                yml = yaml.safe_load(content)
+                break
 
-        print(f"Searching for fragment {fragname} in {LEGACY_CONFIG}")
+        if not yml:
+            print(f"No suitable config file found in {LEGACY_CONFIG}")
+            sys.exit(1)
+
+        print(f"Searching for fragment {fragname} in {cfg_path}")
         if 'fragments' in yml:
             frag = yml['fragments']
         else:
