@@ -80,6 +80,16 @@ class KernelVersion(BaseModel):
         description="Version name e.g. People's Front for v4.19"
     )
 
+    _STRICT_INT_FIELDS = ['version', 'patchlevel', 'sublevel']
+
+    @classmethod
+    def translate_version_fields(cls, params):
+        """Translate `StrictInt` field values into `int`"""
+        for key, value in params.items():
+            if key in cls._STRICT_INT_FIELDS:
+                params[key] = int(value)
+        return params
+
 
 class Revision(BaseModel):
     """Linux kernel Git revision model"""
