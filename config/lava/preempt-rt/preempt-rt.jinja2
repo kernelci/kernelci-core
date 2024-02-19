@@ -1,6 +1,7 @@
 - test:
+    name: {{ plan }}
     timeout:
-      minutes: 10
+      minutes: {{ job_timeout }}
 
     definitions:
     - from: inline
@@ -18,13 +19,12 @@
     - repository: https://github.com/kernelci/test-definitions.git
       from: git
       revision: kernelci.org
-      path: automated/linux/cyclictest/cyclictest.yaml
-      name: cyclictest
+      path: automated/linux/{{ tst_cmd }}/{{ tst_cmd }}.yaml
+      name: {{ plan }}
       parameters:
         AFFINTIY: 0-1
-        BACKGROUND_CMD: hackbench
-        DURATION: 300s
+        BACKGROUND_CMD: {{ background|default('hackbench') }}
+        DURATION: {{ duration|default('300s') }}
         INTERVAL: 1000
-        MAX_LATENCY: 35
         PRIORITY: 98
         THREADS: 2

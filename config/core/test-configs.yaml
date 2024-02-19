@@ -698,10 +698,20 @@ test_plans:
       - blocklist: *kselftest_defconfig_filter
       - passlist: *qemu_labs_filter
 
-  preempt-rt:
+  preempt-rt: &preempt-rt
     rootfs: debian_bookworm-rt_ramdisk
+    pattern: 'preempt-rt/{category}-{method}-{protocol}-{rootfs}-preempt-rt-template.jinja2'
     filters:
       - passlist: {defconfig: ['preempt_rt']}
+    params: &preempt-rt-params
+      job_timeout: '10'
+      duration: '300s'
+
+  preempt-rt-cyclictest:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'cyclictest'
 
   sleep:
     rootfs: debian_bookworm_ramdisk
@@ -2552,7 +2562,7 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
-      - preempt-rt
+      - preempt-rt-cyclictest
       - sleep_mem
       - smc
 
@@ -2603,7 +2613,7 @@ test_configs:
       - ltp-fsx
       - ltp-smoketest
       - ltp-timers
-      - preempt-rt
+      - preempt-rt-cyclictest
 
   - device_type: bcm2835-rpi-b-rev2
     test_plans:
@@ -2657,7 +2667,7 @@ test_configs:
       - ltp-io
       - ltp-ipc
       - ltp-smoketest
-      - preempt-rt
+      - preempt-rt-cyclictest
       - vdso
 
   - device_type: cubietruck
@@ -2784,7 +2794,7 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
-      - preempt-rt
+      - preempt-rt-cyclictest
       - sleep
       - smc
 
@@ -3187,7 +3197,7 @@ test_configs:
   - device_type: meson-sm1-khadas-vim3l
     test_plans:
       - baseline
-      - preempt-rt
+      - preempt-rt-cyclictest
 
   - device_type: meson-sm1-s905d3-libretech-cc
     test_plans:
@@ -3244,7 +3254,7 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
-      - preempt-rt
+      - preempt-rt-cyclictest
       - sleep
       - v4l2-compliance-uvc
       - wifi-basic
@@ -3265,7 +3275,7 @@ test_configs:
       - kselftest-seccomp
       - kselftest-tpm2
       - lc-compliance
-      - preempt-rt
+      - preempt-rt-cyclictest
       - sleep
       - v4l2-compliance-uvc
       - wifi-basic
@@ -3286,7 +3296,7 @@ test_configs:
       - kselftest-seccomp
       - kselftest-tpm2
       - lc-compliance
-      - preempt-rt
+      - preempt-rt-cyclictest
       - sleep_mem
       - v4l2-compliance-mtk-vcodec-enc
       - v4l2-compliance-uvc
@@ -3490,7 +3500,7 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
-      - preempt-rt
+      - preempt-rt-cyclictest
       - smc
 
   - device_type: r8a774b1-hihope-rzg2n-ex
@@ -3727,7 +3737,7 @@ test_configs:
       - ltp-crypto
       - ltp-hugetlb
       - ltp-smoketest
-      - preempt-rt
+      - preempt-rt-cyclictest
 
   - device_type: sun50i-h5-nanopi-neo-plus2
     test_plans:
