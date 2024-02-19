@@ -12,10 +12,8 @@ WORKDIR /root
 RUN rm -rf /tmp/kernelci-core
 
 # Install kernelci-api Python package from kernelci-api
-# ARG api_url=https://github.com/kernelci/kernelci-api.git
-ARG api_url=https://github.com/JenySadadia/kernelci-api.git
-# ARG api_rev=main
-ARG api_rev=update-pyproject-toml
+ARG api_url=https://github.com/kernelci/kernelci-api.git
+ARG api_rev=main
 RUN git clone --depth=1 $api_url /tmp/kernelci-api
 WORKDIR /tmp/kernelci-api
 RUN git fetch origin $api_rev
