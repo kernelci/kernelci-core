@@ -705,7 +705,7 @@ test_plans:
       - passlist: {defconfig: ['preempt_rt']}
     params: &preempt-rt-params
       job_timeout: '10'
-      duration: '300s'
+      duration: '60s'
 
   preempt-rt-cyclicdeadline:
     <<: *preempt-rt
@@ -2624,7 +2624,10 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
       - sleep_mem
       - smc
 
@@ -2675,7 +2678,10 @@ test_configs:
       - ltp-fsx
       - ltp-smoketest
       - ltp-timers
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
 
   - device_type: bcm2835-rpi-b-rev2
     test_plans:
@@ -2729,7 +2735,10 @@ test_configs:
       - ltp-io
       - ltp-ipc
       - ltp-smoketest
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
       - vdso
 
   - device_type: cubietruck
@@ -2856,7 +2865,10 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
       - sleep
       - smc
 
@@ -3259,7 +3271,10 @@ test_configs:
   - device_type: meson-sm1-khadas-vim3l
     test_plans:
       - baseline
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
 
   - device_type: meson-sm1-s905d3-libretech-cc
     test_plans:
@@ -3316,7 +3331,10 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
       - sleep
       - v4l2-compliance-uvc
       - wifi-basic
@@ -3337,7 +3355,10 @@ test_configs:
       - kselftest-seccomp
       - kselftest-tpm2
       - lc-compliance
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
       - sleep
       - v4l2-compliance-uvc
       - wifi-basic
@@ -3358,7 +3379,10 @@ test_configs:
       - kselftest-seccomp
       - kselftest-tpm2
       - lc-compliance
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
       - sleep_mem
       - v4l2-compliance-mtk-vcodec-enc
       - v4l2-compliance-uvc
@@ -3562,7 +3586,10 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
       - smc
 
   - device_type: r8a774b1-hihope-rzg2n-ex
@@ -3799,7 +3826,10 @@ test_configs:
       - ltp-crypto
       - ltp-hugetlb
       - ltp-smoketest
+      - preempt-rt-cyclicdeadline
       - preempt-rt-cyclictest
+      - preempt-rt-rtla-osnoise
+      - preempt-rt-rtla-timerlat
 
   - device_type: sun50i-h5-nanopi-neo-plus2
     test_plans:
