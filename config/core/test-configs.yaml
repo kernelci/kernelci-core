@@ -707,11 +707,73 @@ test_plans:
       job_timeout: '10'
       duration: '300s'
 
+  preempt-rt-cyclicdeadline:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      test_cmd: 'cyclicdeadline'
+
   preempt-rt-cyclictest:
     <<: *preempt-rt
     params:
       <<: *preempt-rt-params
       tst_cmd: 'cyclictest'
+
+  preempt-rt-pi-stress:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'pi-stress'
+
+  preempt-rt-pmqtest:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'pmqtest'
+
+  preempt-rt-ptsematest:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'ptsematest'
+
+  preempt-rt-rt-migrate-test:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'rt-migrate-test'
+
+  preempt-rt-rtla-osnoise:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'rtla-osnoise'
+      tst_group: 'rtla'
+
+  preempt-rt-rtla-timerlat:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'rtla-timerlat'
+      tst_group: 'rtla'
+
+  preempt-rt-signaltest:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'signaltest'
+
+  preempt-rt-sigwaittest:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'sigwaittest'
+
+  preempt-rt-svsematest:
+    <<: *preempt-rt
+    params:
+      <<: *preempt-rt-params
+      tst_cmd: 'svsematest'
 
   sleep:
     rootfs: debian_bookworm_ramdisk

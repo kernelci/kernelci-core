@@ -19,7 +19,7 @@
     - repository: https://github.com/kernelci/test-definitions.git
       from: git
       revision: kernelci.org
-      path: automated/linux/{{ tst_cmd }}/{{ tst_cmd }}.yaml
+      path: automated/linux/{{ tst_group|default(tst_cmd) }}/{{ tst_cmd }}.yaml
       name: {{ plan }}
       parameters:
         ARTIFACTORIAL_TOKEN: {{ artifactorial_token|default('') }}
@@ -27,9 +27,18 @@
         AFFINTIY: {{ affinity|default('0-1') }}
         DURATION: {{ duration|default('300s') }}
         BACKGROUND_CMD: {{ background|default('hackbench') }}
-      {% if tst_cmd == 'cyclictest' %}
+      {% if tst_cmd == 'cyclicdeadline' %}
+        INTERVAL: {{ interval|default('1000') }}
+        STEP: {{ step|default('500') }}
+        THREADS: {{ threads|default('2') }}
+      {% elif tst_cmd == 'cyclictest' %}
         HISTOGRAM: {{ histogram|default('') }}
         INTERVAL: {{ interval|default('1000') }}
+        PRIORITY: {{ priority|default('98') }}
+        THREADS: {{ threads|default('2') }}
+      {% elif tst_cmd == 'pi-stress' %}
+        MLOCKALL: {{ mlockall|default('true') }}
+      {% elif tst_cmd == 'signaltest' %}
         PRIORITY: {{ priority|default('98') }}
         THREADS: {{ threads|default('2') }}
       {% endif %}
