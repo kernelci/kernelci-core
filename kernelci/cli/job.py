@@ -38,6 +38,8 @@ def new(name, input_node_id, config,  # pylint: disable=too-many-arguments
     configs = kernelci.config.load(config)
     helper = get_api_helper(configs, api, secrets)
     input_node = helper.api.node.get(input_node_id)
+    if not input_node:
+        raise click.ClickException("Node not found with the provided ID")
     job_config = configs['jobs'][name]
     job_node = helper.create_job_node(job_config, input_node)
     echo_json(job_node, indent)
