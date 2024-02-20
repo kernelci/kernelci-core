@@ -122,6 +122,11 @@ actions:
     command: ln -s /usr/bin/systemd /init
 
   - action: run
+    description: Clean installed package files
+    chroot: true
+    command: apt-get clean
+
+  - action: run
     description: Create full archive
     chroot: false
     command: cd ${ROOTDIR} ; tar cvfJ  ${ARTIFACTDIR}/{{ $basename -}}/full.rootfs.tar.xz .
