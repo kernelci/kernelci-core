@@ -134,7 +134,7 @@ actions:
   - action: run
     description: Create full cpio archive
     chroot: false
-    command: cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/{{ $basename -}}/full.rootfs.cpio.gz
+    command: cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -9 -c - > ${ARTIFACTDIR}/{{ $basename -}}/full.rootfs.cpio.gz
 
   - action: image-partition
     imagename: rootfs.ext4
@@ -159,7 +159,7 @@ actions:
     postprocess: true
 
   - action: run
-    command: xz -f ${ARTIFACTDIR}/{{ $basename -}}/rootfs.ext4
+    command: xz -9 -T0 -f ${ARTIFACTDIR}/{{ $basename -}}/rootfs.ext4
     postprocess: true
 
   - action: run
