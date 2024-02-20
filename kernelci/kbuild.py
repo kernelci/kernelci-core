@@ -38,6 +38,10 @@ LEGACY_CONFIG = [
 ]
 FW_GIT = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"  # noqa
 
+# TODO: find a way to automatically fetch this information
+LATEST_LTS_MAJOR = 6
+LATEST_LTS_MINOR = 6
+
 # Hard-coded make targets for each CPU architecture
 MAKE_TARGETS = {
     'arm': 'zImage',
@@ -318,7 +322,20 @@ class KBuild():
         # ChromeOS fragment name can be f-strings with placeholders
         # for the kernel revision (major.minor) and target architecture
         version = self._node['data']['kernel_revision']['version']
-        krev = f"{version['version']}.{version['patchlevel']}"
+        # The ChromeOS kernel only has release branches for LTS kernels
+        # so let's fall back to using the config for the latest LTS if
+        # building a more recent version
+        target_rev = f"{version['version']}.{version['patchlevel']}"
+        lts_rev = f"{LATEST_LTS_MAJOR}.{LATEST_LTS_MINOR}"
+        krev = None
+        if ((version['version'] > LATEST_LTS_MAJOR) or
+            (version['version'] == LATEST_LTS_MAJOR and
+             version['patchlevel'] > LATEST_LTS_MINOR)):
+            print(f"Falling back to latest LTS config ({lts_rev}) " +
+                  f"for kernel {target_rev}")
+            krev = lts_rev
+        else:
+            krev = target_rev
         arch = self._arch
         real_frag = fragment.format(krev=krev, arch=arch)
         buffer = ''
