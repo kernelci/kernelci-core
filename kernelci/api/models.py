@@ -572,11 +572,20 @@ class PublishEvent(BaseModel):
     )
 
 
-def parse_node_obj(node: Node):
+def parse_node_obj(node: Node | dict):
     """Parses a generic Node object using the appropriate Node submodel
     depending on its 'kind'.
+
+    If the node is passed as a Node object, it returns the appropriate
+    submodel object.
+    If it's passed as a dict, it's converted to the appropriate Node
+    submodel object.
+    If it's passed as a concrete Node submodel object, it's returned as
+    is.
     """
-    for submodel in type(node).__subclasses__():
+    if isinstance(node, dict):
+        node = Node.parse_obj(node)
+    for submodel in Node.__subclasses__():
         if node.kind == submodel.class_kind:
             return submodel.parse_obj(node)
     raise ValueError(f"Unsupported node kind: {node.kind}")
