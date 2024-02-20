@@ -12,12 +12,13 @@
 
 """Common KernelCI API model definitions"""
 
-from typing import Optional
+from typing import Optional, Any
 from bson import ObjectId
 from pydantic import (
     BaseModel,
     Field,
 )
+from pydantic.dataclasses import dataclass
 
 
 class PyObjectId(ObjectId):
@@ -61,9 +62,15 @@ class ModelId(BaseModel):
 
 class DatabaseModel(ModelId):
     """Database model"""
+    @dataclass
+    class Index():
+        """Index class"""
+        field: str
+        attributes: dict[str, Any]
+
     def update(self):
         """Method to update model"""
 
     @classmethod
-    def create_indexes(cls, collection):
-        """Method to create indexes"""
+    def get_indexes(cls):
+        """Method to get indexes"""
