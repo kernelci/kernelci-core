@@ -39,7 +39,9 @@
               cat /etc/os-release
             - >-
               ./tast_parser.py
-              {{ tests|wordwrap(1, False, "\n              ") }}
+{%- for test in tests %}
+              {{ test }}
+{%- endfor %}
             - >-
               ./ssh_retry.sh
               -o StrictHostKeyChecking=no
