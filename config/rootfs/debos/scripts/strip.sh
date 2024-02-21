@@ -9,25 +9,12 @@ set -e
 rm -rf /etc/localtime
 cp /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
-EXTRA_PACKAGES=$(echo "${1}" | xargs -n1)
-EXTRA_TEMP_FILE=$(mktemp strip_extra_packages.XXXXXX)
-exec 3>"$EXTRA_TEMP_FILE"
-echo "$EXTRA_PACKAGES" | sort | uniq >&3
-
-UNNEEDED_PACKAGES="tzdata"
-UNNEEDED_TEMP_FILE=$(mktemp strip_unneeded_packages.XXXXXX)
-exec 4>"$UNNEEDED_TEMP_FILE"
-echo "$UNNEEDED_PACKAGES" | xargs -n1 | sort | uniq >&4
-
-PACKAGES_TO_REMOVE=$(comm  -23  "$UNNEEDED_TEMP_FILE" "$EXTRA_TEMP_FILE")
+PACKAGES_TO_REMOVE="tzdata"
 
 export DEBIAN_FRONTEND=noninteractive
 
 exec 3>&-
 exec 4>&-
-
-rm "$UNNEEDED_TEMP_FILE"
-rm "$EXTRA_TEMP_FILE"
 
 # Removing unused packages
 for PACKAGE in ${PACKAGES_TO_REMOVE}
