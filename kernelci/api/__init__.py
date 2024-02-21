@@ -71,21 +71,51 @@ class Base:
         return resp
 
     def _post(self, path, data=None, params=None, json_data=True):
+        """Issues an API POST request to the endpoint specified in <path>.
+
+        Arguments:
+          path: API endpoint
+          data: request payload. It can be passed as a dict by default
+              or as a string, which is assumed to be
+              x-www-form-urlencoded
+          params: additional parameters that will be passed to the
+              requests <post> call
+          json_data: True if the payload is a json definition, False for
+              any other type of payload
+
+        """
         url = self.make_url(path)
-        if json_data:
-            jdata = json.dumps(data)
-            resp = requests.post(
-                url, jdata, headers=self.data.headers,
-                params=params, timeout=self.data.timeout
-            )
-        else:
-            headers = self.data.headers.copy()
-            headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        if isinstance(data, str):
+            # If the payload is a string we pass it as it is to
+            # requests.post, but in this case we have to explicitly
+            # specify the Content-Type header
+            if json_data:
+                headers = self.data.headers | {
+                    'Content-Type': 'application/json'
+                }
+            else:
+                headers = self.data.headers | {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
             resp = requests.post(
                 url, data, headers=headers,
                 params=params, timeout=self.data.timeout
             )
-        resp.raise_for_status()
+        else:
+            # When passing a dict to requests.post, it will
+            # automatically encode it as a string if necessary and set
+            # the Content-Type header
+            if json_data:
+                resp = requests.post(
+                    url, json=data, headers=self.data.headers,
+                    params=params, timeout=self.data.timeout
+                )
+            else:
+                resp = requests.post(
+                    url, data, headers=self.data.headers,
+                    params=params, timeout=self.data.timeout
+                )
+            resp.raise_for_status()
         return resp
 
     def _put(self, path, data=None, params=None):
