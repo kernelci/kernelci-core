@@ -15,6 +15,8 @@
 from datetime import datetime, timedelta
 from typing import Any, Optional, Dict, List, ClassVar
 import enum
+from operator import attrgetter
+import json
 from bson import ObjectId
 from pydantic import (
     AnyHttpUrl,
@@ -476,6 +478,76 @@ class Regression(Node):
         'data.pass_node.timeout',
         'data.pass_node.holdoff',
     ]
+
+    @classmethod
+    def create_regression(cls, fail_node, pass_node, as_dict=False):
+        """Builds and returns a Regression object from two source nodes:
+        a failing and a passing node. These two nodes are assumed to be
+        from two different runs of the same test/build with the same
+        configuration. pass_node is the last instance of the test/build
+        that passed and fail_node is the first one that failed.
+
+        The returned Regression will be an in-memory python object not
+        backed up in the DB, which can then be handled and used in a
+        node submit request.
+
+        If 'as_dict' is True, the Regression is returned as a dict
+        rather than as a Regression object.
+
+        May raise a RuntimeError if any of the sanity checks fail.
+        """
+        # Sanity checks:
+        # - fail_node and pass_node must refer to two
+        #   different runs of the same test/build,
+        # - fail node must have run after pass_node
+        # - pass and fail nodes must have correct results (pass and
+        #   fail, respectively)
+        error_msg = ("Error creating regression for nodes "
+                     f"{pass_node.id} (last passed) and "
+                     f"{fail_node.id} (first failed). ")
+        cmp_fields = ['name',
+                      'group',
+                      'path',
+                      'data.kernel_revision',
+                      'data.arch',
+                      'data.defconfig',
+                      'data.compiler',
+                      'data.platform',]
+        for field in cmp_fields:
+            getter = attrgetter(field)
+            if getter(fail_node) != getter(pass_node):
+                raise RuntimeError(error_msg +
+                                   f"{field} is different in the fail node "
+                                   f"({getter(fail_node)} than in the pass "
+                                   f"node ({getter(pass_node)})")
+        if pass_node.created > fail_node.created:
+            raise RuntimeError(error_msg + "The fail node was created before "
+                               "the pass node")
+        if pass_node.result != 'pass':
+            raise RuntimeError(error_msg + "The pass node has a wrong result: "
+                               f"{pass_node.result}")
+        if fail_node.result != 'fail':
+            raise RuntimeError(error_msg + "The fail node has a wrong result: "
+                               f"{fail_node.result}")
+        # End of sanity checks
+        data_field = {
+            'arch': fail_node.data.arch,
+            'defconfig': fail_node.data.defconfig,
+            'compiler': fail_node.data.compiler,
+            'platform': fail_node.data.platform,
+            'failed_kernel_revision': fail_node.data.kernel_revision,
+            'fail_node': fail_node.id,
+            'pass_node': pass_node.id,
+        }
+        regression_obj = cls(name=fail_node.name,
+                             path=fail_node.path,
+                             group=fail_node.group,
+                             data=data_field,
+                             state=StateValues.DONE.value)
+        if as_dict:
+            regression_json = regression_obj.json(exclude_none=True)
+            return json.loads(regression_json)
+        return regression_obj
 
 
 class PublishEvent(BaseModel):
