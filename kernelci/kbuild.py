@@ -255,7 +255,7 @@ class KBuild():
         self.addcomment("Download tarball")
         self.addcmd("cd " + self._workspace)
         self.addcmd("wget -c -t 10 \"" + self._srctarball + "\" -O linux.tgz")
-        self.addcmd("tar -xzf linux.tgz -C " + self._srcdir + " --strip-components=1")  # noqa
+        self.addcmd("tar -xzf linux.tgz -C " + self._srcdir + " --strip-components=1")
 
     def addspacer(self):
         """ Add empty line, mostly for easier reading """
@@ -284,9 +284,9 @@ class KBuild():
         self.addcomment("Starting job " + jobname)
         self._steps.append(f'echo -----log:{jobname}-----')
         self._current_job = jobname
-        cmd = f'echo job:{jobname}=running >> {self._af_dir}/state.txt'  # noqa
+        cmd = f'echo job:{jobname}=running >> {self._af_dir}/state.txt'
         self._steps.append(cmd)
-        cmd = f'echo jobsts:{jobname}=$(date +%s) >> {self._af_dir}/state.txt'  # noqa
+        cmd = f'echo jobsts:{jobname}=$(date +%s) >> {self._af_dir}/state.txt'
         self._steps.append(cmd)
 
     def addcmd(self, cmd, critical=True):
@@ -495,7 +495,7 @@ class KBuild():
         # output to separate build_dtbs.log
         self.addcmd("make -j$(nproc) dtbs" + " 1> " +
                     self._af_dir + "/build_dtbs.log" +
-                    " 2> " + self._af_dir + "/build_dtbs_stderr.log", False)  # noqa
+                    " 2> " + self._af_dir + "/build_dtbs_stderr.log", False)
         self.addcmd("cd ..")
 
     def _package_kimage(self):
@@ -504,7 +504,7 @@ class KBuild():
         self.addcmd("cd " + self._srcdir)
         # TODO(nuclearcat): Not all images might be present
         for img in KERNEL_IMAGE_NAMES[self._arch]:
-            self.addcmd("cp arch/" + self._arch + "/boot/" + img + " ../artifacts", False)  # noqa
+            self.addcmd("cp arch/" + self._arch + "/boot/" + img + " ../artifacts", False)
             # add image to artifacts relative to artifacts dir
             self._artifacts.append(img)
         self.addcmd("cd ..")
@@ -514,7 +514,7 @@ class KBuild():
         self.startjob("package_modules")
         self.addcmd("cd " + self._srcdir)
         self.addcmd("make modules_install")
-        self.addcmd(f"tar -C _modules_ -cJf {self._af_dir}/modules.tar.xz .")  # noqa
+        self.addcmd(f"tar -C _modules_ -cJf {self._af_dir}/modules.tar.xz .")
         self.addcmd("cd ..")
         self.addcmd("rm -rf _modules_")
         # add modules to artifacts relative to artifacts dir
@@ -550,7 +550,8 @@ class KBuild():
     def serialize(self, filename):
         """ Serialize class to json """
         # TODO(nuclearcat): Implement to_json method?
-        data = json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)  # noqa
+        data = json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
         with open(filename, 'w') as f:
             f.write(data)
         print(f"Serialized to {filename}")
@@ -618,7 +619,8 @@ class KBuild():
         root_path = '-'.join([self._apijobname, self._node['id']])
         for artifact in self._artifacts:
             artifact_path = os.path.join(self._af_dir, artifact)
-            print(f"[_upload_artifacts] Uploading {artifact} to {root_path} artifact_path: {artifact_path}")  # noqa
+            print(f"[_upload_artifacts] Uploading {artifact} to {root_path} "
+                  f"artifact_path: {artifact_path}")
             stored_url = storage.upload_single(
                 (artifact_path, artifact), root_path
             )

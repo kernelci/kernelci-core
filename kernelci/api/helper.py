@@ -119,7 +119,7 @@ class APIHelper:
         # Test-specific fields inherited from parent node (kbuild or
         # test) if available
         if job_config.kind == 'test':
-            job_node['data']['kernel_type'] = input_node['data'].get('kernel_type')  # noqa
+            job_node['data']['kernel_type'] = input_node['data'].get('kernel_type')
             job_node['data']['arch'] = input_node['data'].get('arch')
             job_node['data']['defconfig'] = input_node['data'].get('defconfig')
             job_node['data']['compiler'] = input_node['data'].get('compiler')
