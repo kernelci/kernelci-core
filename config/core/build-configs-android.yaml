@@ -5,8 +5,8 @@ trees:
 
 
 android_variants: &android_variants
-  gcc-10:
-    build_environment: gcc-10
+  gcc-12:
+    build_environment: gcc-12
     architectures: &architectures
         arm: &arm_arch
           base_defconfig: 'multi_v7_defconfig'

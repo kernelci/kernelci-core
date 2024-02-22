@@ -9,10 +9,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ca-certificates
 
 # Prepare environment for building packages
-RUN sed -i -- 's/# deb-src/deb-src/g' /etc/apt/sources.list
-RUN echo "deb-src http://deb.debian.org/debian bullseye main non-free contrib" \
+#RUN sed -i -- 's/# deb-src/deb-src/g' /etc/apt/sources.list
+RUN echo "deb-src http://deb.debian.org/debian bookworm main non-free contrib" \
     >> /etc/apt/sources.list
-RUN echo "deb-src http://deb.debian.org/debian-security/ bullseye-security main contrib non-free" \
+RUN echo "deb-src http://deb.debian.org/debian-security/ bookworm-security main contrib non-free" \
     >> /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -21,30 +21,35 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     equivs \
     fakeroot
 
-WORKDIR /root/debs
+# Prepare kmod sources, patch, install dependencies, build
+RUN mkdir -p /root/patches
+# Workaround for apt-get source _apt permissions
+RUN chmod 777 /root/patches
+WORKDIR /root/patches
 
 # Get patch to enable compression
-ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
-kernelci.org/\
-config/docker/data/kmod_kci.patch \
+#ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
+#kernelci.org/\
+#config/docker/data/kmod_kci_bookworm.patch \
+#.
+ADD https://raw.githubusercontent.com/nuclearcat/kernelci-core/upgrade-bookworm-docker/config/docker/data/kmod_kci_bookworm.patch \
 .
 
-# Prepare kmod sources, patch, install dependencies, build
 RUN apt-get source kmod
-WORKDIR kmod-28
-RUN patch -p1 < ../kmod_kci.patch
+WORKDIR /root/patches/kmod-30+20221128
+RUN patch -p1 < ../kmod_kci_bookworm.patch
 RUN mk-build-deps -ir \
     -t "apt-get -o Debug::pkgProblemResolver=yes -y --no-install-recommends"
 RUN debuild -b -uc -us
 
-FROM debian:bullseye
+FROM debian:bookworm
 MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 ENV DEBIAN_FRONTEND=noninteractive
 {%- endblock %}
 
 {%- block packages %}
 # Fetch kmod deb package from previous stage
-COPY --from=0 /root/debs/*.deb /root/
+COPY --from=0 /root/patches/*.deb /root/
 RUN dpkg -i /root/*.deb && rm /root/*.deb
 
 # Host build tools
@@ -66,7 +71,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     lz4 \
     lzop \
     make \
-    python \
     python3 \
     rdfind \
     rsync \
