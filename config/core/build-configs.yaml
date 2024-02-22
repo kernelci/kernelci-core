@@ -770,7 +770,7 @@ fragments:
 
 build_environments:
 
-  gcc-10:
+  gcc-12:
     cc: gcc
     cc_version: 10
     arch_params: &gcc_arch_params
@@ -793,43 +793,20 @@ build_environments:
         name: 'riscv64'
         cross_compile: 'riscv64-linux-gnu-'
 
-  clang-11:
+  clang-15:
     cc: clang
-    cc_version: 11
-    arch_params: &clang_11_arch_params
+    cc_version: 15
+    arch_params: &clang_15_arch_params
       arm: *arm_params
       arm64: *arm64_params
       i386: *i386_params
       mips: *mips_params
       x86_64: *x86_64_params
-
-  clang-12:
-    cc: clang
-    cc_version: 12
-    arch_params: &clang_12_arch_params
-      <<: *clang_11_arch_params
       riscv:
         <<: *riscv_params
         opts:
           LLVM_IAS: '1'
           LD: 'riscv64-linux-gnu-ld'
-
-  clang-13:
-    cc: clang
-    cc_version: 13
-    arch_params: *clang_12_arch_params
-
-  clang-14:
-    cc: clang
-    cc_version: 14
-    arch_params: *clang_12_arch_params
-
-  clang-15:
-    cc: clang
-    cc_version: 15
-    arch_params: &clang_15_arch_params
-      <<: *clang_11_arch_params
-      riscv: *riscv_params
 
   clang-16:
     cc: clang
@@ -856,8 +833,8 @@ build_environments:
 # Default config with full build coverage
 build_configs_defaults:
   variants:
-    gcc-10: &default_gcc-10
-      build_environment: gcc-10
+    gcc-12: &default_gcc-12
+      build_environment: gcc-12
 
       fragments: &default_fragments
         - 'debug'
@@ -1020,14 +997,14 @@ arch_defconfigs: &arch_defconfigs
 
 # Small subset of builds, only defconfigs
 minimal_variants: &minimal_variants
-  gcc-10: &gcc_10_minimal
-    build_environment: gcc-10
+  gcc-12: &gcc_12_minimal
+    build_environment: gcc-12
     architectures: *arch_defconfigs
 
 # Medium subset of builds
 medium_variants: &medium_variants
-  gcc-10:
-    build_environment: gcc-10
+  gcc-12:
+    build_environment: gcc-12
     architectures:
       x86_64: *x86_64_arch
       i386: *i386_arch
@@ -1036,8 +1013,8 @@ medium_variants: &medium_variants
 
 
 preempt_rt_variants: &preempt_rt_variants
-  gcc-10:
-    build_environment: gcc-10
+  gcc-12:
+    build_environment: gcc-12
     fragments: [preempt_rt]
     architectures:
       arm:
@@ -1059,8 +1036,8 @@ preempt_rt_variants: &preempt_rt_variants
 
 
 chrome_platform_variants: &chrome_platform_variants
-  gcc-10:
-    build_environment: gcc-10
+  gcc-12:
+    build_environment: gcc-12
     architectures:
       arm: *arm_defconfig
       arm64:
@@ -1102,8 +1079,8 @@ build_configs:
     tree: arm64
     branch: 'for-kernelci'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           arm64:
             base_defconfig: 'defconfig'
@@ -1121,8 +1098,8 @@ build_configs:
     tree: broonie-misc
     branch: 'for-kernelci'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           arm: {base_defconfig: 'multi_v7_defconfig'}
           arm64:
@@ -1187,8 +1164,8 @@ build_configs:
     tree: efi
     branch: 'next'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
@@ -1199,8 +1176,8 @@ build_configs:
     tree: efi
     branch: 'urgent'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
@@ -1226,8 +1203,8 @@ build_configs:
     tree: kselftest
     branch: 'fixes'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         fragments: [kselftest]
         architectures:
           arm:
@@ -1287,8 +1264,8 @@ build_configs:
     tree: mainline
     branch: 'master'
     variants:
-      gcc-10:
-        <<: *default_gcc-10
+      gcc-12:
+        <<: *default_gcc-12
         architectures:
           <<: *default_architectures
           arm64:
@@ -1300,8 +1277,8 @@ build_configs:
             fragments: [arm64-chromebook]
 
       # Minimum version
-      clang-11:
-        build_environment: clang-11
+      clang-15:
+        build_environment: clang-15
         architectures:
           arm64:
             extra_configs:
@@ -1352,8 +1329,8 @@ build_configs:
 #    tree: media
 #    branch: 'master'
 #    variants:
-#      gcc-10:
-#        build_environment: gcc-10
+#      gcc-12:
+#        build_environment: gcc-12
 #        fragments: [virtualvideo]
 #        architectures:
 #          i386: *i386_arch
@@ -1372,8 +1349,8 @@ build_configs:
     tree: mediatek
     branch: 'for-next'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           arm64:
             <<: *arm64_defconfig
@@ -1391,8 +1368,8 @@ build_configs:
     tree: next
     branch: 'master'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         fragments: *default_fragments
         architectures:
           i386: *i386_arch
@@ -1486,8 +1463,8 @@ build_configs:
     tree: riscv
     branch: 'fixes'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           riscv:
             base_defconfig: 'defconfig'
