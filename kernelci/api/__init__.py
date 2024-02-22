@@ -24,7 +24,7 @@ class Data:
     def __init__(self, config: kernelci.config.api.API, token: str):
         self._config = config
         self._token = token
-        self._headers = {'Content-Type': 'application/json'}
+        self._headers = {}
         if self._token:
             self._headers['Authorization'] = f'Bearer {self._token}'
         self._timeout = float(config.timeout)
@@ -111,11 +111,8 @@ class Base:
                     params=params, timeout=self.data.timeout
                 )
             else:
-                headers = self.data.headers | {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
                 resp = requests.post(
-                    url, data, headers=headers,
+                    url, data, headers=self.data.headers,
                     params=params, timeout=self.data.timeout
                 )
             resp.raise_for_status()
@@ -123,9 +120,8 @@ class Base:
 
     def _put(self, path, data=None, params=None):
         url = self.make_url(path)
-        jdata = json.dumps(data)
         resp = requests.put(
-            url, jdata, headers=self.data.headers,
+            url, json=data, headers=self.data.headers,
             params=params, timeout=self.data.timeout
         )
         resp.raise_for_status()
@@ -133,9 +129,8 @@ class Base:
 
     def _patch(self, path, data=None, params=None):
         url = self.make_url(path)
-        jdata = json.dumps(data)
         resp = requests.patch(
-            url, jdata, headers=self.data.headers,
+            url, json=data, headers=self.data.headers,
             params=params, timeout=self.data.timeout
         )
         resp.raise_for_status()
