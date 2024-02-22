@@ -1,6 +1,6 @@
 # Install dependencies for KUnit
-RUN apt-get update && apt-get install --no-install-recommends -y g++-10
-RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 500
+RUN apt-get update && apt-get install --no-install-recommends -y g++-12
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 500
 RUN apt-get update && apt-get install --no-install-recommends -y python3
 
 # Install minimal QEMU packages to run KUnit on x86

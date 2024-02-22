@@ -17,8 +17,8 @@ trees:
 
 # Build fewer kernel configs with stable branches
 stable_variants: &stable_variants
-  gcc-10: &stable_gcc_10
-    build_environment: gcc-10
+  gcc-12: &stable_gcc_12
+    build_environment: gcc-12
     fragments: [tinyconfig]
     architectures: &stable_architectures
       arc:
@@ -78,8 +78,8 @@ stable_variants: &stable_variants
 
 
 stable_variants_kselftest: &stable_variants_kselftest
-  gcc-10:
-    <<: *stable_gcc_10
+  gcc-12:
+    <<: *stable_gcc_12
     architectures:
       <<: *stable_architectures
       arm:

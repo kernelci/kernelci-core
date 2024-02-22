@@ -7,11 +7,11 @@
 {% extends 'base/debian.jinja2' %}
 
 {% block packages %}
-RUN echo deb http://deb.debian.org/debian bullseye-backports main \
+RUN echo deb http://deb.debian.org/debian bookworm-backports main \
     > /etc/apt/sources.list.d/backports.list
 
 RUN apt-get update && \
-    apt-get install -t bullseye-backports --yes --no-install-recommends \
+    apt-get install -t bookworm-backports --yes --no-install-recommends \
         qemu-system \
         qemu-system-arm \
         qemu-system-mips \
