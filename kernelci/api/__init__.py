@@ -111,8 +111,11 @@ class Base:
                     params=params, timeout=self.data.timeout
                 )
             else:
+                headers = self.data.headers | {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
                 resp = requests.post(
-                    url, data, headers=self.data.headers,
+                    url, data, headers=headers,
                     params=params, timeout=self.data.timeout
                 )
             resp.raise_for_status()
