@@ -157,17 +157,32 @@ class APIHelper:
         except requests.exceptions.HTTPError as error:
             raise RuntimeError(json.loads(error.response.text)) from error
 
-    def submit_regression(self, regression):
-        """Post a regression object
 
-        [TODO] Leave this function in place in case we'll need any other
-        processing or formatting before submitting the regression node
+    def submit_regression(self, fail_node: dict, pass_node: dict):
+        """Creates and submits a regression object from two existing
+        nodes (test or kbuilds) passed as parameters:
+
+        Arguments:
+          fail_node: dict describing the node that failed and triggered
+              the regression creation.
+          pass_node: dict describing the previous passing run of the same
+              test/build
+
+        General use case: failure detected, the fail_node and pass_node
+        are retrieved from the API and passed to this function to define
+        and submit a regression.
+
+        Returns the API request response.
         """
-        # pylint: disable=protected-access
+        fail_node_obj = self.get_node_obj(fail_node)
+        pass_node_obj = self.get_node_obj(pass_node)
+        regression_dict = models.Regression.create_regression(
+            fail_node_obj, pass_node_obj, as_dict=True)
         try:
-            return self.api._post('node', regression)
+            return self.api.node.add(regression_dict)
         except requests.exceptions.HTTPError as error:
-            raise RuntimeError(error.response.text) from error
+            raise RuntimeError(json.loads(error.response.text)) from error
+
 
     def _prepare_results(self, results, parent, base):
         node = results['node'].copy()
