@@ -7,7 +7,7 @@ RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc \
     | gpg --dearmor \
     | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
 
-RUN AZ_REPO=bullseye && \
+RUN AZ_REPO=bookworm && \
     echo "\
 deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ \
 $AZ_REPO main" \

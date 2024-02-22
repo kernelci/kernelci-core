@@ -3,10 +3,10 @@
 {% block packages %}
 {{ super() }}
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc-10 \
-    gcc-10-plugin-dev
+    gcc-12 \
+    gcc-12-plugin-dev
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 500
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 500
 
 # 32-bit support for host tools and kselftest
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -16,9 +16,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # GCC i386.h header fix for the Debian package
 RUN apt-get update && apt-get install --no-install-recommends -y curl patch
-RUN cd / && \
-    curl -s https://raw.githubusercontent.com/kernelci/kernelci-core/\
-kernelci.org/\
-config/docker/data/gcc-header-fix.patch \
-    | patch -p1
-{%- endblock %}
+#RUN cd / && \
+#    curl -s https://raw.githubusercontent.com/kernelci/kernelci-core/\
+#kernelci.org/\
+#config/docker/data/gcc-header-fix.patch \
+#    | patch -p1
+#{%- endblock %}

@@ -1,10 +1,11 @@
 {%- if is_debian -%}
 # Install pip3 on Debian
 RUN apt-get update && apt-get install --no-install-recommends -y python3-pip
-RUN pip3 install --upgrade pip
 {%- endif %}
 
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 # Install kernelci Python package from kernelci-core
+USER root
 ARG core_url=https://github.com/kernelci/kernelci-core.git
 ARG core_rev=main
 RUN apt-get update && apt-get install --no-install-recommends -y git
@@ -12,7 +13,7 @@ RUN git clone --depth=1 $core_url /tmp/kernelci-core
 WORKDIR /tmp/kernelci-core
 RUN git fetch origin $core_rev
 RUN git checkout FETCH_HEAD
-RUN python3 -m pip install '.[dev]'
+RUN python3 -m pip install .[dev]
 RUN cp -R config /etc/kernelci/
 WORKDIR /root
 RUN rm -rf /tmp/kernelci-core

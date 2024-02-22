@@ -9,6 +9,7 @@
 {% block packages %}
 
 {% include 'fragment/coccinelle.jinja2' %}
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     git \
@@ -16,5 +17,5 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python3-setuptools \
     python3-wheel
 
-RUN pip3 install --system git+https://github.com/evdenis/cvehound.git@master
+RUN pip3 install git+https://github.com/evdenis/cvehound.git@master
 {%- endblock %}
