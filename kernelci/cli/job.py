@@ -28,12 +28,17 @@ def kci_job():
 @kci_job.command(secrets=True)
 @click.argument('name')
 @click.argument('input_node_id')
+@click.option(
+    '--platform',
+    help="Name of the platform to create the node for"
+)
+@Args.runtime
 @Args.config
 @Args.api
 @Args.indent
 @catch_error
-def new(name, input_node_id, config,  # pylint: disable=too-many-arguments
-        api, indent, secrets):
+def new(name, input_node_id, platform,  # pylint: disable=too-many-arguments
+        runtime, config, api, indent, secrets):
     """Create a new job node"""
     configs = kernelci.config.load(config)
     helper = get_api_helper(configs, api, secrets)
@@ -41,14 +46,25 @@ def new(name, input_node_id, config,  # pylint: disable=too-many-arguments
     if not input_node:
         raise click.ClickException("Node not found with the provided ID")
     job_config = configs['jobs'][name]
-    job_node = helper.create_job_node(job_config, input_node)
+    platform_config = None
+    if platform:
+        if platform not in configs['platforms']:
+            raise click.ClickException(f"Invalid platform {platform}")
+        platform_config = configs['platforms'][platform]
+    if runtime:
+        if runtime not in configs['runtimes']:
+            raise click.ClickException(f"Invalid runtime {runtime}")
+        runtime = kernelci.runtime.get_runtime(
+            configs['runtimes'][runtime], token=secrets.api.runtime_token)
+    job_node = helper.create_job_node(job_config, input_node,
+                                      platform=platform_config, runtime=runtime)
     echo_json(job_node, indent)
 
 
 @kci_job.command(secrets=True)
 @click.argument('node-id')
 @click.option(
-    '--platform', required=True,
+    '--platform',
     help="Name of the platform to run the job"
 )
 @click.option(
@@ -67,6 +83,12 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
     api = get_api(configs, api, secrets)
     job_node = api.node.get(node_id)
     job = kernelci.runtime.Job(job_node, configs['jobs'][job_node['name']])
+    if platform is None:
+        if 'platform' not in job_node['data']:
+            raise click.ClickException(
+                "Platform absent from input node data, please provide --platform argument"
+            )
+        platform = job_node['data']['platform']
     job.platform_config = configs['platforms'][platform]
     job.storage_config = (
         configs['storage'][storage]
