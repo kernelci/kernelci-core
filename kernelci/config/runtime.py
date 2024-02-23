@@ -13,7 +13,7 @@ class Runtime(YAMLConfigObject):
 
     yaml_tag = '!Runtime'
 
-    def __init__(self, name, lab_type, filters=None):
+    def __init__(self, name, lab_type, filters=None, rules=None):
         """A runtime environment configuration object
 
         *name* is the name used to refer to the lab in meta-data.
@@ -24,6 +24,7 @@ class Runtime(YAMLConfigObject):
         self._name = name
         self._lab_type = lab_type
         self._filters = filters or []
+        self._rules = rules
 
     @property
     def name(self):
@@ -35,10 +36,15 @@ class Runtime(YAMLConfigObject):
         """Runtime environment name"""
         return self._lab_type
 
+    @property
+    def rules(self):
+        """Kernel requirements (tree, branch, version...)"""
+        return self._rules
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'lab_type'})
+        attrs.update({'lab_type', 'rules'})
         return attrs
 
     @classmethod
