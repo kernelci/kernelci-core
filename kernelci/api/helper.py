@@ -157,7 +157,6 @@ class APIHelper:
         except requests.exceptions.HTTPError as error:
             raise RuntimeError(json.loads(error.response.text)) from error
 
-
     def submit_regression(self, fail_node: dict, pass_node: dict):
         """Creates and submits a regression object from two existing
         nodes (test or kbuilds) passed as parameters:
@@ -182,7 +181,6 @@ class APIHelper:
             return self.api.node.add(regression_dict)
         except requests.exceptions.HTTPError as error:
             raise RuntimeError(json.loads(error.response.text)) from error
-
 
     def _prepare_results(self, results, parent, base):
         node = results['node'].copy()

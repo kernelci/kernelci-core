@@ -81,31 +81,21 @@ def test_get_node_from_event(get_api_config, mock_api_get_node_from_id):
         }
 
 
-def test_submit_regression(get_api_config, mock_api_post_regression):
-    """Test method to submit regression object to API"""
+def test_submit_regression(get_api_config, mock_api_node_add):
+    """Tests the regression generation and submission done by
+    helper.submit_regression()
+    """
     for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         resp = helper.submit_regression(
-            regression=APIHelperTestData().regression_node
+            APIHelperTestData().fail_node,
+            APIHelperTestData().pass_node
         )
         assert resp.status_code == 200
-        assert resp.json().keys() == {
-            'id',
-            'artifacts',
-            'created',
-            'data',
-            'group',
-            'holdoff',
-            'kind',
-            'name',
-            'path',
-            'parent',
-            'result',
-            'state',
-            'timeout',
-            'updated',
-        }
+        created_regression = resp.json()
+        for field, expected_val in APIHelperTestData().expected_regression_node.items():
+            assert created_regression[field] == expected_val
 
 
 def test_pubsub_event_filter_positive(get_api_config, mock_api_subscribe):
