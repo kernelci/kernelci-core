@@ -12,7 +12,7 @@ RUN git clone --depth=1 $core_url /tmp/kernelci-core
 WORKDIR /tmp/kernelci-core
 RUN git fetch origin $core_rev
 RUN git checkout FETCH_HEAD
-RUN python3 -m pip install .
+RUN python3 -m pip install '.[dev]'
 RUN cp -R config /etc/kernelci/
 WORKDIR /root
 RUN rm -rf /tmp/kernelci-core
