@@ -187,7 +187,9 @@ class LAVA(Runtime):
 
     def generate(self, job, params):
         template = self._get_template(job.config)
-        return template.render(params)
+        rendered = template.render(params)
+        # yaml round-trip to process e.g. multi-line commands
+        return yaml.dump(yaml.load(rendered, Loader=yaml.CLoader))
 
     def submit(self, job_path):
         with open(job_path, 'r', encoding='utf-8') as job_file:
@@ -224,7 +226,7 @@ class LAVA(Runtime):
     def _submit(self, job):
         jobs_url = urljoin(self._server.url, 'jobs/')
         job_data = {
-            'definition': yaml.dump(yaml.load(job, Loader=yaml.CLoader)),
+            'definition': job,
         }
         resp = self._server.session.post(
             jobs_url, json=job_data, allow_redirects=False
