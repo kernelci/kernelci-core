@@ -16,8 +16,8 @@ class Platform(YAMLConfigObject):
 
     # pylint: disable=too-many-arguments
     def __init__(self, name, arch="x86_64", base_name=None,
-                 boot_method="grub", context=None, dtb=None, mach="x86",
-                 params=None):
+                 boot_method="grub", context=None, dtb=None,
+                 mach="x86", params=None, rules=None):
         self._name = name
         self._arch = arch
         self._base_name = base_name
@@ -26,6 +26,7 @@ class Platform(YAMLConfigObject):
         self._dtb = dtb
         self._mach = mach
         self._params = params
+        self._rules = rules
 
     @property
     def name(self):
@@ -67,6 +68,11 @@ class Platform(YAMLConfigObject):
         """Arbitrary parameters passed to the template"""
         return dict(self._params) if self._params else None
 
+    @property
+    def rules(self):
+        """Kernel requirements (tree, branch, version...)"""
+        return self._rules
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
@@ -78,6 +84,7 @@ class Platform(YAMLConfigObject):
             'dtb',
             'mach',
             'params',
+            'rules',
         })
         return attrs
 

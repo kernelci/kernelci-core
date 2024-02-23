@@ -14,12 +14,13 @@ class Job(YAMLConfigObject):
     yaml_tag = '!Job'
 
     # pylint: disable=too-many-arguments
-    def __init__(self, name, template, kind="node", image=None, params=None):
+    def __init__(self, name, template, kind="node", image=None, params=None, rules=None):
         self._name = name
         self._template = template
         self._kind = kind
         self._image = image
         self._params = params or {}
+        self._rules = rules
 
     @property
     def name(self):
@@ -46,10 +47,15 @@ class Job(YAMLConfigObject):
         """Arbitrary parameters passed to the template"""
         return dict(self._params)
 
+    @property
+    def rules(self):
+        """Kernel requirements (tree, branch, version...)"""
+        return self._rules
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'template', 'kind', 'image', 'params'})
+        attrs.update({'template', 'kind', 'image', 'params', 'rules'})
         return attrs
 
 

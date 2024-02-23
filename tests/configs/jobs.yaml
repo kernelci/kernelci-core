@@ -6,21 +6,25 @@ jobs:
     image: 'gcc-10:{arch}{fragments}'
     params:
       config: x86_64_defconfig
+    rules:
 
   kunit: &kunit-job
     template: 'kunit.jinja2'
     kind: 'test'
     image: 'gcc-10:x86-kunit-kernelci'
     params: {}
+    rules:
 
   kunit-x86_64:
     <<: *kunit-job
     image: 'kernelci/staging-gcc-10:x86-kunit-qemu-kernelci'
     params:
       arch: x86_64
+    rules:
 
   kver:
     template: 'kver.jinja2'
     kind: 'test'
     image: 'kernelci'
     params: {}
+    rules:

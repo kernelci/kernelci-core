@@ -16,6 +16,7 @@ runtimes:
             - kselftest
             - preempt-rt
             - ltp
+    rules:
 
   lab-broonie:
     lab_type: legacy.lava_xmlrpc
@@ -26,6 +27,7 @@ runtimes:
       days: 1
     filters:
       - blocklist: {tree: [android]}
+    rules:
 
   lab-collabora-staging:
     lab_type: legacy.lava_rest
@@ -36,18 +38,21 @@ runtimes:
     filters:
       - blocklist:
           tree: [android]
+    rules:
 
   lab-min-12-max-40:
     lab_type: legacy.lava_xmlrpc
     url: 'https://fake.kernelci.org/RPC2/'
     priority_min: 12
     priority_max: 40
+    rules:
 
   lab-min-12-max-40-new-runtime:
     lab_type: lava
     url: 'https://fake.kernelci.org/RPC2/'
     priority_min: 12
     priority_max: 40
+    rules:
 
 
 file_system_types:

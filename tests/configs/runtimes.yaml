@@ -8,11 +8,13 @@ runtimes:
     timeout: 123
     volumes:
       - 'data:/home/kernelci/data'
+    rules:
 
   k8s-gke-eu-west4:
     lab_type: kubernetes
     filters: []
     context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
+    rules:
 
   lab-baylibre:
     lab_type: legacy.lava_xmlrpc
@@ -34,6 +36,7 @@ runtimes:
             - kselftest
             - preempt-rt
             - ltp
+    rules:
 
   lab-collabora-staging:
     lab_type: legacy.lava_rest
@@ -50,7 +53,9 @@ runtimes:
     filters:
       - blocklist:
           tree: [android]
+    rules:
 
   shell:
     lab_type: shell
     filters: []
+    rules:
