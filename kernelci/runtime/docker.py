@@ -80,12 +80,19 @@ class Docker(Runtime):
         print(f"Pulling image {image}")
         self._client.images.pull(*image.split(':'))
         print("Starting container")
+        # add also hostname mapping as in docker-compose
+        # extra_hosts:
+        #   - "host.docker.internal:host-gateway"
+        docker_hosts = {
+            "host.docker.internal": "host-gateway"
+        }
         return self._client.containers.run(
             meta['image'],
             volumes=self.config.volumes,
             user=self.config.user,
             command=os.path.join('/home/kernelci', job_path),
             environment=self._env,
+            extra_hosts=docker_hosts,
             detach=True
         )
 
