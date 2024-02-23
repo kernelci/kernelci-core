@@ -58,7 +58,8 @@ def new(name, input_node_id, platform,  # pylint: disable=too-many-arguments
             configs['runtimes'][runtime], token=secrets.api.runtime_token)
     job_node = helper.create_job_node(job_config, input_node,
                                       platform=platform_config, runtime=runtime)
-    echo_json(job_node, indent)
+    if job_node:
+        echo_json(job_node, indent)
 
 
 @kci_job.command(secrets=True)
