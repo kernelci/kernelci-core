@@ -84,6 +84,8 @@ ARTIFACT_NAMES = {
     r'build_modules_stderr\.log': 'build_modules_errors',
     r'build_dtbs\.log': 'build_dtbs_stdout',
     r'build_dtbs_stderr\.log': 'build_dtbs_errors',
+    r'build_kselftest\.log': 'build_kselftest_stdout',
+    r'build_kselftest_stderr\.log': 'build_kselftest_errors',
     r'fragment/(\d)\.config': 'fragment\\1',
     r'metadata\.json': 'metadata',
 }
@@ -257,6 +259,8 @@ class KBuild():
         self._artifacts.append("build_kimage_stderr.log")
         self._artifacts.append("build_modules.log")
         self._artifacts.append("build_modules_stderr.log")
+        self._artifacts.append("build_kselftest.log")
+        self._artifacts.append("build_kselftest_stderr.log")
         self._artifacts.append("metadata.json")
         # download tarball
         self.addcomment("Download tarball")
@@ -466,10 +470,12 @@ class KBuild():
         self._fetch_firmware()
         self._build_kernel()
         self._build_modules()
+        self._build_kselftest()
         # TODO: verify if OF_FLATTREE is set
         self._build_dtbs()
         self._package_kimage()
         self._package_modules()
+        self._package_kselftest()
         # TODO: verify if OF_FLATTREE is set
         self._package_dtbs()
         self._write_metadata()
@@ -519,6 +525,16 @@ class KBuild():
                     " 2> " + self._af_dir + "/build_dtbs_stderr.log", False)
         self.addcmd("cd ..")
 
+    def _build_kselftest(self):
+        """ Add kselftest build steps """
+        self.startjob("build_kselftest")
+        self.addcmd("cd " + self._srcdir)
+        # output to separate build_kselftest.log
+        self.addcmd("make -j$(nproc) kselftest-gen_tar" + " 1> " +
+                    self._af_dir + "/build_kselftest.log" +
+                    " 2> " + self._af_dir + "/build_kselftest_stderr.log")
+        self.addcmd("cd ..")
+
     def _package_kimage(self):
         """ Add kernel image packaging steps """
         self.startjob("package_kimage")
@@ -540,6 +556,14 @@ class KBuild():
         self.addcmd("rm -rf _modules_")
         # add modules to artifacts relative to artifacts dir
         self._artifacts.append("modules.tar.xz")
+
+    def _package_kselftest(self):
+        """ Add kselftest packagin steps """
+        self.startjob("package_kselftest")
+        self.addcmd(f"cp {self._srcdir}/tools/testing/selftests/kselftest_install/" +
+                    "kselftest-packages/kselftest.tar.gz " +
+                    f"{self._af_dir}/")
+        self._artifacts.append("kselftest.tar.gz")
 
     def _package_dtbs(self):
         """ Add kernel dtbs packaging steps """
