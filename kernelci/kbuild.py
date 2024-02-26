@@ -9,11 +9,19 @@ Roadmap:
 - correct build status - fail/pass/incomplete
 - Code deuglification
 - Reuse API class/functions and other code from KernelCI
-- Add support for multiple CPU architectures (arm64, arm, mips, etc)
 - Add support for multiple compilers (clang)
 - Implement 3-stage build process
   (fetch-prepare, build, package) with 3 containers
   (kernelci, compiler-specific, kernelci)
+
+Available kbuild parameters:
+- arch: architecture
+- compiler: compiler
+- defconfig: defconfig
+- fragments: list of config fragments
+- cross_compile: cross compile prefix
+- cross_compile_compat: cross compile compat prefix
+- dtbs_check: run "make dtbs_check" ONLY, it is actually a separate test
 """
 
 import os
@@ -133,6 +141,10 @@ class KBuild():
                 self._cross_compile_compat = params['cross_compile_compat']
             else:
                 self._cross_compile_compat = None
+            if 'dtbs_check' in params:
+                self._dtbs_check = params['dtbs_check']
+            else:
+                self._dtbs_check = False
             self._apijobname = jobname
             self._steps = []
             self._artifacts = []
@@ -185,6 +197,7 @@ class KBuild():
                 yaml.safe_load(self._api_yaml), name='api'
             )
             self._full_artifacts = jsonobj['full_artifacts']
+            self._dtbs_check = jsonobj['dtbs_check']
             return
         raise ValueError("No valid arguments provided")
 
@@ -271,12 +284,18 @@ class KBuild():
         # same time add tail and fork, so i see build.log in real time
         # but keep pid, so i can kill it later
         self._artifacts.append("build.log")
-        self._artifacts.append("build_kimage.log")
-        self._artifacts.append("build_kimage_stderr.log")
-        self._artifacts.append("build_modules.log")
-        self._artifacts.append("build_modules_stderr.log")
-        self._artifacts.append("build_kselftest.log")
-        self._artifacts.append("build_kselftest_stderr.log")
+        if not self._dtbs_check:
+            self._artifacts.append("build_kimage.log")
+            self._artifacts.append("build_kimage_stderr.log")
+            self._artifacts.append("build_modules.log")
+            self._artifacts.append("build_modules_stderr.log")
+            self._artifacts.append("build_kselftest.log")
+            self._artifacts.append("build_kselftest_stderr.log")
+            self._artifacts.append("build_dtbs.log")
+            self._artifacts.append("build_dtbs_stderr.log")
+        else:
+            self._artifacts.append("build_dtbs_check.log")
+            self._artifacts.append("build_dtbs_check_stderr.log")
         self._artifacts.append("metadata.json")
         # download tarball
         self.addcomment("Download tarball")
@@ -481,22 +500,23 @@ class KBuild():
         print("Generating shell script")
         fragnum = self._parse_fragments(firmware=True)
         self._merge_frags(fragnum)
-        # TODO: verify if CONFIG_EXTRA_FIRMWARE have any files
-        # We can check that if fragments have CONFIG_EXTRA_FIRMWARE
-        self._fetch_firmware()
-        self._build_kernel()
-        self._build_modules()
-        self._build_kselftest()
-        # TODO: verify if OF_FLATTREE is set
-        self._build_dtbs()
-        self._package_kimage()
-        self._package_modules()
-        self._package_kselftest()
-        # TODO: verify if OF_FLATTREE is set
-        self._package_dtbs()
+        if not self._dtbs_check:
+            # TODO: verify if CONFIG_EXTRA_FIRMWARE have any files
+            # We can check that if fragments have CONFIG_EXTRA_FIRMWARE
+            self._fetch_firmware()
+            self._build_kernel()
+            self._build_modules()
+            self._build_kselftest()
+            # TODO: verify if OF_FLATTREE is set
+            self._build_dtbs()
+            self._package_kimage()
+            self._package_modules()
+            self._package_kselftest()
+            # TODO: verify if OF_FLATTREE is set
+            self._package_dtbs()
+        else:
+            self._build_dtbs_check()
         self._write_metadata()
-        # dtb
-
         # terminate all active jobs
         self.startjob(None)
         # kill tail
@@ -549,6 +569,15 @@ class KBuild():
         self.addcmd("make -j$(nproc) kselftest-gen_tar" + " 1> " +
                     self._af_dir + "/build_kselftest.log" +
                     " 2> " + self._af_dir + "/build_kselftest_stderr.log")
+
+    def _build_dtbs_check(self):
+        """ Check if dtbs are present """
+        self.startjob("build_dtbs_check")
+        self.addcmd("cd " + self._srcdir)
+        self.addcmd("make -j$(nproc) dtbs_check" + " --output-sync 1> " +
+                    self._af_dir + "/build_dtbs_check.log" +
+                    " 2> " + self._af_dir + "/build_dtbs_check_stderr.log" +
+                    " && echo DTBS_CHECK_OK || echo DTBS_CHECK_FAILED $?", False)
         self.addcmd("cd ..")
 
     def _package_kimage(self):
@@ -777,6 +806,23 @@ class KBuild():
             af_uri = {k: v for k, v in af_uri.items()
                       if not k.startswith('dtbs/')}
 
+        # if this is dtbs_check and it ran ok, we need to change job_result
+        # to actual result of dtbs_check
+        if self._dtbs_check and job_result == 'pass':
+            # open build.log and search for DTBS_CHECK_FAILED or DTBS_CHECK_OK
+            with open(os.path.join(self._af_dir, "build.log"), 'r') as f:
+                log = f.read()
+                if "DTBS_CHECK_FAILED" in log:
+                    print("[_submit] DTBS_CHECK_FAILED in build.log")
+                    job_result = 'fail'
+                elif "DTBS_CHECK_OK" in log:
+                    print("[_submit] DTBS_CHECK_OK in build.log")
+                    job_result = 'pass'
+                # this is just for testing child nodes
+                else:
+                    print("[_submit] No DTBS_CHECK in build.log")
+                    job_result = 'skip'
+
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
         results = {
@@ -786,8 +832,9 @@ class KBuild():
                 'state': 'done',
                 'artifacts': af_uri,
             },
-            'child_nodes': [],
+            'child_nodes': []
         }
+
         node = self._node.copy()
         results['node']['data'] = node['data']
         results['node']['data']['arch'] = self._arch
@@ -795,8 +842,7 @@ class KBuild():
         results['node']['data']['defconfig'] = self._defconfig
         results['node']['data']['fragments'] = self._fragments
         results['node']['data']['config_full'] = self._config_full
-        node.update(results['node'])
-        print(json.dumps(node, indent=2))
-        api.node.update(node)
-        print(f"[_submit] Results submitted to API, node: {node['id']}")
+        api_helper = kernelci.api.helper.APIHelper(api)
+        api_helper.submit_results(results, node)
+        print(f"[_submit] submit_results to API, node: {node['id']}")
         return results
