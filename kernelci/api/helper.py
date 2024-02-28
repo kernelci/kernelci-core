@@ -231,7 +231,13 @@ class APIHelper:
         parent = self.api.node.get(root['parent'])
         base = {
             'data': {
-                'kernel_revision': root['data']['kernel_revision'],
+                'kernel_revision': root['data'].get('kernel_revision'),
+                'kernel_type': root['data'].get('kernel_type'),
+                'arch': root['data'].get('arch'),
+                'defconfig': root['data'].get('defconfig'),
+                'compiler': root['data'].get('compiler'),
+                'platform': root['data'].get('platform'),
+                'runtime': root['data'].get('runtime'),
             },
             'group': root['name'],
             'state': 'done',
