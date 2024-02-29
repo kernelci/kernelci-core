@@ -18,12 +18,10 @@
       from: git
       revision: kernelci.org
       path: automated/linux/kselftest/kselftest.yaml
-      name: {{ plan }}
+      name: '{{ node.name }}'
       parameters:
-        TESTPROG_URL: {{ kselftests_url }}
+        TESTPROG_URL: '{{ node.artifacts.kselftest_tar_gz }}'
         SKIPFILE: /dev/null
-        TST_CMDFILES: {{ kselftest_collections }}
-        TST_CASENAME: {{ kselftest_tests }}
-        BOARD: {{ device_type }}
-        BRANCH: {{ tree }}
+        TST_CMDFILES: '{{ collections }}'
+        TST_CASENAME: '{{ tests }}'
         SKIP_INSTALL: True
