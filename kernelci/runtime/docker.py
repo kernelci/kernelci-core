@@ -77,8 +77,27 @@ class Docker(Runtime):
         with open(meta_file_path, encoding='utf-8') as meta_file:
             meta = json.load(meta_file)
         image = meta['image']
-        print(f"Pulling image {image}")
-        self._client.images.pull(*image.split(':'))
+
+        # do we have OS environment variables NO_DOCKER_PULL?
+        if os.environ.get('NO_DOCKER_PULL', '0') == '1':
+            print("Skipping docker pull")
+        else:
+            print(f"Pulling image {image}")
+            try:
+                self._client.images.pull(*image.split(':'))
+            except docker.errors.ImageNotFound:
+                print(f"Image {image} not found on docker hub, using local")
+            except docker.errors.APIError as err:
+                print(f"Error pulling image {image}: {err}")
+                return None
+
+        # verify if the image is available locally
+        try:
+            self._client.images.get(image)
+        except docker.errors.ImageNotFound:
+            print(f"Image {image} not found")
+            return None
+
         print("Starting container")
         # add also hostname mapping as in docker-compose
         # extra_hosts:
