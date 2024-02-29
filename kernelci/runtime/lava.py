@@ -139,15 +139,26 @@ class Callback:
                 results[suite_name] = self._get_suite_results(tests)
         return results
 
-    @classmethod
-    def _get_results_hierarchy(cls, results):
+    def _get_stage_result(self, suite_name):
+        lava_yaml = self._data['results']['lava']
+        lava = yaml.safe_load(lava_yaml)
+        stages = {stage['name']: stage for stage in lava}
+        result = None
+        for stage_name, stage_results in stages.items():
+            stage_name = stage_name.partition("_")[2]
+            if stage_name == suite_name:
+                result = stage_results['result']
+        return result
+
+    def _get_results_hierarchy(self, results):
         hierarchy = []
         for name, value in results.items():
             node = {'name': name}
             child_nodes = []
             item = {'node': node, 'child_nodes': child_nodes}
             if isinstance(value, dict):
-                item['child_nodes'] = cls._get_results_hierarchy(value)
+                item['child_nodes'] = self._get_results_hierarchy(value)
+                node['result'] = self._get_stage_result(node['name'])
             elif isinstance(value, str):
                 node['result'] = value
             hierarchy.append(item)
