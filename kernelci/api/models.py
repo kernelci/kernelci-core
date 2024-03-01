@@ -88,7 +88,7 @@ class KernelVersion(BaseModel):
     def translate_version_fields(cls, params):
         """Translate `StrictInt` field values into `int`"""
         for key, value in params.items():
-            if key in cls._STRICT_INT_FIELDS:
+            if key in cls._STRICT_INT_FIELDS and value:
                 params[key] = int(value)
         return params
 
