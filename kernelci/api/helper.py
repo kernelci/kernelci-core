@@ -155,7 +155,7 @@ class APIHelper:
         try:
             return self._api.node.add(job_node)
         except requests.exceptions.HTTPError as error:
-            raise RuntimeError(json.loads(error.response.text)) from error
+            raise RuntimeError(json.loads(error.response.content)) from error
 
     def submit_regression(self, regression):
         """Post a regression object
@@ -167,7 +167,7 @@ class APIHelper:
         try:
             return self.api._post('node', regression)
         except requests.exceptions.HTTPError as error:
-            raise RuntimeError(error.response.text) from error
+            raise RuntimeError(json.loads(error.response.content)) from error
 
     def _prepare_results(self, results, parent, base):
         node = results['node'].copy()
@@ -250,7 +250,7 @@ class APIHelper:
         try:
             return self.api._put(f'nodes/{node_id}', data).json()
         except requests.exceptions.HTTPError as error:
-            raise RuntimeError(json.loads(error.response.text)) from error
+            raise RuntimeError(json.loads(error.response.content)) from error
 
     @classmethod
     def load_json(cls, json_path, encoding='utf-8'):
