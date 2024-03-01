@@ -86,6 +86,14 @@ class BaseJob:
         storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
         return kernelci.storage.get_storage(storage_config, storage_cred)
 
+    def _get_tarball_url(self, node):
+        if node.get('artifacts') and 'tarball' in node['artifacts']:
+            return node['artifacts']['tarball']
+        if node.get('parent'):
+            parent = self._api.node.get(node['parent'])
+            return self._get_tarball_url(parent)
+        raise ValueError(f"'tarball' artifact not found in node {self._node['id']} ancestors")
+
     def _get_source(self, url):
         resp = requests.get(url, stream=True)
         resp.raise_for_status()
@@ -113,7 +121,7 @@ class BaseJob:
             return self.dry_run(self._node['debug']['result'])
 
         print("Getting kernel source tree...")
-        tarball_url = self._node['artifacts']['tarball']
+        tarball_url = self._get_tarball_url(self._node)
         src_path = self._get_source(tarball_url)
         print(f"Source directory: {src_path}")
         print("Running job...")
