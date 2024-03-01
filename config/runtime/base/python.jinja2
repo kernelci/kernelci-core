@@ -59,7 +59,9 @@ WORKSPACE = '/tmp/kci'
 {% block python_base_job -%}
 class BaseJob:
 
-    def __init__(self, workspace):
+    def __init__(self, api_config, node, workspace):
+        self._api = self._get_api(api_config)
+        self._node = node
         self._workspace = workspace
 
     def _get_api(self, api_config_yaml):
@@ -96,18 +98,22 @@ class BaseJob:
     def _run(self, src_path):
         raise NotImplementedError("_run() method required to run job")
 
-    def _submit(self, result, node, api):
-        node_from_id = api.node.get(node['id'])
-        node = node_from_id.copy()
-        node.update({
+    def _submit(self, result):
+        node_from_id = self._api.node.get(self._node['id'])
+        self._node = node_from_id.copy()
+        self._node.update({
             'result': result,
             'state': 'done',
         })
-        api.node.update(node)
-        return node
+        self._api.node.update(self._node)
+        return self._node
 
-    def run(self, tarball_url):
+    def run(self):
+        if self._node.get('debug') and 'dry_run' in self._node['debug']:
+            return self.dry_run(self._node['debug']['result'])
+
         print("Getting kernel source tree...")
+        tarball_url = self._node['artifacts']['tarball']
         src_path = self._get_source(tarball_url)
         print(f"Source directory: {src_path}")
         print("Running job...")
@@ -117,9 +123,8 @@ class BaseJob:
         print(f"Dry-running job (result: {result})...")
         return result
 
-    def submit(self, result, node, api_config_yaml):
-        api = self._get_api(api_config_yaml)
-        self._submit(result, node, api)
+    def submit(self, result):
+        self._submit(result)
 {% endblock %}
 
 {% block python_job -%}
@@ -144,15 +149,10 @@ def main(args):
         print("DNS resolution failed, exiting", file=sys.stderr)
         sys.exit(1)
 
-    job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
+    job = Job({% block python_job_constr %}api_config=API_CONFIG_YAML, node=NODE, workspace=WORKSPACE{% endblock %})
     try:
-        if NODE.get('debug') and NODE['debug'].get('dry_run'):
-            results = job.dry_run(NODE['debug']['result'])
-        else:
-            tarball_url = NODE['artifacts'].get('tarball')
-            results = job.run(tarball_url)
-        if NODE and API_CONFIG_YAML:
-            job.submit(results, NODE, API_CONFIG_YAML)
+        results = job.run()
+        job.submit(results)
     except requests.exceptions.HTTPError as ex:
         print(ex, file=sys.stderr)
         detail = ex.response.json().get('detail')
