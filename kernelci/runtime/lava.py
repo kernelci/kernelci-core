@@ -149,7 +149,7 @@ class Callback:
         return {
             'node': {
                 'name': job_node['name'],
-                'result': 'fail' if self.is_infra_error() else 'pass',
+                'result': job_node['result'],
                 'artifacts': {},
             },
             'child_nodes': self._get_results_hierarchy(results),
