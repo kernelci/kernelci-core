@@ -67,7 +67,7 @@ class Callback:
     # LAVA job result names
     LAVA_JOB_RESULT_NAMES = {
         COMPLETE: "pass",
-        INCOMPLETE: "incomplete",
+        INCOMPLETE: "fail",
         CANCELED: "incomplete",
         CANCELING: "incomplete",
     }
