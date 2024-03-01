@@ -112,7 +112,12 @@ class KBuild():
     if node, jobname and params are provided, create new build object
     if jsonobj is provided, load class from serialized json
     '''
-    def __init__(self, node=None, jobname=None, params=None, jsonobj=None):
+    def __init__(self, node=None, jobname=None, params=None, jsonobj=None, apiconfig=None):
+        # Retrieve and store API token for future use
+        self._api_token = os.environ.get('KCI_API_TOKEN')
+        if not self._api_token:
+            raise ValueError("KCI_API_TOKEN is not set")
+
         # create new build object
         if node and jobname and params:
             self._workspace = None
@@ -133,18 +138,26 @@ class KBuild():
             self._artifacts = []
             self._current_job = None
             self._config_full = ''
+            self._srcdir = None
+            self._firmware_dir = None
+            self._af_dir = None
+            self._node = node
+            self._api_yaml = apiconfig
+            self._api_config = kernelci.config.api.API.load_from_yaml(
+                yaml.safe_load(self._api_yaml), name='api'
+            )
+            self._full_artifacts = {}
             if node.get('debug') and 'tarball' in node['debug']:
                 self._srctarball = node['debug']['tarball']
             elif node.get('artifacts') and 'tarball' in node['artifacts']:
                 self._srctarball = node['artifacts']['tarball']
             else:
-                raise ValueError("No tarball artifact in input node")
-            self._srcdir = None
-            self._firmware_dir = None
-            self._af_dir = None
-            self._node = node
-            self._api_yaml = None
-            self._full_artifacts = {}
+                api = kernelci.api.get_api(self._api_config, self._api_token)
+                parent = api.node.get(self._node['parent'])
+                if parent.get('artifacts') and 'tarball' in parent['artifacts']:
+                    self._srctarball = parent['artifacts']['tarball']
+                    return
+                raise ValueError("No tarball artifact in input or parent node")
             return
         # load class from serialized json
         if jsonobj:
@@ -168,6 +181,9 @@ class KBuild():
             self._storage_config = jsonobj['storage_config']
             self._fragments_dir = jsonobj['fragments_dir']
             self._api_yaml = jsonobj['api_yaml']
+            self._api_config = kernelci.config.api.API.load_from_yaml(
+                yaml.safe_load(self._api_yaml), name='api'
+            )
             self._full_artifacts = jsonobj['full_artifacts']
             return
         raise ValueError("No valid arguments provided")
@@ -723,13 +739,7 @@ class KBuild():
                 af_uri = self._node['artifacts']
             else:
                 af_uri = {'tarball': 'http://dry-run.test/tarball'}
-        api_token = os.environ.get('KCI_API_TOKEN')
-        if not api_token:
-            raise ValueError("KCI_API_TOKEN is not set")
-        api_config = kernelci.config.api.API.load_from_yaml(
-            yaml.safe_load(self._api_yaml), name='api'
-        )
-        api = kernelci.api.get_api(api_config, api_token)
+        api = kernelci.api.get_api(self._api_config, self._api_token)
         # Update node from API, as we might have new fields
         # such as k8s_context
         node_id = self._node['id']
