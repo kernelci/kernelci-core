@@ -263,7 +263,7 @@ class APIHelper:
             'name': job_config.name,
             'path': input_node['path'] + [job_config.name],
             'group': job_config.name,
-            'artifacts': input_node['artifacts'],
+            'artifacts': {},
             'data': {
                 'kernel_revision': input_node['data']['kernel_revision'],
             },
