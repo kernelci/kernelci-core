@@ -8,6 +8,7 @@
 {% block python_imports %}
 import os
 import sys
+import socket
 import tarfile
 import traceback
 import urllib.parse
@@ -128,6 +129,21 @@ class Job(BaseJob):
 
 {% block python_main -%}
 def main(args):
+    # Sometimes container DNS is failing if k8s node is still booting
+    # This is a workaround:
+    # test www.google.com until it works or retry 10 times
+    for _ in range(30):
+        try:
+            socket.gethostbyname('www.google.com')
+            break
+        except socket.gaierror:
+            pass
+        # sleep 1 second
+        time.sleep(1)
+    else:
+        print("DNS resolution failed, exiting", file=sys.stderr)
+        sys.exit(1)
+
     job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
     try:
         if NODE.get('debug') and NODE['debug'].get('dry_run'):
