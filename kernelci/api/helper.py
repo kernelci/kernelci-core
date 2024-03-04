@@ -277,6 +277,7 @@ class APIHelper:
             job_node['data']['kernel_type'] = input_node['data'].get('kernel_type')
             job_node['data']['arch'] = input_node['data'].get('arch')
             job_node['data']['defconfig'] = input_node['data'].get('defconfig')
+            job_node['data']['config_full'] = input_node['data'].get('config_full')
             job_node['data']['compiler'] = input_node['data'].get('compiler')
         # This information is highly useful, as we might
         # extract from it the following, for example:
@@ -375,6 +376,7 @@ class APIHelper:
                 'kernel_type': root['data'].get('kernel_type'),
                 'arch': root['data'].get('arch'),
                 'defconfig': root['data'].get('defconfig'),
+                'config_full': root['data'].get('config_full'),
                 'compiler': root['data'].get('compiler'),
                 'platform': root['data'].get('platform'),
                 'runtime': root['data'].get('runtime'),
