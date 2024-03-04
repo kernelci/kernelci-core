@@ -62,6 +62,17 @@ class ErrorCodes(str, enum.Enum):
     SUBMIT_ERROR = 'submit_error'
     # Node reached timeout and timeout service forced it to be done
     NODE_TIMEOUT = 'node_timeout'
+    # Lava job error codes copied from source: lava/lava_common/exceptions.py
+    INFRASTRUCTURE = 'Infrastructure'
+    CANCELED = 'Canceled'
+    JOB = 'Job'
+    BUG = 'Bug'
+    TEST = 'Test'
+    CONFIGURATION = 'Configuration'
+    LAVA_TIMEOUT = 'LAVATimeout'
+    MULTI_NODE_TIMEOUT = 'MultinodeTimeout'
+    OBJECT_NOT_PERSISTED = 'ObjectNotPersisted'
+    UNEXISTING_PERMISSION_CODENAME = 'Unexisting permission codename.'
 
 
 class KernelVersion(BaseModel):
