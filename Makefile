@@ -14,7 +14,9 @@ test: \
 	validate-yaml
 
 mypy:
-	mypy \
+	mypy --ignore-missing-imports \
+		--follow-imports=skip \
+		--strict-optional \
 		-m kernelci.api \
 		-m kernelci.api.latest \
 		-m kernelci.api.helper

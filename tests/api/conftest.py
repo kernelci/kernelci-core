@@ -54,29 +54,114 @@ class APIHelperTestData:
             "timeout": "2022-09-28T11:05:25.814000",
             "holdoff": None
         }
-        self._regression_node = {
-            "kind": "regression",
-            "name": "kver",
+        self._pass_node = {
+            "kind": "test",
+            "name": "login",
             "path": [
                 "checkout",
-                "kver"
+                "kbuild-gcc-10-x86",
+                "baseline-x86",
+                "login"
             ],
-            "group": "kver",
-            "data": {
-                "fail_node": "636143c38f94e20c6826b0b6",
-                "pass_node": "636143c38f94e20c6826b0b5"
-            },
-            "parent": "6361440f8f94e20c6826b0b7",
+            "group": "baseline-x86",
             "state": "done",
             "result": "pass",
+            "data": {
+                "kernel_revision": {
+                    "tree": "kernelci",
+                    "url": "https://github.com/kernelci/linux.git",
+                    "branch": "staging-mainline",
+                    "commit": "7f036eb8d7a5ff2f655c5d949343bac6a2928bce",
+                    "describe": "staging-mainline-20220927.0",
+                    "version": {
+                        "version": 6,
+                        "patchlevel": 0,
+                        "sublevel": None,
+                        "extra": "-rc7-36-g7f036eb8d7a5",
+                        "name": None
+                    }
+                },
+                "arch": "x86_64",
+                "defconfig": "x86_64_defconfig",
+                "platform": "gcc-10",
+            },
             "artifacts": {
-                "tarball": "http://staging.kernelci.org:9080/linux-kernelci\
-        -staging-mainline-staging-mainline-20221101.1.tar.gz"
+                "tarball": ("http://staging.kernelci.org:9080/linux-kernelci"
+                            "-staging-mainline-staging-mainline-20221101.1.tar.gz")
             },
             "created": "2022-11-01T16:07:09.770000",
             "updated": "2022-11-01T16:07:09.770000",
             "timeout": "2022-11-02T16:07:09.770000",
             "holdoff": None
+        }
+        self._fail_node = {
+            "kind": "test",
+            "name": "login",
+            "path": [
+                "checkout",
+                "kbuild-gcc-10-x86",
+                "baseline-x86",
+                "login"
+            ],
+            "group": "baseline-x86",
+            "state": "done",
+            "result": "fail",
+            "data": {
+                "kernel_revision": {
+                    "tree": "kernelci",
+                    "url": "https://github.com/kernelci/linux.git",
+                    "branch": "staging-mainline",
+                    "commit": "7f036eb8d7a5ff2f655c5d949343bac6a2928bce",
+                    "describe": "staging-mainline-20220927.0",
+                    "version": {
+                        "version": 6,
+                        "patchlevel": 0,
+                        "sublevel": None,
+                        "extra": "-rc7-36-g7f036eb8d7a5",
+                        "name": None
+                    }
+                },
+                "arch": "x86_64",
+                "defconfig": "x86_64_defconfig",
+                "platform": "gcc-10",
+            },
+            "artifacts": {
+                "tarball": ("http://staging.kernelci.org:9080/linux-kernelci"
+                            "-staging-mainline-staging-mainline-20221101.1.tar.gz")
+            },
+            "created": "2022-11-02T16:07:09.770000",
+            "updated": "2022-11-02T16:07:09.770000",
+            "timeout": "2022-11-03T16:07:09.770000",
+            "holdoff": None
+        }
+        self._expected_regression_node = {
+            'kind': 'regression',
+            'name': 'login',
+            'path': [
+                'checkout',
+                'kbuild-gcc-10-x86',
+                'baseline-x86',
+                'login'
+            ],
+            'group': 'baseline-x86',
+            'state': 'done',
+            'data': {
+                'failed_kernel_revision': {
+                    'tree': 'kernelci',
+                    'url': 'https://github.com/kernelci/linux.git',
+                    'branch': 'staging-mainline',
+                    'commit': '7f036eb8d7a5ff2f655c5d949343bac6a2928bce',
+                    'describe': 'staging-mainline-20220927.0',
+                    'version': {
+                        'version': 6,
+                        'patchlevel': 0,
+                        'extra': '-rc7-36-g7f036eb8d7a5'
+                    }
+                },
+                'arch': 'x86_64',
+                'defconfig': 'x86_64_defconfig',
+                'platform': 'gcc-10'
+            }
         }
         self._kunit_node = {
             "id": "6332d92f1a45d41c279e7a06",
@@ -129,9 +214,19 @@ class APIHelperTestData:
         return self._checkout_node
 
     @property
-    def regression_node(self):
-        """Get the regression node"""
-        return self._regression_node
+    def fail_node(self):
+        """Get the input fail node for a regression"""
+        return self._fail_node
+
+    @property
+    def pass_node(self):
+        """Get the input pass node for a regression"""
+        return self._pass_node
+
+    @property
+    def expected_regression_node(self):
+        """Get the expected regression node"""
+        return self._expected_regression_node
 
     @property
     def kunit_node(self):
@@ -142,13 +237,6 @@ class APIHelperTestData:
     def kunit_child_node(self):
         """Get the kunit sample child node"""
         return self._kunit_child_node
-
-    def get_regression_node_with_id(self):
-        """Get regression node with node ID"""
-        self._regression_node.update({
-            "id": "6361442d8f94e20c6826b0b9"
-        })
-        return self._regression_node
 
     def update_kunit_node(self):
         """Update kunit node with timestamp fields"""
@@ -227,16 +315,19 @@ def mock_api_get_node_from_id(mocker):
 
 
 @pytest.fixture
-def mock_api_post_regression(mocker):
-    """Mocks call to LatestAPI class method used to submit regression node"""
-    resp = Response()
-    resp.status_code = 200
-    resp._content = json.dumps(  # pylint: disable=protected-access
-        APIHelperTestData().get_regression_node_with_id()).encode('utf-8')
+def mock_api_node_add(mocker):
+    """Mocks call to LatestAPI Node add so that it returns the sent node
+    as a response (echo)
+    """
+    def return_node_response(input_node):
+        resp = Response()
+        resp.status_code = 200
+        resp._content = json.dumps(input_node).encode('utf-8')  # pylint: disable=protected-access
+        return resp
 
     mocker.patch(
-        'kernelci.api.API._post',
-        return_value=resp,
+        'kernelci.api.latest.LatestAPI.Node.add',
+        side_effect=return_node_response
     )
 
 

@@ -10,7 +10,7 @@ from typing import Dict
 import json
 import requests
 
-from . import API
+from . import API, models
 
 
 def merge(primary: dict, secondary: dict):
@@ -157,17 +157,30 @@ class APIHelper:
         except requests.exceptions.HTTPError as error:
             raise RuntimeError(json.loads(error.response.text)) from error
 
-    def submit_regression(self, regression):
-        """Post a regression object
+    def submit_regression(self, fail_node: dict, pass_node: dict):
+        """Creates and submits a regression object from two existing
+        nodes (test or kbuilds) passed as parameters:
 
-        [TODO] Leave this function in place in case we'll need any other
-        processing or formatting before submitting the regression node
+        Arguments:
+          fail_node: dict describing the node that failed and triggered
+              the regression creation.
+          pass_node: dict describing the previous passing run of the same
+              test/build
+
+        General use case: failure detected, the fail_node and pass_node
+        are retrieved from the API and passed to this function to define
+        and submit a regression.
+
+        Returns the API request response.
         """
-        # pylint: disable=protected-access
+        fail_node_obj = self.get_node_obj(fail_node)
+        pass_node_obj = self.get_node_obj(pass_node)
+        regression_dict = models.Regression.create_regression(
+            fail_node_obj, pass_node_obj, as_dict=True)
         try:
-            return self.api._post('node', regression)
+            return self.api.node.add(regression_dict)
         except requests.exceptions.HTTPError as error:
-            raise RuntimeError(error.response.text) from error
+            raise RuntimeError(json.loads(error.response.text)) from error
 
     def _prepare_results(self, results, parent, base):
         node = results['node'].copy()
@@ -251,6 +264,46 @@ class APIHelper:
             return self.api._put(f'nodes/{node_id}', data).json()
         except requests.exceptions.HTTPError as error:
             raise RuntimeError(json.loads(error.response.text)) from error
+
+    def get_node_obj(self, node_dict, get_linked=False):
+        """Takes a dict defining a Node and returns it as a concrete
+        Node object (or Node subtype object). If get_linked is set to
+        True, linked nodes are vivified (not recursively).
+
+        It will also accept a Node (or subclass) object instead of a
+        dict. This can be used to fetch and vivify the linked objects if
+        get_linked is set to True.
+        """
+        # pylint: disable=protected-access
+        def get_attr(obj, attr):
+            """Similar behavior to the builtin getattr, but it can be
+            used with nested attributes in.dot.notation
+            """
+            fields = attr.split('.')
+            if len(fields) == 1:
+                return getattr(obj, fields[0])
+            return get_attr(getattr(obj, fields[0]), '.'.join(fields[1:]))
+
+        def set_attr(obj, attr, value):
+            """Similar behavior to the builtin setattr, but it can be
+            used with nested attributes in.dot.notation
+            """
+            fields = attr.split('.')
+            if len(fields) == 1:
+                setattr(obj, fields[0], value)
+                return
+            obj = get_attr(obj, '.'.join(fields[:-1]))
+            setattr(obj, fields[-1], value)
+
+        node_obj = models.parse_node_obj(node_dict)
+        if get_linked:
+            for linked_node_attr in node_obj._OBJECT_ID_FIELDS:
+                node_id = get_attr(node_obj, linked_node_attr)
+                if node_id:
+                    resp = self.api.node.get(node_id)
+                    linked_obj = models.parse_node_obj(resp)
+                    set_attr(node_obj, linked_node_attr, linked_obj)
+        return node_obj
 
     @classmethod
     def load_json(cls, json_path, encoding='utf-8'):
