@@ -96,6 +96,15 @@ class Callback:
         job_meta = stages['job']['metadata']
         return job_meta.get('error_type') == "Infrastructure"
 
+    def _get_job_failure_metadata(self):
+        """Get failed lava job metadata fields such as error type and
+        error message"""
+        lava_yaml = self._data['results']['lava']
+        lava = yaml.safe_load(lava_yaml)
+        stages = {stage['name']: stage for stage in lava}
+        job_meta = stages['job']['metadata']
+        return job_meta.get('error_type'), job_meta.get('error_msg')
+
     @classmethod
     def _get_login_case(cls, tests):
         tests_map = {test['name']: test for test in tests}
@@ -146,11 +155,18 @@ class Callback:
 
     def get_hierarchy(self, results, job_node):
         """Convert the plain results dictionary to a hierarchy for the API"""
+        job_result = job_node['result']
+        if job_result == "fail":
+            error_code, error_msg = self._get_job_failure_metadata()
+            job_node['data']['error_code'] = error_code
+            job_node['data']['error_msg'] = error_msg
+
         return {
             'node': {
                 'name': job_node['name'],
-                'result': job_node['result'],
+                'result': job_result,
                 'artifacts': {},
+                'data': job_node['data'],
             },
             'child_nodes': self._get_results_hierarchy(results),
         }
