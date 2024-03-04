@@ -9,17 +9,27 @@
     dtb:
       url: '{{ node.artifacts.dtb }}'
 {%- endif %}
+{%- if boot_commands == 'nfs' %}
+    nfsrootfs:
+      url: 'http://storage.kernelci.org/images/rootfs/debian/bullseye-kselftest/20240129.0/{{ platform_config.arch }}/full.rootfs.tar.xz'
+      compression: xz
+    ramdisk:
+      url: 'http://storage.kernelci.org/images/rootfs/debian/bullseye-kselftest/20240129.0/{{ platform_config.arch }}/initrd.cpio.gz'
+      compression: gz
+    os: debian
+{%- else %}
     ramdisk:
       url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{{ platform_config.arch }}/rootfs.cpio.gz'
       compression: gz
     os: oe
+{%- endif %}
     timeout:
       minutes: 10
     to: tftp
 
 - boot:
     method: u-boot
-    commands: ramdisk
+    commands: {{ boot_commands | default('ramdisk', true) }}
     prompts:
     - '/ #'
     timeout:
