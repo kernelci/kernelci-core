@@ -348,6 +348,9 @@ class KbuildData(BaseModel):
     error_code: Optional[ErrorCodes] = Field(
         description="Details of the failure state"
     )
+    error_msg: Optional[str] = Field(
+        description="Error message"
+    )
     fragments: Optional[List[str]] = Field(
         description="List of additional configuration fragments used"
     )
@@ -389,6 +392,9 @@ class TestData(BaseModel):
     """Model for the data field of a Test node"""
     error_code: Optional[ErrorCodes] = Field(
         description="Details of the failure state"
+    )
+    error_msg: Optional[str] = Field(
+        description="Error message"
     )
     # [TODO] Specify the source code file/function too?
     test_source: Optional[AnyUrl] = Field(
