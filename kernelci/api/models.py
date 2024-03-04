@@ -340,6 +340,10 @@ class KbuildData(BaseModel):
     fragments: Optional[List[str]] = Field(
         description="List of additional configuration fragments used"
     )
+    config_full: Optional[str] = Field(
+        description=("Single-string specification of the kernel "
+                     "configuration including defconfig and fragments")
+    )
     platform: Optional[str] = Field(
         description="Build platform"
     )
@@ -406,6 +410,10 @@ class TestData(BaseModel):
     defconfig: Optional[str] = Field(
         description="Kernel defconfig identifier"
     )
+    config_full: Optional[str] = Field(
+        description=("Single-string specification of the kernel "
+                     "configuration including defconfig and fragments")
+    )
     compiler: Optional[str] = Field(
         description="Compiler used for the build"
     )
@@ -443,6 +451,10 @@ class RegressionData(BaseModel):
     )
     defconfig: Optional[str] = Field(
         description="Kernel defconfig identifier"
+    )
+    config_full: Optional[str] = Field(
+        description=("Single-string specification of the kernel "
+                     "configuration including defconfig and fragments")
     )
     compiler: Optional[str] = Field(
         description="Compiler used for the build"
@@ -511,6 +523,7 @@ class Regression(Node):
                       'data.kernel_revision',
                       'data.arch',
                       'data.defconfig',
+                      'data.config_full',
                       'data.compiler',
                       'data.platform',]
         for field in cmp_fields:
@@ -533,6 +546,7 @@ class Regression(Node):
         data_field = {
             'arch': fail_node.data.arch,
             'defconfig': fail_node.data.defconfig,
+            'config_full': fail_node.data.config_full,
             'compiler': fail_node.data.compiler,
             'platform': fail_node.data.platform,
             'failed_kernel_revision': fail_node.data.kernel_revision,
