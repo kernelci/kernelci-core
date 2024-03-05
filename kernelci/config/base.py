@@ -13,6 +13,26 @@ import re
 import yaml
 
 
+def _format_dict_strings(param, fmap):
+    """Format strings from a dict based on a format map
+
+    Modify all the string objects under a dict, processing each one as an
+    f-string using values from fmap as format arguments. This is typically
+    executed to set generic configs with placeholders for job/platform-specific
+    attributes, in order to e.g. reuse a single config for platforms of
+    different architectures.
+    """
+    if isinstance(param, str):
+        try:
+            param = param.format_map(fmap)
+        except KeyError:
+            return param  # Don't do anything but keep python happy
+    elif isinstance(param, dict):
+        for key in param:
+            param[key] = _format_dict_strings(param[key], fmap)
+    return param
+
+
 class YAMLConfigObject(yaml.YAMLObject):
     """Base class with helper methods to handle configuration YAML data
 
@@ -69,6 +89,31 @@ class YAMLConfigObject(yaml.YAMLObject):
                 for key in cls._get_yaml_attributes()
             }
         )
+
+    def _get_format_map(self):
+        """Get object attributes as dict
+
+        Get a given object's attributes as a dictionary where the keys are the
+        attribute's name and the values are the attribute's value. The output
+        from this function can then be used to process f-strings containing
+        attribute names as placeholders.
+        """
+        return {
+            k: getattr(self, k)
+            for k in self._get_yaml_attributes() if k not in ('params', 'rules')
+        }
+
+    def format_params(self, param, fmap=None):
+        """Format strings from a dict based on object attributes
+
+        Modify all the strings under a dict object, processing each on as an
+        f-string using the object attributes combined with the optional 'fmap'
+        parameter as format arguments.
+        """
+        args = self._get_format_map()
+        if fmap:
+            args.update(fmap)
+        return _format_dict_strings(param, args)
 
 
 class _YAMLObject:
