@@ -16,15 +16,21 @@ scheduler:
     runtime:
       type: lava
     platforms: [qemu-x86]
+    rules:
+      tree:
+        - 'mainline'
+        - '!next'
 
   - job: kunit
     event: *checkout
     runtime:
       name: k8s-gke-eu-west4
     platforms: []
+    rules:
 
   - job: kbuild-gcc-10-x86
     event: *checkout
     runtime:
       type: kubernetes
     platforms: []
+    rules:
