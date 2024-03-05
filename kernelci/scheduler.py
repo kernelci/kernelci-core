@@ -57,4 +57,4 @@ class Scheduler:
             for platform_name in platforms:
                 platform = self._platforms.get(platform_name)
                 if platform:
-                    yield job, runtime, platform
+                    yield job, runtime, platform, config.rules
