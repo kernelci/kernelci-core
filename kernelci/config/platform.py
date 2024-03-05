@@ -25,7 +25,7 @@ class Platform(YAMLConfigObject):
         self._context = context
         self._dtb = dtb
         self._mach = mach
-        self._params = params
+        self._params = self.format_params(params.copy(), params) if params else None
         self._rules = rules
 
     @property
