@@ -125,6 +125,10 @@ class Runtime(abc.ABC):
         """Get job template parameters"""
         instanceid = os.environ.get('KCI_INSTANCE')
         if job.platform_config.dtb:
+            # verify if we have metadata at all
+            if 'metadata' not in job.node['artifacts']:
+                print(f"metadata.json not found for dtb file {job.platform_config.dtb}")
+                return None
             # Fetch metadata.json and add platform dtb to artifacts list
             metadata_url = job.node['artifacts']['metadata']
             req = requests.get(metadata_url, timeout=60)
