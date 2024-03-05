@@ -293,6 +293,13 @@ class APIHelper:
             if not self.should_create_node(platform.rules, job_node, input_node):
                 print(f"Not creating node due to platform rules for {platform.name}")
                 return None
+            # Process potential f-strings in node's data with platform attributes
+            kernel_revision = job_node['data']['kernel_revision']['version']
+            extra_args = {
+                'krev': f"{kernel_revision['version']}.{kernel_revision['patchlevel']}"
+            }
+            extra_args.update(job_config.params)
+            job_node['data'] = platform.format_params(job_node['data'], extra_args)
         try:
             return self._api.node.add(job_node)
         except requests.exceptions.HTTPError as error:
