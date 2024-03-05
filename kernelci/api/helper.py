@@ -137,7 +137,7 @@ class APIHelper:
         return None
 
     # pylint: disable=too-many-arguments
-    def _is_allowed(self, rules, key, node, parent, name):
+    def _is_allowed(self, rules, key, node, parent):
         """
         Check whether the value of a specific node attribute matches
         a filtering rule. As the specified attribute might not be present
@@ -150,7 +150,7 @@ class APIHelper:
         # Find the node (or parent node) attribute corresponding to the
         # rule we're applying
         base = self._find_container(key, node)
-        if not base:
+        if not base and parent:
             base = self._find_container(key, parent)
         if not base:
             return True
@@ -175,23 +175,23 @@ class APIHelper:
 
             for item in base[key]:
                 if item in block:
-                    print(f"{key.capitalize()} {item} not allowed for {name}")
+                    print(f"{key.capitalize()} {item} not allowed")
                     return False
                 if item in allow:
                     found = True
 
             if not found:
-                print(f"{key.capitalize()} missing one of {allow} for {name}")
+                print(f"{key.capitalize()} missing one of {allow}")
                 return False
 
         else:
             if base[key] in block or (len(allow) > 0 and base[key] not in allow):
-                print(f"{key.capitalize()} {base[key]} not allowed for {name}")
+                print(f"{key.capitalize()} {base[key]} not allowed")
                 return False
 
         return True
 
-    def _should_create_node(self, node, parent, config):
+    def should_create_node(self, rules, node, parent=None):
         """
         Check whether a node should be created based on configured rules.
         Those can be specified in the job, platform or runtime configuration
@@ -232,24 +232,24 @@ class APIHelper:
               - 'kselftest'
               - '!arm64-chromebook'
         """
-        if config.rules is None:
+        if rules is None:
             return True
 
-        for key in config.rules:
+        for key in rules:
             # Special case as there is no field in the node giving us the full
             # kernel version in "x.y" format
             if key == 'min_version':
                 kver = node['data']['kernel_revision']['version']
                 major = kver['version']
                 minor = kver['patchlevel']
-                rule_major = config.rules[key]['version']
-                rule_minor = config.rules[key]['patchlevel']
+                rule_major = rules[key]['version']
+                rule_minor = rules[key]['patchlevel']
                 if (major < rule_major) or (major == rule_major and minor < rule_minor):
-                    print(f"Version {major}.{minor} older than minimum version for "
-                          f"{config.name} ({rule_major}.{rule_minor})")
+                    print(f"Version {major}.{minor} older than minimum version "
+                          f"({rule_major}.{rule_minor})")
                     return False
 
-            elif not self._is_allowed(config.rules, key, node, parent, config.name):
+            elif not self._is_allowed(rules, key, node, parent):
                 return False
 
         return True
@@ -268,8 +268,8 @@ class APIHelper:
                 'kernel_revision': input_node['data']['kernel_revision'],
             },
         }
-        if not self._should_create_node(job_node, input_node, job_config):
-            print("Not creating node due to job rules")
+        if not self.should_create_node(job_config.rules, job_node, input_node):
+            print(f"Not creating node due to job rules for {job_config.name}")
             return None
         # Test-specific fields inherited from parent node (kbuild or
         # test) if available
@@ -285,13 +285,13 @@ class APIHelper:
         # in case of kubernetes: cluster name
         if runtime:
             job_node['data']['runtime'] = runtime.config.name
-            if not self._should_create_node(job_node, input_node, runtime.config):
-                print("Not creating node due to runtime rules")
+            if not self.should_create_node(runtime.config.rules, job_node, input_node):
+                print(f"Not creating node due to runtime rules for {runtime.config.name}")
                 return None
         if platform:
             job_node['data']['platform'] = platform.name
-            if not self._should_create_node(job_node, input_node, platform):
-                print("Not creating node due to platform rules")
+            if not self.should_create_node(platform.rules, job_node, input_node):
+                print(f"Not creating node due to platform rules for {platform.name}")
                 return None
         try:
             return self._api.node.add(job_node)
