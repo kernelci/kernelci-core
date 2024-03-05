@@ -101,6 +101,14 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
     params = runtime.get_params(job, api.config)
     if not params:
         raise click.ClickException("Invalid job parameters, aborting...")
+    # Process potential f-strings in `params` with configured job params
+    # and platform attributes
+    kernel_revision = job_node['data']['kernel_revision']['version']
+    extra_args = {
+        'krev': f"{kernel_revision['version']}.{kernel_revision['patchlevel']}"
+    }
+    extra_args.update(job.config.params)
+    params = job.platform_config.format_params(params, extra_args)
     job_data = runtime.generate(job, params)
     if output:
         output_file = runtime.save_file(job_data, output, params)
