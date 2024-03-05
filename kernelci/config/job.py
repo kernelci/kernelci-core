@@ -19,7 +19,7 @@ class Job(YAMLConfigObject):
         self._template = template
         self._kind = kind
         self._image = image
-        self._params = params or {}
+        self._params = self.format_params(params.copy(), params) if params else {}
         self._rules = rules
 
     @property
