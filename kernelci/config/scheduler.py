@@ -13,11 +13,13 @@ class SchedulerEntry(YAMLConfigObject):
 
     yaml_tag = '!SchedulerEntry'
 
-    def __init__(self, job, runtime, event, platforms=None):
+    # pylint: disable=too-many-arguments
+    def __init__(self, job, runtime, event, platforms=None, rules=None):
         self._job = job
         self._runtime = runtime
         self._event = event
         self._platforms = platforms or []
+        self._rules = rules
 
     @property
     def job(self):
@@ -39,10 +41,15 @@ class SchedulerEntry(YAMLConfigObject):
         """List of platform names"""
         return list(self._platforms)
 
+    @property
+    def rules(self):
+        """Kernel requirements (tree, branch, version...)"""
+        return self._rules
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'job', 'runtime', 'event', 'platforms'})
+        attrs.update({'job', 'runtime', 'event', 'platforms', 'rules'})
         return attrs
 
 
