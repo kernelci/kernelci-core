@@ -354,27 +354,21 @@ class KBuild():
 
     def _getcrosfragment(self, fragment):
         """ Get ChromeOS specific configuration fragments """
-        # ChromeOS fragment name can be f-strings with placeholders
-        # for the kernel revision (major.minor) and target architecture
-        version = self._node['data']['kernel_revision']['version']
         # The ChromeOS kernel only has release branches for LTS kernels
         # so let's fall back to using the config for the latest LTS if
         # building a more recent version
+        version = self._node['data']['kernel_revision']['version']
         target_rev = f"{version['version']}.{version['patchlevel']}"
         lts_rev = f"{LATEST_LTS_MAJOR}.{LATEST_LTS_MINOR}"
-        krev = None
-        if ((version['version'] > LATEST_LTS_MAJOR) or
-            (version['version'] == LATEST_LTS_MAJOR and
-             version['patchlevel'] > LATEST_LTS_MINOR)):
+        if (target_rev in fragment and
+            ((version['version'] > LATEST_LTS_MAJOR) or
+             (version['version'] == LATEST_LTS_MAJOR and
+              version['patchlevel'] > LATEST_LTS_MINOR))):
             print(f"Falling back to latest LTS config ({lts_rev}) " +
                   f"for kernel {target_rev}")
-            krev = lts_rev
-        else:
-            krev = target_rev
-        arch = self._arch
-        real_frag = fragment.format(krev=krev, arch=arch)
+            fragment = fragment.replace(target_rev, lts_rev)
         buffer = ''
-        [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", real_frag)
+        [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", fragment)
         cros_config = "/tmp/cros-config.tgz"
         url = CROS_CONFIG_URL.format(branch=branch)
         if not _download_file(url, cros_config):
@@ -391,7 +385,7 @@ class KBuild():
 
         os.unlink(cros_config)
 
-        return (buffer, real_frag)
+        return (buffer, fragment)
 
     def extract_config(self, frag):
         """ Extract config fragments from legacy config file """
