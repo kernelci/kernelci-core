@@ -17,7 +17,7 @@
 
 job_name: "[{{ instanceid|default('KernelCI AKS')}}] {{ node.id }} {{ node.name }} {{ node.data.kernel_revision.describe }}"
 
-device_type: {{ platform_config.base_name }}
+device_type: {{ platform_config.name }}
 
 visibility: public
 
