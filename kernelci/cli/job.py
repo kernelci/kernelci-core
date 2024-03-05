@@ -83,6 +83,12 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
     configs = kernelci.config.load(config)
     api = get_api(configs, api, secrets)
     job_node = api.node.get(node_id)
+    if job_node.get('parent'):
+        parent_node = api.node.get(job_node['parent'])
+        if job_node.get('artifacts'):
+            job_node['artifacts'].update(parent_node['artifacts'])
+        else:
+            job_node['artifacts'] = parent_node['artifacts']
     job = kernelci.runtime.Job(job_node, configs['jobs'][job_node['name']])
     if platform is None:
         if 'platform' not in job_node['data']:
