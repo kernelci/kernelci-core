@@ -460,8 +460,14 @@ class RegressionData(BaseModel):
     pass_node: Optional[PyObjectId] = Field(
         description="Previous passing Node"
     )
+    error_code: Optional[ErrorCodes] = Field(
+        description="Error code of the failed job"
+    )
+    error_msg: Optional[str] = Field(
+        description="Error message of the failed job"
+    )
     failed_kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data of the failed test run"
+        description="Kernel repo revision data of the failed job"
     )
     arch: Optional[str] = Field(
         description="CPU architecture family"
