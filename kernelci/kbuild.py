@@ -90,6 +90,9 @@ ARTIFACT_NAMES = {
     r'metadata\.json': 'metadata',
 }
 
+# first argument stdout+stderr, second argument stderr only
+REDIR = ' > >(tee {}) 2> >(tee {} >&1)'
+
 
 def _download_file(url, file_path):
     '''
@@ -276,6 +279,7 @@ class KBuild():
         # same time add tail and fork, so i see build.log in real time
         # but keep pid, so i can kill it later
         self._artifacts.append("build.log")
+        self._artifacts.append("build.sh")
         if not self._dtbs_check:
             self._artifacts.append("build_kimage.log")
             self._artifacts.append("build_kimage_stderr.log")
@@ -522,15 +526,17 @@ class KBuild():
             for step in self._steps:
                 f.write(step + "\n")
         print(f"Script written to {filename}")
+        # copy to artifacts dir
+        os.system(f"cp {filename} {self._af_dir}/build.sh")
 
     def _build_kernel(self):
         """ Add kernel build steps """
         self.startjob("build_kernel")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_kimage.log and build_kimage_stderr.log
-        self.addcmd("make -j$(nproc) " + MAKE_TARGETS[self._arch] +
-                    " 1> " + self._af_dir + "/build_kimage.log" +
-                    " 2> " + self._af_dir + "/build_kimage_stderr.log")
+        self.addcmd("make -j$(nproc) " + MAKE_TARGETS[self._arch] + " " +
+                    REDIR.format(self._af_dir + "/build_kimage.log",
+                                 self._af_dir + "/build_kimage_stderr.log"))
         self.addcmd("cd ..")
 
     def _build_modules(self):
@@ -538,9 +544,9 @@ class KBuild():
         self.startjob("build_modules")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_modules.log
-        self.addcmd("make -j$(nproc) modules" + " 1> " +
-                    self._af_dir + "/build_modules.log" +
-                    " 2> " + self._af_dir + "/build_modules_stderr.log")
+        self.addcmd("make -j$(nproc) modules " +
+                    REDIR.format(self._af_dir + "/build_modules.log",
+                                 self._af_dir + "/build_modules_stderr.log"))
         self.addcmd("cd ..")
 
     def _build_dtbs(self):
@@ -548,9 +554,9 @@ class KBuild():
         self.startjob("build_dtbs")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_dtbs.log
-        self.addcmd("make -j$(nproc) dtbs" + " 1> " +
-                    self._af_dir + "/build_dtbs.log" +
-                    " 2> " + self._af_dir + "/build_dtbs_stderr.log", False)
+        self.addcmd("make -j$(nproc) dtbs " +
+                    REDIR.format(self._af_dir + "/build_dtbs.log",
+                                 self._af_dir + "/build_dtbs_stderr.log"), False)
         self.addcmd("cd ..")
 
     def _build_kselftest(self):
@@ -558,18 +564,17 @@ class KBuild():
         self.startjob("build_kselftest")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_kselftest.log
-        self.addcmd("make -j$(nproc) kselftest-gen_tar" + " 1> " +
-                    self._af_dir + "/build_kselftest.log" +
-                    " 2> " + self._af_dir + "/build_kselftest_stderr.log")
+        self.addcmd("make -j$(nproc) kselftest-gen_tar " +
+                    REDIR.format(self._af_dir + "/build_kselftest.log",
+                                 self._af_dir + "/build_kselftest_stderr.log"), False)
 
     def _build_dtbs_check(self):
         """ Check if dtbs are present """
         self.startjob("build_dtbs_check")
         self.addcmd("cd " + self._srcdir)
-        self.addcmd("make -j$(nproc) dtbs_check" + " --output-sync 1> " +
-                    self._af_dir + "/build_dtbs_check.log" +
-                    " 2> " + self._af_dir + "/build_dtbs_check_stderr.log" +
-                    " && echo DTBS_CHECK_OK || echo DTBS_CHECK_FAILED $?", False)
+        self.addcmd("make -j$(nproc) dtbs_check" + " --output-sync " +
+                    REDIR.format(self._af_dir + "/build_dtbs_check.log",
+                                 self._af_dir + "/build_dtbs_check_stderr.log"))
         self.addcmd("cd ..")
 
     def _package_kimage(self):
