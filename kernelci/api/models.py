@@ -223,19 +223,24 @@ class Node(DatabaseModel):
         `lt`, `gt`, `lte`, and `gte` with `param__operator=value` format.
         This method will generate translated parameters of the form:
 
-          `parameter, (operator, value)`
+          `{parameter: {operator: value}}`
 
         when an operator is found, otherwise:
 
-          `parameter, value`
+          `{parameter: value}`
         """
+        translated_params = {}
         for key, value in params.items():
             field = key.split('__')
             if len(field) == 2:
                 param, op_name = field
-                yield param, (op_name, value)
+                if translated_params.get(param):
+                    translated_params[param].update({op_name: value})
+                else:
+                    translated_params[param] = {op_name: value}
             else:
-                yield key, value
+                translated_params[key] = value
+        return translated_params
 
     @classmethod
     def _translate_object_ids(cls, params):
@@ -256,19 +261,25 @@ class Node(DatabaseModel):
         translation of fields provided along with operators as well.  It will
         generate the translated parameters of the form:
 
-          `field, (operator, datetime)`
+          `{field: {operator: datetime}}`
 
         when an operator is found, otherwise:
 
-          `field, datetime`
+          `{field: datetime}`
         """
+        translated_params = {}
         for key, value in params.items():
             if key in cls._TIMESTAMP_FIELDS:
-                if isinstance(value, tuple) and len(value) == 2:
-                    op_key, op_value = value
-                    yield key, (op_key, datetime.fromisoformat(op_value))
+                if isinstance(value, dict):
+                    for op_key, op_value in value.items():
+                        if translated_params.get(key):
+                            translated_params[key].update({
+                                op_key: datetime.fromisoformat(op_value)})
+                        else:
+                            translated_params[key] = {op_key: datetime.fromisoformat(op_value)}
                 else:
-                    yield key, datetime.fromisoformat(value)
+                    translated_params[key] = datetime.fromisoformat(value)
+        return translated_params
 
     @classmethod
     def translate_fields(cls, params: dict):
