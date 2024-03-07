@@ -131,12 +131,16 @@ class Callback:
         """Parse the results and return them as a plain dictionary"""
         results = {}
         for suite_name, suite_results in self._data['results'].items():
+            print("DEBUG: suite_name:", suite_name)
             tests = yaml.safe_load(suite_results)
             if suite_name == 'lava':
                 results['login'] = self._get_login_case(tests)
             else:
                 suite_name = suite_name.partition("_")[2]
                 results[suite_name] = self._get_suite_results(tests)
+                if suite_name == "kselftest-dt":
+                    print("DEBUG: suite_results:", tests)
+                    print("DEBUG: results[suite_name]:", results[suite_name])
         return results
 
     @classmethod
