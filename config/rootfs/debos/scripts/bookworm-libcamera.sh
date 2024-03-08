@@ -24,15 +24,18 @@ BUILD_DEPS="\
       ca-certificates \
 "
 
+export DEBIAN_FRONTEND=noninteractive
+
 # Get latest libgtest from backports
-echo 'deb http://deb.debian.org/debian bullseye-backports main' >> /etc/apt/sources.list
+echo 'deb http://deb.debian.org/debian bookworm-backports main' >> /etc/apt/sources.list
 apt-get update
 apt-get install --no-install-recommends -y libgtest-dev
 
 apt-get install --no-install-recommends -y  ${BUILD_DEPS}
 
 # Get latest meson from pip
-pip3 install meson
+#pip3 install meson --break-system-packages
+apt install --no-install-recommends -y python3-mesonpy 
 
 BUILDFILE=/test_suites.json
 echo '{  "tests_suites": [' >> $BUILDFILE

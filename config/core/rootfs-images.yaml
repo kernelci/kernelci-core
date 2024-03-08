@@ -7,44 +7,27 @@ file_systems:
     ramdisk: buildroot-baseline/20230623.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: buildroot
-  debian_bookworm-kselftest_nfs:
-    boot_protocol: tftp
-    nfs: bookworm-kselftest/20240221.0/{arch}/full.rootfs.tar.xz
-    params:
-      os_config: debian
-    prompt: '/ #'
-    ramdisk: bookworm-kselftest/20240221.0/{arch}/initrd.cpio.gz
-    root_type: nfs
-    type: debian
-  debian_bookworm-kselftest_ramdisk:
-    boot_protocol: ramdisk
-    params:
-      os_config: debian
-    prompt: '/ #'
-    ramdisk: bookworm-kselftest/20240221.0/{arch}/rootfs.cpio.gz
-    root_type: ramdisk
-    type: debian
-  debian_bullseye-cros-ec_ramdisk:
+  debian_bookworm-cros-ec_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-cros-ec/20230623.0/{arch}/rootfs.cpio.gz
+    ramdisk: bookworm-cros-ec/20230623.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
-  debian_bullseye-diskfile:
+  debian_bookworm-diskfile:
     boot_protocol: tftp
-    diskfile: bullseye/20240129.0/{arch}/rootfs.ext4.xz
+    diskfile: bookworm/20240129.0/{arch}/rootfs.ext4.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm/20240129.0/{arch}/initrd.cpio.gz
     root_type: diskfile
     type: debian
-  debian_bullseye-gst-fluster_nfs:
+  debian_bookworm-gst-fluster_nfs:
     boot_protocol: tftp
-    nfs: bullseye-gst-fluster/20240129.0/{arch}/full.rootfs.tar.xz
+    nfs: bookworm-gst-fluster/20240129.0/{arch}/full.rootfs.tar.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-gst-fluster/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm-gst-fluster/20240129.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
   debian_bookworm-igt_ramdisk:
@@ -54,111 +37,112 @@ file_systems:
     ramdisk: bookworm-igt/20240129.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
-  debian_bullseye-kselftest_diskfile:
+  debian_bookworm-kselftest_diskfile:
     boot_protocol: tftp
-    diskfile: bullseye-kselftest/20240129.0/{arch}/rootfs.ext4.xz
+    diskfile: bookworm-kselftest/20240129.0/{arch}/rootfs.ext4.xz
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-kselftest/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm-kselftest/20240129.0/{arch}/initrd.cpio.gz
     root_type: diskfile
     type: debian
-  debian_bullseye-kselftest_nfs:
+  debian_bookworm-kselftest_nfs:
     boot_protocol: tftp
-    nfs: bullseye-kselftest/20240129.0/{arch}/full.rootfs.tar.xz
+    nfs: bookworm-kselftest/20240129.0/{arch}/full.rootfs.tar.xz
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-kselftest/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm-kselftest/20240129.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
-  debian_bullseye-kselftest_ramdisk:
+  debian_bookworm-kselftest_ramdisk:
     boot_protocol: ramdisk
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-kselftest/20240129.0/{arch}/rootfs.cpio.gz
+    ramdisk: bookworm-kselftest/20240129.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
-  debian_bullseye-libcamera_nfs:
+  debian_bookworm-libcamera_nfs:
     boot_protocol: tftp
-    nfs: bullseye-libcamera/20240129.0/{arch}/full.rootfs.tar.xz
+    nfs: bookworm-libcamera/20240129.0/{arch}/full.rootfs.tar.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-libcamera/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm-libcamera/20240129.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
-  debian_bullseye-libhugetlbfs_nfs:
+  debian_bookworm-libhugetlbfs_nfs:
     boot_protocol: tftp
-    nfs: bullseye-libhugetlbfs/20240129.0/{arch}/full.rootfs.tar.xz
+    nfs: bookworm-libhugetlbfs/20240129.0/{arch}/full.rootfs.tar.xz
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-libhugetlbfs/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm-libhugetlbfs/20240129.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
-  debian_bullseye-libhugetlbfs_ramdisk:
+  debian_bookworm-libhugetlbfs_ramdisk:
     boot_protocol: ramdisk
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-libhugetlbfs/20240129.0/{arch}/rootfs.cpio.gz
+    ramdisk: bookworm-libhugetlbfs/20240129.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
-  debian_bullseye-ltp_diskfile:
+  debian_bookworm-ltp_diskfile:
     boot_protocol: tftp
-    diskfile: bullseye-ltp/20240129.0/{arch}/rootfs.ext4.xz
+    diskfile: bookworm-ltp/20240129.0/{arch}/rootfs.ext4.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-ltp/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm-ltp/20240129.0/{arch}/initrd.cpio.gz
     root_type: diskfile
     type: debian
-  debian_bullseye-ltp_nfs:
+  debian_bookworm-ltp_nfs:
     boot_protocol: tftp
-    nfs: bullseye-ltp/20240129.0/{arch}/full.rootfs.tar.xz
+    nfs: bookworm-ltp/20240129.0/{arch}/full.rootfs.tar.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-ltp/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm-ltp/20240129.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
-  debian_bullseye-ltp_ramdisk:
+  debian_bookworm-ltp_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-ltp/20240129.0/{arch}/rootfs.cpio.gz
+    ramdisk: bookworm-ltp/20240129.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
-  debian_bullseye-rt_ramdisk:
+  debian_bookworm-rt_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-rt/20240129.0/{arch}/rootfs.cpio.gz
+    ramdisk: bookworm-rt/20240129.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
-  debian_bullseye-v4l2_ramdisk:
+  debian_bookworm-v4l2_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-v4l2/20230623.0/{arch}/rootfs.cpio.gz
+    ramdisk: bookworm-v4l2/20230623.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
-  debian_bullseye-vdso_nfs:
+  debian_bookworm-vdso_nfs:
     boot_protocol: tftp
-    nfs: bullseye-vdso/20240129.0/{arch}/full.rootfs.tar.xz
+    nfs: bookworm-vdso/20240129.0/{arch}/full.rootfs.tar.xz
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-vdso/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm-vdso/20240129.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
-  debian_bullseye-vdso_ramdisk:
+  debian_bookworm-vdso_ramdisk:
     boot_protocol: ramdisk
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-vdso/20240129.0/{arch}/rootfs.cpio.gz
+    ramdisk: bookworm-vdso/20240129.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
+<<<<<<< HEAD
   debian_bullseye-wifi_nfs:
     boot_protocol: tftp
     nfs: bullseye-wifi/20240109.0/{arch}/full.rootfs.tar.xz
@@ -168,18 +152,21 @@ file_systems:
     root_type: nfs
     type: debian
   debian_bullseye_nfs:
+=======
+  debian_bookworm_nfs:
+>>>>>>> 19d2fd498 (rootfs: bullseye - migrate to bookworm)
     boot_protocol: tftp
-    nfs: bullseye/20240129.0/{arch}/full.rootfs.tar.xz
+    nfs: bookworm/20240129.0/{arch}/full.rootfs.tar.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye/20240129.0/{arch}/initrd.cpio.gz
+    ramdisk: bookworm/20240129.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
-  debian_bullseye_ramdisk:
+  debian_bookworm_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye/20240129.0/{arch}/rootfs.cpio.gz
+    ramdisk: bookworm/20240129.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_sid-kselftest_nfs:

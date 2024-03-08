@@ -27,14 +27,16 @@ GST_DEPS="\
 
 CACHING_SERVICE="http://kernelci1.eastus.cloudapp.azure.com:8888/cache?uri="
 
+export DEBIAN_FRONTEND=noninteractive
+
 # Install dependencies
-echo 'deb http://deb.debian.org/debian bullseye-backports main' >>/etc/apt/sources.list
+echo 'deb http://deb.debian.org/debian bookworm-backports main' >>/etc/apt/sources.list
 apt-get update
 apt-get install --no-install-recommends -y ${BUILD_DEPS} ${GST_DEPS} curl
-apt-mark manual python3 libpython3-stdlib libpython3.9-stdlib python3.9 libglib2.0-0 libgudev-1.0
+apt-mark manual python3 libpython3-stdlib python3 libglib2.0-0 libgudev-1.0
 
 # Get latest meson from pip
-pip3 install meson
+pip3 install meson --break-system-packages
 
 if [ "$(uname -m)" == "x86_64" ]; then
   # Install non-free intel media-driver
@@ -200,7 +202,7 @@ download_fluster_testsuite ./test_suites/vp8/VP8-TEST-VECTORS.json
 download_fluster_testsuite ./test_suites/vp9/VP9-TEST-VECTORS.json
 
 # Get junitparser for parsing fluster results
-pip3 install junitparser
+pip3 install junitparser --break-system-packages
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #

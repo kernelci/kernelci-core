@@ -13,7 +13,7 @@ BUILD_DEPS="\
 "
 
 apt-get install --no-install-recommends -y ${BUILD_DEPS}
-apt-mark manual python3 libpython3-stdlib libpython3.9-stdlib python3.9
+apt-mark manual python3 libpython3-stdlib libpython3-stdlib python3
 
 ########################################################################
 # Build tests                                                          #
@@ -29,7 +29,7 @@ echo '{  "tests_suites": [' >> $BUILDFILE
 CROS_URL="https://github.com/kernelci/cros-ec-tests.git"
 CROS_SHA=$(git ls-remote ${CROS_URL} | head -n 1 | cut -f 1)
 
-pip3 install git+${CROS_URL}@${CROS_SHA}
+pip3 install git+${CROS_URL}@${CROS_SHA} --break-system-packages
 
 echo '    {"name": "cros-ec-tests", "git_url": "'$CROS_URL'", "git_commit": "'$CROS_SHA'" }' >> $BUILDFILE
 echo '  ]}' >> $BUILDFILE
@@ -40,7 +40,7 @@ echo '  ]}' >> $BUILDFILE
 
 rm -fr /src/cros-ec-tests
 
-apt-get remove --purge -y ${BUILD_DEPS} perl-modules-5.32
+apt-get remove --purge -y ${BUILD_DEPS} perl-modules-5.36
 apt-get autoremove --purge -y
 apt-get clean
 

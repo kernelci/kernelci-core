@@ -38,6 +38,16 @@ actions:
       - initramfs-tools
       - patch
       - systemd-timesyncd
+{{ if $extra_firmware }}
+      - rdfind
+{{ end }}
+
+{{ if $extra_firmware }}
+  - action: run
+    description: add firmware files
+    chroot: false
+    script: scripts/install-firmware.sh --ignore-duplicates -f {{ $extra_firmware }} {{ if $linux_fw_version }} -v {{ $linux_fw_version }} {{ end }}
+{{ end }}
 
   - action: run
     description: Build testsuite
@@ -58,12 +68,6 @@ actions:
     chroot: true
     command: apt-get update && apt-get -y install --no-install-recommends {{ $extra_packages }}
 
-{{ if $extra_firmware }}
-  - action: run
-    description: add firmware files
-    chroot: false
-    script: scripts/install-firmware.sh -f {{ $extra_firmware }} {{ if $linux_fw_version }} -v {{ $linux_fw_version }} {{ end }}
-{{ end }}
 
   - action: run
     description: Set hostname
