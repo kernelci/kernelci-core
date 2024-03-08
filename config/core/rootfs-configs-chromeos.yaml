@@ -1,21 +1,5 @@
 rootfs_configs:
 
-  bullseye-cros-flash:
-    rootfs_type: debos
-    debian_release: bullseye
-    arch_list:
-      - amd64
-      - arm64
-    extra_packages:
-      - bzip2
-      - ca-certificates
-      - gdisk
-      - parted
-      - wget
-      - xz-utils
-    test_overlay: "overlays/cros-flash"
-    script: "scripts/bullseye-cros-flash.sh"
-
   chromiumos-amd64-generic:
     rootfs_type: chromiumos
     board: amd64-generic

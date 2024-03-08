@@ -4,9 +4,10 @@
 
 set -e
 
-RELEASE=02df38e93e25e07f4d54edae94fb4ec90b7a2824
+RELEASE=1322884fb0d55dc55f53563c1aa6328d118997e7
 
 BUILD_DEPS="\
+      automake
       gcc \
       git \
       ca-certificates \
@@ -24,7 +25,10 @@ cd /usr/libhugetlbfs
 git clone https://github.com/libhugetlbfs/libhugetlbfs
 cd libhugetlbfs
 git reset --hard ${RELEASE}
+./autogen.sh
+./configure
 make BUILDTYPE=NATIVEONLY
+make BUILDTYPE=NATIVEONLY install
 
 # Cleanup: remove files and packages we don't want in the images 
 apt-get remove --purge -y ${BUILD_DEPS}

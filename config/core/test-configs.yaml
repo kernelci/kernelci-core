@@ -80,13 +80,13 @@ test_plans:
       priority: 90
 
   baseline_fvp:
-    rootfs: debian_bullseye-diskfile
+    rootfs: debian_bookworm-diskfile
     pattern: 'baseline/generic-fvp-diskfile-baseline-template.jinja2'
     params:
       job_timeout: '30'
 
   baseline-nfs:
-    rootfs: debian_bullseye_nfs
+    rootfs: debian_bookworm_nfs
     pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
     params:
       priority: 85
@@ -109,7 +109,7 @@ test_plans:
             - 'lab-collabora-staging'
 
   cros-ec:
-    rootfs: debian_bullseye-cros-ec_ramdisk
+    rootfs: debian_bookworm-cros-ec_ramdisk
 
   igt: &igt
     rootfs: debian_bookworm-igt_ramdisk
@@ -280,7 +280,7 @@ test_plans:
         vc4_wait_seqno
 
   kselftest: &kselftest
-    rootfs: debian_bullseye-kselftest_nfs
+    rootfs: debian_bookworm-kselftest_nfs
     pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}
@@ -288,13 +288,13 @@ test_plans:
   # Add _a_ into the name so we can keep this before the individual
   # definitions
   kselftest_a_fvp: &kselftest_fvp
-    rootfs: debian_bullseye-kselftest_diskfile
+    rootfs: debian_bookworm-kselftest_diskfile
     pattern: 'kselftest/generic-fvp-diskfile-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}
 
   kselftest_a_qemu: &kselftest_qemu
-    rootfs: debian_bullseye-kselftest_ramdisk
+    rootfs: debian_bookworm-kselftest_ramdisk
     pattern: 'kselftest/{category}-{method}-{rootfs}-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}
@@ -543,19 +543,19 @@ test_plans:
           kernel: ['v3.', 'v4.', 'v5.', 'v6.0', 'v6,1', 'v6.2']
 
   lc-compliance:
-    rootfs: debian_bullseye-libcamera_nfs
+    rootfs: debian_bookworm-libcamera_nfs
     pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
     params:
       job_timeout: '45'
 
   libhugetlbfs:
-    rootfs: debian_bullseye-libhugetlbfs_nfs
+    rootfs: debian_bookworm-libhugetlbfs_nfs
     pattern: 'libhugetlbfs/{category}-{method}-{protocol}-{rootfs}-libhugetlbfs-template.jinja2'
     params:
       job_timeout: '20'
 
   ltp: &ltp
-    rootfs: debian_bullseye-ltp_nfs
+    rootfs: debian_bookworm-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
@@ -686,7 +686,7 @@ test_plans:
   ltp-timers_qemu:
     <<: *ltp
     base_name: ltp-timers
-    rootfs: debian_bullseye-ltp_ramdisk
+    rootfs: debian_bookworm-ltp_ramdisk
     pattern: 'ltp/{category}-{method}-{rootfs}-ltp-open-posix-template.jinja2'
     params:
       <<: *ltp-params
@@ -699,18 +699,18 @@ test_plans:
       - passlist: *qemu_labs_filter
 
   preempt-rt:
-    rootfs: debian_bullseye-rt_ramdisk
+    rootfs: debian_bookworm-rt_ramdisk
     filters:
       - passlist: {defconfig: ['preempt_rt']}
 
   sleep:
-    rootfs: debian_bullseye_ramdisk
+    rootfs: debian_bookworm_ramdisk
     params:
       sleep_params: mem freeze
 
   sleep_mem:
     base_name: sleep
-    rootfs: debian_bullseye_ramdisk
+    rootfs: debian_bookworm_ramdisk
     pattern: 'sleep/{category}-{method}-{protocol}-{rootfs}-sleep-template.jinja2'
     params:
       sleep_params: mem
@@ -728,21 +728,21 @@ test_plans:
       - passlist: *qemu_labs_filter
 
   usb:
-    rootfs: debian_bullseye_ramdisk
+    rootfs: debian_bookworm_ramdisk
 
   v4l2-compliance-mtk-vcodec-enc:
-    rootfs: debian_bullseye-v4l2_ramdisk
+    rootfs: debian_bookworm-v4l2_ramdisk
     pattern: 'v4l2-compliance/{category}-{method}-{protocol}-{rootfs}-v4l2-compliance-template.jinja2'
     params: {v4l2_driver: "mtk-vcodec-enc"}
 
   v4l2-compliance-uvc:
-    rootfs: debian_bullseye-v4l2_ramdisk
+    rootfs: debian_bookworm-v4l2_ramdisk
     # FIXME - this is not very sustainable, improve template naming scheme
     pattern: 'v4l2-compliance/{category}-{method}-{protocol}-{rootfs}-v4l2-compliance-template.jinja2'
     params: {v4l2_driver: "uvcvideo"}
 
   v4l2-compliance-vivid:
-    rootfs: debian_bullseye-v4l2_ramdisk
+    rootfs: debian_bookworm-v4l2_ramdisk
     pattern: 'v4l2-compliance/generic-qemu-v4l2-compliance-template.jinja2'
     params: {v4l2_driver: "vivid"}
     filters:
@@ -752,7 +752,7 @@ test_plans:
             - 'multi_v7_defconfig+virtualvideo'
 
   v4l2-decoder-conformance-av1: &v4l2-decoder-conformance
-    rootfs: debian_bullseye-gst-fluster_nfs
+    rootfs: debian_bookworm-gst-fluster_nfs
     pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
     params: &v4l2-decoder-conformance-params
       job_timeout: '30'
@@ -818,13 +818,13 @@ test_plans:
         - 'GStreamer-VP9-V4L2SL-Gst1.0'
 
   vdso:
-    rootfs: debian_bullseye-vdso_nfs
+    rootfs: debian_bookworm-vdso_nfs
     pattern: 'vdso/{category}-{method}-{protocol}-{rootfs}-vdso-template.jinja2'
     params:
       job_timeout: '20'
 
   wifi-basic: &wifi-basic
-    rootfs: debian_bullseye-wifi_nfs
+    rootfs: debian_bookworm-wifi_nfs
     pattern: 'wifi/{category}-{method}-{protocol}-{rootfs}-wifi-template.jinja2'
     params: &wifi-basic-params
       job_timeout: '10'
