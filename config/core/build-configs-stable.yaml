@@ -472,7 +472,7 @@ build_configs:
       tree: stable
       branch: 'linux-6.6.y'
 
-stable-rc_queue-6.7:
+  stable-rc_queue-6.7:
     tree: stable-rc
     branch: 'queue/6.7'
     variants: *stable_variants
