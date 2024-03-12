@@ -25,6 +25,7 @@ from pydantic import (
     Field,
     FileUrl,
     StrictInt,
+    validator,
 )
 from .models_base import (
     PyObjectId,
@@ -612,6 +613,15 @@ class PublishEvent(BaseModel):
     attributes: Optional[Dict] = Field(
         description="Extra Cloudevents Extension Context Attributes"
     )
+
+    # suppress pylint error below
+    # It's a known issue: https://github.com/pylint-dev/pylint/issues/6900
+    @validator('data')
+    def validate_data(cls, val):  # pylint: disable=no-self-argument
+        """Do not allow 'None' as event payload data"""
+        if not val:
+            raise ValueError('None is not allowed as event payload')
+        return val
 
 
 def parse_node_obj(node: Node):
