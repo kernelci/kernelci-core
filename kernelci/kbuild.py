@@ -295,7 +295,6 @@ class KBuild():
             self._artifacts.append("build_dtbs_stderr.log")
         else:
             self._artifacts.append("build_dtbs_check.log")
-            self._artifacts.append("build_dtbs_check_stderr.log")
         self._artifacts.append("metadata.json")
         # download tarball
         self.addcomment("Download tarball")
@@ -575,8 +574,7 @@ class KBuild():
         self.startjob("build_dtbs_check")
         self.addcmd("cd " + self._srcdir)
         self.addcmd("make -j$(nproc) dtbs_check" + " --output-sync 1> " +
-                    self._af_dir + "/build_dtbs_check.log" +
-                    " 2> " + self._af_dir + "/build_dtbs_check_stderr.log" +
+                    self._af_dir + "/build_dtbs_check.log" + " 2>&1" +
                     " && echo DTBS_CHECK_OK || echo DTBS_CHECK_FAILED $?", False)
         self.addcmd("cd ..")
 
