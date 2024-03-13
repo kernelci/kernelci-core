@@ -568,7 +568,8 @@ class KBuild():
         self.addcmd("cd " + self._srcdir)
         self.addcmd("make -j$(nproc) dtbs_check" + " --output-sync " +
                     REDIR.format(self._af_dir + "/build_dtbs_check.log",
-                                 self._af_dir + "/build_dtbs_check_stderr.log"))
+                                 self._af_dir + "/build_dtbs_check_stderr.log") +
+                    " && echo DTBS_CHECK_OK || echo DTBS_CHECK_FAILED $?", False)
         self.addcmd("cd ..")
 
     def _package_kimage(self):
