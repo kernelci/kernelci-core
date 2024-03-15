@@ -186,6 +186,10 @@ class Callback:
         """Get a LogParser object from the callback data"""
         return LogParser(self._data['log'])
 
+    def to_file(self, filename):
+        """Write the callback data to a JSON file"""
+        with open(filename, 'w') as file:
+            file.write(self._data)
 
 class LAVA(Runtime):
     """Runtime implementation to run jobs in a LAVA lab
