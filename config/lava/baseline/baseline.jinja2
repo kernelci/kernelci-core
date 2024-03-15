@@ -25,30 +25,3 @@
       name: dmesg
       path: inline/dmesg.yaml
 
-- test:
-{%- if test_namespace %}
-    namespace: {{ test_namespace }}
-{%- endif %}
-    timeout:
-      minutes: 1
-    failure_retry: 5
-    definitions:
-    - repository:
-        metadata:
-          format: Lava-Test Test Definition 1.0
-          name: baseline
-          description: "baseline test plan"
-          os:
-            - debian
-          scope:
-            - functional
-          environment:
-            - lava-test-shell
-        run:
-          steps:
-            - export PATH=/opt/bootrr/libexec/bootrr/helpers:$PATH
-            - cd /opt/bootrr/libexec/bootrr && sh helpers/bootrr-auto
-      lava-signal: kmsg
-      from: inline
-      name: bootrr
-      path: inline/bootrr.yaml
