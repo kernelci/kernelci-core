@@ -214,7 +214,15 @@ class LAVA(Runtime):
 
     def generate(self, job, params):
         template = self._get_template(job.config)
-        rendered = template.render(params)
+        try:
+            rendered = template.render(params)
+        # jinja2.exceptions.UndefinedError
+        except Exception as exc:
+            platform_params = params['platform_config'].params
+            print(f"Error rendering job template: {exc}, {params}"+
+                  f"{exc}, {params} {platform_params}")
+            return None
+
         # yaml round-trip to process e.g. multi-line commands
         return yaml.dump(yaml.load(rendered, Loader=yaml.CLoader))
 
