@@ -4,7 +4,7 @@ file_systems:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: buildroot-baseline/20240313.0/{arch}/rootfs.cpio.gz
+    ramdisk: buildroot-baseline/20230703.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: buildroot
   debian_bookworm-cros-ec_ramdisk:
