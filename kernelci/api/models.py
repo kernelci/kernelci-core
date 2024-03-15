@@ -73,6 +73,7 @@ class ErrorCodes(str, enum.Enum):
     MULTI_NODE_TIMEOUT = 'MultinodeTimeout'
     OBJECT_NOT_PERSISTED = 'ObjectNotPersisted'
     UNEXISTING_PERMISSION_CODENAME = 'Unexisting permission codename.'
+    JOB_GENERATION_ERROR = 'job_generation_error'
 
 
 class KernelVersion(BaseModel):

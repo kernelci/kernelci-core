@@ -195,7 +195,7 @@ class Callback:
 
     def to_file(self, filename):
         """Write the callback data to a JSON file"""
-        with open(filename, 'w') as file:
+        with open(filename, 'w', encoding='utf-8') as file:
             file.write(self._data)
 
 
@@ -229,9 +229,9 @@ class LAVA(Runtime):
         try:
             rendered = template.render(params)
         # jinja2.exceptions.UndefinedError
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             platform_params = params['platform_config'].params
-            print(f"Error rendering job template: {exc}, {params}"+
+            print(f"Error rendering job template: {exc}, {params}" +
                   f"{exc}, {params} {platform_params}")
             return None
 
