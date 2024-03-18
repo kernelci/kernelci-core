@@ -149,9 +149,9 @@ class Runtime(abc.ABC):
             'runtime': self.config.lab_type,
             'runtime_image': job.config.image,
         }
-        params.update(job.config.params)
         if job.platform_config.params:
             params.update(job.platform_config.params)
+        params.update(job.config.params)
         return params
 
     @classmethod
