@@ -162,8 +162,10 @@ class Node(DatabaseModel):
     name: str = Field(
         description="Name of the node object"
     )
-    path: List[str] = Field(
-        description="Full path with node names from the top-level node"
+    path: str = Field(
+        description=("Slash-separated path to the node from the top-level"
+                     "node. For non-final nodes this should end with a "
+                     "trailing slash")
     )
     group: Optional[str] = Field(
         description="Name of a group this node belongs to"
