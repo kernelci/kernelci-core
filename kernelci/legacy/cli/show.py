@@ -101,7 +101,7 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
 
         print(f"""\
 {self._color('Node', 'bold')}
-  {self._color('path', 'blue')}      {'.'.join(node['path'])}
+  {self._color('path', 'blue')}      {node['path']}
   {self._color('id', 'blue')}        {args.id}
   {self._color('parent', 'blue')}    {parent_id}
   {self._color('owner', 'blue')}     {owner}
