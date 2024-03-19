@@ -4,11 +4,7 @@
  # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 -#}
 
-{%- if is_api %}
-   FROM python:3.10
-{% else %}
-   FROM python:3.11
-{%- endif %}
+FROM python:3.11
 
 MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 
