@@ -111,8 +111,14 @@ class Callback:
         login = (
             tests_map.get('auto-login-action') or tests_map.get('login-action')
         )
-        job_result = tests_map['job']['result']
-        result = login and login['result'] == 'pass' and job_result == 'pass'
+        result = login and login['result'] == 'pass'
+        return 'pass' if result else 'fail'
+
+    @classmethod
+    def _get_kernelmsg_case(cls, tests):
+        tests_map = {test['name']: test for test in tests}
+        kernelmsg = tests_map.get('kernel-messages')
+        result = kernelmsg and kernelmsg['result'] == 'pass'
         return 'pass' if result else 'fail'
 
     @classmethod
@@ -135,6 +141,7 @@ class Callback:
             tests = yaml.safe_load(suite_results)
             if suite_name == 'lava':
                 results['login'] = self._get_login_case(tests)
+                results['kernelmsg'] = self._get_kernelmsg_case(tests)
             else:
                 suite_name = suite_name.partition("_")[2]
                 results[suite_name] = self._get_suite_results(tests)
@@ -190,6 +197,11 @@ class Callback:
         """Get a LogParser object from the callback data"""
         return LogParser(self._data['log'])
 
+    def to_file(self, filename):
+        """Write the callback data to a JSON file"""
+        with open(filename, 'w') as file:
+            file.write(self._data)
+
 
 class LAVA(Runtime):
     """Runtime implementation to run jobs in a LAVA lab
@@ -218,7 +230,15 @@ class LAVA(Runtime):
 
     def generate(self, job, params):
         template = self._get_template(job.config)
-        rendered = template.render(params)
+        try:
+            rendered = template.render(params)
+        # jinja2.exceptions.UndefinedError
+        except Exception as exc:
+            platform_params = params['platform_config'].params
+            print(f"Error rendering job template: {exc}, {params}"+
+                  f"{exc}, {params} {platform_params}")
+            return None
+
         # yaml round-trip to process e.g. multi-line commands
         return yaml.dump(yaml.load(rendered, Loader=yaml.CLoader))
 
