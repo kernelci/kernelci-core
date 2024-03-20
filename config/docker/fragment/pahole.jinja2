@@ -1,0 +1,19 @@
+ARG PAHOLE_VER=1.25
+ARG SHA256SUM=db31d13c3dad8d9f4e38296bd35c4586e98b9c950e07dabba212985e6d051631
+ARG PAHOLE_TRIPLE=dwarves-${PAHOLE_VER}
+
+RUN apt-get update && apt-get install -y elfutils libelf-dev libdw-dev cmake
+
+# https://lwn.net/Articles/928617/
+RUN wget https://fedorapeople.org/~acme/dwarves/${PAHOLE_TRIPLE}.tar.xz && \
+    wget https://fedorapeople.org/~acme/dwarves/${PAHOLE_TRIPLE}.tar.sign && \
+    tar -xf ${PAHOLE_TRIPLE}.tar.xz -C /tmp/ && \
+    cd /tmp/${PAHOLE_TRIPLE} && \
+    ls /tmp/${PAHOLE_TRIPLE} && \
+    cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -D__LIB=lib . && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /tmp/${PAHOLE_TRIPLE} && \
+    rm /${PAHOLE_TRIPLE}*
+
+ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}:/usr/local/lib
