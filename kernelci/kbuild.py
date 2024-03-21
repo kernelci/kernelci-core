@@ -296,7 +296,7 @@ class KBuild():
         # download tarball
         self.addcomment("Download tarball")
         self.addcmd("cd " + self._workspace)
-        self.addcmd("wget -c -t 10 \"" + self._srctarball + "\" -O linux.tgz")
+        self.addcmd("wget -c -t 10 --retry-on-host-error \"" + self._srctarball + "\" -O linux.tgz")
         self.addcmd("tar -xzf linux.tgz -C " + self._srcdir + " --strip-components=1")
 
     def addspacer(self):
