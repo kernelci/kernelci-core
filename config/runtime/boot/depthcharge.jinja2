@@ -4,7 +4,7 @@
 {%- if modules_url is not defined %}
 {%-   set modules_url = node.artifacts.modules %}
 {%- endif %}
-{%- if platform_config.dtb and dtb_url is not defined %}
+{%- if device_dtb and dtb_url is not defined %}
 {%-   set dtb_url = node.artifacts.dtb %}
 {%- endif %}
 {%- if boot_commands is not defined %}
@@ -20,7 +20,7 @@
     modules:
       compression: xz
       url: '{{ modules_url }}'
-{%- if platform_config.dtb %}
+{%- if device_dtb %}
     dtb:
       url: '{{ dtb_url }}'
 {%- endif %}
