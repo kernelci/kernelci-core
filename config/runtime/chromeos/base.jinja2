@@ -32,7 +32,7 @@
     to: tftp
     kernel:
       url: '{{ node.artifacts.kernel }}'
-{%- if platform_config.dtb %}
+{%- if device_dtb %}
     dtb:
       url: '{{ node.artifacts.dtb }}'
 {%- endif %}

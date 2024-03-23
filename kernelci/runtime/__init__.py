@@ -124,7 +124,8 @@ class Runtime(abc.ABC):
     def get_params(self, job, api_config=None):
         """Get job template parameters"""
         instanceid = os.environ.get('KCI_INSTANCE')
-        if job.platform_config.dtb:
+        device_dtb = None
+        if job.platform_config.dtb and len(job.platform_config.dtb) > 0:
             # verify if we have metadata at all
             if 'metadata' not in job.node['artifacts']:
                 print(f"metadata.json not found for dtb file {job.platform_config.dtb}")
@@ -134,11 +135,15 @@ class Runtime(abc.ABC):
             req = requests.get(metadata_url, timeout=60)
             if req.status_code == 200:
                 metadata = req.json()
-                if job.platform_config.dtb not in metadata['artifacts']:
+                for dtb in job.platform_config.dtb:
+                    if dtb in metadata['artifacts']:
+                        dtb_url = metadata['artifacts'][dtb]
+                        job.node['artifacts']['dtb'] = dtb_url
+                        device_dtb = dtb
+                        break
+                if not device_dtb:
                     print(f"dtb file {job.platform_config.dtb} not found!")
                     return None
-                dtb_url = metadata['artifacts'][job.platform_config.dtb]
-                job.node['artifacts']['dtb'] = dtb_url
         params = {
             'api_config': api_config or {},
             'storage_config': job.storage_config or {},
@@ -151,6 +156,8 @@ class Runtime(abc.ABC):
         }
         if job.platform_config.params:
             params.update(job.platform_config.params)
+        if device_dtb:
+            params['device_dtb'] = device_dtb
         params.update(job.config.params)
         return params
 

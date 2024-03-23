@@ -5,7 +5,7 @@
     modules:
       compression: xz
       url: '{{ node.artifacts.modules }}'
-{%- if platform_config.dtb %}
+{%- if device_dtb %}
     dtb:
       url: '{{ node.artifacts.dtb }}'
 {%- endif %}
