@@ -7,7 +7,7 @@
       url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/{{ platform_config.arch }}/rootfs.cpio.gz'
       image_arg: -initrd {ramdisk}
       compression: gz
-{%- if platform_config.dtb %}
+{%- if device_dtb %}
     dtb:
       url: '{{ node.artifacts.dtb }}'
       image_arg: -dtb {dtb}
