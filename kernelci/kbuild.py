@@ -9,7 +9,6 @@ Roadmap:
 - correct build status - fail/pass/incomplete
 - Code deuglification
 - Reuse API class/functions and other code from KernelCI
-- Add support for multiple compilers (clang)
 - Implement 3-stage build process
   (fetch-prepare, build, package) with 3 containers
   (kernelci, compiler-specific, kernelci)
@@ -268,6 +267,10 @@ class KBuild():
         self.addcmd("export INSTALL_MOD_PATH=_modules_")
         self.addcmd("export INSTALL_MOD_STRIP=1")
         self.addcmd("export INSTALL_DTBS_PATH=_dtbs_")
+        # if self._compiler start with clang- we need to set env vars
+        if self._compiler.startswith("clang-"):
+            # LLVM=1, can be suffix with version in future, like -14
+            self.addcmd("export LLVM=1")
         # set -x for echo
         self._steps.append("set -x")
         # touch build.log
