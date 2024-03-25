@@ -478,7 +478,7 @@ class RegressionData(BaseModel):
     error_msg: Optional[str] = Field(
         description="Error message of the failed job"
     )
-    failed_kernel_revision: Optional[Revision] = Field(
+    kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data of the failed job"
     )
     arch: Optional[str] = Field(
@@ -584,7 +584,7 @@ class Regression(Node):
             'config_full': fail_node.data.config_full,
             'compiler': fail_node.data.compiler,
             'platform': fail_node.data.platform,
-            'failed_kernel_revision': fail_node.data.kernel_revision,
+            'kernel_revision': fail_node.data.kernel_revision,
             'fail_node': fail_node.id,
             'pass_node': pass_node.id,
         }
