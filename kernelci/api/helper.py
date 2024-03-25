@@ -208,20 +208,27 @@ class APIHelper:
               - '!blocked-value2'
               ...
 
-        An additional rule can be defined to check for a minimum kernel version,
-        formatted as follows:
+        Additional rules can be defined to check for a minimum and/or maximum
+        kernel version, formatted as follows:
 
             min_version:
               version: int # major version
               patchlevel: int # minor version
 
+            max_version:
+              version: int
+              patchlevel: int
+
         For example, a job can be configured to run only on arm64 devices, with
-        a kernel version >= 6.6, built with any defconfig except `allnoconfig`,
-        and using the `kselftest` fragment but not the `arm64-chromebook` one,
-        by adding the following to the job definition:
+        a kernel version between 6.1 and 6.6, built with any defconfig except
+        `allnoconfig`, and using the `kselftest` fragment but not the
+        `arm64-chromebook` one, by adding the following to the job definition:
 
           rules:
             min_version:
+              version: 6
+              patchlevel: 1
+            max_version:
               version: 6
               patchlevel: 6
             arch:
@@ -238,14 +245,22 @@ class APIHelper:
         for key in rules:
             # Special case as there is no field in the node giving us the full
             # kernel version in "x.y" format
-            if key == 'min_version':
+            if key.endswith('_version'):
                 kver = node['data']['kernel_revision']['version']
                 major = kver['version']
                 minor = kver['patchlevel']
                 rule_major = rules[key]['version']
                 rule_minor = rules[key]['patchlevel']
-                if (major < rule_major) or (major == rule_major and minor < rule_minor):
+                if (key.startswith('min') and
+                    ((major < rule_major) or
+                     (major == rule_major and minor < rule_minor))):
                     print(f"Version {major}.{minor} older than minimum version "
+                          f"({rule_major}.{rule_minor})")
+                    return False
+                if (key.startswith('max') and
+                    ((major > rule_major) or
+                     (major == rule_major and minor > rule_minor))):
+                    print(f"Version {major}.{minor} more recent than maximum version "
                           f"({rule_major}.{rule_minor})")
                     return False
 
