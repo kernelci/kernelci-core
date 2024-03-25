@@ -23,7 +23,12 @@ class Platform(YAMLConfigObject):
         self._base_name = base_name
         self._boot_method = boot_method
         self._context = context
-        self._dtb = dtb
+        self._dtb = None
+        if dtb:
+            if isinstance(dtb, list):
+                self._dtb = dtb
+            else:
+                self._dtb = [dtb]
         self._mach = mach
         self._params = self.format_params(params.copy(), params) if params else None
         self._rules = rules
