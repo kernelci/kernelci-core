@@ -472,6 +472,14 @@ class RegressionData(BaseModel):
     pass_node: Optional[PyObjectId] = Field(
         description="Previous passing Node"
     )
+    node_sequence: Optional[List[PyObjectId]] = Field(
+        description=("Instances of this same job ran after the initial "
+                     "failure. The last run in the sequence may be a "
+                     "passed run, which means the regression is no longer"
+                     "active. If the sequence is empty or if all the runs "
+                     "in the sequence failed, that means the job is still "
+                     "failing and the regression is active")
+    )
     error_code: Optional[ErrorCodes] = Field(
         description="Error code of the failed job"
     )
@@ -506,6 +514,12 @@ class Regression(Node):
         default='regression',
         description='Type of the object',
         const=True
+    )
+    result: Optional[ResultValues] = Field(
+        description=("PASS if the regression is 'inactive', that is, if the "
+                     "test has ever passed after the regression was created. "
+                     "FAIL if the regression is still 'active', ie. the test "
+                     "is still failing")
     )
     data: RegressionData = Field(
         description="Regression details"
