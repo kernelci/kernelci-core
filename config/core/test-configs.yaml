@@ -331,6 +331,12 @@ test_plans:
       kselftest_collections: "arm64"
     filters: *kselftest_no_fragment
 
+  kselftest-bpf:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "bpf"
+
   kselftest-capabilities:
     <<: *kselftest
     params:
