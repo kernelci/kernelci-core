@@ -689,9 +689,24 @@ class KBuild():
         for key in ARTIFACT_NAMES:
             if re.match(key, artifact):
                 return re.sub(key, ARTIFACT_NAMES[key], artifact)
+        # remove .gz suffix
+        artifact = re.sub(r'\.gz$', '', artifact)
         # otherwise map all dots to underscores
         artifact = artifact.replace('.', '_')
         return artifact
+
+    def compress_artifacts(self):
+        # all files with suffix .log should be compressed by gzip
+        # and artifacts renamed to .log.gz but without renaming key in dict
+        new_artifacts = []
+        for artifact in self._artifacts:
+            if artifact.endswith(".log"):
+                # gzip -9 will compress file to maximum
+                os.system(f"gzip -9 {os.path.join(self._af_dir, artifact)}")
+                new_artifacts.append(artifact + ".gz")
+            else:
+                new_artifacts.append(artifact)
+        self._artifacts = new_artifacts
 
     def upload_artifacts(self):
         '''
@@ -771,6 +786,7 @@ class KBuild():
         # Ensure upload_artifacts() is called *after* refreshing the node
         # as we add a new field to its data in this function
         if af_uri is None:
+            self.compress_artifacts()
             af_uri = self.upload_artifacts()
         print("[_submit] Submitting results to API")
         # TODO/FIXME: real detailed job result
