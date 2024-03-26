@@ -23,6 +23,10 @@
 {% set console_dev = console_dev|default('ttyS0') %}
 {% set qemu_binary = 'qemu-system-mipsel' %}
 {% endif %}
+{% if arch == 'sparc' %}
+{% set console_dev = console_dev|default('ttyS0') %}
+{% set qemu_binary = 'qemu-system-sparc64' %}
+{% endif %}
 {% block metadata %}
 {{ super() }}
 {% endblock %}
