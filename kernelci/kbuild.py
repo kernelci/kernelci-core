@@ -703,9 +703,16 @@ class KBuild():
         storage = self._get_storage()
         root_path = '-'.join([self._apijobname, self._node['id']])
         for artifact in self._artifacts:
+            compressed_file = False
             artifact_path = os.path.join(self._af_dir, artifact)
             print(f"[_upload_artifacts] Uploading {artifact} to {root_path} "
                   f"artifact_path: {artifact_path}")
+            # small discourse, if it is .log file - compress it, but keep original
+            # upload .gz. then delete this gz
+            if artifact.endswith(".log"):
+                os.system(f"gzip -k {artifact_path}")
+                artifact_path = artifact_path + ".gz"
+                compressed_file = True
             stored_url = storage.upload_single(
                 (artifact_path, artifact), root_path
             )
@@ -720,6 +727,8 @@ class KBuild():
                 self._node['data']['kernel_type'] = artifact.lower()
             else:
                 node_af[artifact_key] = stored_url
+            if compressed_file:
+                os.unlink(artifact_path)
             print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
         print("[_upload_artifacts] Artifacts uploaded to storage")
         return node_af
