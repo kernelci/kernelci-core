@@ -863,6 +863,12 @@ device_types:
     boot_method: depthcharge
     filters: *x86-board-filters
 
+  acer-cp514-2h-1130g7-volteer:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-board-filters
+
   acer-cp514-3wh-r0qs-guybrush:
     mach: x86
     arch: x86_64
@@ -1026,11 +1032,6 @@ device_types:
     boot_method: depthcharge
     filters: *x86-board-filters
 
-  asus-cx9400-volteer:
-    mach: x86
-    arch: x86_64
-    boot_method: depthcharge
-    filters: *x86-board-filters
 
   at91-sama5d2_xplained:
     mach: at91
@@ -2426,6 +2427,19 @@ test_configs:
       - baseline
       - baseline-nfs
 
+  - device_type: acer-cp514-2h-1130g7-volteer
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
+      - kselftest-alsa
+      - kselftest-cpufreq
+      - kselftest-lib
+      - kselftest-mm
+      - kselftest-vm
+      - ltp-ipc
+      - wifi-basic
+
   - device_type: acer-cp514-3wh-r0qs-guybrush
     test_plans:
       - baseline
@@ -2563,18 +2577,6 @@ test_configs:
       - kselftest-cpufreq
       - wifi-basic
 
-  - device_type: asus-cx9400-volteer
-    test_plans:
-      - baseline
-      - baseline-nfs
-      - cros-ec
-      - kselftest-alsa
-      - kselftest-cpufreq
-      - kselftest-lib
-      - kselftest-mm
-      - kselftest-vm
-      - ltp-ipc
-      - wifi-basic
 
   - device_type: at91-sama5d2_xplained
     test_plans:
