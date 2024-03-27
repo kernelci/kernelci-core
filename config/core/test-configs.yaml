@@ -1715,6 +1715,12 @@ device_types:
     boot_method: depthcharge
     filters: *arm64-chromebook-filters
 
+  mt8186-corsola-steelix-sku131072:
+    mach: mediatek
+    class: arm64-dtb
+    boot_method: depthcharge
+    filters: *arm64-chromebook-filters
+
   mt8192-asurada-spherion-r0:
     mach: mediatek
     class: arm64-dtb
@@ -3273,6 +3279,11 @@ test_configs:
       - sleep
       - v4l2-compliance-uvc
       - wifi-basic
+
+  - device_type: mt8186-corsola-steelix-sku131072
+    test_plans:
+      - baseline
+      - kselftest-dt
 
   - device_type: mt8192-asurada-spherion-r0
     test_plans:
