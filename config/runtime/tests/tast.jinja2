@@ -41,7 +41,7 @@
               lava-test-case os-release --result pass
               --measurement $(sed -e '/VERSION_ID/!d' -e 's/.*=//' /tmp/osrel.tmp)
             - >-
-              ./tast_parser.py
+              ./tast_parser.py --run
 {%- for test in tests %}
               {{ test }}
 {%- endfor %}
@@ -52,3 +52,4 @@
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
               sync && poweroff && exit 0
+            - ./tast_parser.py --results
