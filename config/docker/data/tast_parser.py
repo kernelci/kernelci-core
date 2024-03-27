@@ -126,12 +126,14 @@ def parse_measurements(results_chart):
     return measurements
 
 
-def main(tests):
-    run_tests(tests)
+def parse_test_results():
+    fail = 0
     json_file = os.path.join(RESULTS_DIR, RESULTS_FILE)
     with open(json_file, "r") as results_file:
         results = json.load(results_file)
     for test_data in parse_results(results):
+        if test_data['result'] == "fail":
+            fail += 1
         results_chart = os.path.join(test_data["outDir"], RESULTS_CHART_FILE)
         if os.path.isfile(results_chart):
             with open(results_chart, "r") as rc_file:
@@ -139,11 +141,33 @@ def main(tests):
             measurements = parse_measurements(rc_data)
             test_data["measurements"] = measurements
         report_lava(test_data)
+    return fail
+
+
+def main(tests):
+    run_tests(tests)
+    parse_test_results()
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        main(sys.argv[1:])
+    opt = sys.argv[1]
+    argc = len(sys.argv)
+    if (opt == "--run" and argc > 2) or argc > 1:
+        if opt == "--run":
+            run_tests(sys.argv[2:])
+        elif opt == "--results":
+            # parse_test_results() returns the number of failed tests, which
+            # we can use as the script return code:
+            # * if all tests passed, we return 0 and the test suite is
+            #   therefore considered passed
+            # * otherwise, we return the (non-zero) number of failed tests,
+            #   which is interpreted as an error and the test suite is
+            #   consequently marked as failed
+            sys.exit(parse_test_results())
+        # Legacy system expects only a list of tests to run, let's not
+        # disrupt that
+        else:
+            main(argv[1:])
     else:
         print("No tests provided")
         sys.exit(1)
