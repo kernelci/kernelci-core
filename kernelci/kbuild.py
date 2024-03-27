@@ -602,7 +602,7 @@ class KBuild():
         self.startjob("package_kselftest")
         self.addcmd(f"cp {self._srcdir}/tools/testing/selftests/kselftest_install/" +
                     "kselftest-packages/kselftest.tar.gz " +
-                    f"{self._af_dir}/")
+                    f"{self._af_dir}/", False)
         self._artifacts.append("kselftest.tar.gz")
 
     def _package_dtbs(self):
