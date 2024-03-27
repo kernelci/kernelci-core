@@ -385,6 +385,9 @@ class KbuildData(BaseModel):
     kernel_type: Optional[str] = Field(
         description="Kernel image type (zimage, bzimage...)"
     )
+    regression: Optional[PyObjectId] = Field(
+        description="Regression node related to this build instance"
+    )
 
 
 class Kbuild(Node):
@@ -398,6 +401,10 @@ class Kbuild(Node):
     data: KbuildData = Field(
         description="Kbuild details"
     )
+
+    _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
+        'data.regression',
+    ]
 
 
 class TestData(BaseModel):
@@ -426,6 +433,9 @@ class TestData(BaseModel):
     )
     job_context: Optional[str] = Field(
         description="Kubernetes cluster name the job submitted to"
+    )
+    regression: Optional[PyObjectId] = Field(
+        description="Regression node related to this test run"
     )
 
     # Fields inherited from the parent kbuild or test case node
@@ -463,6 +473,10 @@ class Test(Node):
         description="Test details"
     )
 
+    _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
+        'data.regression',
+    ]
+
 
 class RegressionData(BaseModel):
     """Model for the data field of a Regression node"""
@@ -473,6 +487,7 @@ class RegressionData(BaseModel):
         description="Previous passing Node"
     )
     node_sequence: Optional[List[PyObjectId]] = Field(
+        default=[],
         description=("Instances of this same job ran after the initial "
                      "failure. The last run in the sequence may be a "
                      "passed run, which means the regression is no longer"
@@ -516,6 +531,7 @@ class Regression(Node):
         const=True
     )
     result: Optional[ResultValues] = Field(
+        default=ResultValues.FAIL.value,
         description=("PASS if the regression is 'inactive', that is, if the "
                      "test has ever passed after the regression was created. "
                      "FAIL if the regression is still 'active', ie. the test "
