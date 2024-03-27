@@ -219,6 +219,7 @@ class LAVA(Runtime):
         return yaml.dump(yaml.load(rendered, Loader=yaml.CLoader))
 
     def submit(self, job_path):
+        print("DEBUG:", job_path)
         with open(job_path, 'r', encoding='utf-8') as job_file:
             job = job_file.read()
             job_id = self._submit(job)
@@ -255,6 +256,11 @@ class LAVA(Runtime):
         job_data = {
             'definition': job,
         }
+
+        if 'baylibre' in jobs_url:
+            print("DEBUG:", jobs_url)
+            print("DEBUG:", job_data)
+
         resp = self._server.session.post(
             jobs_url, json=job_data, allow_redirects=False
         )
