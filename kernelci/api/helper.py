@@ -34,6 +34,17 @@ def merge(primary: dict, secondary: dict):
     return result
 
 
+def node_path_join(paths_list):
+    """Joins a list of path components for the Node `path` field and
+    returns the complete path string.
+
+    TODO: Refactor Node path handling logic into the Node model in
+    models.py
+
+    """
+    return '/'.join(path.rstrip('/') for path in paths_list)
+
+
 class APIHelper:
     """API helper base class
 
@@ -276,7 +287,7 @@ class APIHelper:
             'kind': job_config.kind,
             'parent': input_node['id'],
             'name': job_config.name,
-            'path': input_node['path'] + [job_config.name],
+            'path': node_path_join([input_node['path'], job_config.name]),
             'group': job_config.name,
             'artifacts': {},
             'data': {
@@ -343,12 +354,18 @@ class APIHelper:
                     node.update({key: value})
             else:
                 node[key] = value
-        node['path'] = (parent['path'] if parent else []) + [node['name']]
+        path_elems = [node['name']]
+        if parent:
+            path_elems.insert(0, parent['path'])
+        node['path'] = node_path_join(path_elems)
         if 'kind' not in node:
             node['kind'] = parent['kind']
         child_nodes = []
         for child_node in results['child_nodes']:
             child_nodes.append(self._prepare_results(child_node, node, base))
+        if child_nodes:
+            # Trailing slash in path: the node contains child nodes
+            node['path'] += '/'
         return {
             'node': node,
             'child_nodes': child_nodes,
