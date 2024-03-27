@@ -385,6 +385,9 @@ class KbuildData(BaseModel):
     kernel_type: Optional[str] = Field(
         description="Kernel image type (zimage, bzimage...)"
     )
+    regression: Optional[PyObjectId] = Field(
+        description="Regression node related to this build instance"
+    )
 
 
 class Kbuild(Node):
@@ -398,6 +401,10 @@ class Kbuild(Node):
     data: KbuildData = Field(
         description="Kbuild details"
     )
+
+    _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
+        'data.regression',
+    ]
 
 
 class TestData(BaseModel):
@@ -426,6 +433,9 @@ class TestData(BaseModel):
     )
     job_context: Optional[str] = Field(
         description="Kubernetes cluster name the job submitted to"
+    )
+    regression: Optional[PyObjectId] = Field(
+        description="Regression node related to this test run"
     )
 
     # Fields inherited from the parent kbuild or test case node
@@ -462,6 +472,10 @@ class Test(Node):
     data: TestData = Field(
         description="Test details"
     )
+
+    _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
+        'data.regression',
+    ]
 
 
 class RegressionData(BaseModel):
