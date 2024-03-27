@@ -377,14 +377,21 @@ class KBuild():
         if not _download_file(url, cros_config):
             raise FileNotFoundError(f"Error reading {url}")
         with tarfile.open(cros_config) as tar:
-            subdir = 'chromeos'
             config_file_names = [
-                os.path.join(subdir, 'base.config'),
-                os.path.join(subdir, os.path.dirname(config), "common.config"),
-                os.path.join(subdir, config),
+                'base.config',
+                os.path.join(os.path.dirname(config), "common.config"),
+                config,
             ]
             for file_name in config_file_names:
-                buffer += tar.extractfile(file_name).read().decode('utf-8')
+                try:
+                    buffer += tar.extractfile(file_name).read().decode('utf-8')
+                # In case the file isn't found a `KeyError` exception will be raised.
+                # We should then retry extracting `chromeos/<file>` as it may be a
+                # change in how the generated tarball is laid out.
+                except KeyError:
+                    buffer += tar.extractfile(os.path.join('chromeos', file_name)) \
+                                 .read() \
+                                 .decode('utf-8')
 
         os.unlink(cros_config)
 
