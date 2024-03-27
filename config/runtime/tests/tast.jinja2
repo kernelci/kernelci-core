@@ -30,13 +30,16 @@
               && cp cros /usr/libexec/tast/bundles/remote/
             - while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done
             - >-
-              lava-test-case os-release --shell
               ./ssh_retry.sh
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
-              cat /etc/os-release
+              cat /etc/os-release > /tmp/osrel.tmp
+            - cat /tmp/osrel.tmp
+            - >-
+              lava-test-case os-release --result pass
+              --measurement $(sed -e '/VERSION_ID/!d' -e 's/.*=//' /tmp/osrel.tmp)
             - >-
               ./tast_parser.py
 {%- for test in tests %}
