@@ -1,0 +1,24 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2024 Collabora Limited
+ # Author: Paweł Wieczorek <pawiecz@collabora.com>
+-#}
+
+{%- set fragments = [
+  'fragment/kubernetes.jinja2',
+  'fragment/helm.jinja2',
+  'fragment/gcloud.jinja2',
+  'fragment/azure-cli.jinja2',
+  'fragment/kernelci.jinja2',
+  'fragment/pipeline.jinja2']
+  + fragments
+-%}
+
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    curl \
+    wget
+{%- endblock %}
