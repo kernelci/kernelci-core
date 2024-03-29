@@ -272,6 +272,7 @@ class APIHelper:
     def create_job_node(self, job_config, input_node,
                         runtime=None, platform=None):
         """Create a new job node based on input and configuration"""
+        jobfilter = input_node.get('jobfilter')
         job_node = {
             'kind': job_config.kind,
             'parent': input_node['id'],
@@ -279,10 +280,16 @@ class APIHelper:
             'path': input_node['path'] + [job_config.name],
             'group': job_config.name,
             'artifacts': {},
+            'jobfilter': jobfilter,
             'data': {
                 'kernel_revision': input_node['data']['kernel_revision'],
             },
         }
+        # if jobfilter not null, verify if job_config.name exist in jobfilter
+        if jobfilter and job_config.name not in jobfilter:
+            print(f"Filtered: Job {job_config.name} not found in jobfilter")
+            return None
+
         if not self.should_create_node(job_config.rules, job_node, input_node):
             print(f"Not creating node due to job rules for {job_config.name}")
             return None
