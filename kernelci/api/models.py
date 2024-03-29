@@ -187,6 +187,9 @@ class Node(DatabaseModel):
     debug: Optional[Dict[str, Any]] = Field(
         description="Debug info fields (for development purposes)"
     )
+    jobfilter: Optional[List[str]] = Field(
+        description="Restrict jobs that can be scheduled by this node"
+    )
     created: datetime = Field(
         default_factory=datetime.utcnow,
         description="Timestamp of node creation"
