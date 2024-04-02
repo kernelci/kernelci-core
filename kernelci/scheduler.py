@@ -31,6 +31,11 @@ class Scheduler:
 
     def get_configs(self, event, channel='node'):
         """Get the scheduler configs matching a given event"""
+        # scheduler expects a dict, but in some cases someone
+        # might pass something else, this will prevent a crash
+        if not isinstance(event, dict):
+            print("Error: event type should be dict")
+            return
         for entry in self._scheduler:
             sched_event_channel = entry.event.get('channel')
             if sched_event_channel == channel:
