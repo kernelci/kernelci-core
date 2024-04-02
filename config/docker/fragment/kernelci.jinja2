@@ -5,8 +5,10 @@ RUN pip3 install --upgrade pip
 {%- endif %}
 
 # Install kernelci Python package from kernelci-core
-ARG core_url=https://github.com/kernelci/kernelci-core.git
-ARG core_rev=main
+# ARG core_url=https://github.com/kernelci/kernelci-core.git
+ARG core_url=https://github.com/JenySadadia/kernelci-core.git
+# ARG core_rev=main
+ARG core_rev=use-kernelci-fragment-for-api
 RUN apt-get update && apt-get install --no-install-recommends -y git
 RUN git clone --depth=1 $core_url /tmp/kernelci-core
 WORKDIR /tmp/kernelci-core
