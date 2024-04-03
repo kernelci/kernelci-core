@@ -22,7 +22,9 @@ class APIHelperTestData:
             "id": "6332d8f51a45d41c279e7a01",
             "kind": "checkout",
             "name": "checkout",
-            "path": "checkout/",
+            "path": [
+                "checkout"
+            ],
             "group": None,
             "data": {
                 "kernel_revision": {
@@ -55,7 +57,10 @@ class APIHelperTestData:
         self._regression_node = {
             "kind": "regression",
             "name": "kver",
-            "path": "checkout/kver",
+            "path": [
+                "checkout",
+                "kver"
+            ],
             "group": "kver",
             "data": {
                 "fail_node": "636143c38f94e20c6826b0b6",
@@ -77,7 +82,10 @@ class APIHelperTestData:
             "id": "6332d92f1a45d41c279e7a06",
             "kind": "node",
             "name": "kunit",
-            "path": "checkout/kunit/",
+            "path": [
+                "checkout",
+                "kunit"
+            ],
             "group": "kunit",
             "data": {
                 "kernel_revision": {
@@ -161,7 +169,9 @@ class APIHelperTestData:
             "group": self._kunit_node["group"],
             "holdoff": None,
             "kind": self._kunit_node["kind"],
-            "path": f"{self._kunit_node['path']}/{self._kunit_child_node['name']}",
+            "path": (
+                self._kunit_node["path"] + [self._kunit_child_node["name"]]
+            ),
             "state": self._kunit_node["state"],
             "timeout": "2022-11-02T16:06:39.509000",
             "updated": "2022-11-01T16:07:09.633000",
