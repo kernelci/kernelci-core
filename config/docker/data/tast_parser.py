@@ -24,6 +24,7 @@ import os
 import json
 import pwd
 
+EXCLUDE_FILE = "/tmp/excluded-tast-tests"
 RESULTS_DIR = "/tmp/results"
 RESULTS_CHART_FILE = "results-chart.json"
 RESULTS_FILE = "results.json"
@@ -81,8 +82,10 @@ def run_tests(args):
         f'-resultsdir={RESULTS_DIR}',
         '-sysinfo=false',
         '-build=false',
-        remote_ip
     ]
+    if os.path.isfile(EXCLUDE_FILE):
+        tast_cmd.extend([ f'-testfilterfile={EXCLUDE_FILE}' ])
+    tast_cmd.extend([ remote_ip ])
     tast_cmd.extend(args)
     subprocess.run(tast_cmd, check=True)
 
