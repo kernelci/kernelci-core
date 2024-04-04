@@ -37,6 +37,12 @@
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
               cat /etc/os-release
+{%- if excluded_tests %}
+            - echo "# Disabled tests for KernelCI" > /tmp/excluded-tast-tests
+{%- for test in excluded_tests %}
+            - echo "-{{ test }}" >> /tmp/excluded-tast-tests
+{%- endfor %}
+{%- endif %}
             - >-
               ./tast_parser.py
 {%- for test in tests %}
