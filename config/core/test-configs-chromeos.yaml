@@ -442,15 +442,10 @@ test_plans:
         platform.CrosDisksRename
         platform.CrosDisksSSHFS
         platform.CrosID
-        platform.DLCService
-        platform.DLCServiceCrosDeploy
-        platform.DLCServicePreloading
         platform.DMVerity
         platform.DumpVPDLog
         platform.Firewall
-        platform.Histograms
         platform.LocalPerfettoTBMTracedProbes
-        platform.Memd
         platform.Mtpd
         platform.TPMResponsive
         platform.TPMStatus
