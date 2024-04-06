@@ -577,11 +577,28 @@ test_plans:
       videodec_parallel_jobs: '1'
       videodec_timeout: 90
 
+  v4l2-decoder-conformance-av1-chromium-10bit_chromeos:
+    <<: *v4l2-decoder-conformance_chromeos
+    params:
+      <<: *v4l2-decoder-conformance-params_chromeos
+      testsuite: 'CHROMIUM-10bit-AV1-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-AV1-V4L2SL-Gst1.0'
+
   v4l2-decoder-conformance-h264_chromeos:
     <<: *v4l2-decoder-conformance_chromeos
     params:
       <<: *v4l2-decoder-conformance-params_chromeos
       testsuite: 'JVT-AVC_V1'
+      decoders:
+        - 'GStreamer-H.264-V4L2-Gst1.0'
+        - 'GStreamer-H.264-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-h264-frext_chromeos:
+    <<: *v4l2-decoder-conformance_chromeos
+    params:
+      <<: *v4l2-decoder-conformance-params_chromeos
+      testsuite: 'JVT-FR-EXT'
       decoders:
         - 'GStreamer-H.264-V4L2-Gst1.0'
         - 'GStreamer-H.264-V4L2SL-Gst1.0'
@@ -1244,6 +1261,7 @@ test_configs:
     filters: *collabora-chromeos-kernel-filter
     test_plans:
       - v4l2-decoder-conformance-h264_chromeos
+      - v4l2-decoder-conformance-h264-frext_chromeos
 
   - device_type: mt8183-kukui-jacuzzi-juniper-sku16_chromeos
     filters: *collabora-chromeos-kernel-filter
@@ -1290,6 +1308,7 @@ test_configs:
     filters: *collabora-chromeos-kernel-filter
     test_plans:
       - v4l2-decoder-conformance-h264_chromeos
+      - v4l2-decoder-conformance-h264-frext_chromeos
       - v4l2-decoder-conformance-vp8_chromeos
       - v4l2-decoder-conformance-vp9_chromeos
 
@@ -1327,7 +1346,9 @@ test_configs:
     filters: *collabora-chromeos-kernel-filter
     test_plans:
       - v4l2-decoder-conformance-av1_chromeos
+      - v4l2-decoder-conformance-av1-chromium-10bit_chromeos
       - v4l2-decoder-conformance-h264_chromeos
+      - v4l2-decoder-conformance-h264-frext_chromeos
       - v4l2-decoder-conformance-h265_chromeos
       - v4l2-decoder-conformance-vp8_chromeos
       - v4l2-decoder-conformance-vp9_chromeos
