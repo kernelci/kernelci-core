@@ -208,6 +208,9 @@ class Node(DatabaseModel):
     owner: Optional[str] = Field(
         description="Username of node owner"
     )
+    submitter: Optional[str] = Field(
+        description="Token md5 hash to identify node origin(submitter token)"
+    )
     user_groups: List[str] = Field(
         default=[],
         description="User groups that are permitted to update node"
