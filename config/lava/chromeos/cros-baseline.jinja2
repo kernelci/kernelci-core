@@ -24,6 +24,21 @@
               KERNELCI_LAVA=y
               cmdwrapper="ssh -i /home/cros/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(lava-target-ip)"
               /bin/sh dmesg.sh
+            - >-
+              ./ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              sync
+            # Wait for DUT to shut down, or keep going if unreachable (e.g. crashed)
+            - >-
+              ./ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              poweroff && sleep 30 || true
       from: inline
       name: dmesg
       path: inline/cros-baseline.yaml
