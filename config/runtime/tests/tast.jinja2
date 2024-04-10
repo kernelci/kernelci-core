@@ -44,7 +44,7 @@
 {%- endfor %}
 {%- endif %}
             - >-
-              ./tast_parser.py
+              ./tast_parser.py --run
 {%- for test in tests %}
               {{ test }}
 {%- endfor %}
@@ -54,4 +54,13 @@
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
-              sync && poweroff && exit 0
+              sync
+            # Wait for DUT to shut down, or keep going if unreachable (e.g. crashed)
+            - >-
+              ./ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              poweroff && sleep 30 || true
+            - ./tast_parser.py --results
