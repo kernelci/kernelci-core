@@ -1,16 +1,3 @@
-# Install kernelci Python package from kernelci-core
-ARG core_url=https://github.com/kernelci/kernelci-core.git
-ARG core_rev=main
-RUN apt-get update && apt-get install --no-install-recommends -y git
-RUN git clone --depth=1 $core_url /tmp/kernelci-core
-WORKDIR /tmp/kernelci-core
-RUN git fetch origin $core_rev
-RUN git checkout FETCH_HEAD
-RUN python3 -m pip install '.[dev]'
-RUN cp -R config /etc/kernelci/
-WORKDIR /root
-RUN rm -rf /tmp/kernelci-core
-
 # Install kernelci-api Python package from kernelci-api
 ARG api_url=https://github.com/kernelci/kernelci-api.git
 ARG api_rev=main
@@ -19,13 +6,5 @@ WORKDIR /tmp/kernelci-api
 RUN git fetch origin $api_rev
 RUN git checkout FETCH_HEAD
 RUN python3 -m pip install '.[dev]'
-WORKDIR /root
-RUN rm -rf /tmp/kernelci-api
-
-# Set up kernelci user
-RUN useradd kernelci -u 1000 -d /home/kernelci -s /bin/bash
-RUN mkdir -p /home/kernelci
-RUN chown kernelci: /home/kernelci
-USER kernelci
-ENV PATH=$PATH:/home/kernelci/.local/bin
 WORKDIR /home/kernelci
+RUN rm -rf /tmp/kernelci-api
