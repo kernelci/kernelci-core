@@ -24,6 +24,15 @@
               KERNELCI_LAVA=y
               cmdwrapper="ssh -i /home/cros/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(lava-target-ip)"
               /bin/sh dmesg.sh
+            - >-
+              ./ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              poweroff
+            # Shutdown takes over 10 seconds, let's give it some more time
+            - sleep 30
       from: inline
       name: dmesg
       path: inline/cros-baseline.yaml
