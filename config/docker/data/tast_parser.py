@@ -25,6 +25,7 @@ import json
 import pwd
 
 FAILED_RUN_FILE = "failed_run"
+STDERR_FILE = "stderr.log"
 RESULTS_DIR = "/tmp/results"
 RESULTS_CHART_FILE = "results-chart.json"
 RESULTS_FILE = "results.json"
@@ -91,9 +92,12 @@ def run_tests(args):
     ]
     tast_cmd.extend(args)
     try:
-        subprocess.run(tast_cmd, check=True)
+        subprocess.run(tast_cmd, check=True, stderr=subprocess.PIPE, text=True)
     except subprocess.CalledProcessError as e:
         print(f"Failed to run tast tests: {e}")
+        stderr_file = os.path.join(RESULTS_DIR, STDERR_FILE)
+        with open(stderr_file, "w") as f:
+            f.write(e.stderr)
         failed_file = os.path.join(RESULTS_DIR, FAILED_RUN_FILE)
         with open(failed_file, "w") as f:
             f.write(f"{e.returncode}")
@@ -141,6 +145,15 @@ def parse_measurements(results_chart):
 def parse_test_results():
     failed_file = os.path.join(RESULTS_DIR, FAILED_RUN_FILE)
     if os.path.isfile(failed_file):
+        stderr_file = os.path.join(RESULTS_DIR, STDERR_FILE)
+        with open(stderr_file, "r") as f:
+            stderr = f.read()
+            print("### BEGIN STDERR DUMP ###")
+            print(stderr)
+            print("### END STDERR DUMP ###")
+            if "'/usr/local/bin/local_test_runner': No such file or directory" in stderr:
+                report_lava_critical("cros-partition-corrupt")
+                sys.exit(1)
         report_lava_critical("Tast tests run failed")
         sys.exit(1)
     json_file = os.path.join(RESULTS_DIR, RESULTS_FILE)
