@@ -117,6 +117,7 @@ actions:
     extra_kernel_args: cros_secure cros_debug root=PARTUUID=566f7961-6765-7220-746f-20756e697665 rootwait ro
     prompts:
       - 'localhost(.*)~(.*)#'
+    failure_message: 'chromeos-boot-alert: self_repair'
     auto_login:
       login_prompt: "login:"
       username: "root"
