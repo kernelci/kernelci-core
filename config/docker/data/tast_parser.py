@@ -24,6 +24,7 @@ import os
 import json
 import pwd
 
+FAILED_RUN_FILE = "failed_run"
 RESULTS_DIR = "/tmp/results"
 RESULTS_CHART_FILE = "results-chart.json"
 RESULTS_FILE = "results.json"
@@ -93,6 +94,9 @@ def run_tests(args):
         subprocess.run(tast_cmd, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Failed to run tast tests: {e}")
+        failed_file = os.path.join(RESULTS_DIR, FAILED_RUN_FILE)
+        with open(failed_file, "w") as f:
+            f.write(f"{e.returncode}")
         return e.returncode
 
     return 0
@@ -135,6 +139,10 @@ def parse_measurements(results_chart):
 
 
 def parse_test_results():
+    failed_file = os.path.join(RESULTS_DIR, FAILED_RUN_FILE)
+    if os.path.isfile(failed_file):
+        report_lava_critical("Tast tests run failed")
+        sys.exit(1)
     json_file = os.path.join(RESULTS_DIR, RESULTS_FILE)
     with open(json_file, "r") as results_file:
         results = json.load(results_file)
