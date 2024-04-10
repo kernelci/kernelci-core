@@ -37,7 +37,7 @@
               root@$(lava-target-ip)
               cat /etc/os-release
             - >-
-              ./tast_parser.py
+              ./tast_parser.py --run
               {{ tests|wordwrap(1, False, "\n              ") }}
             - >-
               ./ssh_retry.sh
@@ -45,7 +45,16 @@
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
-              sync && poweroff && exit 0
+              sync
+            # Wait for DUT to shut down, or keep going if unreachable (e.g. crashed)
+            - >-
+              ./ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              poweroff && sleep 30 || true
+            - ./tast_parser.py --results
       from: inline
       name: tast
       path: inline/cros-tast.yaml
