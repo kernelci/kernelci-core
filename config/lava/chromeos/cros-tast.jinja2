@@ -36,7 +36,7 @@
               root@$(lava-target-ip)
               cat /etc/os-release
             - >-
-              ./tast_parser.py
+              ./tast_parser.py --run
               {{ tests|wordwrap(1, False, "\n              ") }}
             - >-
               ./ssh_retry.sh
@@ -44,7 +44,10 @@
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
-              sync && poweroff && exit 0
+              poweroff
+            # Shutdown takes over 10 seconds, let's give it some more time
+            - sleep 30
+            - ./tast_parser.py --results
       from: inline
       name: tast
       path: inline/cros-tast.yaml
