@@ -24,6 +24,7 @@ import os
 import json
 import pwd
 
+FAILED_RUN_FILE = "failed_run"
 RESULTS_DIR = "/tmp/results"
 RESULTS_CHART_FILE = "results-chart.json"
 RESULTS_FILE = "results.json"
@@ -93,6 +94,9 @@ def run_tests(args):
         subprocess.run(tast_cmd, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Failed to run tast tests: {e}")
+        failed_file = os.path.join(RESULTS_DIR, FAILED_RUN_FILE)
+        with open(failed_file, "w") as f:
+            f.write(f"{e.returncode}")
         return e.returncode
 
     return 0
@@ -134,9 +138,10 @@ def parse_measurements(results_chart):
     return measurements
 
 
-def main(tests):
-    if run_tests(tests) != 0:
-        report_lava_critical("Tast tests run_tests failed")
+def parse_test_results():
+    failed_file = os.path.join(RESULTS_DIR, FAILED_RUN_FILE)
+    if os.path.isfile(failed_file):
+        report_lava_critical("Tast tests run failed")
         sys.exit(1)
     json_file = os.path.join(RESULTS_DIR, RESULTS_FILE)
     with open(json_file, "r") as results_file:
@@ -151,9 +156,26 @@ def main(tests):
         report_lava(test_data)
 
 
+def main(tests):
+    ret = run_tests(tests)
+    if ret != 0:
+        report_lava_critical("Tast tests run_tests failed")
+        sys.exit(ret)
+    parse_test_results()
+
+
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        main(sys.argv[1:])
+    opt = sys.argv[1]
+    argc = len(sys.argv)
+    if (opt == "--run" and argc > 2) or argc > 1:
+        if opt == "--run":
+            run_tests(sys.argv[2:])
+        elif opt == "--results":
+            parse_test_results()
+        # Legacy system expects only a list of tests to run, let's not
+        # disrupt that
+        else:
+            main(sys.argv[1:])
     else:
         print("No tests provided")
         sys.exit(1)
