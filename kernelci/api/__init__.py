@@ -14,6 +14,8 @@ from typing import Dict, Optional, Sequence
 
 from cloudevents.http import CloudEvent
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 import kernelci.config.api
 
@@ -63,8 +65,19 @@ class Base:
 
     def _get(self, path, params=None):
         url = self.make_url(path)
-        resp = requests.get(
-            url, params, headers=self.data.headers,
+        retry_strategy = Retry(
+            total=5,
+            backoff_factor=1,
+            status_forcelist=[500, 502, 503, 504, 521],
+            allowed_methods=["GET"],  # need this
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session = requests.Session()
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+
+        resp = session.get(
+            url, params=params, headers=self.data.headers,
             timeout=self.data.timeout
         )
         resp.raise_for_status()
@@ -85,6 +98,17 @@ class Base:
 
         """
         url = self.make_url(path)
+        retry_strategy = Retry(
+            total=5,
+            backoff_factor=1,
+            status_forcelist=[500, 502, 503, 504, 521],
+            allowed_methods=["POST"],  # need this
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session = requests.Session()
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+
         if isinstance(data, str):
             # If the payload is a string we pass it as it is to
             # requests.post, but in this case we have to explicitly
@@ -97,7 +121,7 @@ class Base:
                 headers = self.data.headers | {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
-            resp = requests.post(
+            resp = session.post(
                 url, data, headers=headers,
                 params=params, timeout=self.data.timeout
             )
@@ -106,12 +130,12 @@ class Base:
             # automatically encode it as a string if necessary and set
             # the Content-Type header
             if json_data:
-                resp = requests.post(
+                resp = session.post(
                     url, json=data, headers=self.data.headers,
                     params=params, timeout=self.data.timeout
                 )
             else:
-                resp = requests.post(
+                resp = session.post(
                     url, data, headers=self.data.headers,
                     params=params, timeout=self.data.timeout
                 )
@@ -120,7 +144,18 @@ class Base:
 
     def _put(self, path, data=None, params=None):
         url = self.make_url(path)
-        resp = requests.put(
+        retry_strategy = Retry(
+            total=5,
+            backoff_factor=1,
+            status_forcelist=[500, 502, 503, 504, 521],
+            allowed_methods=["PUT"],  # need this
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session = requests.Session()
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+
+        resp = session.put(
             url, json=data, headers=self.data.headers,
             params=params, timeout=self.data.timeout
         )
@@ -129,7 +164,18 @@ class Base:
 
     def _patch(self, path, data=None, params=None):
         url = self.make_url(path)
-        resp = requests.patch(
+        retry_strategy = Retry(
+            total=5,
+            backoff_factor=1,
+            status_forcelist=[500, 502, 503, 504, 521],
+            allowed_methods=["PATCH"],  # need this
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session = requests.Session()
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+
+        resp = session.patch(
             url, json=data, headers=self.data.headers,
             params=params, timeout=self.data.timeout
         )
@@ -164,7 +210,18 @@ class Base:
 
     def _delete(self, path):
         url = self.make_url(path)
-        resp = requests.delete(
+        retry_strategy = Retry(
+            total=5,
+            backoff_factor=1,
+            status_forcelist=[500, 502, 503, 504, 521],
+            allowed_methods=["DELETE"],  # need this
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session = requests.Session()
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+
+        resp = session.delete(
             url, headers=self.data.headers,
             timeout=self.data.timeout
         )
