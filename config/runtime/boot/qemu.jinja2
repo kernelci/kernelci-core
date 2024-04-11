@@ -6,7 +6,7 @@
         url: '{{ node.artifacts.kernel }}'
       ramdisk:
         image_arg: -initrd {ramdisk}
-        url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/{{ platform_config.arch }}/rootfs.cpio.gz'
+        url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/{{ platform_config.arch }}/rootfs.cpio.gz'
 {%- if device_dtb %}
       dtb:
         url: '{{ node.artifacts.dtb }}'
