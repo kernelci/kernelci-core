@@ -167,7 +167,7 @@ if __name__ == '__main__':
         # Legacy system expects only a list of tests to run, let's not
         # disrupt that
         else:
-            main(argv[1:])
+            main(sys.argv[1:])
     else:
         print("No tests provided")
         sys.exit(1)
