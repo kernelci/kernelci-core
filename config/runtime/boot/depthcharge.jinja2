@@ -34,7 +34,7 @@
 {%- else %}
     ramdisk:
       compression: gz
-      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/{{ platform_config.arch }}/rootfs.cpio.gz'
+      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/{{ platform_config.karch }}/rootfs.cpio.gz'
 {%- endif %}
     os: oe
     timeout:
