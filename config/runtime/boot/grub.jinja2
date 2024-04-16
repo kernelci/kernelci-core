@@ -4,7 +4,7 @@
       image_arg: -kernel {kernel} -serial stdio --append "console=ttyS0"
       type: {{ node.data.kernel_type }}
     ramdisk:
-      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/{{ platform_config.arch }}/rootfs.cpio.gz'
+      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/{{ platform_config.karch }}/rootfs.cpio.gz'
       image_arg: -initrd {ramdisk}
       compression: gz
 {%- if device_dtb %}
