@@ -4,7 +4,7 @@ api:
     url: http://172.17.0.1:8001
 
   early-access:
-    url: https://kernelci-api.eastus.cloudapp.azure.com
+    url: https://kernelci-api.westus3.cloudapp.azure.com
 
   staging.kernelci.org:
     url: https://staging.kernelci.org:9000
