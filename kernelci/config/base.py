@@ -13,6 +13,22 @@ import re
 import yaml
 
 
+CROS_ARCH = {
+    'arm': 'armel',
+}
+
+DEB_ARCH = {
+    'arm': 'armhf',
+    'riscv': 'riscv64',
+    'x86_64': 'amd64',
+}
+
+KERNEL_ARCH = {
+    'armel': 'arm',
+    'x86_64': 'x86',
+}
+
+
 def _format_dict_strings(param, fmap):
     """Format strings from a dict based on a format map
 
@@ -106,13 +122,18 @@ class YAMLConfigObject(yaml.YAMLObject):
     def format_params(self, param, fmap=None):
         """Format strings from a dict based on object attributes
 
-        Modify all the strings under a dict object, processing each on as an
+        Modify all the strings under a dict object, processing each one as an
         f-string using the object attributes combined with the optional 'fmap'
         parameter as format arguments.
         """
         args = self._get_format_map()
         if fmap:
             args.update(fmap)
+        arch = args.get('arch')
+        if arch:
+            args.update({'crosarch': CROS_ARCH.get(arch) or arch})
+            args.update({'debarch': DEB_ARCH.get(arch) or arch})
+            args.update({'karch': KERNEL_ARCH.get(arch) or arch})
         return _format_dict_strings(param, args)
 
 
