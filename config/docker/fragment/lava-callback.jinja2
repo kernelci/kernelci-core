@@ -1,0 +1,14 @@
+# Install kernelci-api Python package from kernelci-api
+ARG pipeline_url=https://github.com/kernelci/kernelci-pipeline.git
+ARG pipeline_rev=main
+RUN git clone --depth=1 $pipeline_url /tmp/kernelci-pipeline
+WORKDIR /tmp/kernelci-pipeline
+RUN git fetch origin $pipeline_rev
+RUN git checkout FETCH_HEAD
+WORKDIR /home/kernelci/callback
+USER root
+RUN pip3 install -r /tmp/kernelci-pipeline/docker/lava-callback/requirements.txt
+USER kernelci
+WORKDIR /home/kernelci/
+RUN mv /tmp/kernelci-pipeline/* /home/kernelci/
+RUN rm -rf /tmp/kernelci-pipeline
