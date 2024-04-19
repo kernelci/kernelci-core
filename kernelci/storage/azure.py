@@ -66,7 +66,6 @@ class StorageAzureFiles(Storage):
             dstdir = os.path.join(dest_path, dname)
             self._get_directory(share, dstdir)
         for src, dst in file_paths:
-            print(f"upload: src={src} dst={dst}")
             file_client = root.get_file_client(file_name=dst)
             with open(src, 'rb') as src_file:
                 file_client.upload_file(src_file)
