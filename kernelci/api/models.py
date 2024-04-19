@@ -328,10 +328,25 @@ class Hierarchy(BaseModel):
 Hierarchy.update_forward_refs()
 
 
+class CheckoutErrorCodes(str, enum.Enum):
+    """Enumeration to declare error codes for Checkout node """
+
+    # Node reached timeout and timeout service forced it to be done
+    NODE_TIMEOUT = 'node_timeout'
+    # Init/update source git repo failure
+    GIT_CHECKOUT_FAILURE = 'git_checkout_failure'
+
+
 class CheckoutData(BaseModel):
     """Model for the data field of a Checkout node"""
     kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data"
+    )
+    error_code: Optional[CheckoutErrorCodes] = Field(
+        description="Details of the failure state"
+    )
+    error_msg: Optional[str] = Field(
+        description="Error message"
     )
 
 
