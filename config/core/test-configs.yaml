@@ -3228,6 +3228,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-kms-mediatek
+      - kselftest-alsa
       - kselftest-arm64
       - kselftest-cpufreq
       - kselftest-dt
