@@ -13,6 +13,11 @@ import re
 import yaml
 
 
+BUILDROOT_ARCH = {
+    'arm': 'armel',
+    'x86_64': 'x86',
+}
+
 CROS_ARCH = {
     'arm': 'armel',
 }
@@ -27,6 +32,32 @@ KERNEL_ARCH = {
     'armel': 'arm',
     'x86_64': 'x86',
 }
+
+
+def get_system_arch(system: str, arch: str):
+    """Get system-dependent architecture string
+
+    Depending on the OS and/or build system, the string used to identify a
+    given hardware architecture can vary. For example, `amd64` (used in Debian)
+    is `x86` in the Linux kernel and Buildroot, and `x86_64` for ChromeOS.
+    This function returns the string used by the selected system depending on
+    the architecture defined in the KernelCI configuration. The `system`
+    argument can have one of the following values:
+      * `brarch`(Buildroot)
+      * `crosarch`(ChromeOS)
+      * `debarch`(Debian)
+      * `karch`(Linux)
+    """
+    if system == 'brarch':
+        return BUILDROOT_ARCH.get(arch) or arch
+    if system == 'crosarch':
+        return CROS_ARCH.get(arch) or arch
+    if system == 'debarch':
+        return DEB_ARCH.get(arch) or arch
+    if system == 'karch':
+        return KERNEL_ARCH.get(arch) or arch
+    print(f"Unknown system-specific architecture field '{arch}'")
+    return arch
 
 
 def _format_dict_strings(param, fmap):
@@ -131,9 +162,8 @@ class YAMLConfigObject(yaml.YAMLObject):
             args.update(fmap)
         arch = args.get('arch')
         if arch:
-            args.update({'crosarch': CROS_ARCH.get(arch) or arch})
-            args.update({'debarch': DEB_ARCH.get(arch) or arch})
-            args.update({'karch': KERNEL_ARCH.get(arch) or arch})
+            for system in ('brarch', 'crosarch', 'debarch', 'karch'):
+                args.update({system: get_system_arch(system, arch)})
         return _format_dict_strings(param, args)
 
 

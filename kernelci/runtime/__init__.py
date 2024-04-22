@@ -14,6 +14,8 @@ import yaml
 
 from jinja2 import Environment, FileSystemLoader
 
+from kernelci.config.base import get_system_arch
+
 
 class Job:
     """Pipeline job"""
@@ -159,6 +161,9 @@ class Runtime(abc.ABC):
         if device_dtb:
             params['device_dtb'] = device_dtb
         params.update(job.config.params)
+        arch = params.get('arch') or job.platform_config.arch
+        for system in ('brarch', 'crosarch', 'debarch', 'karch'):
+            params.update({system: get_system_arch(system, arch)})
         return params
 
     @classmethod
