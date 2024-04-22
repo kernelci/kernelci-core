@@ -1266,25 +1266,25 @@ build_configs:
           x86_64:
             base_defconfig: 'x86_64_defconfig'
 
-  media:
-    tree: media
-    branch: 'master'
-    variants:
-      gcc-10:
-        build_environment: gcc-10
-        fragments: [virtualvideo]
-        architectures:
-          i386: *i386_arch
-          x86_64: *x86_64_arch
-          arm: *arm_arch
-          arm64:
-            <<: *arm64_arch
-            extra_configs:
-              - 'allnoconfig'
-              - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
-              - 'defconfig+arm64-chromebook+kselftest'
-              - 'defconfig+arm64-chromebook+videodec'
-            fragments: [arm64-chromebook, videodec]
+#  media:
+#    tree: media
+#    branch: 'master'
+#    variants:
+#      gcc-10:
+#        build_environment: gcc-10
+#        fragments: [virtualvideo]
+#        architectures:
+#          i386: *i386_arch
+#          x86_64: *x86_64_arch
+#          arm: *arm_arch
+#          arm64:
+#            <<: *arm64_arch
+#            extra_configs:
+#              - 'allnoconfig'
+#              - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+#              - 'defconfig+arm64-chromebook+kselftest'
+#              - 'defconfig+arm64-chromebook+videodec'
+#            fragments: [arm64-chromebook, videodec]
 
   mediatek-for-next:
     tree: mediatek
