@@ -28,7 +28,8 @@
               && cp remote_test_runner /usr/bin/remote_test_runner
               && mkdir -p /usr/libexec/tast/bundles/remote/
               && cp cros /usr/libexec/tast/bundles/remote/
-            - while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done
+            - for i in $(seq 1 60); do ping -c 1 -w 1 $(lava-target-ip) && break || sleep 1; done
+            - ping -c 1 -w 1 $(lava-target-ip) || lava-test-raise "cros-device-unreachable"
             - >-
               ./ssh_retry.sh
               -o StrictHostKeyChecking=no
