@@ -1,0 +1,70 @@
+name: ROOTFS Build
+
+on:
+  #issue_comment:
+  #  types: [created]
+  #push:
+  #  branches:
+  #    - github-rootfs-build
+  workflow_dispatch:
+    inputs:
+      ROOTFS_NAME:
+        description: 'Rootfs name'
+        required: true
+        default: 'bookworm'
+      ROOTFS_ARCH:
+        description: 'Rootfs architecture'
+        required: true
+        default: 'arm64'
+
+env:
+  ROOTFS_NAME: ${{ github.event.inputs.ROOTFS_NAME }}
+  ROOTFS_ARCH: ${{ github.event.inputs.ROOTFS_ARCH }}
+
+jobs:
+  rootfs-build:
+    # only team hackers can trigger this job
+    if: ${{ github.event.requested_team.name == 'hackers'}}
+    runs-on: ubuntu-22.04
+    environment: deploysecrets
+    steps:
+      - name: Checkout kernelci-deploy
+        uses: actions/checkout@v4
+        with:
+          repository: kernelci/kernelci-deploy
+          path: kernelci-deploy
+          ref: 'main'
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          path: kernelci-deploy/tools/kernelci-core
+      - name: Prepare necessary tools
+        run: |
+          sudo apt-get update
+          sudo apt-get remove containerd.io
+          sudo apt-get install -y python3-pip git docker.io python3-docker
+      - name: Parse parameters from issue
+      - name: run rootfs build
+        run: |
+           cd kernelci-deploy/tools;sudo ./kci-rootfs.py --arch $ROOTFS_ARCH --name $ROOTFS_NAME
+      - name: set rootfs env variables
+        run: |
+          ROOTFS_DIR=$(find kernelci-deploy/tools -type d -name _install_)
+          echo "ROOTFS_DIR=$ROOTFS_DIR" >> $GITHUB_ENV
+          echo "ROOTFS_TIMECODE=$(date +%Y%m%d.0)" >> $GITHUB_ENV
+      - name: copy file via scp
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USERNAME }}
+          key: ${{ secrets.STAGING_KEY }}
+          port: ${{ secrets.STAGING_PORT }}
+          source: "${{ env.ROOTFS_DIR }}/*"
+          target: ${{ secrets.STAGING_DIR }}/${{ env.ROOTFS_NAME }}/${{ env.ROOTFS_TIMECODE }}/${{ env.ROOTFS_ARCH }}
+          strip_components: 8
+      - name: print out published rootfs
+        run: |
+          echo "Published rootfs: ${{ secrets.STAGING_URL }}/${{ env.ROOTFS_NAME }}/${{ env.ROOTFS_TIMECODE }}/${{ env.ROOTFS_ARCH }}"
+
