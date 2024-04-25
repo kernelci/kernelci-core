@@ -23,7 +23,7 @@ dependencies = [
   "jinja2==3.1.3",
   "kubernetes==26.1.0",
   "paramiko==3.4.0",
-  "pydantic==1.10.5",
+  "pydantic==1.10.13",
   "pyelftools==0.29",
   "pytest==7.4.0",
   "pyyaml==6.0",
