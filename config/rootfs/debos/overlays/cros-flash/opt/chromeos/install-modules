@@ -23,6 +23,27 @@ set -xe
 MODULES_URL="$1"
 IMAGE_MOUNTPOINT="${2:-/root/chromeos}"
 
+MOD_PART_UUID="566f7961-6765-7220-746f-20756e697665"
+
+check_filesystem()
+{
+    DEVICE="$1"
+
+    # Check and try to repair the rootfs:
+    #  * first, try an automated repair (-p)
+    #  * if the fs is corrupt and can't be automatically repaired,
+    #    simulate a "manual" check accepting all suggested fixes (-y)
+    #  * re-simulate a manual run once again to ensure no error
+    #    has been left behind
+
+    if ! fsck -fp $DEVICE; then
+        # `fsck -y` errors out when the filesystem is repaired
+        if ! fsck -y $DEVICE; then
+            fsck -y $DEVICE
+        fi
+    fi
+}
+
 install_modules()
 {
     local modules_url="$1"
@@ -33,11 +54,16 @@ install_modules()
     # $modules_url may contain GET parameters, let's get rid of those
     local modules_tarball=$(basename "$modules_url" | sed 's/?.*//')
 
+    echo "Checking modules partition..."
+
+    BLK_DEV="$(realpath /dev/disk/by-partuuid/$MOD_PART_UUID || lava-test-raise 'cros-partition-corrupt')"
+    test -b $BLK_DEV && check_filesystem $BLK_DEV || lava-test-raise 'cros-partition-corrupt'
+
     echo "Downloading modules from $modules_url as $modules_tarball..."
     mkdir -p "$image_mountpoint"
     cd "$root_path"
     wget -O "$modules_tarball" "$modules_url"
-    mount PARTUUID=566f7961-6765-7220-746f-20756e697665 "$mount_dir"
+    mount PARTUUID=$MOD_PART_UUID "$mount_dir" || lava-test-raise "cros-partition-corrupt"
 
     echo "Installing modules..."
     cd "$mount_dir"
