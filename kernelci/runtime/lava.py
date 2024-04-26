@@ -77,6 +77,10 @@ class Callback:
         self._data = data
         self._meta = None
 
+    def get_device_id(self):
+        """Get the ID of the tested device"""
+        return self._data.get('actual_device_id')
+
     def get_meta(self, key):
         """Get a metadata value from the job definition"""
         if self._meta is None:
