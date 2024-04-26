@@ -394,6 +394,7 @@ class APIHelper:
         root_node = root.copy()
         root_node['result'] = results['node']['result']
         root_node['artifacts'].update(results['node']['artifacts'])
+        root_node['data'].update(results['node'].get('data', {}))
         root_results = {
             'node': root_node,
             'child_nodes': results['child_nodes'],
