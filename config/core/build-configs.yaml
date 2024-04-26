@@ -350,6 +350,7 @@ fragments:
       - 'CONFIG_SND_SOC_MT8195_MT6359=m'
       - 'CONFIG_DRM_MEDIATEK_DP=m'
       - 'CONFIG_SND_SOC_SOF_MT8195=m'
+      - 'CONFIG_USB_RTL8152=y' # Allows kernel ip-config. Prevents deferred probe timeout errors.
       - 'CONFIG_EXTRA_FIRMWARE="
       mediatek/mt8173/vpu_d.bin
       mediatek/mt8173/vpu_p.bin
