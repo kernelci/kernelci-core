@@ -9,12 +9,14 @@
 import json
 
 import click
+import kernelci.config
 
 from . import (
     Args,
     catch_error,
     echo_json,
     get_api,
+    get_api_helper,
     get_pagination,
     kci,
     split_attributes,
@@ -85,3 +87,39 @@ def submit(input_file, config, api, indent, secrets):
     func = api.node.update if 'id' in data else api.node.add
     node = func(data)
     echo_json(node, indent)
+
+
+@kci_node.command(secrets=True)
+@click.argument('node_id')
+@click.argument('results_file', type=click.File('r'))
+@Args.config
+@Args.api
+@catch_error
+def submit_hierarchy(node_id, results_file, config, api, secrets):
+    """Submit a hierarchy of results.
+    Provide node ID for root node for which the hierarchy is submitted.
+    'results_file' should have data with the following recursive format:
+    {
+        "node": {
+            "name": "<group name>",
+            "result": "<result>",
+        },
+        "child_nodes": [
+            {
+                "node": {
+                    "name": "<test-name>",
+                    "result": "<result>",
+                },
+                "child_nodes": [],
+            }
+        ]
+    }
+    """
+    api_instance = get_api(config, api, secrets)
+    root_node = api_instance.node.get(node_id)
+    if not root_node:
+        raise click.ClickException("Node not found with the provided ID")
+    configs = kernelci.config.load(config)
+    helper = get_api_helper(configs, api, secrets)
+    results = json.load(results_file)
+    helper.submit_results(results, root_node)
