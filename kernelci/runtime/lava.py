@@ -102,8 +102,8 @@ class Callback:
         lava_yaml = self._data['results']['lava']
         lava = yaml.safe_load(lava_yaml)
         stages = {stage['name']: stage for stage in lava}
-        job_meta = stages['job']['metadata']
-        return job_meta.get('error_type'), job_meta.get('error_msg')
+        job_meta = stages.get('job', {}).get('metadata')
+        return job_meta
 
     @classmethod
     def _get_login_case(cls, tests):
@@ -175,9 +175,12 @@ class Callback:
         """Convert the plain results dictionary to a hierarchy for the API"""
         job_result = job_node['result']
         if job_result == "fail":
-            error_code, error_msg = self._get_job_failure_metadata()
-            job_node['data']['error_code'] = error_code
-            job_node['data']['error_msg'] = error_msg
+            job_meta = self._get_job_failure_metadata()
+            if job_meta:
+                job_node['data']['error_code'] = job_meta.get('error_type')
+                job_node['data']['error_msg'] = job_meta.get('error_msg')
+            else:
+                print(f"Job failure metadata not found for node: {job_node['id']}")
 
         return {
             'node': {
