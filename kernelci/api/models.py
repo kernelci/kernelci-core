@@ -447,6 +447,9 @@ class TestData(BaseModel):
     platform: Optional[str] = Field(
         description="Test platform"
     )
+    device: Optional[str] = Field(
+        description="Test device"
+    )
     runtime: Optional[str] = Field(
         description="Runtime that runs the test"
     )
@@ -541,6 +544,9 @@ class RegressionData(BaseModel):
     )
     platform: Optional[str] = Field(
         description="Test platform"
+    )
+    device: Optional[str] = Field(
+        description="Test device"
     )
 
 
