@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       GIT_REPO:
-        description: 'Repo URL'
+        description: 'Repo (owner/repo)'
         required: true
-        default: 'https://github.com/username/kernelci-core.git'
+        default: 'username/kernelci-core'
       GIT_BRANCH:
         description: 'Branch'
         required: true
