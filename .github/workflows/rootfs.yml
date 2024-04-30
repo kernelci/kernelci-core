@@ -1,13 +1,16 @@
 name: ROOTFS_Build
 
 on:
-  #issue_comment:
-  #  types: [created]
-  #push:
-  #  branches:
-  #    - github-rootfs-build
   workflow_dispatch:
     inputs:
+      GIT_REPO:
+        description: 'Repo URL'
+        required: true
+        default: 'https://github.com/username/kernelci-core.git'
+      GIT_BRANCH:
+        description: 'Branch'
+        required: true
+        default: 'main'
       ROOTFS_NAME:
         description: 'Rootfs name'
         required: true
@@ -20,11 +23,12 @@ on:
 env:
   ROOTFS_NAME: ${{ github.event.inputs.ROOTFS_NAME }}
   ROOTFS_ARCH: ${{ github.event.inputs.ROOTFS_ARCH }}
+  USER_GIT_REPO: ${{ github.event.inputs.GIT_REPO }}
+  USER_GIT_BRANCH: ${{ github.event.inputs.GIT_BRANCH }}
 
 jobs:
-
   rootfs-build:
-    # only team hackers can trigger this job
+    # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor)
     runs-on: ubuntu-22.04
     environment: deploysecrets
@@ -38,6 +42,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          repository: ${{ env.USER_GIT_REPO }}
+          ref: ${{ env.USER_GIT_BRANCH }}
           submodules: recursive
           fetch-depth: 0
           path: kernelci-deploy/tools/kernelci-core
