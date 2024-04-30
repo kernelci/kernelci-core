@@ -22,6 +22,15 @@ env:
   ROOTFS_ARCH: ${{ github.event.inputs.ROOTFS_ARCH }}
 
 jobs:
+  debug:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: debug
+        run: |
+          echo "ROOTFS_NAME=$ROOTFS_NAME"
+          echo "ROOTFS_ARCH=$ROOTFS_ARCH"
+          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
+          echo "github.event.requested_team.name=${{ github.event.requested_team.name }}"
   rootfs-build:
     # only team hackers can trigger this job
     if: ${{ github.event.requested_team.name == 'hackers'}}
