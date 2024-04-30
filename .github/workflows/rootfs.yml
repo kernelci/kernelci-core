@@ -37,12 +37,12 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL: 'bot'
         with:
           status: 'started'
           author_name: ${{ github.actor }}
           title: 'ROOTFS Build'
           text: 'ROOTFS Build started'
-          channel: 'bot'
       - name: Checkout kernelci-deploy
         uses: actions/checkout@v4
         with:
@@ -88,9 +88,9 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL: 'bot'
         with:
           status: 'completed'
           author_name: ${{ github.actor }}
           title: 'ROOTFS Build completed'
           text: ${{ env.FINAL_MSG }}
-          channel: 'bot'
