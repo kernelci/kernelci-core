@@ -1,4 +1,4 @@
-name: ROOTFS Build
+name: ROOTFS_Build
 
 on:
   #issue_comment:
@@ -45,7 +45,6 @@ jobs:
           sudo apt-get update
           sudo apt-get remove containerd.io
           sudo apt-get install -y python3-pip git docker.io python3-docker
-      - name: Parse parameters from issue
       - name: run rootfs build
         run: |
            cd kernelci-deploy/tools;sudo ./kci-rootfs.py --arch $ROOTFS_ARCH --name $ROOTFS_NAME
