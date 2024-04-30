@@ -351,6 +351,7 @@ fragments:
       - 'CONFIG_DRM_MEDIATEK_DP=m'
       - 'CONFIG_SND_SOC_SOF_MT8195=m'
       - 'CONFIG_USB_RTL8152=y' # Allows kernel ip-config. Prevents deferred probe timeout errors.
+      - 'CONFIG_USB_USBNET=y' # Needed for ASIX AX88772B ethernet adapter used at Collabora's lab. Builtin to allow kernel ip-config, and prevent deferred probe timeout errors.
       - 'CONFIG_EXTRA_FIRMWARE="
       mediatek/mt8173/vpu_d.bin
       mediatek/mt8173/vpu_p.bin
@@ -610,6 +611,7 @@ fragments:
       - 'CONFIG_USB_ETH=y'
       - 'CONFIG_USB_GADGET=y'
       - 'CONFIG_USB_RTL8152=y'
+      - 'CONFIG_USB_USBNET=y' # Needed for ASIX AX88772B ethernet adapter used at Collabora's lab. Builtin to allow kernel ip-config, and prevent deferred probe timeout errors.
       - 'CONFIG_USB_VIDEO_CLASS=m'
       - 'CONFIG_WILCO_EC_DEBUGFS=m'
       - 'CONFIG_WILCO_EC_EVENTS=m'
