@@ -30,7 +30,10 @@ jobs:
           echo "ROOTFS_NAME=$ROOTFS_NAME"
           echo "ROOTFS_ARCH=$ROOTFS_ARCH"
           echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
-          echo "github.event.requested_team.name=${{ github.event.requested_team.name }}"
+          echo "github.actor={{ github.actor }}"
+          echo "github.event_name={{ github.event_name }}"
+          echo "github.repository={{ github.repository }}"
+          echo "github.event={{ github.event }}"
   rootfs-build:
     # only team hackers can trigger this job
     if: ${{ github.event.requested_team.name == 'hackers'}}
