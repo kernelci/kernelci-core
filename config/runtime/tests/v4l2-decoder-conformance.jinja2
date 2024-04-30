@@ -1,0 +1,35 @@
+{%- if testsuite -%}
+    {% set testsuite_arg = "-ts " + testsuite %}
+{%- endif -%}
+{%- if decoders -%}
+    {%- set decoder_list = [ ] -%}
+    {%- for decoder in decoders -%}
+        {{ decoder_list.append(decoder) or "" }}
+    {%- endfor -%}
+    {%- set decoders_arg = "-d " + decoder_list|join(" ") -%}
+{%- endif -%}
+{%- if videodec_timeout -%}
+    {% set videodec_timeout_arg = "-t " + videodec_timeout|string %}
+{%- endif -%}
+{%- if videodec_parallel_jobs -%}
+    {% set videodec_parallel_jobs_arg = "-j " + videodec_parallel_jobs|string %}
+{%- endif -%}
+- test:
+    timeout:
+      minutes: {{ job_timeout }}
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ plan }}
+          description: "V4L2 decoder conformance test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
+      from: inline
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml
