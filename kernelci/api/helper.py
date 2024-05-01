@@ -273,18 +273,23 @@ class APIHelper:
                         runtime=None, platform=None):
         """Create a new job node based on input and configuration"""
         jobfilter = input_node.get('jobfilter')
-        job_node = {
-            'kind': job_config.kind,
-            'parent': input_node['id'],
-            'name': job_config.name,
-            'path': input_node['path'] + [job_config.name],
-            'group': job_config.name,
-            'artifacts': {},
-            'jobfilter': jobfilter,
-            'data': {
-                'kernel_revision': input_node['data']['kernel_revision'],
-            },
-        }
+        try:
+            job_node = {
+                'kind': job_config.kind,
+                'parent': input_node['id'],
+                'name': job_config.name,
+                'path': input_node['path'] + [job_config.name],
+                'group': job_config.name,
+                'artifacts': {},
+                'jobfilter': jobfilter,
+                'data': {
+                    'kernel_revision': input_node['data']['kernel_revision'],
+                },
+            }
+        except KeyError as error:
+            print(f"Missing key {error} in input node")
+            return None
+
         # if jobfilter not null, verify if job_config.name exist in jobfilter
         if jobfilter and job_config.name not in jobfilter:
             print(f"Filtered: Job {job_config.name} not found in jobfilter")
