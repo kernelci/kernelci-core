@@ -289,6 +289,15 @@ class LAVA(Runtime):
         resp = self._server.session.post(
             jobs_url, json=job_data, allow_redirects=False
         )
+        # if error 400, return body as it contains the error message
+        if resp.status_code == 400:
+            if resp.headers['content-type'] == 'application/json':
+                data = resp.json()
+                message = data.get('message', 'JSON field message not found')
+                raise Exception('LAVA error 400: ' + message)
+            else:
+                # Truncate message to protect node from exploding in size
+                raise Exception('LAVA error 400: ' + resp.text[:256])
         resp.raise_for_status()
         return resp.json()['job_ids'][0]
 
