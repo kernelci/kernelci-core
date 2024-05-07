@@ -2,6 +2,8 @@
 
 set -e
 
+ret=0
+
 if [ "$KERNELCI_LAVA" = "y" ]; then
     alias test-result='lava-test-case'
 else
@@ -10,7 +12,12 @@ fi
 
 for level in crit alert emerg; do
     dmesg --level=$level --notime -x -k > dmesg.$level
-    test -s dmesg.$level && res=fail || res=pass
+    if [ -s "dmesg.$level" ]; then
+        res=fail
+        ret=1
+    else
+        res=pass
+    fi
     count=$(cat dmesg.$level | wc -l)
     cat dmesg.$level
     test-result \
@@ -20,4 +27,4 @@ for level in crit alert emerg; do
         --units lines
 done
 
-exit 0
+exit $ret
