@@ -449,6 +449,25 @@ fragments:
       - 'CONFIG_NET_IPGRE=m'
       - 'CONFIG_NET_IPGRE_DEMUX=m'
 
+  lab-setup:
+    path: "kernel/configs/lab-setup.config"
+    configs:
+      - 'CONFIG_NFS_FS=y'
+      - 'CONFIG_NFS_V2=y'
+      - 'CONFIG_NFS_V3=y'
+      - 'CONFIG_NFS_V3_ACL=y'
+      - 'CONFIG_NFS_V4=y'
+      # Disable kernel IP config to avoid needing builtin network support,
+      # prevent long boot delays and deferred probe timeout errors. Rely on
+      # ramdisk to do the IP config.
+      - 'CONFIG_IP_PNP=n'
+      # Network adapters
+      - 'CONFIG_USB_ETH=m'
+      - 'CONFIG_USB_GADGET=m'
+      - 'CONFIG_USB_RTL8152=m'
+      - 'CONFIG_USB_USBNET=m'
+      - 'CONFIG_USB_NET_AX8817X=m'
+
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
     configs:
