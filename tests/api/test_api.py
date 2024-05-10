@@ -207,7 +207,7 @@ def test_receive_event_node(get_api_config, mock_receive_event,
                 "op": "created"
             },
         )
-        resp = helper.receive_event_node(sub_id=sub_id)
+        resp, _ = helper.receive_event_node(sub_id=sub_id)
         assert resp.keys() == {
             'id',
             'artifacts',
