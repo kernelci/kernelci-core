@@ -52,13 +52,6 @@
 {%- for test in tests %}
               {{ test }}
 {%- endfor %}
-            - >-
-              ./ssh_retry.sh
-              -o StrictHostKeyChecking=no
-              -o UserKnownHostsFile=/dev/null
-              -i /home/cros/.ssh/id_rsa
-              root@$(lava-target-ip)
-              sync
             # Wait for DUT to shut down, or keep going if unreachable (e.g. crashed)
             - >-
               ./ssh_retry.sh
