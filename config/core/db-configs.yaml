@@ -12,6 +12,6 @@ db_configs:
     db_type: kernelci_backend
     url: http://localhost:5001/
 
-  staging.kernelci.org:
+  staging:
     db_type: kernelci_backend
     url: https://api.staging.kernelci.org/

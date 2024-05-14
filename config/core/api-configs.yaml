@@ -6,5 +6,5 @@ api:
   early-access:
     url: https://kernelci-api.westus3.cloudapp.azure.com
 
-  staging.kernelci.org:
+  staging:
     url: https://staging.kernelci.org:9000
