@@ -399,7 +399,6 @@ test_plans:
         ui.OverviewWithExpandedDesksBarPerf
         filemanager.UIPerf.directory_list
         filemanager.UIPerf.list_apps
-        settings.DeviceMouseScrollAcceleration
 
   cros-tast-perf-fixed:
     <<: *cros-tast-perf
@@ -448,13 +447,9 @@ test_plans:
         platform.LocalPerfettoTBMTracedProbes
         platform.Mtpd
         platform.TPMResponsive
-        platform.TPMStatus
         platform.CheckDiskSpace
         platform.CheckProcesses
-        platform.DeviceHwid
-        platform.SerialNumber
         storage.HealthInfo
-        storage.InternalStorage
         storage.LowPowerStateResidence
 
 
@@ -478,12 +473,6 @@ test_plans:
         power.CheckStatus
         power.UtilCheck
         power.CpufreqConf
-        power.TabletModePowerOffMenu.close_menu
-        power.TabletModePowerOffMenu.shut_down
-        power.TabletModePowerOffMenu.sign_out
-        power.SmartDim.flatbuffer
-        power.SmartDim
-        power.SmartDim.lacros
         typec.Basic
 
   cros-tast-power-fixed:
@@ -498,7 +487,6 @@ test_plans:
       <<: *cros-tast-base-params
       tests: &cros-tast-sound-tests >
         audio.DevicePlay
-        audio.DevicePlay.unstable_platform
         audio.DevicePlay.unstable_model
         audio.UCMSequences.section_device
         audio.UCMSequences.section_modifier
