@@ -45,6 +45,7 @@ actions:
     namespace: modules
     timeout:
       minutes: 5
+    failure_retry: 3
     method: depthcharge
     commands: nfs
     prompts:
@@ -112,6 +113,7 @@ actions:
     namespace: chromeos
     timeout:
       minutes: 5
+    failure_retry: 3
     method: depthcharge
     commands: emmc
     extra_kernel_args: cros_secure cros_debug root=PARTUUID=566f7961-6765-7220-746f-20756e697665 rootwait ro
