@@ -23,6 +23,7 @@
       image: kernelci/qemu
     media: tmpfs
     method: qemu
+    failure_retry: 3
     prompts:
       - '/ #'
     timeout:
