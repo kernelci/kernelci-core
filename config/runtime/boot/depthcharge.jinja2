@@ -46,6 +46,7 @@
     namespace: {{ boot_namespace }}
 {%- endif %}
     method: depthcharge
+    failure_retry: 3
     prompts:
     - '/ #'
     timeout:

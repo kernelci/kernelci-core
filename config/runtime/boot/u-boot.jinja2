@@ -30,6 +30,7 @@
 - boot:
     method: u-boot
     commands: {{ boot_commands | default('ramdisk', true) }}
+    failure_retry: 3
     prompts:
     - '/ #'
     timeout:
