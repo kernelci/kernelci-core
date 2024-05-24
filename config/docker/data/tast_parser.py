@@ -155,16 +155,17 @@ def parse_test_results():
                 report_lava_critical("cros-partition-corrupt")
                 sys.exit(1)
     json_file = os.path.join(RESULTS_DIR, RESULTS_FILE)
-    with open(json_file, "r") as results_file:
-        results = json.load(results_file)
-    for test_data in parse_results(results):
-        results_chart = os.path.join(test_data["outDir"], RESULTS_CHART_FILE)
-        if os.path.isfile(results_chart):
-            with open(results_chart, "r") as rc_file:
-                rc_data = json.load(rc_file)
-            measurements = parse_measurements(rc_data)
-            test_data["measurements"] = measurements
-        report_lava(test_data)
+    if os.path.isfile(json_file):
+        with open(json_file, "r") as results_file:
+            results = json.load(results_file)
+        for test_data in parse_results(results):
+            results_chart = os.path.join(test_data["outDir"], RESULTS_CHART_FILE)
+            if os.path.isfile(results_chart):
+                with open(results_chart, "r") as rc_file:
+                    rc_data = json.load(rc_file)
+                measurements = parse_measurements(rc_data)
+                test_data["measurements"] = measurements
+            report_lava(test_data)
     # If test run didn't finish, error out after reporting existing results
     # so we don't lose data by exiting too early
     if os.path.isfile(failed_file):
