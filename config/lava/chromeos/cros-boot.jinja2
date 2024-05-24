@@ -44,7 +44,12 @@ actions:
 - boot:
     namespace: modules
     timeout:
-      minutes: 5
+      minutes: 10
+    timeouts:
+      bootloader-commands:
+        minutes: 3
+      auto-login-action:
+        minutes: 2
     failure_retry: 3
     method: depthcharge
     commands: nfs
@@ -112,7 +117,12 @@ actions:
 - boot:
     namespace: chromeos
     timeout:
-      minutes: 5
+      minutes: 10
+    timeouts:
+      bootloader-commands:
+        minutes: 3
+      auto-login-action:
+        minutes: 2
     failure_retry: 3
     method: depthcharge
     commands: emmc
