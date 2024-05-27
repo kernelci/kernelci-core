@@ -1,0 +1,24 @@
+{# This test verifies the watchdog reset functionality.
+ # It opens the watchdog device and waits for the timeout to expire, triggering a device reset.
+ # If the reset occurs as expected, a bootloader string should be matched.
+ # If the command returns successfully without a reset, the prompt string will be matched instead.
+ # This test assumes no other watchdog service is running on the system.
+-#}
+- test:
+    timeout:
+      minutes: 5
+    interactive:
+    - name: wdt-reset
+      prompts: ['/ #']
+      script:
+      - name: wdt-get-timeout
+        command: "wdt_timeout=$(cat /sys/class/watchdog/{{ wdt_dev|default('watchdog0') }}/timeout)"
+        wait_for_prompt: true
+        failures:
+        - message: "can't open '/sys/class/watchdog/watchdog\\d+/timeout': No such file or directory"
+          exception: JobError
+      - name: wdt-trigger-reset
+        command: "sleep $((wdt_timeout + 5)) > /dev/watchdog"
+        wait_for_prompt: false
+        successes:
+        - message: {{ bl_message }}
