@@ -52,6 +52,14 @@ class LogParser:
                 output.write(msg)
                 output.write('\n')
 
+    def get_text(self):
+        """Get the plain text serial console output as a string"""
+        output = ""
+        for _, level, msg in self._raw_log:
+            if level == 'target':
+                output += msg + '\n'
+        return output
+
 
 class Callback:
     """LAVA callback handler"""
