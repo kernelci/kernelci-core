@@ -110,7 +110,7 @@ source "${SCRIPTPATH}/fixes/packagefix-${BRANCH}.sh"
 
 echo "Building packages (${SERIAL})"
 # Disable `builtin_fw_mali_g57` flag as it is not required when `panfrost` is enabled
-cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update -builtin_fw_mali_g57" \
+cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update -builtin_fw_mali_g57 gstreamer" \
 	 build_packages --board=${BOARD}
 
 echo "Building image (${SERIAL})"
