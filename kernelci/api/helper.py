@@ -299,8 +299,8 @@ class APIHelper:
             print(f"Not creating node due to job rules for {job_config.name}")
             return None
         # Test-specific fields inherited from parent node (kbuild or
-        # test) if available
-        if job_config.kind == 'test':
+        # job) if available
+        if job_config.kind == 'job':
             job_node['data']['kernel_type'] = input_node['data'].get('kernel_type')
             job_node['data']['arch'] = input_node['data'].get('arch')
             job_node['data']['defconfig'] = input_node['data'].get('defconfig')
