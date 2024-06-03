@@ -155,8 +155,10 @@ class Callback:
         for suite_name, suite_results in self._data['results'].items():
             tests = yaml.safe_load(suite_results)
             if suite_name == 'lava':
-                results['login'] = self._get_login_case(tests)
-                results['kernelmsg'] = self._get_kernelmsg_case(tests)
+                results['setup'] = {
+                    'login': self._get_login_case(tests),
+                    'kernelmsg': self._get_kernelmsg_case(tests)
+                }
             else:
                 suite_name = suite_name.partition("_")[2]
                 results[suite_name] = self._get_suite_results(tests)
@@ -182,8 +184,10 @@ class Callback:
             if isinstance(value, dict):
                 item['child_nodes'] = self._get_results_hierarchy(value)
                 node['result'] = self._get_stage_result(node['name'])
+                node['kind'] = 'job'
             elif isinstance(value, str):
                 node['result'] = value
+                node['kind'] = 'test'
             hierarchy.append(item)
         return hierarchy
 
