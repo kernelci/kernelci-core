@@ -49,6 +49,12 @@ FW_GIT = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmwar
 LATEST_LTS_MAJOR = 6
 LATEST_LTS_MINOR = 6
 
+DTBS_DISABLED = {
+    'i386': True,
+    'x86_64': True,
+    'sparc': True
+}
+
 # Hard-coded make targets for each CPU architecture
 MAKE_TARGETS = {
     'arm': 'zImage',
@@ -293,8 +299,10 @@ class KBuild():
                 self._artifacts.append("build_modules_stderr.log")
             self._artifacts.append("build_kselftest.log")
             self._artifacts.append("build_kselftest_stderr.log")
-            self._artifacts.append("build_dtbs.log")
-            self._artifacts.append("build_dtbs_stderr.log")
+            # disable DTBS for some archs
+            if self._arch not in DTBS_DISABLED:
+                self._artifacts.append("build_dtbs.log")
+                self._artifacts.append("build_dtbs_stderr.log")
         else:
             self._artifacts.append("build_dtbs_check.log")
             self._artifacts.append("build_dtbs_check_stderr.log")
@@ -342,6 +350,7 @@ class KBuild():
         critical - if True, check return code and exit, as command is critical
         '''
         if not critical:
+            self._steps.append("echo Ignore error in next command, if any")
             cmd += " || true"
         self._steps.append(cmd)
 
@@ -511,19 +520,21 @@ class KBuild():
             if not self._disable_modules:
                 self._build_modules()
             self._build_kselftest()
-            # TODO: verify if OF_FLATTREE is set
-            self._build_dtbs()
+            if self._arch not in DTBS_DISABLED:
+                self._build_dtbs()
             self._package_kimage()
             if not self._disable_modules:
                 self._package_modules()
             self._package_kselftest()
-            # TODO: verify if OF_FLATTREE is set
-            self._package_dtbs()
+            if self._arch not in DTBS_DISABLED:
+                self._package_dtbs()
         else:
             self._build_dtbs_check()
         self._write_metadata()
         # terminate all active jobs
         self.startjob(None)
+        # indicate script is ended
+        self.addcmd("echo Build script is completed, tail will be killed now")
         # kill tail
         self.addcmd("kill $tailpid || true")
         print("Shell script generated")
