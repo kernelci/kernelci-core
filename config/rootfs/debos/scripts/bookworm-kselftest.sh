@@ -17,6 +17,10 @@ mkdir /usr/share/alsa
 curl -L -o /tmp/alsa-ucm-conf.tar.gz https://github.com/alsa-project/alsa-ucm-conf/archive/refs/heads/master.tar.gz
 tar xvzf /tmp/alsa-ucm-conf.tar.gz -C /usr/share/alsa --strip-components=1 --wildcards "*/ucm" "*/ucm2"
 
+mkdir /opt/platform-test-parameters
+curl -L -o /tmp/platform-test-parameters.tar.gz https://github.com/kernelci/platform-test-parameters/archive/refs/heads/main.tar.gz
+tar xvzf /tmp/platform-test-parameters.tar.gz -C /opt/platform-test-parameters --strip-components=1 --wildcards "*/kselftest"
+
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
 ########################################################################
