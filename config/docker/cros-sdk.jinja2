@@ -30,4 +30,6 @@ RUN adduser cros sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN mkdir -p /home/cros/chromiumos
 RUN chown -R cros /home/cros/chromiumos
 
+ENV PATH="${PATH}:/kernelci-core/temp/temp/chromiumos-sdk/chromite/bin"
+
 {%- endblock %}
