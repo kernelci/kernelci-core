@@ -12,6 +12,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 {%- block multistage %}{% endblock %}
 
+# Change mirror to Azure trafficmanager to reduce load on public repositories
+RUN sed -i 's/deb.debian.org/debian-archive.trafficmanager.net/g' /etc/apt/sources.list
+
 # Docker for jenkins really needs procps otherwise the jenkins side fails
 RUN apt-get update && apt-get install --no-install-recommends -y procps
 
