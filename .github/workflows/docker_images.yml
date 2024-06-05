@@ -1,0 +1,50 @@
+name: 'Docker Images build'
+
+on:
+  workflow_dispatch:
+    inputs:
+      GIT_REPO:
+        description: 'Repo (owner/repo)'
+        required: true
+        default: 'https://github.com/kernelci/kernelci-core'
+      GIT_BRANCH:
+        description: 'Branch'
+        required: true
+        default: 'main'
+
+env:
+  USER_GIT_REPO: ${{ github.event.inputs.GIT_REPO }}
+  USER_GIT_BRANCH: ${{ github.event.inputs.GIT_BRANCH }}
+
+jobs:
+  docker-build:
+    # only selected people can trigger this job
+    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor)
+    runs-on: ubuntu-22.04
+    environment: deploydocker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.USER_GIT_REPO }}
+          ref: ${{ env.USER_GIT_BRANCH }}
+          submodules: recursive
+          fetch-depth: 0
+          path: kernelci-deploy/tools/kernelci-core
+      - name: Prepare necessary tools
+        run: |
+          sudo apt-get update
+          sudo apt-get remove containerd.io
+          sudo apt-get install -y python3-pip git docker.io python3-docker
+          pip3 install --upgrade pip
+          cd kernelci-core
+          python3 -m pip install '.[dev]'
+          cp -R config /etc/kernelci/
+      - name: build base kernelci docker image
+        run: |
+          cd kernelci-core
+          export core_rev=$(git rev-parse HEAD)
+          kci_arg="build --build-arg core_rev=$core_rev --prefix=kernelci/"
+
+
+
