@@ -126,10 +126,12 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
 @kci_job.command(secrets=True)
 @click.argument('job-path')
 @click.option('--wait', is_flag=True)
+@Args.api
 @Args.runtime
 @Args.config
 @catch_error
-def submit(runtime, job_path, wait, config, secrets):
+def submit(runtime, job_path, wait,  # pylint: disable=too-many-arguments
+           config, secrets, api):  # pylint: disable=unused-argument
     """Submit a job definition to its designated runtime"""
     configs = kernelci.config.load(config)
     runtime_config = configs['runtimes'][runtime]
