@@ -12,7 +12,7 @@
       location: /home/cros/lava
     definitions:
     - from: inline
-      name: tast
+      name: setup
       path: inline/cros-tast.yaml
       repository:
         metadata:
@@ -41,6 +41,16 @@
             - >-
               lava-test-case os-release --result pass
               --measurement $(sed -e '/VERSION_ID/!d' -e 's/.*=//' /tmp/osrel.tmp)
+    - from: inline
+      name: tast
+      path: inline/cros-tast.yaml
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: cros-tast
+        run:
+          steps:
+            - cd /home/cros
 {%- if excluded_tests %}
             - echo "# Disabled tests for KernelCI" > /tmp/excluded-tast-tests
 {%- for test in excluded_tests %}
