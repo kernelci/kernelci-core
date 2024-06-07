@@ -16,7 +16,10 @@ from urllib.parse import urljoin
 import requests
 import yaml
 
-from kernelci.runtime import Runtime
+from kernelci.runtime import (
+    Runtime,
+    evaluate_test_suite_result
+)
 
 
 # This will go away when adding get_html_log()
@@ -75,7 +78,7 @@ class Callback:
     # LAVA job result names
     LAVA_JOB_RESULT_NAMES = {
         COMPLETE: "pass",
-        INCOMPLETE: "fail",
+        INCOMPLETE: "incomplete",
         CANCELED: "incomplete",
         CANCELING: "incomplete",
     }
@@ -164,17 +167,6 @@ class Callback:
                 results[suite_name] = self._get_suite_results(tests)
         return results
 
-    def _get_stage_result(self, suite_name):
-        lava_yaml = self._data['results']['lava']
-        lava = yaml.safe_load(lava_yaml)
-        stages = {stage['name']: stage for stage in lava}
-        result = None
-        for stage_name, stage_results in stages.items():
-            stage_name = stage_name.partition("_")[2]
-            if stage_name == suite_name:
-                result = stage_results['result']
-        return result
-
     def _get_results_hierarchy(self, results):
         hierarchy = []
         for name, value in results.items():
@@ -183,7 +175,7 @@ class Callback:
             item = {'node': node, 'child_nodes': child_nodes}
             if isinstance(value, dict):
                 item['child_nodes'] = self._get_results_hierarchy(value)
-                node['result'] = self._get_stage_result(node['name'])
+                node['result'] = evaluate_test_suite_result(item['child_nodes'])
                 node['kind'] = 'job'
             elif isinstance(value, str):
                 node['result'] = value
@@ -191,16 +183,42 @@ class Callback:
             hierarchy.append(item)
         return hierarchy
 
+    def _get_job_node_result(self, suite_nodes, job_result):
+        """ Calculate job node result
+        If all child test suites pass, the job will be marked as `pass`
+        If one of the test suites fails, the job will be marked as `fail`
+        If `setup` test suite fails, it means that the main test suite
+        couldn't run and will be marked as `incomplete`
+        """
+        result = job_result
+        for suite in suite_nodes:
+            suite = suite['node']
+            if suite['result'] == 'fail':
+                if suite['name'] == 'setup':
+                    result = 'incomplete'
+                    break
+                result = 'fail'
+        return result
+
     def get_hierarchy(self, results, job_node):
         """Convert the plain results dictionary to a hierarchy for the API"""
         job_result = job_node['result']
-        if job_result == "fail":
+        if job_result == "incomplete":
             job_meta = self._get_job_failure_metadata()
             if job_meta:
                 job_node['data']['error_code'] = job_meta.get('error_type')
                 job_node['data']['error_msg'] = job_meta.get('error_msg')
             else:
                 print(f"Job failure metadata not found for node: {job_node['id']}")
+
+        child_nodes = self._get_results_hierarchy(results)
+
+        if job_result == 'pass':
+            final_job_result = self._get_job_node_result(child_nodes, job_result)
+            if final_job_result != job_result:
+                print(f"DEBUG: {job_node['id']} Transitting job node \
+result: {job_result} -> {final_job_result}")
+                job_result = final_job_result
 
         return {
             'node': {
@@ -209,7 +227,7 @@ class Callback:
                 'artifacts': {},
                 'data': job_node['data'],
             },
-            'child_nodes': self._get_results_hierarchy(results),
+            'child_nodes': child_nodes,
         }
 
     def get_log_parser(self):

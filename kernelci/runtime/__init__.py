@@ -237,3 +237,36 @@ def get_all_runtimes(runtime_configs, opts):
             for opt in ('user', 'runtime_token')
         )
         yield config_name, get_runtime(config, user, token)
+
+
+def evaluate_test_suite_result(child_nodes):
+    """ Evaluate test suite result
+    Argument: List of child nodes with the below format:
+    [
+        {
+            "node": {
+                "name": <node-name>,
+                "result":<node-result>
+            },
+            "child_nodes": []
+        },
+        ...
+    ]
+
+    If all child nodes pass, the suite will be marked 'pass'
+    If one of the child node fails, the suite will be marked `fail`
+    If all child nodes skipped, the suite will be marked 'skip'
+    If atleast one of the child passes and other are skipped, the suite
+    will be marked as `pass`
+    If atleast one of the child skipped and other are unknown, the
+    suite will be marked as `skip`
+    """
+    result = None
+    result_list = [child['node']['result'] for child in child_nodes]
+    if 'fail' in result_list:
+        result = 'fail'
+    elif all(result == 'pass' for result in result_list) or 'pass' in result_list:
+        result = 'pass'
+    elif all(result == 'skip' for result in result_list) or 'skip' in result_list:
+        result = 'skip'
+    return result
