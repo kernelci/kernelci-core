@@ -200,6 +200,7 @@ rootfs_configs:
       - publicsuffix
       - python3-minimal
       - python3-unittest2
+      - python3-yaml
       - socat
       - tappy
       - tcpdump
