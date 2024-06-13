@@ -14,11 +14,13 @@ RUN apt-get update \
         build-essential \
         curl \
         git \
+        jq \
         libguestfs-tools \
         linux-image-amd64 \
         netbase \
         sudo \
         ssh \
+        unzip \
         wget
 
 # We have uid conflict with jenkins useradd, WORKAROUND
@@ -29,5 +31,7 @@ RUN useradd -ou 996 -ms /bin/sh cros
 RUN adduser cros sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN mkdir -p /home/cros/chromiumos
 RUN chown -R cros /home/cros/chromiumos
+
+ENV PATH="${PATH}:/kernelci-core/temp/temp/chromiumos-sdk/chromite/bin"
 
 {%- endblock %}
