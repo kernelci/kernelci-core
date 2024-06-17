@@ -1,0 +1,44 @@
+- test:
+    name: {{ plan }}
+    timeout:
+      minutes: {{ job_timeout }}
+
+    definitions:
+    - from: inline
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: preempt-rt-prereq
+          description: Pre-requisites for PREEMPT_RT
+        run:
+          steps:
+          - apt-get update && apt-get install -y procps rt-tests
+      name: preempt-rt-prereq
+      path: inline/preempt-rt-prereq.yaml
+
+    - repository: https://github.com/kernelci/test-definitions.git
+      from: git
+      revision: kernelci.org
+      path: automated/linux/{{ tst_group|default(tst_cmd) }}/{{ tst_cmd }}.yaml
+      name: {{ plan }}
+      parameters:
+        ARTIFACTORIAL_TOKEN: {{ artifactorial_token|default('') }}
+        ARTIFACTORIAL_URL: {{ artifactorial_url|default('') }}
+        AFFINTIY: {{ affinity|default('0-1') }}
+        DURATION: {{ duration|default('300s') }}
+        BACKGROUND_CMD: {{ background|default('hackbench') }}
+      {% if tst_cmd == 'cyclicdeadline' %}
+        INTERVAL: {{ interval|default('1000') }}
+        STEP: {{ step|default('500') }}
+        THREADS: {{ threads|default('2') }}
+      {% elif tst_cmd == 'cyclictest' %}
+        HISTOGRAM: {{ histogram|default('') }}
+        INTERVAL: {{ interval|default('1000') }}
+        PRIORITY: {{ priority|default('98') }}
+        THREADS: {{ threads|default('2') }}
+      {% elif tst_cmd == 'pi-stress' %}
+        MLOCKALL: {{ mlockall|default('true') }}
+      {% elif tst_cmd == 'signaltest' %}
+        PRIORITY: {{ priority|default('98') }}
+        THREADS: {{ threads|default('2') }}
+      {% endif %}
