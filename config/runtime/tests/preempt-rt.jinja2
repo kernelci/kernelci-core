@@ -1,5 +1,5 @@
 - test:
-    name: {{ plan }}
+    name: {{ node.name }}
     timeout:
       minutes: {{ job_timeout }}
 
@@ -20,7 +20,7 @@
       from: git
       revision: kernelci.org
       path: automated/linux/{{ tst_group|default(tst_cmd) }}/{{ tst_cmd }}.yaml
-      name: {{ plan }}
+      name: {{ node.name }}
       parameters:
         ARTIFACTORIAL_TOKEN: {{ artifactorial_token|default('') }}
         ARTIFACTORIAL_URL: {{ artifactorial_url|default('') }}
