@@ -52,7 +52,8 @@ LATEST_LTS_MINOR = 6
 DTBS_DISABLED = {
     'i386': True,
     'x86_64': True,
-    'sparc': True
+    'sparc': True,
+    'um': True,
 }
 
 # Hard-coded make targets for each CPU architecture
@@ -66,6 +67,7 @@ MAKE_TARGETS = {
     'riscv': 'Image',
     'riscv64': 'Image',
     'sparc': 'zImage',
+    'um': 'linux'
 }
 
 # Hard-coded binary kernel image names for each CPU architecture
@@ -80,6 +82,7 @@ KERNEL_IMAGE_NAMES = {
     'sparc': {'zImage'},
     'x86_64': {'bzImage'},
     'x86': {'bzImage'},
+    'um': {'linux'},
 }
 
 '''
