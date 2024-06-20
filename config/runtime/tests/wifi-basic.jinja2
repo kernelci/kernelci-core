@@ -1,0 +1,25 @@
+{# This test verifies WiFi basic functionality:
+ # - Checks rfkill soft block/unblock
+ # - Performs a scan for nearby networks
+ # - Checks that monitor/managed modes can be enabled
+ # This test assumes there are APs within reach.
+-#}
+- test:
+    timeout:
+      minutes: 5
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ node.name }}
+          description: "WiFi basic test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - KERNELCI_LAVA=y /usr/bin/wifi-basic-parser.sh
+      from: inline
+      name: {{ node.name }}
+      path: inline/{{ node.name }}.yaml
