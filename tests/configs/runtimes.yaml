@@ -25,6 +25,7 @@ runtimes:
     queue_timeout:
       days: 1
     notify: {}
+    platforms:
     filters:
       - blocklist:
           tree:
@@ -50,6 +51,7 @@ runtimes:
       callback:
         token: some-token-name
         url: https://somewhere.com:12345
+    platforms:
     filters:
       - blocklist:
           tree: [android]
