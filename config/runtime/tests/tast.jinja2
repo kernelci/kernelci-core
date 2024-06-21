@@ -12,7 +12,7 @@
       location: /home/cros/lava
     definitions:
     - from: inline
-      name: setup
+      name: tast
       path: inline/cros-tast.yaml
       repository:
         metadata:
@@ -21,6 +21,13 @@
         run:
           steps:
             - cd /home/cros
+{%- if excluded_tests %}
+            - echo "# Disabled tests for KernelCI" > /tmp/excluded-tast-tests
+{%- for test in excluded_tests %}
+            - echo "-{{ test }}" >> /tmp/excluded-tast-tests
+{%- endfor %}
+{%- endif %}
+            - lava-test-set start setup
             - >-
               lava-test-case tast-tarball --shell
               curl -s '{{ platform_config.params.tast_tarball }}'
@@ -41,22 +48,7 @@
             - >-
               lava-test-case os-release --result pass
               --measurement $(sed -e '/VERSION_ID/!d' -e 's/.*=//' /tmp/osrel.tmp)
-    - from: inline
-      name: tast
-      path: inline/cros-tast.yaml
-      repository:
-        metadata:
-          format: Lava-Test Test Definition 1.0
-          name: cros-tast
-        run:
-          steps:
-            - cd /home/cros
-{%- if excluded_tests %}
-            - echo "# Disabled tests for KernelCI" > /tmp/excluded-tast-tests
-{%- for test in excluded_tests %}
-            - echo "-{{ test }}" >> /tmp/excluded-tast-tests
-{%- endfor %}
-{%- endif %}
+            - lava-test-set stop setup
             - >-
               ./tast_parser.py --run
 {%- for test in tests %}
