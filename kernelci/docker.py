@@ -45,7 +45,7 @@ class Docker:
     @classmethod
     def push_image(cls, base_name, tag_name):
         """Push a Docker image to Docker Hub"""
-        client = docker.from_env()
+        client = docker.from_env(timeout=600)
         push_log_json = client.images.push(base_name, tag_name)
         return list(
             json.loads(json_line)
