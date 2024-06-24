@@ -85,7 +85,7 @@ class RuntimeLAVA(Runtime):
     # pylint: disable=too-many-arguments
     def __init__(self, url, priority=None, priority_min=None,
                  priority_max=None, queue_timeout=None, notify=None,
-                 **kwargs):
+                 platforms=None, **kwargs):
         super().__init__(**kwargs)
 
         def _set_priority_value(value, default):
@@ -97,6 +97,10 @@ class RuntimeLAVA(Runtime):
         self._priority_max = _set_priority_value(priority_max, self._priority)
         self._notify = notify or {}
         self._queue_timeout = queue_timeout
+        # set platforms is list or None
+        if platforms and not isinstance(platforms, list):
+            raise ValueError('platforms must be a list')
+        self._platforms = platforms
 
     @property
     def url(self):
@@ -132,6 +136,11 @@ class RuntimeLAVA(Runtime):
         """Callback parameters for the `notify` part of the jobs"""
         return self._notify.copy()
 
+    @property
+    def platforms(self):
+        """List of platforms supported by the lab"""
+        return self._platforms
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
@@ -142,6 +151,7 @@ class RuntimeLAVA(Runtime):
             'queue_timeout',
             'url',
             'notify',
+            'platforms',
         })
         return attrs
 
