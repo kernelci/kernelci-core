@@ -10,6 +10,6 @@ pydantic==1.10.13
 pyelftools==0.29
 pytest==7.4.0
 pyyaml==6.0
-requests==2.31.0
+requests==2.32.2
 scp==0.14.5
 toml==0.10.2
