@@ -3683,6 +3683,7 @@ test_configs:
       - kselftest-landlock
       - kselftest-lib
       - kselftest-lkdtm
+      - kselftest-mm
       - kselftest-seccomp
 
   - device_type: stm32mp157c-dk2
