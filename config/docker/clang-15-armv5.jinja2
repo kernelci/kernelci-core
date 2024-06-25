@@ -7,7 +7,7 @@
 RUN dpkg --add-architecture armel
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    libgcc-10-dev:armel
+    libgcc-12-dev:armel
 
 {%- endblock %}
 
