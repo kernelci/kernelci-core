@@ -35,7 +35,7 @@ WORKDIR /root/patches
 #kernelci.org/\
 #config/docker/data/kmod_kci_bookworm.patch \
 #.
-ADD https://raw.githubusercontent.com/nuclearcat/kernelci-core/upgrade-bookworm-docker/config/docker/data/kmod_kci_bookworm.patch \
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/main/config/docker/data/kmod_kci_bookworm.patch \
 .
 
 RUN apt-get source kmod
