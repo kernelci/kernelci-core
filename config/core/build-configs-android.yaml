@@ -210,3 +210,10 @@ build_configs:
     variants:
       <<: *android_variants
       <<: *clang_android_variants
+
+  android15-6.6-lts:
+    tree: android
+    branch: 'android15-6.6-lts'
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
