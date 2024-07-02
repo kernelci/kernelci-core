@@ -28,6 +28,10 @@ android_variants: &android_variants
 #            - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
 
         arm64: &arm64_arch
+          filters:
+            - blocklist:
+                defconfig:
+                  - 'gki_defconfig'
           extra_configs:
             - 'allmodconfig'
             - 'allnoconfig'
