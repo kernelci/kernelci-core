@@ -1248,12 +1248,12 @@ build_configs:
 
   chrome-platform:
     tree: chrome-platform
-    branch: 'for-kernelci'
+    branch: 'for-next'
     variants: *chrome_platform_variants
 
   chrome-platform-firmware:
     tree: chrome-platform
-    branch: 'for-firmware-kernelci'
+    branch: 'for-firmware-next'
     variants: *chrome_platform_variants
 
   clk:
