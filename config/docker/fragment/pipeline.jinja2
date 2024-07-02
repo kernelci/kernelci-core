@@ -1,5 +1,9 @@
 USER root
 {% include 'fragment/gcloud.jinja2' %}
+
+# KCIDB python for kcidb bridge service
+RUN python3 -m pip install git+https://github.com/kernelci/kcidb.git --break-system-packages
+
 USER kernelci
 ARG pipeline_url=https://github.com/kernelci/kernelci-pipeline.git
 ARG pipeline_rev=main
