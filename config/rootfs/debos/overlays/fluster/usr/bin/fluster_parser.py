@@ -110,13 +110,15 @@ def main(args):
         cmd['case'], 'validate-fluster-results', '--result', 'pass'])
 
     # parse test results
+    # avoid using dots in set/case names as they are used to represent test hierarchy in KCIDB
     for test_suite in junitxml:
         decoder = next(test_suite.properties()).value
+        set_name = f'{test_suite.name}-{decoder}'.replace('.', '-')
         subprocess.check_call([
-            cmd['set'], 'start', f'{test_suite.name}-{decoder}'])
+            cmd['set'], 'start', set_name])
 
         for res in map(_parse_vector_result, test_suite):
-            case_name, case_res = res
+            case_name, case_res = [x.replace('.', '-') for x in res]
             subprocess.check_call([
                 cmd['case'], f'{case_name}', '--result', f'{case_res}'])
 
