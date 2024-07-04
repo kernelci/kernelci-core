@@ -126,6 +126,7 @@ class Runtime(abc.ABC):
     def get_params(self, job, api_config=None):
         """Get job template parameters"""
         instanceid = os.environ.get('KCI_INSTANCE')
+        instance_callback = os.environ.get('KCI_INSTANCE_CALLBACK')
         device_dtb = None
         if job.platform_config.dtb and len(job.platform_config.dtb) > 0:
             # verify if we have metadata at all
@@ -151,6 +152,7 @@ class Runtime(abc.ABC):
             'storage_config': job.storage_config or {},
             'platform_config': job.platform_config or {},
             'instanceid': instanceid,
+            'instance_callback': instance_callback,
             'name': job.name,
             'node': job.node,
             'runtime': self.config.lab_type,
