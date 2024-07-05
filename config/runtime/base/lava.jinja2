@@ -48,9 +48,7 @@ notify:
     {%- if notify.callback.token %}
     token: {{ notify.callback.token }}
     {%- endif %}
-    {%- if notify.callback.url %}
-    url: {{ notify.callback.url }}/node/{{ node.id }}
-    {%- else %}{{ kci_raise("Callback URL not provided") }}{%- endif %}
+    url: {{ instance_callback }}/node/{{ node.id }}
   criteria:
     status: finished
 {% endif %}
