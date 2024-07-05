@@ -8,13 +8,13 @@
       repository:
         metadata:
           format: Lava-Test Test Definition 1.0
-          name: preempt-rt-prereq
+          name: rt-tests-prereq
           description: Pre-requisites for PREEMPT_RT
         run:
           steps:
           - apt-get update && apt-get install -y procps rt-tests
-      name: preempt-rt-prereq
-      path: inline/preempt-rt-prereq.yaml
+      name: rt-tests-prereq
+      path: inline/rt-tests-prereq.yaml
 
     - repository: https://github.com/kernelci/test-definitions.git
       from: git
