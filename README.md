@@ -1,4 +1,4 @@
-<img src="https://kernelci.org/image/kernelci-horizontal-color.png"
+<img src="https://docs.kernelci.org/org/branding/kernelci-logo-color.png"
      alt="KernelCI project logo"
      width="40%" />
 
