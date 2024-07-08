@@ -56,6 +56,10 @@ class Scheduler:
                 runtimes = self._runtimes_by_type.get(runtime_type)
                 runtime = random.sample(runtimes, 1)[0] if runtimes else None
             job = self._jobs.get(config.job)
+            # if event have jobfilter, add/replace it to the job
+            if event.get('jobfilter'):
+                print(f"event jobfilter: {event['jobfilter']}")
+                job.node('jobfilter', event['jobfilter'])
             if not all((job, runtime)):
                 continue
             platforms = config.platforms or [runtime.config.lab_type]

@@ -40,6 +40,10 @@ class Job:
         """Node data for this job"""
         return self._node
 
+    @node.setter
+    def node(self, key, value):
+        self._node[key] = value
+
     @property
     def config(self):
         """Configuration for this job loaded from YAML"""
