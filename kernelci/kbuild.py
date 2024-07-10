@@ -257,7 +257,10 @@ class KBuild():
         self.addcomment("Build metadata:")
         self.addcomment("  arch: " + self._arch)
         self.addcomment("  compiler: " + self._compiler)
-        self.addcomment("  defconfig: " + self._defconfig)
+        if isinstance(self._defconfig, str):
+            self.addcomment("  defconfig: " + self._defconfig)
+        if isinstance(self._defconfig, list):
+            self.addcomment("  defconfig: " + ' '.join(self._defconfig))
         self.addcomment("  fragments: " + str(self._fragments))
         self.addcomment("  src_tarball: " + self._srctarball)
         self.addcomment("  apijobname: " + self._apijobname)
@@ -484,10 +487,9 @@ class KBuild():
 
     def _merge_frags(self, fragnum):
         """ Merge config fragments to .config """
-        # defconfig
         self.startjob("config_defconfig")
         self.addcmd("cd " + self._srcdir)
-        if self._defconfig.startswith('cros://'):
+        if isinstance(self._defconfig, str) and self._defconfig.startswith('cros://'):
             dotconfig = os.path.join(self._srcdir, ".config")
             with open(dotconfig, 'w') as f:
                 (content, self._defconfig) = \
@@ -495,8 +497,16 @@ class KBuild():
                 f.write(content)
             self.addcmd("make olddefconfig")
         else:
-            self.addcmd("make " + self._defconfig)
-        self._config_full = self._defconfig + self._config_full
+            if isinstance(self._defconfig, str):
+                self.addcmd("make " + self._defconfig)
+                self._config_full = self._defconfig + self._config_full
+            # we allow multiple defconfigs or make targets
+            # such as: make defconfig allnoconfig hardened.config
+            if isinstance(self._defconfig, list):
+                defconfigs = ' '.join(self._defconfig)
+                self.addcmd("make " + defconfigs)
+                defconfigs = '+'.join(self._defconfig)
+                self._config_full = defconfigs + self._config_full
         # fragments
         self.startjob("config_fragments")
         for i in range(0, fragnum):
