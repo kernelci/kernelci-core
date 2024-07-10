@@ -1,0 +1,111 @@
+trees:
+  my_test_kernel:
+    url: "http://gitlab.example.com/kernel.git"
+
+build_configs:
+  my_test_kernel:
+    tree: my_test_kernel
+    branch: master
+    variants:
+      default:
+        build_environment: gcc-10
+        architectures:
+          arm64:
+            base_defconfig: my_special_defconfig
+            fragments: [my_fragment]
+
+labs:
+  lab-internal:
+    lab_type: lava.lava_rest
+    config_path: 'lava'
+    url: 'https://internal-lava.example.com/'
+    priority: '45'
+    queue_timeout:
+      days: 2
+    filters:
+      - blocklist:
+          tree: [android]
+
+fragments:
+  my_fragment:
+    path: "my_configs/internal.config"
+    configs:
+      - "CONFIG_EXAMPLE_FLAG=y"
+
+device_types:
+  internal_device_type:
+    mach: internal
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - passlist: {defconfig: ['my_special_defconfig+my_fragment']}
+
+test_configs:
+  - device_type: internal_device_type
+    test_plans:
+      - baseline
+      - kselftest-alsa
+      - kselftest-arm64
+      - kselftest-cgroup
+      - kselftest-clone3
+      - kselftest-cpufreq
+      - kselftest-exec
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-kcmp
+      - kselftest-kvm
+      - kselftest-membarrier
+      - kselftest-mincore
+      - kselftest-openat2
+      - kselftest-timers
+
+default_filters:
+  test_plans:
+    - combination: &arch_defconfig_filter
+        keys: ['arch', 'defconfig']
+        values:
+          - ['arm64', 'my_special_defconfig+my_fragment']
+
+test_plans:
+  kselftest-alsa:
+    filters: &kselftest_no_fragment
+      - combination: *arch_defconfig_filter
+
+  kselftest-arm64:
+    filters: *kselftest_no_fragment
+
+  kselftest-cgroup:
+    filters: *kselftest_no_fragment
+
+  kselftest-clone3:
+    filters: *kselftest_no_fragment
+
+  kselftest-cpufreq:
+    filters: *kselftest_no_fragment
+
+  kselftest-exec:
+    filters: *kselftest_no_fragment
+
+  kselftest-filesystems:
+    filters: *kselftest_no_fragment
+
+  kselftest-futex:
+    filters: *kselftest_no_fragment
+
+  kselftest-kcmp:
+    filters: *kselftest_no_fragment
+
+  kselftest-kvm:
+    filters: *kselftest_no_fragment
+
+  kselftest-membarrier:
+    filters: *kselftest_no_fragment
+
+  kselftest-mincore:
+    filters: *kselftest_no_fragment
+
+  kselftest-openat2:
+    filters: *kselftest_no_fragment
+
+  kselftest-timers:
+    filters: *kselftest_no_fragment
