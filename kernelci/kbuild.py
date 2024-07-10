@@ -135,6 +135,9 @@ class KBuild():
             self._arch = params['arch']
             self._compiler = params['compiler']
             self._defconfig = params['defconfig']
+            # if defconfig contains '+', it means it is a list
+            if isinstance(self._defconfig, str) and '+' in self._defconfig:
+                self._defconfig = self._defconfig.split('+')
             self._fragments = params['fragments']
             if 'cross_compile' in params:
                 self._cross_compile = params['cross_compile']
@@ -257,7 +260,10 @@ class KBuild():
         self.addcomment("Build metadata:")
         self.addcomment("  arch: " + self._arch)
         self.addcomment("  compiler: " + self._compiler)
-        self.addcomment("  defconfig: " + self._defconfig)
+        if isinstance(self._defconfig, str):
+            self.addcomment("  defconfig: " + self._defconfig)
+        if isinstance(self._defconfig, list):
+            self.addcomment("  defconfig: " + ' '.join(self._defconfig))
         self.addcomment("  fragments: " + str(self._fragments))
         self.addcomment("  src_tarball: " + self._srctarball)
         self.addcomment("  apijobname: " + self._apijobname)
@@ -484,10 +490,9 @@ class KBuild():
 
     def _merge_frags(self, fragnum):
         """ Merge config fragments to .config """
-        # defconfig
         self.startjob("config_defconfig")
         self.addcmd("cd " + self._srcdir)
-        if self._defconfig.startswith('cros://'):
+        if isinstance(self._defconfig, str) and self._defconfig.startswith('cros://'):
             dotconfig = os.path.join(self._srcdir, ".config")
             with open(dotconfig, 'w') as f:
                 (content, self._defconfig) = \
@@ -495,8 +500,16 @@ class KBuild():
                 f.write(content)
             self.addcmd("make olddefconfig")
         else:
-            self.addcmd("make " + self._defconfig)
-        self._config_full = self._defconfig + self._config_full
+            if isinstance(self._defconfig, str):
+                self.addcmd("make " + self._defconfig)
+                self._config_full = self._defconfig + self._config_full
+            # we allow multiple defconfigs or make targets
+            # such as: make defconfig allnoconfig hardened.config
+            if isinstance(self._defconfig, list):
+                defconfigs = ' '.join(self._defconfig)
+                self.addcmd("make " + defconfigs)
+                defconfigs = '+'.join(self._defconfig)
+                self._config_full = defconfigs + self._config_full
         # fragments
         self.startjob("config_fragments")
         for i in range(0, fragnum):
@@ -872,7 +885,13 @@ class KBuild():
         results['node']['data'] = node['data']
         results['node']['data']['arch'] = self._arch
         results['node']['data']['compiler'] = self._compiler
-        results['node']['data']['defconfig'] = self._defconfig
+        # As we are late to change data formats, we need to keep
+        # defconfig as string, not list, so we use + to separate
+        # multiple defconfigs
+        if isinstance(self._defconfig, list):
+            results['node']['data']['defconfig'] = '+'.join(self._defconfig)
+        else:
+            results['node']['data']['defconfig'] = self._defconfig
         results['node']['data']['fragments'] = self._fragments
         results['node']['data']['config_full'] = self._config_full
         api_helper = kernelci.api.helper.APIHelper(api)
