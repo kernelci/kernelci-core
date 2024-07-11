@@ -1,6 +1,7 @@
 - test:
+    name: {{ plan }}
     timeout:
-      minutes: 10
+      minutes: {{ job_timeout }}
 
     definitions:
     - from: inline
@@ -18,13 +19,26 @@
     - repository: https://github.com/kernelci/test-definitions.git
       from: git
       revision: kernelci.org
-      path: automated/linux/cyclictest/cyclictest.yaml
-      name: cyclictest
+      path: automated/linux/{{ tst_group|default(tst_cmd) }}/{{ tst_cmd }}.yaml
+      name: {{ plan }}
       parameters:
-        AFFINTIY: 0-1
-        BACKGROUND_CMD: hackbench
-        DURATION: 300s
-        INTERVAL: 1000
-        MAX_LATENCY: 35
-        PRIORITY: 98
-        THREADS: 2
+        ARTIFACTORIAL_TOKEN: {{ artifactorial_token|default('') }}
+        ARTIFACTORIAL_URL: {{ artifactorial_url|default('') }}
+        AFFINTIY: {{ affinity|default('0-1') }}
+        DURATION: {{ duration|default('300s') }}
+        BACKGROUND_CMD: {{ background|default('hackbench') }}
+      {% if tst_cmd == 'cyclicdeadline' %}
+        INTERVAL: {{ interval|default('1000') }}
+        STEP: {{ step|default('500') }}
+        THREADS: {{ threads|default('2') }}
+      {% elif tst_cmd == 'cyclictest' %}
+        HISTOGRAM: {{ histogram|default('') }}
+        INTERVAL: {{ interval|default('1000') }}
+        PRIORITY: {{ priority|default('98') }}
+        THREADS: {{ threads|default('2') }}
+      {% elif tst_cmd == 'pi-stress' %}
+        MLOCKALL: {{ mlockall|default('true') }}
+      {% elif tst_cmd == 'signaltest' %}
+        PRIORITY: {{ priority|default('98') }}
+        THREADS: {{ threads|default('2') }}
+      {% endif %}
