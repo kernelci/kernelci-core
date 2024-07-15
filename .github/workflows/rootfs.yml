@@ -22,11 +22,15 @@ on:
       ROOTFS_DESTINATION:
         description: 'Rootfs destination'
         required: true
-        default: 'staging'
+        type: choice
+        options:
+          - 'staging'
+          - 'production'
 
 env:
   ROOTFS_NAME: ${{ github.event.inputs.ROOTFS_NAME }}
   ROOTFS_ARCH: ${{ github.event.inputs.ROOTFS_ARCH }}
+  ROOTFS_DESTINATION: ${{ github.event.inputs.ROOTFS_DESTINATION }}
   USER_GIT_REPO: ${{ github.event.inputs.GIT_REPO }}
   USER_GIT_BRANCH: ${{ github.event.inputs.GIT_BRANCH }}
 
