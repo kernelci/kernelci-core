@@ -1,4 +1,4 @@
-name: ROOTFS_Build
+name: "Build rootfs images"
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       GIT_REPO:
         description: 'Repo (owner/repo)'
         required: true
-        default: 'username/kernelci-core'
+        default: 'kernelci/kernelci-core'
       GIT_BRANCH:
         description: 'Branch'
         required: true
@@ -19,6 +19,10 @@ on:
         description: 'Rootfs architecture'
         required: true
         default: 'arm64'
+      ROOTFS_DESTINATION:
+        description: 'Rootfs destination'
+        required: true
+        default: 'staging'
 
 env:
   ROOTFS_NAME: ${{ github.event.inputs.ROOTFS_NAME }}
@@ -70,7 +74,8 @@ jobs:
           ROOTFS_DIR=$(find kernelci-deploy/tools -type d -name _install_)
           echo "ROOTFS_DIR=$ROOTFS_DIR" >> $GITHUB_ENV
           echo "ROOTFS_TIMECODE=$(date +%Y%m%d.0)" >> $GITHUB_ENV
-      - name: copy file via scp
+      - name: Copy files via scp to staging
+        if: ${{ env.ROOTFS_DESTINATION == 'staging' }}
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.STAGING_HOST }}
@@ -79,6 +84,17 @@ jobs:
           port: ${{ secrets.STAGING_PORT }}
           source: "${{ env.ROOTFS_DIR }}/*"
           target: ${{ secrets.STAGING_DIR }}/${{ env.ROOTFS_NAME }}/${{ env.ROOTFS_TIMECODE }}/${{ env.ROOTFS_ARCH }}
+          strip_components: 8
+      - name: Copy files via scp to production
+        if: ${{ env.ROOTFS_DESTINATION == 'production' }}
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_KEY }}
+          port: ${{ secrets.PRODUCTION_PORT }}
+          source: "${{ env.ROOTFS_DIR }}/*"
+          target: ${{ secrets.PRODUCTION_DIR }}/${{ env.ROOTFS_NAME }}/${{ env.ROOTFS_TIMECODE }}/${{ env.ROOTFS_ARCH }}
           strip_components: 8
       - name: print out published rootfs
         run: |
