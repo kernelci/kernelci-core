@@ -4,18 +4,6 @@
       minutes: {{ job_timeout }}
 
     definitions:
-    - from: inline
-      repository:
-        metadata:
-          format: Lava-Test Test Definition 1.0
-          name: rt-tests-prereq
-          description: Pre-requisites for PREEMPT_RT
-        run:
-          steps:
-          - apt-get update && apt-get install -y procps rt-tests
-      name: rt-tests-prereq
-      path: inline/rt-tests-prereq.yaml
-
     - repository: https://github.com/kernelci/test-definitions.git
       from: git
       revision: kernelci.org
