@@ -155,26 +155,26 @@ class APIHelper:
         if not base:
             return True
 
-        block = [f.lstrip('!') for f in rules[key] if f.startswith('!')]
+        deny = [f.lstrip('!') for f in rules[key] if f.startswith('!')]
         allow = [f for f in rules[key] if not f.startswith('!')]
 
         # Rules are appied depending on how the data is initially stored:
         # * if it's a list (e.g. config fragments), then it must contain
         #   at least one element from the allow-list; additionally, none
-        #   of the list elements can be part of the block-list
+        #   of the list elements can be part of the deny-list
         # * if it's a single object (likely a string), then it must be
-        #   present in the allow-list and absent from the block-list
+        #   present in the allow-list and absent from the deny-list
         if isinstance(base[key], list):
             found = False
 
             # If the allow-list is empty, we assume no value is required and
             # will only return False if one of the elements is in the
-            # block-list
+            # deny-list
             if len(allow) == 0:
                 found = True
 
             for item in base[key]:
-                if item in block:
+                if item in deny:
                     print(f"{key.capitalize()} {item} not allowed")
                     return False
                 if item in allow:
@@ -185,7 +185,7 @@ class APIHelper:
                 return False
 
         else:
-            if base[key] in block or (len(allow) > 0 and base[key] not in allow):
+            if base[key] in deny or (len(allow) > 0 and base[key] not in allow):
                 print(f"{key.capitalize()} {base[key]} not allowed")
                 return False
 
@@ -196,7 +196,7 @@ class APIHelper:
         Check whether a node should be created based on configured rules.
         Those can be specified in the job, platform or runtime configuration
         and affect any field in the node structure. Rules can specify a list of
-        allowed values and blocked ones as well (prepending the value with `!`
+        allowed values and denied ones as well (prepending the value with `!`
         in the latter case).Rules should be formatted as follows:
 
           rules:
@@ -204,8 +204,8 @@ class APIHelper:
               - 'allowed-value1'
               - 'allowed-value2'
               ...
-              - '!blocked-value1'
-              - '!blocked-value2'
+              - '!denied-value1'
+              - '!denied-value2'
               ...
 
         Additional rules can be defined to check for a minimum and/or maximum
