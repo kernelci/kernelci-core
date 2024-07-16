@@ -191,6 +191,95 @@ class APIHelper:
 
         return True
 
+    def _extract_combos(self, rules, key):
+        """
+        Process tree/branch rules and extract "combo" values.
+
+        Tree and branch rules can be formatted as `<tree>:<branch>`, meaning
+        only a given branch is allowed for a specific tree. When prepended with
+        `!`, it indicates a forbidden tree/branch combination.
+
+        In order to simplify further processing, this function processes those
+        rules and returns lists of allowed/denied single values and combos.
+
+        Returns a tuple of 4 arrays:
+          * allowed single values
+          * allowed combinations
+          * denied single values
+          * denied combinations
+        """
+
+        allow = []
+        allow_combos = []
+        deny = []
+        deny_combos = []
+
+        for rule in rules[key]:
+            if ':' in rule:
+                combo = {}
+                # we use ':' as a tree/branch separator as this character is forbidden
+                # in git branch names, so if found it should be present only once.
+                [combo['tree'], combo['branch']] = rule.split(':', 1)
+                if combo['tree'].startswith('!'):
+                    combo['tree'] = combo['tree'].lstrip('!')
+                    deny_combos.append(combo)
+                else:
+                    allow_combos.append(combo)
+            else:
+                if rule.startswith('!'):
+                    deny.append(rule.lstrip('!'))
+                else:
+                    allow.append(rule)
+
+        return (allow, allow_combos, deny, deny_combos)
+
+    def _match_combos(self, node, combos):
+        """
+        Check whether the current node's tree/branch attributes match one of the
+        combinations present in combos.
+
+        Returns the matched combo or None.
+        """
+        match = None
+        for combo in combos:
+            if node['tree'] == combo['tree'] and node['branch'] == combo['branch']:
+                match = combo
+                break
+        return match
+
+    def _is_tree_branch_allowed(self, node, rules):
+        """
+        Check whether the tree and/or branch for the current checkout matches
+        the corresponding filtering rules.
+
+        Returns True if the rules allow the current value, False otherwise.
+        """
+        for key in ("tree", "branch"):
+            if key in rules:
+                (allow, allow_combos, deny, deny_combos) = self._extract_combos(rules, key)
+                # Process combos first:
+                # * if the tree/branch combination matches an allowed combo, then the node
+                #   fulfills the tree/branch rules and we can move forward to processing
+                #   the other rules
+                # * likewise, if the combination matches a denied combo, then we can stop
+                #   processing here and reject the node creation altogether
+                if self._match_combos(node, allow_combos):
+                    break
+                match = self._match_combos(node, deny_combos)
+                if match:
+                    print(f"Tree/branch combination "
+                          f"{match['tree']}/{match['branch']} not allowed")
+                    return False
+
+                # Get back to regular allow/deny list processing
+                if (node[key] in deny or
+                   (len(allow) == 0 and len(allow_combos) > 0) or
+                   (len(allow) > 0 and node[key] not in allow)):
+                    print(f"{key.capitalize()} {node[key]} not allowed")
+                    return False
+
+        return True
+
     def should_create_node(self, rules, node, parent=None):
         """
         Check whether a node should be created based on configured rules.
@@ -219,10 +308,13 @@ class APIHelper:
               version: int
               patchlevel: int
 
-        For example, a job can be configured to run only on arm64 devices, with
-        a kernel version between 6.1 and 6.6, built with any defconfig except
-        `allnoconfig`, and using the `kselftest` fragment but not the
-        `arm64-chromebook` one, by adding the following to the job definition:
+        For example, the following rules definition mean the job can run only:
+          * with a kernel version between 6.1 and 6.6
+          * on arm64 devices
+          * when using a checkout from the `master` branch on the `linus` tree,
+            or any branch except `master` on the `stable` tree
+          * if the kernel has been built with any defconfig except `allnoconfig`,
+            using the `kselftest` fragment but not the `arm64-chromebook` one
 
           rules:
             min_version:
@@ -233,6 +325,11 @@ class APIHelper:
               patchlevel: 6
             arch:
               - 'arm64'
+            tree:
+              - linus:master
+              - stable
+            branch:
+              - '!stable:master'
             defconfig:
               - '!allnoconfig'
             fragments:
@@ -242,7 +339,22 @@ class APIHelper:
         if rules is None:
             return True
 
+        # Process the tree and branch rules first as they need specific processing
+        # for handling tree/branch combinations
+
+        # Find the node (or parent node) attribute containing the "tree" (and therefore
+        # "branch") value
+        ref_base = self._find_container("tree", node)
+        if not ref_base and parent:
+            ref_base = self._find_container("tree", parent)
+        if ref_base and not self._is_tree_branch_allowed(ref_base, rules):
+            return False
+
         for key in rules:
+            # Skip tree and branch rules as we already processed them above
+            if key in ("tree", "branch"):
+                continue
+
             # Special case as there is no field in the node giving us the full
             # kernel version in "x.y" format
             if key.endswith('_version'):
