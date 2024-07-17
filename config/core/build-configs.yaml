@@ -538,6 +538,7 @@ fragments:
     path: "kernel/configs/preempt_rt.config"
     configs:
       - 'CONFIG_EXPERT=y'
+      - 'CONFIG_SCHED_DEBUG=y'
       - 'CONFIG_PREEMPT_RT=y'
       - 'CONFIG_PREEMPT_RT_FULL=y' # <= v4.19
 
