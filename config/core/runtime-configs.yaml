@@ -86,23 +86,23 @@ runtimes:
             - stable-rc
             - stable
 
-  lab-collabora:
-    lab_type: legacy.lava_rest
-    url: 'https://lava.collabora.dev/'
-    priority: 45
-    queue_timeout:
-      days: 2
-    filters: &collabora-filters
-      - blocklist:
-          tree: [android]
-
-  lab-collabora-staging:
-    lab_type: legacy.lava_rest
-    url: 'https://staging.lava.collabora.dev/'
-    priority: 45
-    queue_timeout:
-      hours: 1
-    filters: *collabora-filters
+#  lab-collabora:
+#    lab_type: legacy.lava_rest
+#    url: 'https://lava.collabora.dev/'
+#    priority: 45
+#    queue_timeout:
+#      days: 2
+#    filters: &collabora-filters
+#      - blocklist:
+#          tree: [android]
+#
+#  lab-collabora-staging:
+#    lab_type: legacy.lava_rest
+#    url: 'https://staging.lava.collabora.dev/'
+#    priority: 45
+#    queue_timeout:
+#      hours: 1
+#    filters: *collabora-filters
 
   lab-kontron:
     lab_type: legacy.lava_rest
