@@ -6,7 +6,7 @@
 -#}
 - test:
     timeout:
-      minutes: 5
+      minutes: {{ job_timeout|default('5') }}
     interactive:
     - name: wdt-reset
       prompts: ['/ #']
