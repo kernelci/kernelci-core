@@ -35,7 +35,11 @@ timeouts:
     power-off:
       seconds: 30
   job:
+{%- if job_timeout and (job_timeout > 30) %}
+    minutes: {{ job_timeout + 15 }}
+{%- else %}
     minutes: 30
+{%- endif %}
   queue:
     days: 2
 
