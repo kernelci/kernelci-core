@@ -3,7 +3,7 @@
 - test:
     namespace: chromeos
     timeout:
-      minutes: 30
+      minutes: {{ job_timeout|default('30') }}
     docker:
       image: kernelci/cros-tast
       wait:

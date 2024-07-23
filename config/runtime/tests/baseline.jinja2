@@ -23,4 +23,4 @@
 {%- endfilter %}
 
     timeout:
-      minutes: 1
+      minutes: {{ job_timeout|default('1') }}

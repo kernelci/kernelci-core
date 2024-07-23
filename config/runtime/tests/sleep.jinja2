@@ -1,6 +1,6 @@
 - test:
     timeout:
-      minutes: 5
+      minutes: {{ job_timeout|default('5') }}
     definitions:
     - repository: https://github.com/kernelci/kernelci-core
       branch: kernelci.org
