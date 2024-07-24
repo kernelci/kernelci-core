@@ -368,7 +368,7 @@ fragments:
       mediatek/mt8192/scp.img
       mediatek/mt8195/scp.img
       mediatek/sof-tplg/sof-mt8186.tplg
-      mediatek/sof-tplg/sof-mt8195-mt6359-rt1019-rt5682-dts.tplg
+      mediatek/sof-tplg/sof-mt8195-mt6359-rt1019-rt5682.tplg
       mediatek/sof/sof-mt8186.ri
       mediatek/sof/sof-mt8195.ri
       mediatek/WIFI_MT7961_patch_mcu_1_2_hdr.bin
