@@ -228,6 +228,14 @@ class Callback:
 
         child_nodes = self._get_results_hierarchy(results)
 
+        if job_result == 'incomplete' and 'baseline' in job_node['name']:
+            for child in child_nodes:
+                if child['node']['name'] == 'setup' and child['node']['result'] == 'fail':
+                    print(f"DEBUG: Setup failed for {job_node['id']}. Transitting job node \
+result: incomplete -> fail")
+                    job_result = 'fail'
+                    break
+
         if job_result == 'pass':
             final_job_result = self._get_job_node_result(child_nodes, job_result)
             if final_job_result != job_result:
