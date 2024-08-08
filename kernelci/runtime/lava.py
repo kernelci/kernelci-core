@@ -300,7 +300,14 @@ class LAVA(Runtime):
             return None
 
         # yaml round-trip to process e.g. multi-line commands
-        return yaml.dump(yaml.load(rendered, Loader=yaml.CLoader))
+        try:
+            loaded = yaml.load(rendered, Loader=yaml.CLoader)
+        except yaml.scanner.ScannerError as exc:
+            print(f"Error loading rendered job template as YAML: {exc}," +
+                  f"{rendered}")
+            return None
+
+        return yaml.dump(loaded)
 
     def submit(self, job_path):
         with open(job_path, 'r', encoding='utf-8') as job_file:
