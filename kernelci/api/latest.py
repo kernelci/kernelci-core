@@ -122,8 +122,9 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
         def update(self, node: dict) -> dict:
             return self._put('/'.join(['node', node['id']]), node).json()
 
-    def subscribe(self, channel: str) -> int:
-        resp = self._post(f'subscribe/{channel}')
+    def subscribe(self, channel: str, promisc: Optional[bool] = None) -> int:
+        params = {'promisc': promisc} if promisc else None
+        resp = self._post(f'subscribe/{channel}', params=params)
         return resp.json()['id']
 
     def unsubscribe(self, sub_id: int):
