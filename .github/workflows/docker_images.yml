@@ -55,7 +55,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: build base kernelci docker image for main branch
-        if: ${{ env.USER_GIT_BRANCH }} == 'main'
+        if: ${{ env.USER_GIT_BRANCH == 'main' }}
         run: |
           cd kernelci-core
           export core_rev=$(git rev-parse HEAD)
@@ -63,7 +63,7 @@ jobs:
           kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/${{ github.actor }}/ --build-arg core_url=$core_url"
           ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
       - name: build base kernelci docker image for other branches
-        if: ${{ env.USER_GIT_BRANCH }} != 'main'
+        if: ${{ env.USER_GIT_BRANCH != 'main' }}
         run: |
           cd kernelci-core
           export core_rev=$(git rev-parse HEAD)
@@ -112,7 +112,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: build base kernelci docker image for main branch
-        if: ${{ env.USER_GIT_BRANCH }} == 'main'
+        if: ${{ env.USER_GIT_BRANCH == 'main' }}
         run: |
           cd kernelci-core
           export core_rev=$(git rev-parse HEAD)
@@ -120,7 +120,7 @@ jobs:
           kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/${{ github.actor }}/ --build-arg core_url=$core_url"
           ./kci docker $kci_arg ${{ matrix.kcicmd }}
       - name: build base kernelci docker image for other branches
-        if: ${{ env.USER_GIT_BRANCH }} != 'main'
+        if: ${{ env.USER_GIT_BRANCH != 'main' }}
         run: |
           cd kernelci-core
           export core_rev=$(git rev-parse HEAD)
