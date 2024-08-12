@@ -8,6 +8,7 @@
 import random
 import re
 import string
+import os
 
 import kubernetes
 from . import Runtime
@@ -36,6 +37,11 @@ class Kubernetes(Runtime):
         safe_name = re.sub(r'[\:/_+=]', '-', job_name).lower()
         rand_sx = ''.join(random.sample(self.JOB_NAME_CHARACTERS, 8))
         k8s_job_name = '-'.join([safe_name[:(62 - len(rand_sx))], rand_sx])
+        instance = os.getenv('KCI_INSTANCE', 'prod')
+        if instance == 'prod':
+            params['k8s_api_key'] = 'kci-api-jwt-early-access'
+        else:
+            params['k8s_api_key'] = 'kci-api-jwt-staging'
         params['k8s_job_name'] = k8s_job_name
         return template.render(params)
 
