@@ -120,6 +120,11 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             return self._post('node', node).json()
 
         def update(self, node: dict) -> dict:
+            if node['result'] != 'incomplete':
+                data = node.get('data', {})
+                if data.get('error_code') == 'node_timeout':
+                    node['data']['error_code'] = None
+                    node['data']['error_msg'] = None
             return self._put('/'.join(['node', node['id']]), node).json()
 
     def subscribe(self, channel: str) -> int:
