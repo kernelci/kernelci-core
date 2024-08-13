@@ -175,18 +175,18 @@ class APIHelper:
 
             for item in base[key]:
                 if item in deny:
-                    print(f"{key.capitalize()} {item} not allowed")
+                    print(f"rules: {key.capitalize()} {item} not allowed")
                     return False
                 if item in allow:
                     found = True
 
             if not found:
-                print(f"{key.capitalize()} missing one of {allow}")
+                print(f"rules: {key.capitalize()} missing one of {allow}")
                 return False
 
         else:
             if base[key] in deny or (len(allow) > 0 and base[key] not in allow):
-                print(f"{key.capitalize()} {base[key]} not allowed")
+                print(f"rules: {key.capitalize()} {base[key]} not allowed")
                 return False
 
         return True
@@ -366,13 +366,13 @@ class APIHelper:
                 if (key.startswith('min') and
                     ((major < rule_major) or
                      (major == rule_major and minor < rule_minor))):
-                    print(f"Version {major}.{minor} older than minimum version "
+                    print(f"rules: Version {major}.{minor} older than minimum version "
                           f"({rule_major}.{rule_minor})")
                     return False
                 if (key.startswith('max') and
                     ((major > rule_major) or
                      (major == rule_major and minor > rule_minor))):
-                    print(f"Version {major}.{minor} more recent than maximum version "
+                    print(f"rules: Version {major}.{minor} more recent than maximum version "
                           f"({rule_major}.{rule_minor})")
                     return False
 
@@ -404,11 +404,13 @@ class APIHelper:
 
         # if jobfilter not null, verify if job_config.name exist in jobfilter
         if jobfilter and job_config.name not in jobfilter:
-            print(f"Filtered: Job {job_config.name} not found in jobfilter")
+            print(f"Filtered: Job {job_config.name} not found in jobfilter "
+                  f"for node {input_node['id']}")
             return None
 
         if not self.should_create_node(job_config.rules, job_node, input_node):
-            print(f"Not creating node due to job rules for {job_config.name}")
+            print(f"Not creating node due to job rules for {job_config.name} "
+                  f"evaluating node {input_node['id']}")
             return None
         # Test-specific fields inherited from parent node (kbuild or
         # job) if available
@@ -425,12 +427,14 @@ class APIHelper:
         if runtime:
             job_node['data']['runtime'] = runtime.config.name
             if not self.should_create_node(runtime.config.rules, job_node, input_node):
-                print(f"Not creating node due to runtime rules for {runtime.config.name}")
+                print(f"Not creating node {input_node['id']} due to runtime rules "
+                      f"for {runtime.config.name}")
                 return None
         if platform:
             job_node['data']['platform'] = platform.name
             if not self.should_create_node(platform.rules, job_node, input_node):
-                print(f"Not creating node due to platform rules for {platform.name}")
+                print(f"Not creating node {input_node['id']} due to platform rules "
+                      f"for {platform.name}")
                 return None
             # Process potential f-strings in node's data with platform attributes
             kernel_revision = job_node['data']['kernel_revision']['version']
