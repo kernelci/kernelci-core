@@ -55,7 +55,7 @@ spec:
           valueFrom:
             secretKeyRef:
               # FIXME: convert to template parameter
-              name: {{ "kci-api-jwt-early-access" }}
+              name: {{ k8s_api_key }}
               key: token
 
         - name: KCI_STORAGE_CREDENTIALS
