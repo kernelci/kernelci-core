@@ -67,10 +67,13 @@ def _load_results_file(filename):
     return ret
 
 
-def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None, skips=None):
+def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None, skips=None, verbose=False):
     cmd = ['python3', 'fluster.py', '-ne', 'run',
            '-f', 'junitxml', '-so', RESULTS_FILE]
 
+    if verbose:
+        cmd.extend(['-v'])
+        print(f'Running fluster tests with command: {cmd}')
     if test_suite:
         cmd.extend(['-ts', test_suite])
     if timeout:
@@ -96,7 +99,7 @@ def main(args):
         cmd = cmd.fromkeys(cmd, 'echo')
 
     # run fluster tests
-    _run_fluster(args.test_suite, args.timeout, args.jobs, args.decoders, args.skip_vectors)
+    _run_fluster(args.test_suite, args.timeout, args.jobs, args.decoders, args.skip_vectors, args.verbose)
 
     # load test results
     junitxml = _load_results_file(f'{FLUSTER_PATH}/{RESULTS_FILE}')
@@ -134,5 +137,6 @@ if __name__ == '__main__':
     parser.add_argument('-j', '--jobs')
     parser.add_argument('-d', '--decoders', nargs='+')
     parser.add_argument('-sv', '--skip-vectors', nargs='+')
+    parser.add_argument('-v', '--verbose', action="store_true")
     args = parser.parse_args()
     sys.exit(main(args))
