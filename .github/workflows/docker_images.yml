@@ -3,11 +3,11 @@ name: 'Reusable workflow compiler and misc docker images build'
 on:
   workflow_call:
     inputs:
-      GIT_REPO:
+      GIT_OWNER:
         type: string
-        description: 'Repo (owner/repo)'
+        description: 'Repo (owner), for ex: kernelci/kernelci-core owner is kernelci'
         required: true
-        default: 'kernelci/kernelci-core'
+        default: 'kernelci'
       GIT_BRANCH:
         type: string
         description: 'Branch'
@@ -15,8 +15,8 @@ on:
         default: 'main'
 
 env:
-  USER_GIT_REPO: ${{ github.event.inputs.GIT_REPO }}
-  USER_GIT_BRANCH: ${{ github.event.inputs.GIT_BRANCH }}
+  USER_GIT_OWNER: ${{ inputs.GIT_OWNER }}
+  USER_GIT_BRANCH: ${{ inputs.GIT_BRANCH }}
 
 jobs:
   docker-compiler-build:
@@ -36,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.USER_GIT_REPO }}
+          repository: ${{ env.USER_GIT_OWNER }}/kernelci-core
           ref: ${{ env.USER_GIT_BRANCH }}
           submodules: recursive
           fetch-depth: 0
@@ -81,6 +81,9 @@ jobs:
                   'rustc-1.74 kselftest kernelci --arch x86',
                   'rustc-1.75 kselftest kernelci --arch x86',
                   'kernelci',
+                  'kernelci api',
+                  'kernelci pipeline',
+                  'kernelci lava-callback',
                   'k8s kernelci',
                   'qemu',
 
@@ -90,14 +93,27 @@ jobs:
     runs-on: ubuntu-22.04
     environment: deploydocker
     steps:
-      - name: Checkout
+      - name: Checkout kernelci-core
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.USER_GIT_REPO }}
+          repository: ${{ env.USER_GIT_OWNER }}/kernelci-core
           ref: ${{ env.USER_GIT_BRANCH }}
-          submodules: recursive
           fetch-depth: 0
           path: kernelci-core
+      - name: Checkout kernelci-pipeline
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.USER_GIT_OWNER }}/kernelci-pipeline
+          ref: ${{ env.USER_GIT_BRANCH }}
+          fetch-depth: 0
+          path: kernelci-pipeline
+      - name: Checkout kernelci-api
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.USER_GIT_OWNER }}/kernelci-api
+          ref: ${{ env.USER_GIT_BRANCH }}
+          fetch-depth: 0
+          path: kernelci-api
       - name: Prepare necessary tools
         run: |
           sudo apt-get update
@@ -117,16 +133,25 @@ jobs:
         if: ${{ env.USER_GIT_BRANCH == 'main' }}
         run: |
           cd kernelci-core
-          export core_rev=$(git rev-parse HEAD)
-          export core_url=$(git remote get-url origin)
-          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/${{ github.actor }}/ --build-arg core_url=$core_url"
+          core_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
+          cd ../kernelci-api
+          api_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
+          cd ../kernelci-pipeline
+          pipeline_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
+          cd ../kernelci-core
+          rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
+          kci_arg="build --push $rev_arg --prefix=ghcr.io/${{ github.actor }}/"
           ./kci docker $kci_arg ${{ matrix.kcicmd }}
       - name: build base kernelci docker image for other branches
         if: ${{ env.USER_GIT_BRANCH != 'main' }}
         run: |
           cd kernelci-core
-          export core_rev=$(git rev-parse HEAD)
-          export core_url=$(git remote get-url origin)
-          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/${{ github.actor }}/staging- --build-arg core_url=$core_url"
+          core_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
+          cd ../kernelci-api
+          api_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
+          cd ../kernelci-pipeline
+          pipeline_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
+          cd ../kernelci-core
+          rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
+          kci_arg="build --push $rev_arg --prefix=ghcr.io/${{ github.actor }}/staging-"
           ./kci docker $kci_arg ${{ matrix.kcicmd }}
-

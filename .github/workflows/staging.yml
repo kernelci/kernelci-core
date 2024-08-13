@@ -4,8 +4,34 @@ on:
     workflow_dispatch:
 
 jobs:
+    prepare-staging-branches:
+        runs-on: ubuntu-22.04
+        environment: deploydocker
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  repository: 'kernelci/kernelci-deploy'
+                  ref: 'main'
+                  fetch-depth: 0
+                  path: kernelci-deploy
+            - name: Prepare necessary tools
+              run: |
+                  export DEBIAN_FRONTEND=noninteractive
+                  sudo apt-get update
+                  sudo apt-get install -y python3-pip git
+                  pip3 install --upgrade pip
+                  git config --global user.email "kernelci@kernelci.org"
+                  git config --global user.name "Staging script"
+            - name: Prepare staging branches
+              run: |
+                  cd kernelci-deploy/tools
+                  ./kci-pending.py --push ${{ secrets.GHPAT}} kernelci-core
+                  ./kci-pending.py --push ${{ secrets.GHPAT}} kernelci-api
+                  ./kci-pending.py --push ${{ secrets.GHPAT}} kernelci-pipeline
     call-docker-build:
+        needs: prepare-staging-branches
         uses: ./.github/workflows/docker_images.yml
         with:
-            GIT_REPO: 'kernelci/kernelci-core'
-            GIT_BRANCH: 'staging.kernelci.org'
+            GIT_OWNER: 'kernelci'
+            GIT_BRANCH: 'staging-snapshot'
