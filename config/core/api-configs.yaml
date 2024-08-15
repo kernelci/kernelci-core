@@ -3,7 +3,7 @@ api:
   docker-host:
     url: http://172.17.0.1:8001
 
-  early-access:
+  production:
     url: https://kernelci-api.westus3.cloudapp.azure.com
 
   staging:
