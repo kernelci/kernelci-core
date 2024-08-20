@@ -1,3 +1,7 @@
+{%- if boot_commands == 'nfs' and nfsroot is not defined %}
+{%-   set nfsroot = 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/' + debarch %}
+{%- endif %}
+
 - deploy:
     kernel:
       type: {{ node.data.kernel_type }}
@@ -11,10 +15,10 @@
 {%- endif %}
 {%- if boot_commands == 'nfs' %}
     nfsrootfs:
-      url: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{{ debarch }}/full.rootfs.tar.xz'
+      url: '{{ nfsroot }}/full.rootfs.tar.xz'
       compression: xz
     ramdisk:
-      url: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{{ debarch }}/initrd.cpio.gz'
+      url: '{{ nfsroot }}/initrd.cpio.gz'
       compression: gz
     os: debian
 {%- else %}
