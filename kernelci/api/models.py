@@ -503,6 +503,23 @@ class Test(Node):
     ]
 
 
+class Job(Node):
+    """API model for job (test suite) nodes"""
+    class_kind: ClassVar[str] = 'job'
+    kind: str = Field(
+        default='job',
+        description='Type of the object',
+        const=True
+    )
+    data: TestData = Field(
+        description="Test suite details"
+    )
+
+    _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
+        'data.regression',
+    ]
+
+
 class RegressionData(BaseModel):
     """Model for the data field of a Regression node"""
     fail_node: Optional[PyObjectId] = Field(

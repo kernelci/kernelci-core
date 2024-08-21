@@ -29,6 +29,7 @@ BUILD_DEPS="\
     pkg-config \
     python3 \
     python3-requests \
+    python3-docutils \
     xutils-dev \
 "
 

@@ -35,7 +35,11 @@ timeouts:
     power-off:
       seconds: 30
   job:
+{%- if job_timeout and (job_timeout > 30) %}
+    minutes: {{ job_timeout + 15 }}
+{%- else %}
     minutes: 30
+{%- endif %}
   queue:
     days: 2
 
@@ -48,9 +52,7 @@ notify:
     {%- if notify.callback.token %}
     token: {{ notify.callback.token }}
     {%- endif %}
-    {%- if notify.callback.url %}
-    url: {{ notify.callback.url }}/node/{{ node.id }}
-    {%- else %}{{ kci_raise("Callback URL not provided") }}{%- endif %}
+    url: {{ instance_callback }}/node/{{ node.id }}
   criteria:
     status: finished
 {% endif %}

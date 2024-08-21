@@ -1,3 +1,7 @@
+# This is LEGACY system config, do not send any new patches for this file.
+# More details:
+# https://lore.kernel.org/kernelci/5b603b8f-c9b2-4148-7212-dd69a3fdf506@collabora.com/T/#u
+
 trees:
   cip:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
@@ -8,8 +12,8 @@ trees:
 
 # Build fewer kernel configs with cip branches
 cip_variants: &cip_variants
-  gcc-10: &cip_gcc_10
-    build_environment: gcc-10
+  gcc-12: &cip_gcc_12
+    build_environment: gcc-12
     fragments: [tinyconfig]
     architectures: &cip_architectures
       arc:
@@ -53,8 +57,8 @@ cip_variants: &cip_variants
 
 
 cip_variants_kselftest: &cip_variants_kselftest
-  gcc-10:
-    <<: *cip_gcc_10
+  gcc-12:
+    <<: *cip_gcc_12
     architectures:
       <<: *cip_architectures
       arm:
@@ -75,8 +79,8 @@ cip_variants_kselftest: &cip_variants_kselftest
 
 
 cip_variants_preempt_rt: &cip_variants_preempt_rt
-  gcc-10:
-    <<: *cip_gcc_10
+  gcc-12:
+    <<: *cip_gcc_12
     fragments: [preempt_rt]
     architectures: &cip_architectures_preempt_rt
       <<: *cip_architectures
@@ -95,8 +99,8 @@ cip_variants_preempt_rt: &cip_variants_preempt_rt
           - 'x86_64_defconfig+x86-board+preempt_rt'
 
 cip_variants_4_4: &cip_variants_4_4
-  gcc-10: &cip_variants_4_4_gcc-10
-    <<: *cip_gcc_10
+  gcc-12: &cip_variants_4_4_gcc-12
+    <<: *cip_gcc_12
     architectures:
       <<: *cip_architectures
       arm:
@@ -118,8 +122,8 @@ cip_variants_4_4: &cip_variants_4_4
 
 cip_variants_4_4_preempt_rt: &cip_variants_4_4_preempt_rt
   <<: *cip_variants_preempt_rt
-  gcc-10:
-    <<: *cip_variants_4_4_gcc-10
+  gcc-12:
+    <<: *cip_variants_4_4_gcc-12
     fragments: [preempt_rt]
     architectures:
       <<: *cip_architectures_preempt_rt
@@ -135,8 +139,8 @@ build_configs:
     tree: cip
     branch: 'linux-4.4.y-cip'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           arm:
             base_defconfig: 'multi_v7_defconfig'
@@ -168,8 +172,8 @@ build_configs:
     tree: cip
     branch: 'linux-4.19.y-cip'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           arm:
             base_defconfig: 'multi_v7_defconfig'
@@ -207,8 +211,8 @@ build_configs:
     tree: cip
     branch: 'linux-5.10.y-cip'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           arm:
             base_defconfig: 'multi_v7_defconfig'
@@ -251,8 +255,8 @@ build_configs:
     tree: cip
     branch: 'linux-6.1.y-cip'
     variants:
-      gcc-10:
-        build_environment: gcc-10
+      gcc-12:
+        build_environment: gcc-12
         architectures:
           arm:
             base_defconfig: 'multi_v7_defconfig'

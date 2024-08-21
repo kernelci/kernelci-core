@@ -1,3 +1,7 @@
+# This is LEGACY system config, do not send any new patches for this file.
+# More details:
+# https://lore.kernel.org/kernelci/5b603b8f-c9b2-4148-7212-dd69a3fdf506@collabora.com/T/#u
+
 riscv_default_filters:
 
   - blocklist: &kselftest_defconfig_filter

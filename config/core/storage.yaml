@@ -12,6 +12,13 @@ storage:
     base_url: http://storage.kernelci.org/
     api_url: https://api.kernelci.org
 
+  staging:
+    storage_type: backend
+    host: staging.kernelci.org
+    base_url: http://storage.staging.kernelci.org/
+    api_url: https://api.staging.kernelci.org
+
+# Required by legacy
   staging.kernelci.org:
     storage_type: backend
     host: staging.kernelci.org

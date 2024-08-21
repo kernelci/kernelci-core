@@ -7,6 +7,7 @@ jobs:
     params:
       config: x86_64_defconfig
     rules:
+    kcidb_test_suite:
 
   kunit: &kunit-job
     template: 'kunit.jinja2'
@@ -14,6 +15,7 @@ jobs:
     image: 'gcc-10:x86-kunit-kernelci'
     params: {}
     rules:
+    kcidb_test_suite: kunit
 
   kunit-x86_64:
     <<: *kunit-job
@@ -21,6 +23,7 @@ jobs:
     params:
       arch: x86_64
     rules:
+    kcidb_test_suite: kunit
 
   kver:
     template: 'kver.jinja2'
@@ -28,3 +31,4 @@ jobs:
     image: 'kernelci'
     params: {}
     rules:
+    kcidb_test_suite: kernelci_kver

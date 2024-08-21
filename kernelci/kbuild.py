@@ -49,6 +49,13 @@ FW_GIT = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmwar
 LATEST_LTS_MAJOR = 6
 LATEST_LTS_MINOR = 6
 
+DTBS_DISABLED = {
+    'i386': True,
+    'x86_64': True,
+    'sparc': True,
+    'um': True,
+}
+
 # Hard-coded make targets for each CPU architecture
 MAKE_TARGETS = {
     'arm': 'zImage',
@@ -60,6 +67,7 @@ MAKE_TARGETS = {
     'riscv': 'Image',
     'riscv64': 'Image',
     'sparc': 'zImage',
+    'um': 'linux'
 }
 
 # Hard-coded binary kernel image names for each CPU architecture
@@ -74,6 +82,7 @@ KERNEL_IMAGE_NAMES = {
     'sparc': {'zImage'},
     'x86_64': {'bzImage'},
     'x86': {'bzImage'},
+    'um': {'linux'},
 }
 
 '''
@@ -126,6 +135,9 @@ class KBuild():
             self._arch = params['arch']
             self._compiler = params['compiler']
             self._defconfig = params['defconfig']
+            # if defconfig contains '+', it means it is a list
+            if isinstance(self._defconfig, str) and '+' in self._defconfig:
+                self._defconfig = self._defconfig.split('+')
             self._fragments = params['fragments']
             if 'cross_compile' in params:
                 self._cross_compile = params['cross_compile']
@@ -139,6 +151,7 @@ class KBuild():
                 self._dtbs_check = params['dtbs_check']
             else:
                 self._dtbs_check = False
+            self._disable_modules = params.get('disable_modules', False)
             self._apijobname = jobname
             self._steps = []
             self._artifacts = []
@@ -192,6 +205,7 @@ class KBuild():
             )
             self._full_artifacts = jsonobj['full_artifacts']
             self._dtbs_check = jsonobj['dtbs_check']
+            self._disable_modules = jsonobj['disable_modules']
             return
         raise ValueError("No valid arguments provided")
 
@@ -246,7 +260,10 @@ class KBuild():
         self.addcomment("Build metadata:")
         self.addcomment("  arch: " + self._arch)
         self.addcomment("  compiler: " + self._compiler)
-        self.addcomment("  defconfig: " + self._defconfig)
+        if isinstance(self._defconfig, str):
+            self.addcomment("  defconfig: " + self._defconfig)
+        if isinstance(self._defconfig, list):
+            self.addcomment("  defconfig: " + ' '.join(self._defconfig))
         self.addcomment("  fragments: " + str(self._fragments))
         self.addcomment("  src_tarball: " + self._srctarball)
         self.addcomment("  apijobname: " + self._apijobname)
@@ -286,12 +303,15 @@ class KBuild():
         if not self._dtbs_check:
             self._artifacts.append("build_kimage.log")
             self._artifacts.append("build_kimage_stderr.log")
-            self._artifacts.append("build_modules.log")
-            self._artifacts.append("build_modules_stderr.log")
+            if not self._disable_modules:
+                self._artifacts.append("build_modules.log")
+                self._artifacts.append("build_modules_stderr.log")
             self._artifacts.append("build_kselftest.log")
             self._artifacts.append("build_kselftest_stderr.log")
-            self._artifacts.append("build_dtbs.log")
-            self._artifacts.append("build_dtbs_stderr.log")
+            # disable DTBS for some archs
+            if self._arch not in DTBS_DISABLED:
+                self._artifacts.append("build_dtbs.log")
+                self._artifacts.append("build_dtbs_stderr.log")
         else:
             self._artifacts.append("build_dtbs_check.log")
             self._artifacts.append("build_dtbs_check_stderr.log")
@@ -339,6 +359,7 @@ class KBuild():
         critical - if True, check return code and exit, as command is critical
         '''
         if not critical:
+            self._steps.append("echo Ignore error in next command, if any")
             cmd += " || true"
         self._steps.append(cmd)
 
@@ -469,10 +490,9 @@ class KBuild():
 
     def _merge_frags(self, fragnum):
         """ Merge config fragments to .config """
-        # defconfig
         self.startjob("config_defconfig")
         self.addcmd("cd " + self._srcdir)
-        if self._defconfig.startswith('cros://'):
+        if isinstance(self._defconfig, str) and self._defconfig.startswith('cros://'):
             dotconfig = os.path.join(self._srcdir, ".config")
             with open(dotconfig, 'w') as f:
                 (content, self._defconfig) = \
@@ -480,8 +500,16 @@ class KBuild():
                 f.write(content)
             self.addcmd("make olddefconfig")
         else:
-            self.addcmd("make " + self._defconfig)
-        self._config_full = self._defconfig + self._config_full
+            if isinstance(self._defconfig, str):
+                self.addcmd("make " + self._defconfig)
+                self._config_full = self._defconfig + self._config_full
+            # we allow multiple defconfigs or make targets
+            # such as: make defconfig allnoconfig hardened.config
+            if isinstance(self._defconfig, list):
+                defconfigs = ' '.join(self._defconfig)
+                self.addcmd("make " + defconfigs)
+                defconfigs = '+'.join(self._defconfig)
+                self._config_full = defconfigs + self._config_full
         # fragments
         self.startjob("config_fragments")
         for i in range(0, fragnum):
@@ -505,20 +533,24 @@ class KBuild():
             # We can check that if fragments have CONFIG_EXTRA_FIRMWARE
             self._fetch_firmware()
             self._build_kernel()
-            self._build_modules()
+            if not self._disable_modules:
+                self._build_modules()
             self._build_kselftest()
-            # TODO: verify if OF_FLATTREE is set
-            self._build_dtbs()
+            if self._arch not in DTBS_DISABLED:
+                self._build_dtbs()
             self._package_kimage()
-            self._package_modules()
+            if not self._disable_modules:
+                self._package_modules()
             self._package_kselftest()
-            # TODO: verify if OF_FLATTREE is set
-            self._package_dtbs()
+            if self._arch not in DTBS_DISABLED:
+                self._package_dtbs()
         else:
             self._build_dtbs_check()
         self._write_metadata()
         # terminate all active jobs
         self.startjob(None)
+        # indicate script is ended
+        self.addcmd("echo Build script is completed, tail will be killed now")
         # kill tail
         self.addcmd("kill $tailpid || true")
         print("Shell script generated")
@@ -853,7 +885,13 @@ class KBuild():
         results['node']['data'] = node['data']
         results['node']['data']['arch'] = self._arch
         results['node']['data']['compiler'] = self._compiler
-        results['node']['data']['defconfig'] = self._defconfig
+        # As we are late to change data formats, we need to keep
+        # defconfig as string, not list, so we use + to separate
+        # multiple defconfigs
+        if isinstance(self._defconfig, list):
+            results['node']['data']['defconfig'] = '+'.join(self._defconfig)
+        else:
+            results['node']['data']['defconfig'] = self._defconfig
         results['node']['data']['fragments'] = self._fragments
         results['node']['data']['config_full'] = self._config_full
         api_helper = kernelci.api.helper.APIHelper(api)

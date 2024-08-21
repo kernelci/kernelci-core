@@ -1,0 +1,11 @@
+name: 'Staging deploy'
+
+on:
+    workflow_dispatch:
+
+jobs:
+    call-docker-build:
+        uses: ./.github/workflows/docker_images.yml
+        with:
+            GIT_REPO: 'kernelci/kernelci-core'
+            GIT_BRANCH: 'staging.kernelci.org'

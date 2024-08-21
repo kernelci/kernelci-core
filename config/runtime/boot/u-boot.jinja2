@@ -30,7 +30,13 @@
 - boot:
     method: u-boot
     commands: {{ boot_commands | default('ramdisk', true) }}
+    failure_retry: 3
     prompts:
     - '/ #'
     timeout:
-      minutes: 5
+      minutes: 10
+    timeouts:
+      bootloader-commands:
+        minutes: 3
+      auto-login-action:
+        minutes: 2

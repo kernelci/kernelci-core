@@ -14,11 +14,13 @@ class Job(YAMLConfigObject):
     yaml_tag = '!Job'
 
     # pylint: disable=too-many-arguments
-    def __init__(self, name, template, kind="node", image=None, params=None, rules=None):
+    def __init__(self, name, template, kind="node", image=None, params=None, rules=None,
+                 kcidb_test_suite=None):
         self._name = name
         self._template = template
         self._kind = kind
         self._image = image
+        self._kcidb_test_suite = kcidb_test_suite
         self._params = self.format_params(params.copy(), params) if params else {}
         self._rules = rules
 
@@ -52,10 +54,15 @@ class Job(YAMLConfigObject):
         """Kernel requirements (tree, branch, version...)"""
         return self._rules
 
+    @property
+    def kcidb_test_suite(self):
+        """Mapping of KernelCI test to KCIDB test suite"""
+        return self._kcidb_test_suite
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'template', 'kind', 'image', 'params', 'rules'})
+        attrs.update({'template', 'kind', 'image', 'params', 'rules', 'kcidb_test_suite'})
         return attrs
 
 

@@ -121,7 +121,7 @@ class APIHelper:
                 continue
             if all(self.pubsub_event_filter(sub_id, obj)
                    for obj in [node, event]):
-                return node
+                return node, event.get('is_hierarchy')
 
     def _find_container(self, field, node):
         """
@@ -155,39 +155,128 @@ class APIHelper:
         if not base:
             return True
 
-        block = [f.lstrip('!') for f in rules[key] if f.startswith('!')]
+        deny = [f.lstrip('!') for f in rules[key] if f.startswith('!')]
         allow = [f for f in rules[key] if not f.startswith('!')]
 
         # Rules are appied depending on how the data is initially stored:
         # * if it's a list (e.g. config fragments), then it must contain
         #   at least one element from the allow-list; additionally, none
-        #   of the list elements can be part of the block-list
+        #   of the list elements can be part of the deny-list
         # * if it's a single object (likely a string), then it must be
-        #   present in the allow-list and absent from the block-list
+        #   present in the allow-list and absent from the deny-list
         if isinstance(base[key], list):
             found = False
 
             # If the allow-list is empty, we assume no value is required and
             # will only return False if one of the elements is in the
-            # block-list
+            # deny-list
             if len(allow) == 0:
                 found = True
 
             for item in base[key]:
-                if item in block:
-                    print(f"{key.capitalize()} {item} not allowed")
+                if item in deny:
+                    print(f"rules: {key.capitalize()} {item} not allowed")
                     return False
                 if item in allow:
                     found = True
 
             if not found:
-                print(f"{key.capitalize()} missing one of {allow}")
+                print(f"rules: {key.capitalize()} missing one of {allow}")
                 return False
 
         else:
-            if base[key] in block or (len(allow) > 0 and base[key] not in allow):
-                print(f"{key.capitalize()} {base[key]} not allowed")
+            if base[key] in deny or (len(allow) > 0 and base[key] not in allow):
+                print(f"rules: {key.capitalize()} {base[key]} not allowed")
                 return False
+
+        return True
+
+    def _extract_combos(self, rules, key):
+        """
+        Process tree/branch rules and extract "combo" values.
+
+        Tree and branch rules can be formatted as `<tree>:<branch>`, meaning
+        only a given branch is allowed for a specific tree. When prepended with
+        `!`, it indicates a forbidden tree/branch combination.
+
+        In order to simplify further processing, this function processes those
+        rules and returns lists of allowed/denied single values and combos.
+
+        Returns a tuple of 4 arrays:
+          * allowed single values
+          * allowed combinations
+          * denied single values
+          * denied combinations
+        """
+
+        allow = []
+        allow_combos = []
+        deny = []
+        deny_combos = []
+
+        for rule in rules[key]:
+            if ':' in rule:
+                combo = {}
+                # we use ':' as a tree/branch separator as this character is forbidden
+                # in git branch names, so if found it should be present only once.
+                [combo['tree'], combo['branch']] = rule.split(':', 1)
+                if combo['tree'].startswith('!'):
+                    combo['tree'] = combo['tree'].lstrip('!')
+                    deny_combos.append(combo)
+                else:
+                    allow_combos.append(combo)
+            else:
+                if rule.startswith('!'):
+                    deny.append(rule.lstrip('!'))
+                else:
+                    allow.append(rule)
+
+        return (allow, allow_combos, deny, deny_combos)
+
+    def _match_combos(self, node, combos):
+        """
+        Check whether the current node's tree/branch attributes match one of the
+        combinations present in combos.
+
+        Returns the matched combo or None.
+        """
+        match = None
+        for combo in combos:
+            if node['tree'] == combo['tree'] and node['branch'] == combo['branch']:
+                match = combo
+                break
+        return match
+
+    def _is_tree_branch_allowed(self, node, rules):
+        """
+        Check whether the tree and/or branch for the current checkout matches
+        the corresponding filtering rules.
+
+        Returns True if the rules allow the current value, False otherwise.
+        """
+        for key in ("tree", "branch"):
+            if key in rules:
+                (allow, allow_combos, deny, deny_combos) = self._extract_combos(rules, key)
+                # Process combos first:
+                # * if the tree/branch combination matches an allowed combo, then the node
+                #   fulfills the tree/branch rules and we can move forward to processing
+                #   the other rules
+                # * likewise, if the combination matches a denied combo, then we can stop
+                #   processing here and reject the node creation altogether
+                if self._match_combos(node, allow_combos):
+                    break
+                match = self._match_combos(node, deny_combos)
+                if match:
+                    print(f"Tree/branch combination "
+                          f"{match['tree']}/{match['branch']} not allowed")
+                    return False
+
+                # Get back to regular allow/deny list processing
+                if (node[key] in deny or
+                   (len(allow) == 0 and len(allow_combos) > 0) or
+                   (len(allow) > 0 and node[key] not in allow)):
+                    print(f"{key.capitalize()} {node[key]} not allowed")
+                    return False
 
         return True
 
@@ -196,7 +285,7 @@ class APIHelper:
         Check whether a node should be created based on configured rules.
         Those can be specified in the job, platform or runtime configuration
         and affect any field in the node structure. Rules can specify a list of
-        allowed values and blocked ones as well (prepending the value with `!`
+        allowed values and denied ones as well (prepending the value with `!`
         in the latter case).Rules should be formatted as follows:
 
           rules:
@@ -204,8 +293,8 @@ class APIHelper:
               - 'allowed-value1'
               - 'allowed-value2'
               ...
-              - '!blocked-value1'
-              - '!blocked-value2'
+              - '!denied-value1'
+              - '!denied-value2'
               ...
 
         Additional rules can be defined to check for a minimum and/or maximum
@@ -219,10 +308,13 @@ class APIHelper:
               version: int
               patchlevel: int
 
-        For example, a job can be configured to run only on arm64 devices, with
-        a kernel version between 6.1 and 6.6, built with any defconfig except
-        `allnoconfig`, and using the `kselftest` fragment but not the
-        `arm64-chromebook` one, by adding the following to the job definition:
+        For example, the following rules definition mean the job can run only:
+          * with a kernel version between 6.1 and 6.6
+          * on arm64 devices
+          * when using a checkout from the `master` branch on the `linus` tree,
+            or any branch except `master` on the `stable` tree
+          * if the kernel has been built with any defconfig except `allnoconfig`,
+            using the `kselftest` fragment but not the `arm64-chromebook` one
 
           rules:
             min_version:
@@ -233,6 +325,11 @@ class APIHelper:
               patchlevel: 6
             arch:
               - 'arm64'
+            tree:
+              - linus:master
+              - stable
+            branch:
+              - '!stable:master'
             defconfig:
               - '!allnoconfig'
             fragments:
@@ -242,7 +339,22 @@ class APIHelper:
         if rules is None:
             return True
 
+        # Process the tree and branch rules first as they need specific processing
+        # for handling tree/branch combinations
+
+        # Find the node (or parent node) attribute containing the "tree" (and therefore
+        # "branch") value
+        ref_base = self._find_container("tree", node)
+        if not ref_base and parent:
+            ref_base = self._find_container("tree", parent)
+        if ref_base and not self._is_tree_branch_allowed(ref_base, rules):
+            return False
+
         for key in rules:
+            # Skip tree and branch rules as we already processed them above
+            if key in ("tree", "branch"):
+                continue
+
             # Special case as there is no field in the node giving us the full
             # kernel version in "x.y" format
             if key.endswith('_version'):
@@ -254,13 +366,13 @@ class APIHelper:
                 if (key.startswith('min') and
                     ((major < rule_major) or
                      (major == rule_major and minor < rule_minor))):
-                    print(f"Version {major}.{minor} older than minimum version "
+                    print(f"rules: Version {major}.{minor} older than minimum version "
                           f"({rule_major}.{rule_minor})")
                     return False
                 if (key.startswith('max') and
                     ((major > rule_major) or
                      (major == rule_major and minor > rule_minor))):
-                    print(f"Version {major}.{minor} more recent than maximum version "
+                    print(f"rules: Version {major}.{minor} more recent than maximum version "
                           f"({rule_major}.{rule_minor})")
                     return False
 
@@ -292,15 +404,17 @@ class APIHelper:
 
         # if jobfilter not null, verify if job_config.name exist in jobfilter
         if jobfilter and job_config.name not in jobfilter:
-            print(f"Filtered: Job {job_config.name} not found in jobfilter")
+            print(f"Filtered: Job {job_config.name} not found in jobfilter "
+                  f"for node {input_node['id']}")
             return None
 
         if not self.should_create_node(job_config.rules, job_node, input_node):
-            print(f"Not creating node due to job rules for {job_config.name}")
+            print(f"Not creating node due to job rules for {job_config.name} "
+                  f"evaluating node {input_node['id']}")
             return None
         # Test-specific fields inherited from parent node (kbuild or
-        # test) if available
-        if job_config.kind == 'test':
+        # job) if available
+        if job_config.kind == 'job':
             job_node['data']['kernel_type'] = input_node['data'].get('kernel_type')
             job_node['data']['arch'] = input_node['data'].get('arch')
             job_node['data']['defconfig'] = input_node['data'].get('defconfig')
@@ -313,12 +427,14 @@ class APIHelper:
         if runtime:
             job_node['data']['runtime'] = runtime.config.name
             if not self.should_create_node(runtime.config.rules, job_node, input_node):
-                print(f"Not creating node due to runtime rules for {runtime.config.name}")
+                print(f"Not creating node {input_node['id']} due to runtime rules "
+                      f"for {runtime.config.name}")
                 return None
         if platform:
             job_node['data']['platform'] = platform.name
             if not self.should_create_node(platform.rules, job_node, input_node):
-                print(f"Not creating node due to platform rules for {platform.name}")
+                print(f"Not creating node {input_node['id']} due to platform rules "
+                      f"for {platform.name}")
                 return None
             # Process potential f-strings in node's data with platform attributes
             kernel_revision = job_node['data']['kernel_revision']['version']
@@ -400,6 +516,12 @@ class APIHelper:
         root_node['result'] = results['node']['result']
         root_node['artifacts'].update(results['node']['artifacts'])
         root_node['data'].update(results['node'].get('data', {}))
+        if root_node['result'] != 'incomplete':
+            data = root_node.get('data', {})
+            if data.get('error_code') == 'node_timeout':
+                root_node['data']['error_code'] = None
+                root_node['data']['error_msg'] = None
+
         root_results = {
             'node': root_node,
             'child_nodes': results['child_nodes'],

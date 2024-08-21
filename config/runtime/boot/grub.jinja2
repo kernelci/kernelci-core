@@ -19,5 +19,13 @@
 - boot:
     method: grub
     commands: ramdisk
+    failure_retry: 3
     prompts:
     - '/ #'
+    timeout:
+      minutes: 10
+    timeouts:
+      bootloader-commands:
+        minutes: 3
+      auto-login-action:
+        minutes: 2

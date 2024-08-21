@@ -114,7 +114,6 @@ class BaseJob:
             'state': 'done',
         })
         self._api.node.update(self._node)
-        return self._node
 
     def run(self):
         if self._node.get('debug') and 'dry_run' in self._node['debug']:

@@ -1,3 +1,7 @@
+# This is LEGACY system config, do not send any new patches for this file.
+# More details:
+# https://lore.kernel.org/kernelci/5b603b8f-c9b2-4148-7212-dd69a3fdf506@collabora.com/T/#u
+
 rootfs_configs:
   bookworm:
     rootfs_type: debos
@@ -157,6 +161,10 @@ rootfs_configs:
 #    linux_fw_version: d526e044bddaa2c2ad855c7296147e49be0ab03c
     script: "scripts/debian-igt.sh"
     test_overlay: "overlays/igt"
+    imagesize: 4GB
+    debos_memory: 8G
+    debos_scratchsize: 16G
+
 
   bookworm-kselftest:
     rootfs_type: debos

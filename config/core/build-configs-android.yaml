@@ -5,8 +5,8 @@ trees:
 
 
 android_variants: &android_variants
-  gcc-10:
-    build_environment: gcc-10
+  gcc-12:
+    build_environment: gcc-12
     architectures: &architectures
         arm: &arm_arch
           base_defconfig: 'multi_v7_defconfig'
@@ -28,6 +28,10 @@ android_variants: &android_variants
 #            - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
 
         arm64: &arm64_arch
+          filters:
+            - blocklist:
+                defconfig:
+                  - 'gki_defconfig'
           extra_configs:
             - 'allmodconfig'
             - 'allnoconfig'
@@ -207,6 +211,13 @@ build_configs:
   android15-6.6:
     tree: android
     branch: 'android15-6.6'
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
+
+  android15-6.6-lts:
+    tree: android
+    branch: 'android15-6.6-lts'
     variants:
       <<: *android_variants
       <<: *clang_android_variants

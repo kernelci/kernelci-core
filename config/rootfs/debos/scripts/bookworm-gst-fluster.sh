@@ -129,15 +129,20 @@ extract_vector_from_archive() {
 }
 
 download_fluster_testsuite() {
-	json_file=$(readlink -e "${1}")
+	local fluster_testsuite="${1}"
 
-	[ -z "${json_file}" ] && {
+	[ -z "${fluster_testsuite}" ] && {
 		echo "No JSON test suite file provided"
 		exit 1
 	}
 
+	# disable set -e (immediate exit) to allow error handling after readlink failure
+	set +e
+	json_file=$(readlink -e "${fluster_testsuite}")
+	set -e
+
 	if [ ! -f "${json_file}" ]; then
-		echo "${json_file} file not found!"
+		echo "${fluster_testsuite} file not found!"
 		exit 1
 	fi
 
@@ -197,7 +202,7 @@ download_fluster_testsuite ./test_suites/av1/AV1-TEST-VECTORS.json
 download_fluster_testsuite ./test_suites/av1/CHROMIUM-10bit-AV1-TEST-VECTORS.json
 download_fluster_testsuite ./test_suites/h264/JVT-AVC_V1.json
 download_fluster_testsuite ./test_suites/h264/JVT-FR-EXT.json
-download_fluster_testsuite ./test_suites/h265/JCT-VC-HEVC-V1.json
+download_fluster_testsuite ./test_suites/h265/JCT-VC-HEVC_V1.json
 download_fluster_testsuite ./test_suites/vp8/VP8-TEST-VECTORS.json
 download_fluster_testsuite ./test_suites/vp9/VP9-TEST-VECTORS.json
 

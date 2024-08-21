@@ -3,7 +3,7 @@
 - test:
     namespace: chromeos
     timeout:
-      minutes: 30
+      minutes: {{ job_timeout|default('30') }}
     docker:
       image: kernelci/cros-tast
       wait:
@@ -21,6 +21,13 @@
         run:
           steps:
             - cd /home/cros
+{%- if excluded_tests %}
+            - echo "# Disabled tests for KernelCI" > /tmp/excluded-tast-tests
+{%- for test in excluded_tests %}
+            - echo "-{{ test }}" >> /tmp/excluded-tast-tests
+{%- endfor %}
+{%- endif %}
+            - lava-test-set start setup
             - >-
               lava-test-case tast-tarball --shell
               curl -s '{{ platform_config.params.tast_tarball }}'
@@ -41,24 +48,12 @@
             - >-
               lava-test-case os-release --result pass
               --measurement $(sed -e '/VERSION_ID/!d' -e 's/.*=//' /tmp/osrel.tmp)
-{%- if excluded_tests %}
-            - echo "# Disabled tests for KernelCI" > /tmp/excluded-tast-tests
-{%- for test in excluded_tests %}
-            - echo "-{{ test }}" >> /tmp/excluded-tast-tests
-{%- endfor %}
-{%- endif %}
+            - lava-test-set stop setup
             - >-
               ./tast_parser.py --run
 {%- for test in tests %}
               {{ test }}
 {%- endfor %}
-            - >-
-              ./ssh_retry.sh
-              -o StrictHostKeyChecking=no
-              -o UserKnownHostsFile=/dev/null
-              -i /home/cros/.ssh/id_rsa
-              root@$(lava-target-ip)
-              sync
             # Wait for DUT to shut down, or keep going if unreachable (e.g. crashed)
             - >-
               ./ssh_retry.sh
