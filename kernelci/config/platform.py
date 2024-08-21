@@ -16,13 +16,14 @@ class Platform(YAMLConfigObject):
 
     # pylint: disable=too-many-arguments
     def __init__(self, name, arch="x86_64", base_name=None,
-                 boot_method="grub", context=None, dtb=None,
-                 mach="x86", params=None, rules=None):
+                 boot_method="grub", context=None, compatible=None,
+                 dtb=None, mach="x86", params=None, rules=None):
         self._name = name
         self._arch = arch
         self._base_name = base_name
         self._boot_method = boot_method
         self._context = context
+        self._compatible = compatible
         self._dtb = None
         if dtb:
             if isinstance(dtb, list):
@@ -59,6 +60,11 @@ class Platform(YAMLConfigObject):
         return dict(self._context) if self._context else None
 
     @property
+    def compatible(self):
+        """Device tree compatible string"""
+        return list(self._compatible) if self._compatible else None
+
+    @property
     def dtb(self):
         """Platform dtb file name"""
         return self._dtb
@@ -86,6 +92,7 @@ class Platform(YAMLConfigObject):
             'base_name',
             'boot_method',
             'context',
+            'compatible',
             'dtb',
             'mach',
             'params',
