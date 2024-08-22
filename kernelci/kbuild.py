@@ -871,6 +871,13 @@ class KBuild():
 
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
+        # do we have kselftest_tar_gz in artifact keys? then node is ok
+        kselftest_result = 'fail'
+        for artifact in af_uri:
+            if artifact == 'kselftest_tar_gz':
+                kselftest_result = 'pass'
+                break
+
         results = {
             'node': {
                 'name': self._apijobname,
@@ -894,6 +901,29 @@ class KBuild():
             results['node']['data']['defconfig'] = self._defconfig
         results['node']['data']['fragments'] = self._fragments
         results['node']['data']['config_full'] = self._config_full
+
+        kselftest_node = self._node.copy()
+        # remove id to not have same as parent
+        kselftest_node.pop('id')
+        kselftest_node['name'] = kselftest_node['name'] + "-kselftest"
+        kselftest_node['kind'] = 'test'
+        existing_path = kselftest_node.get('path')
+        if existing_path and isinstance(existing_path, list):
+            kselftest_node['path'] = existing_path.append(kselftest_node['name'])
+        kselftest_node['parent'] = self._node['id']
+        kselftest_node['data'] = results['node']['data'].copy()
+        kselftest_node['artifacts'] = None
+        kselftest_node['state'] = 'done'
+        kselftest_node['result'] = kselftest_result
+
+        child_nodes = [
+            {
+                'node': kselftest_node,
+                'child_nodes': []
+            }
+        ]
+
+        results['child_nodes'] = child_nodes
         api_helper = kernelci.api.helper.APIHelper(api)
         api_helper.submit_results(results, node)
         print(f"[_submit] submit_results to API, node: {node['id']}")
