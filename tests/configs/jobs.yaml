@@ -8,6 +8,7 @@ jobs:
       config: x86_64_defconfig
     rules:
     kcidb_test_suite:
+    compat:
 
   kunit: &kunit-job
     template: 'kunit.jinja2'
@@ -16,6 +17,7 @@ jobs:
     params: {}
     rules:
     kcidb_test_suite: kunit
+    compat: ['aaa,bbb']
 
   kunit-x86_64:
     <<: *kunit-job
@@ -24,6 +26,7 @@ jobs:
       arch: x86_64
     rules:
     kcidb_test_suite: kunit
+    compat:
 
   kver:
     template: 'kver.jinja2'
@@ -32,3 +35,4 @@ jobs:
     params: {}
     rules:
     kcidb_test_suite: kernelci_kver
+    compat:
