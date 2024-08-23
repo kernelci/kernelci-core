@@ -158,6 +158,9 @@ def parse_test_results():
     if os.path.isfile(json_file):
         with open(json_file, "r") as results_file:
             results = json.load(results_file)
+            if not results:
+                report_lava_critical("Tast tests run failed, no results")
+                sys.exit(1)
         for test_data in parse_results(results):
             results_chart = os.path.join(test_data["outDir"], RESULTS_CHART_FILE)
             if os.path.isfile(results_chart):
