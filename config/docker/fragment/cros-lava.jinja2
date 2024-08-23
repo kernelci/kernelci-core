@@ -5,7 +5,7 @@ RUN \
   useradd cros -d /home/cros && \
   chown cros: -R /home/cros && \
   adduser cros sudo && \
-  echo 'PATH=/home/cros-tast/trunk/chromite/scripts:$PATH' >/home/cros-tast/.profile && \
+  echo 'PATH=/home/cros/trunk/chromite/scripts:$PATH' >/home/cros/.profile && \
   echo "cros ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER cros
 ENV HOME=/home/cros
