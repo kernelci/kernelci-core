@@ -24,7 +24,8 @@ import os
 import json
 import pwd
 
-EXCLUDE_FILE = "/tmp/excluded-tast-tests"
+FAILED_RUN_FILE = "failed_run"
+STDERR_FILE = "stderr.log"
 RESULTS_DIR = "/tmp/results"
 RESULTS_CHART_FILE = "results-chart.json"
 RESULTS_FILE = "results.json"
@@ -46,6 +47,11 @@ def report_lava_test_case(test_name, result, measurement=None):
 
 def report_lava_test_set(action, name):
     opts = ['lava-test-set', action, name]
+    subprocess.run(opts, check=False)
+
+
+def report_lava_critical(message):
+    opts = ['lava-test-raise', message]
     subprocess.run(opts, check=False)
 
 
@@ -82,12 +88,22 @@ def run_tests(args):
         f'-resultsdir={RESULTS_DIR}',
         '-sysinfo=false',
         '-build=false',
+        remote_ip
     ]
-    if os.path.isfile(EXCLUDE_FILE):
-        tast_cmd.extend([ f'-testfilterfile={EXCLUDE_FILE}' ])
-    tast_cmd.extend([ remote_ip ])
     tast_cmd.extend(args)
-    subprocess.run(tast_cmd, check=True)
+    try:
+        subprocess.run(tast_cmd, check=True, stderr=subprocess.PIPE, text=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to run tast tests: {e}")
+        stderr_file = os.path.join(RESULTS_DIR, STDERR_FILE)
+        with open(stderr_file, "w") as f:
+            f.write(e.stderr)
+        failed_file = os.path.join(RESULTS_DIR, FAILED_RUN_FILE)
+        with open(failed_file, "w") as f:
+            f.write(f"{e.returncode}")
+        return e.returncode
+
+    return 0
 
 
 def _get_result(test_case):
@@ -127,25 +143,41 @@ def parse_measurements(results_chart):
 
 
 def parse_test_results():
-    fail = 0
+    failed_file = os.path.join(RESULTS_DIR, FAILED_RUN_FILE)
+    if os.path.isfile(failed_file):
+        stderr_file = os.path.join(RESULTS_DIR, STDERR_FILE)
+        with open(stderr_file, "r") as f:
+            stderr = f.read()
+            print("### BEGIN STDERR DUMP ###")
+            print(stderr)
+            print("### END STDERR DUMP ###")
+            if "'/usr/local/bin/local_test_runner': No such file or directory" in stderr:
+                report_lava_critical("cros-partition-corrupt")
+                sys.exit(1)
     json_file = os.path.join(RESULTS_DIR, RESULTS_FILE)
-    with open(json_file, "r") as results_file:
-        results = json.load(results_file)
-    for test_data in parse_results(results):
-        if test_data['result'] == "fail":
-            fail += 1
-        results_chart = os.path.join(test_data["outDir"], RESULTS_CHART_FILE)
-        if os.path.isfile(results_chart):
-            with open(results_chart, "r") as rc_file:
-                rc_data = json.load(rc_file)
-            measurements = parse_measurements(rc_data)
-            test_data["measurements"] = measurements
-        report_lava(test_data)
-    return fail
+    if os.path.isfile(json_file):
+        with open(json_file, "r") as results_file:
+            results = json.load(results_file)
+        for test_data in parse_results(results):
+            results_chart = os.path.join(test_data["outDir"], RESULTS_CHART_FILE)
+            if os.path.isfile(results_chart):
+                with open(results_chart, "r") as rc_file:
+                    rc_data = json.load(rc_file)
+                measurements = parse_measurements(rc_data)
+                test_data["measurements"] = measurements
+            report_lava(test_data)
+    # If test run didn't finish, error out after reporting existing results
+    # so we don't lose data by exiting too early
+    if os.path.isfile(failed_file):
+        report_lava_critical("Tast tests run failed")
+        sys.exit(1)
 
 
 def main(tests):
-    run_tests(tests)
+    ret = run_tests(tests)
+    if ret != 0:
+        report_lava_critical("Tast tests run_tests failed")
+        sys.exit(ret)
     parse_test_results()
 
 
@@ -156,14 +188,7 @@ if __name__ == '__main__':
         if opt == "--run":
             run_tests(sys.argv[2:])
         elif opt == "--results":
-            # parse_test_results() returns the number of failed tests, which
-            # we can use as the script return code:
-            # * if all tests passed, we return 0 and the test suite is
-            #   therefore considered passed
-            # * otherwise, we return the (non-zero) number of failed tests,
-            #   which is interpreted as an error and the test suite is
-            #   consequently marked as failed
-            sys.exit(parse_test_results())
+            parse_test_results()
         # Legacy system expects only a list of tests to run, let's not
         # disrupt that
         else:
