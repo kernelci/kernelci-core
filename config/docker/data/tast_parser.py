@@ -146,18 +146,25 @@ def parse_test_results():
     failed_file = os.path.join(RESULTS_DIR, FAILED_RUN_FILE)
     if os.path.isfile(failed_file):
         stderr_file = os.path.join(RESULTS_DIR, STDERR_FILE)
-        with open(stderr_file, "r") as f:
-            stderr = f.read()
-            print("### BEGIN STDERR DUMP ###")
-            print(stderr)
-            print("### END STDERR DUMP ###")
-            if "'/usr/local/bin/local_test_runner': No such file or directory" in stderr:
-                report_lava_critical("cros-partition-corrupt")
-                sys.exit(1)
+        if os.path.isfile(stderr_file):
+            with open(stderr_file, "r") as f:
+                stderr = f.read()
+                print("### BEGIN STDERR DUMP ###")
+                print(stderr)
+                print("### END STDERR DUMP ###")
+                if "'/usr/local/bin/local_test_runner': No such file or directory" in stderr:
+                    report_lava_critical("cros-partition-corrupt")
+                    sys.exit(1)
+        else:
+            report_lava_critical("Tast tests run failed, stderr not found")
+            sys.exit(1)
     json_file = os.path.join(RESULTS_DIR, RESULTS_FILE)
     if os.path.isfile(json_file):
         with open(json_file, "r") as results_file:
-            results = json.load(results_file)
+            try:
+                results = json.load(results_file)
+            except json.JSONDecodeError:
+                results = None
             if not results:
                 report_lava_critical("Tast tests run failed, no results")
                 sys.exit(1)
