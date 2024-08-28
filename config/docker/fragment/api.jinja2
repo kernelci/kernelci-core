@@ -23,6 +23,8 @@ RUN python3 -m pip install '.[dev]' --break-system-packages
 WORKDIR /home/kernelci
 RUN rm -rf /tmp/kernelci-api
 
+ENV KCI_VER_API=$api_rev
+
 # Set up kernelci user
 #RUN useradd kernelci -u 1000 -d /home/kernelci -s /bin/bash
 #RUN mkdir -p /home/kernelci
