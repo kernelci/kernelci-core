@@ -11,3 +11,4 @@ RUN git clone --depth=1 $pipeline_url pipeline
 WORKDIR pipeline
 RUN git fetch origin $pipeline_rev
 RUN git checkout FETCH_HEAD
+ENV KCI_VER_PIPELINE=$pipeline_rev

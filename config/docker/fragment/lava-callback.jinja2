@@ -12,3 +12,5 @@ USER kernelci
 WORKDIR /home/kernelci/
 RUN mv /tmp/kernelci-pipeline/* /home/kernelci/
 RUN rm -rf /tmp/kernelci-pipeline
+
+ENV KCI_VER_LAVACB=$pipeline_rev
