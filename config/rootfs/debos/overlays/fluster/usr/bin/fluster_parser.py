@@ -98,40 +98,46 @@ def main(args):
     if not _check(path=cmd['case'], match=os.path.isfile):
         cmd = cmd.fromkeys(cmd, 'echo')
 
-    # run fluster tests
-    _run_fluster(args.test_suite, args.timeout, args.jobs, args.decoders, args.skip_vectors, args.verbose)
+    if not args.results:
+        # run fluster tests
+        _run_fluster(args.test_suite, args.timeout, args.jobs, args.decoders, args.skip_vectors)
 
-    # load test results
-    junitxml = _load_results_file(f'{FLUSTER_PATH}/{RESULTS_FILE}')
+    if not args.run:
+        # load test results
+        junitxml = _load_results_file(f'{FLUSTER_PATH}/{RESULTS_FILE}')
 
-    if not junitxml:
-        subprocess.check_call([
-            cmd['case'], 'validate-fluster-results', '--result', 'fail'])
-        return 1
-
-    subprocess.check_call([
-        cmd['case'], 'validate-fluster-results', '--result', 'pass'])
-
-    # parse test results
-    # avoid using dots in set/case names as they are used to represent test hierarchy in KCIDB
-    for test_suite in junitxml:
-        decoder = next(test_suite.properties()).value
-        set_name = f'{test_suite.name}-{decoder}'.replace('.', '-')
-        subprocess.check_call([
-            cmd['set'], 'start', set_name])
-
-        for res in map(_parse_vector_result, test_suite):
-            case_name, case_res = [x.replace('.', '-') for x in res]
+        if not junitxml:
             subprocess.check_call([
-                cmd['case'], f'{case_name}', '--result', f'{case_res}'])
+                cmd['case'], 'validate-fluster-results', '--result', 'fail'])
+            return 1
 
         subprocess.check_call([
-            cmd['set'], 'stop'])
+            cmd['case'], 'validate-fluster-results', '--result', 'pass'])
+
+        # parse test results
+        # avoid using dots in set/case names as they are used to represent test hierarchy in KCIDB
+        for test_suite in junitxml:
+            decoder = next(test_suite.properties()).value
+            set_name = f'{test_suite.name}-{decoder}'.replace('.', '-')
+            subprocess.check_call([
+                cmd['set'], 'start', set_name])
+
+            for res in map(_parse_vector_result, test_suite):
+                case_name, case_res = [x.replace('.', '-') for x in res]
+                subprocess.check_call([
+                    cmd['case'], f'{case_name}', '--result', f'{case_res}'])
+
+            subprocess.check_call([
+                cmd['set'], 'stop'])
     return 0
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--results', action='store_true', default=False,
+                 help='Parse fluster results but do not run the tests')
+    parser.add_argument('--run', action='store_true', default=False,
+                 help='Run fluster tests but do not parse the results')
     parser.add_argument('-ts', '--test-suite')
     parser.add_argument('-t', '--timeout')
     parser.add_argument('-j', '--jobs')
