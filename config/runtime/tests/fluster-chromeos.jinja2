@@ -45,13 +45,21 @@
               root@$(lava-target-ip)
               python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ decoders_arg }} 
                             {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
+            - lava-test-set start get_results
+            - mkdir -p /opt/fluster/
             - >-
-              ./ssh_retry.sh
+              scp
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
-              root@$(lava-target-ip)
-              python3 /usr/bin/fluster_parser.py --results
+              root@$(lava-target-ip):/opt/fluster/results.xml /opt/fluster/
+            - >-
+              scp
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip):/usr/bin/fluster_parser.py /usr/bin/
+            - lava-test-set stop get_results
             - >-
               ./ssh_retry.sh
               -o StrictHostKeyChecking=no
@@ -59,3 +67,4 @@
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
               poweroff && sleep 30 || true
+            - python3 /usr/bin/fluster_parser.py --results
