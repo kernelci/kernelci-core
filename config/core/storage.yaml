@@ -1,9 +1,9 @@
 storage:
 
-  early-access-azure:
+  production-azure:
     storage_type: azure
     base_url: https://kciapistagingstorage1.file.core.windows.net/
-    share: early-access
+    share: production
     sas_public_token: "?sv=2022-11-02&ss=f&srt=sco&sp=r&se=2024-10-17T19:19:12Z&st=2023-10-17T11:19:12Z&spr=https&sig=sLmFlvZHXRrZsSGubsDUIvTiv%2BtzgDq6vALfkrtWnv8%3D"
 
   kernelci.org:
