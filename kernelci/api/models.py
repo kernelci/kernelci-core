@@ -212,6 +212,9 @@ class Node(DatabaseModel):
     submitter: Optional[str] = Field(
         description="Token md5 hash to identify node origin(submitter token)"
     )
+    treeid: Optional[str] = Field(
+        description="Tree unique identifier"
+    )
     user_groups: List[str] = Field(
         default=[],
         description="User groups that are permitted to update node"
