@@ -282,10 +282,24 @@ class LAVA(Runtime):
         super().__init__(configs, **kwargs)
         self._server = self._connect()
 
+    def _get_priority(self, job):
+        # Scale the job priority (from 0-100) within the available levels
+        # for the lab, or use the lowest by default.
+        priority = job.config.priority if job.config.priority else 20
+        if self.config.priority:
+            priority = int(priority * self.config.priority / 100)
+        elif (self.config.priority_max is not None and
+              self.config.priority_min is not None):
+            prio_range = self.config.priority_max - self.config.priority_min
+            prio_min = self.config.priority_min
+            priority = int((priority * prio_range / 100) + prio_min)
+        return priority
+
     def get_params(self, job, api_config=None):
         params = super().get_params(job, api_config)
         if params:
             params['notify'] = self.config.notify
+            params['priority'] = self._get_priority(job)
         return params
 
     def generate(self, job, params):
