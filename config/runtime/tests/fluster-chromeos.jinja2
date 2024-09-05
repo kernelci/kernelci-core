@@ -1,6 +1,6 @@
 {%- include 'chromeos/base.jinja2' %}
 
-{%- if testsuite -%}
+{%- if testsuite %}
     {% set testsuite_arg = "-ts " + testsuite %}
 {%- endif -%}
 {%- if decoders -%}
