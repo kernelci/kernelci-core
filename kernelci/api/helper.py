@@ -385,6 +385,8 @@ class APIHelper:
                         runtime=None, platform=None):
         """Create a new job node based on input and configuration"""
         jobfilter = input_node.get('jobfilter')
+        treeid = input_node.get('treeid')
+        submitter = input_node.get('submitter')
         try:
             job_node = {
                 'kind': job_config.kind,
@@ -394,6 +396,8 @@ class APIHelper:
                 'group': job_config.name,
                 'artifacts': {},
                 'jobfilter': jobfilter,
+                'treeid': treeid,
+                'submitter': submitter,
                 'data': {
                     'kernel_revision': input_node['data']['kernel_revision'],
                 },
