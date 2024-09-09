@@ -43,8 +43,7 @@
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
-              python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ decoders_arg }} 
-                            {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
+              python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
             - lava-test-set start get_results
             - mkdir -p /opt/fluster/
             - >-
