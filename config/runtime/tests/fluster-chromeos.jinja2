@@ -38,7 +38,7 @@
             - ping -c 1 -w 1 $(lava-target-ip) || lava-test-raise "cros-device-unreachable"
             - lava-test-set stop setup
             - >-
-              ./ssh_retry.sh
+              /home/cros/ssh_retry.sh
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
@@ -61,7 +61,7 @@
               root@$(lava-target-ip):/usr/bin/fluster_parser.py /usr/bin/
             - lava-test-set stop get_results
             - >-
-              ./ssh_retry.sh
+              /home/cros/ssh_retry.sh
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa

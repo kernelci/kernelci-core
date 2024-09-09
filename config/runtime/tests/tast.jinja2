@@ -38,7 +38,7 @@
             - for i in $(seq 1 60); do ping -c 1 -w 1 $(lava-target-ip) && break || sleep 1; done
             - ping -c 1 -w 1 $(lava-target-ip) || lava-test-raise "cros-device-unreachable"
             - >-
-              ./ssh_retry.sh
+              /home/cros/ssh_retry.sh
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
@@ -56,7 +56,7 @@
 {%- endfor %}
             # Wait for DUT to shut down, or keep going if unreachable (e.g. crashed)
             - >-
-              ./ssh_retry.sh
+              /home/cros/ssh_retry.sh
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
