@@ -579,10 +579,19 @@ class KBuild():
         """ Add kernel modules build steps """
         self.startjob("build_modules")
         self.addcmd("cd " + self._srcdir)
+        self.addcmd("set +e")
+        # Add conditional block for modules build
+        self.addcmd("grep \"CONFIG_MODULES=y\" .config")
+        # << CONDITIONAL START >>
+        self.addcmd("if [ $? -eq 0 ]; then")
+        self.addcmd("set -e")
         # output to separate build_modules.log
         self.addcmd("make -j$(nproc) modules " +
                     REDIR.format(self._af_dir + "/build_modules.log",
                                  self._af_dir + "/build_modules_stderr.log"))
+        # << CONDITIONAL END >>
+        self.addcmd("fi")
+        self.addcmd("set -e")
         self.addcmd("cd ..")
 
     def _build_dtbs(self):
@@ -629,10 +638,24 @@ class KBuild():
         """ Add kernel modules packaging steps """
         self.startjob("package_modules")
         self.addcmd("cd " + self._srcdir)
+        # Add conditional block for modules install
+        # disable quit on error, as we don't want to fail if no modules
+        self.addcmd("set +e")
+        self.addcmd("grep \"CONFIG_MODULES=y\" .config")
+        # << CONDITIONAL START >>
+        self.addcmd("if [ $? -eq 0 ]; then")
+        self.addcmd("set -e")
         self.addcmd("make modules_install")
         self.addcmd(f"tar -C _modules_ -cJf {self._af_dir}/modules.tar.xz .")
         self.addcmd("cd ..")
         self.addcmd("rm -rf _modules_")
+        # << ELSE >>
+        self.addcmd("else")
+        self.addcmd("echo \"No modules to install\"")
+        self.addcmd("cd ..")
+        # << CONDITIONAL END >>
+        self.addcmd("fi")
+        self.addcmd("set -e")
         # add modules to artifacts relative to artifacts dir
         self._artifacts.append("modules.tar.xz")
 
