@@ -118,6 +118,7 @@ sudo cp "src/build/images/${BOARD}/latest/chromiumos_test_image.bin" "${DATA_DIR
 echo "Packing Tast files"
 sudo tar -cf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/bin/ remote_test_runner tast
 sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/libexec/tast/bundles/remote/ cros
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/share/tast/data go.chromium.org
 sudo gzip -9 "${DATA_DIR}/${BOARD}/tast.tar"
 sudo mv "${DATA_DIR}/${BOARD}/tast.tar.gz" "${DATA_DIR}/${BOARD}/tast.tgz"
 
