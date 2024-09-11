@@ -26,6 +26,8 @@
         THREADS: {{ threads|default('2') }}
       {% elif tst_cmd == 'pi-stress' %}
         MLOCKALL: {{ mlockall|default('true') }}
+      {% elif tst_cmd == 'rt-migrate-test' %}
+        PRIORITY: {{ priority|default('90') }}
       {% elif tst_cmd == 'signaltest' %}
         PRIORITY: {{ priority|default('98') }}
         THREADS: {{ threads|default('2') }}
