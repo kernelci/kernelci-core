@@ -1,7 +1,7 @@
 - test:
     name: {{ node.name }}
     timeout:
-      minutes: {{ job_timeout }}
+      minutes: {{ job_timeout|default('600s') }}
 
     definitions:
     - repository: https://github.com/kernelci/test-definitions.git
@@ -13,7 +13,7 @@
         ARTIFACTORIAL_TOKEN: {{ artifactorial_token|default('') }}
         ARTIFACTORIAL_URL: {{ artifactorial_url|default('') }}
         AFFINTIY: {{ affinity|default('0-1') }}
-        DURATION: {{ duration|default('300s') }}
+        DURATION: {{ duration|default('600s') }}
         BACKGROUND_CMD: {{ background|default('hackbench') }}
       {% if tst_cmd == 'cyclicdeadline' %}
         INTERVAL: {{ interval|default('1000') }}
