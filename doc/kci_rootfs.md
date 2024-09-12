@@ -23,7 +23,8 @@ You will be using `kernelci/debos:kernelci` docker image for this purpose.
    $ sudo docker run -it \
      -v $(pwd)/kernelci-core:/kernelci-core \
      --device /dev/kvm -v /dev:/dev \
-     --privileged kernelci/debos:kernelci /bin/bash
+     --privileged -u root kernelci/debos:kernelci \
+     /bin/bash -c 'usermod -a -G $(stat -c %g /dev/kvm) kernelci && su - kernelci'
    $ cd /kernelci-core/
    ```
 
