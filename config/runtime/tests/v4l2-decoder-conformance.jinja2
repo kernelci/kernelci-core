@@ -25,7 +25,8 @@
           - functional
         run:
           steps:
-          - python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
+          - python3 /usr/bin/fluster_parser.py --run {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
+          - python3 /usr/bin/fluster_parser.py --results
       from: inline
       name: {{ node.name }}
       path: inline/{{ node.name }}.yaml
