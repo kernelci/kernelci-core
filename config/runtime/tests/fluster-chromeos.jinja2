@@ -2,16 +2,16 @@
 
 {%- if testsuite %}
     {% set testsuite_arg = "-ts " + testsuite %}
-{%- endif -%}
-{%- if decoders -%}
-    {%- set decoders_arg = "-d " + decoders|join(" ") -%}
-{%- endif -%}
-{%- if videodec_timeout -%}
+{%- endif %}
+{%- if decoders %}
+    {%- set decoders_arg = "-d " + decoders|join(" ") %}
+{%- endif %}
+{%- if videodec_timeout %}
     {% set videodec_timeout_arg = "-t " + videodec_timeout|string %}
-{%- endif -%}
-{%- if videodec_parallel_jobs -%}
+{%- endif %}
+{%- if videodec_parallel_jobs %}
     {% set videodec_parallel_jobs_arg = "-j " + videodec_parallel_jobs|string %}
-{%- endif -%}
+{%- endif %}
 
 - test:
     namespace: chromeos
@@ -36,6 +36,21 @@
             - lava-test-set start setup
             - for i in $(seq 1 60); do ping -c 1 -w 1 $(lava-target-ip) && break || sleep 1; done
             - ping -c 1 -w 1 $(lava-target-ip) || lava-test-raise "cros-device-unreachable"
+            - >-
+            ./ssh_retry.sh
+            -o StrictHostKeyChecking=no
+            -o UserKnownHostsFile=/dev/null
+            -i /home/cros/.ssh/id_rsa
+            root@$(lava-target-ip)
+            cat /etc/os-release > /tmp/osrel.tmp
+            - cat /tmp/osrel.tmp
+            - >-
+            ./ssh_retry.sh
+            -o StrictHostKeyChecking=no
+            -o UserKnownHostsFile=/dev/null
+            -i /home/cros/.ssh/id_rsa
+            root@$(lava-target-ip)
+            mount -o remount,rw /
             - lava-test-set stop setup
             - >-
               ./ssh_retry.sh
@@ -43,8 +58,7 @@
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
-              python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ decoders_arg }} 
-                            {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
+              python3 /usr/bin/fluster_parser.py --run {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
             - lava-test-set start get_results
             - mkdir -p /opt/fluster/
             - >-
@@ -67,4 +81,5 @@
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
               poweroff && sleep 30 || true
+            - apt install -y python3-junitparser
             - python3 /usr/bin/fluster_parser.py --results
