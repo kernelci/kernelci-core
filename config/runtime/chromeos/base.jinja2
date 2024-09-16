@@ -50,7 +50,11 @@
     failure_retry: 3
     method: depthcharge
     commands: emmc
+{% if debarch == 'arm64' %}
+    extra_kernel_args: cros_secure cros_debug cpuidle.governor=teo root=PARTUUID=566f7961-6765-7220-746f-20756e697665 rootwait ro
+{% else %}
     extra_kernel_args: cros_secure cros_debug root=PARTUUID=566f7961-6765-7220-746f-20756e697665 rootwait ro
+{% endif %}
     prompts:
       - 'localhost(.*)~(.*)#'
     failure_message: 'chromeos-boot-alert: self_repair'
