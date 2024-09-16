@@ -45,7 +45,6 @@
             cat /etc/os-release > /tmp/osrel.tmp
             - cat /tmp/osrel.tmp
             - lava-test-set stop setup
-            - wget https://github.com/kernelci/kernelci-core/raw/main/config/rootfs/debos/overlays/fluster/usr/bin/fluster_parser.py
             - >-
               scp
               -o StrictHostKeyChecking=no
@@ -74,5 +73,4 @@
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
               poweroff && sleep 30 || true
-            - apt install -y python3-junitparser
             - python3 ./fluster_parser.py --results
