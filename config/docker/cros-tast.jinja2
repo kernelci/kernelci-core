@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     inetutils-ping \
     python3 \
     python3-pkg-resources \
+    python3-junitparser \
     ssh \
     wget
 
@@ -30,6 +31,10 @@ ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
 kernelci.org/\
 config/docker/data/ssh_retry.sh \
 /home/cros/ssh_retry.sh
+
+ADD https://github.com/kernelci/kernelci-core/raw/main/config/\
+rootfs/debos/overlays/fluster/usr/bin/fluster_parser.py \
+/home/cros/fluster_parser.py
 
 # Needed by LAVA to install the overlay
 USER root
