@@ -542,6 +542,9 @@ fragments:
       - 'CONFIG_SCHED_DEBUG=y'
       - 'CONFIG_PREEMPT_RT=y'
       - 'CONFIG_PREEMPT_RT_FULL=y' # <= v4.19
+      - 'CONFIG_FTRACE=y'
+      - 'CONFIG_OSNOISE_TRACER=y'
+      - 'CONFIG_TIMERLAT_TRACER=y'
 
   rust:
     path: "kernel/configs/rust.config"
