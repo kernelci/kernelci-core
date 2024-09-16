@@ -36,36 +36,28 @@
             - lava-test-set start setup
             - for i in $(seq 1 60); do ping -c 1 -w 1 $(lava-target-ip) && break || sleep 1; done
             - ping -c 1 -w 1 $(lava-target-ip) || lava-test-raise "cros-device-unreachable"
-            - >-
-            ./ssh_retry.sh
-            -o StrictHostKeyChecking=no
-            -o UserKnownHostsFile=/dev/null
-            -i /home/cros/.ssh/id_rsa
-            root@$(lava-target-ip)
-            cat /etc/os-release > /tmp/osrel.tmp
-            - cat /tmp/osrel.tmp
             - lava-test-set stop setup
-            - wget https://github.com/kernelci/kernelci-core/raw/main/config/rootfs/debos/overlays/fluster/usr/bin/fluster_parser.py
-            - >-
-              scp
-              -o StrictHostKeyChecking=no
-              -o UserKnownHostsFile=/dev/null
-              -i /home/cros/.ssh/id_rsa
-              ./fluster_parser.py root@$(lava-target-ip):/tmp
             - >-
               /home/cros/ssh_retry.sh
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
-              python3 /tmp/fluster_parser.py --run {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
+              python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
             - lava-test-set start get_results
+            - mkdir -p /opt/fluster/
             - >-
               scp
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa
-              root@$(lava-target-ip):/tmp/results.xml /tmp
+              root@$(lava-target-ip):/opt/fluster/results.xml /opt/fluster/
+            - >-
+              scp
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip):/usr/bin/fluster_parser.py /usr/bin/
             - lava-test-set stop get_results
             - >-
               /home/cros/ssh_retry.sh
@@ -74,5 +66,4 @@
               -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
               poweroff && sleep 30 || true
-            - apt install -y python3-junitparser
-            - python3 ./fluster_parser.py --results
+            - python3 /usr/bin/fluster_parser.py --results

@@ -27,7 +27,6 @@ from junitparser import JUnitXml, Skipped
 
 FLUSTER_PATH = '/opt/fluster'
 RESULTS_FILE = 'results.xml'
-RESULTS_PATH = '/tmp'
 
 
 def _check(path, match):
@@ -70,7 +69,7 @@ def _load_results_file(filename):
 
 def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None, skips=None, verbose=False):
     cmd = ['python3', 'fluster.py', '-ne', 'run',
-           '-f', 'junitxml', '-so', f'{FLUSTER_PATH}/{RESULTS_FILE}']
+           '-f', 'junitxml', '-so', RESULTS_FILE]
 
     if verbose:
         cmd.extend(['-v'])
