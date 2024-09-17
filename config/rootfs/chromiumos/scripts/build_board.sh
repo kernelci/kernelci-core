@@ -124,9 +124,22 @@ echo "Applying postbuild-${BRANCH}.sh"
 source "${SCRIPTPATH}/fixes/postbuild-${BRANCH}.sh"
 
 echo "Packing Tast files"
+# Copy files for the Host (remote)
 sudo tar -cf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/bin/ remote_test_runner tast
 sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/libexec/tast/bundles/remote/ cros
 sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/share/tast/data go.chromium.org
+# Copy files for the DUT (local)
+OUT_USR_DIR="./out/build/${BOARD}/usr"
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/bin/ local_test_runner
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/libexec/chrome-binary-tests \
+																															libtest_trace_processor.so \
+																															v4l2_stateless_decoder
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/libexec/tast/bundles/ local/cros
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/local/graphics validate
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/local/bin v4l2_stateful_decoder
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./src/platform/tast-tests/src/ \
+									go.chromium.org/tast-tests/cros/local/bundles/cros/video/data/test_vectors
+# Compress Tast files
 sudo gzip -9 "${DATA_DIR}/${BOARD}/tast.tar"
 sudo mv "${DATA_DIR}/${BOARD}/tast.tar.gz" "${DATA_DIR}/${BOARD}/tast.tgz"
 
