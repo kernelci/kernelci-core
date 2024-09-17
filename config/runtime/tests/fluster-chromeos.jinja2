@@ -36,13 +36,14 @@
             - lava-test-set start setup
             - for i in $(seq 1 60); do ping -c 1 -w 1 $(lava-target-ip) && break || sleep 1; done
             - ping -c 1 -w 1 $(lava-target-ip) || lava-test-raise "cros-device-unreachable"
+            - cd /home/cros
             - >-
-            ./ssh_retry.sh
-            -o StrictHostKeyChecking=no
-            -o UserKnownHostsFile=/dev/null
-            -i /home/cros/.ssh/id_rsa
-            root@$(lava-target-ip)
-            cat /etc/os-release > /tmp/osrel.tmp
+              /home/cros/ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              cat /etc/os-release > /tmp/osrel.tmp
             - cat /tmp/osrel.tmp
             - lava-test-set stop setup
             - >-

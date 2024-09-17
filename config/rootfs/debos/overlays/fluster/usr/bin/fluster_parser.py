@@ -70,7 +70,7 @@ def _load_results_file(filename):
 
 def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None, skips=None, verbose=False):
     cmd = ['python3', 'fluster.py', '-ne', 'run',
-           '-f', 'junitxml', '-so', f'{FLUSTER_PATH}/{RESULTS_FILE}']
+           '-f', 'junitxml', '-so', f'{RESULTS_PATH}/{RESULTS_FILE}']
 
     if verbose:
         cmd.extend(['-v'])
@@ -105,7 +105,7 @@ def main(args):
 
     if not args.run:
         # load test results
-        junitxml = _load_results_file(f'{FLUSTER_PATH}/{RESULTS_FILE}')
+        junitxml = _load_results_file(f'{RESULTS_PATH}/{RESULTS_FILE}')
 
         if not junitxml:
             subprocess.check_call([
