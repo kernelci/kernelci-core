@@ -86,6 +86,7 @@ def run_tests(args):
         TAST_PATH,
         'run',
         f'-resultsdir={RESULTS_DIR}',
+        '-checktestdeps=false',
         '-sysinfo=false',
         '-build=false',
         remote_ip
