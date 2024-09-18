@@ -131,12 +131,15 @@ sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/share/tast/data go.
 # Copy files for the DUT (local)
 OUT_USR_DIR="./out/build/${BOARD}/usr"
 sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/bin/ local_test_runner
+
+# These might exist only on arm64 only
 sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/libexec/chrome-binary-tests \
 																															libtest_trace_processor.so \
-																															v4l2_stateless_decoder
-sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/libexec/tast/bundles/ local/cros
-sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/local/graphics validate
-sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/local/bin v4l2_stateful_decoder
+																															v4l2_stateless_decoder || true
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/libexec/tast/bundles/ local/cros || true
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/local/graphics validate || true
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C $OUT_USR_DIR/local/bin v4l2_stateful_decoder || true
+
 sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./src/platform/tast-tests/src/ \
 									go.chromium.org/tast-tests/cros/local/bundles/cros/video/data/test_vectors
 # Compress Tast files
