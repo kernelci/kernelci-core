@@ -1,0 +1,110 @@
+- test:
+    namespace: prepare-dut
+    definitions:
+    - from: inline
+      name: install-ssh-server
+      path: inline/install-ssh-server.yaml
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: install-ssh-server
+        run:
+          steps:
+          - wget -nv '{{ platform_config.params.tast_tarball }}' && tar xzf tast.tgz
+          - install -D ./local_test_runner /usr/local/bin/local_test_runner
+          - install -D ./v4l2_stateful_decoder /usr/local/bin/v4l2_stateful_decoder
+          - install -D ./validate /usr/local/graphics/validate
+          - install -D ./libtest_trace_processor.so /usr/local/libexec/chrome-binary-tests/libtest_trace_processor.so
+          - install -D ./v4l2_stateless_decoder /usr/local/libexec/chrome-binary-tests/v4l2_stateless_decoder
+          - install -d /usr/local/libexec/tast/bundles
+          - mv ./local /usr/local/libexec/tast/bundles
+          - mkdir -p /usr/local/share/tast/data/go.chromium.org/tast-tests/cros
+          - mv ./go.chromium.org/tast-tests/cros/local /usr/local/share/tast/data/go.chromium.org/tast-tests/cros/
+          # Hack Tast expect chromeos' initctl. Since we are running on Debian, we need to create a dummy initctl
+          # TODO: Fetch fake_initctl.sh from kernelci-core upstream repo when it's available
+          # - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/tast-on-debian/config/runtime/tests/fake_initctl.sh -O
+          /usr/local/bin/initctl
+          - wget https://github.com/denisyuji/kernelci-core/raw/refs/heads/tast-on-debian/config/runtime/tests/fake_initctl.sh -O
+          /usr/local/bin/initctl
+          - chmod +x /usr/local/bin/initctl
+          - touch /etc/lsb-release
+          - mkdir -p /var/log/recover_duts/ && touch /var/log/recover_duts/recover_duts.log
+          - echo "#!/bin/bash" > /usr/local/bin/crossystem
+          - echo "echo recovery" > /usr/local/bin/crossystem
+    timeout:
+      minutes: 30
+
+- test:
+    namespace: tast
+    timeout:
+      minutes: {{ job_timeout|default('30') }}
+    docker:
+      image: kernelci/cros-tast
+      wait:
+        device: true
+    results:
+      location: /home/cros/lava
+    definitions:
+    - from: inline
+      name: tast
+      path: inline/cros-tast.yaml
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: cros-tast
+        run:
+          steps:
+            - cd /home/cros
+{%- if excluded_tests %}
+            - echo "# Disabled tests for KernelCI" > /tmp/excluded-tast-tests
+{%- for test in excluded_tests %}
+            - echo "-{{ test }}" >> /tmp/excluded-tast-tests
+{%- endfor %}
+{%- endif %}
+            # Install gsutil
+            - wget -nv https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-475.0.0-linux-x86_64.tar.gz
+            - sudo -u cros --login tar -zxf ./google-cloud-cli-475.0.0-linux-x86_64.tar.gz
+            - sudo -u cros --login ./google-cloud-sdk/install.sh -q --usage-reporting=false
+            - sudo -u cros --login echo "PATH=/home/cros/google-cloud-sdk/bin:$PATH" >> /home/cros/.profile
+            - sudo -u cros --login gsutil cp gs://chromiumos-test-assets-public/tast/cros/video/test_vectors/av1/00000761_20210310.ivf.json .
+            # Install ssh client and connect to the DUT
+            - lava-test-set start setup
+            - for i in $(seq 1 60); do ping -c 1 -w 1 $(lava-target-ip) && break || sleep 1; done
+            - ping -c 1 -w 1 $(lava-target-ip) || lava-test-raise "cros-device-unreachable"
+            - >-
+              ./ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              cat /etc/os-release > /tmp/osrel.tmp
+            - cat /tmp/osrel.tmp
+            - sudo -u cros --login ssh-keyscan -t rsa $(lava-target-ip) > ~/.ssh/known_hosts
+            - >-
+              lava-test-case tast-tarball --shell
+              curl -s '{{ platform_config.params.tast_tarball }}'
+              \| tar xzf -
+              && cp remote_test_runner /usr/bin/remote_test_runner
+              && mkdir -p /usr/libexec/tast/bundles/remote/
+              && cp cros /usr/libexec/tast/bundles/remote/
+            - rm -rf tast_parser.py
+            # TODO: Fetch tast_parser.py from kernelci-core upstream repo when it's available
+            # - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/tast-on-debian/config/docker/data/tast_parser.py
+            - wget https://github.com/denisyuji/kernelci-core/raw/refs/heads/tast-on-debian/config/docker/data/tast_parser.py
+            - chmod +x tast_parser.py
+            - lava-test-set stop setup
+            # Run Tast
+            - >-
+              ./tast_parser.py --run
+{%- for test in tests %}
+              {{ test }}
+{%- endfor %}
+            # Wait for DUT to shut down, or keep going if unreachable (e.g. crashed)
+            - >-
+              /home/cros/ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              poweroff && sleep 30 || true
+            - ./tast_parser.py --results
