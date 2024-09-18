@@ -1,3 +1,5 @@
+# Description: This script is used to run Tast tests on a DUT and report the
+# results to LAVA.
 #!/usr/bin/env python3
 #
 # Copyright (C) 2022 Collabora Limited
