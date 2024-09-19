@@ -1,7 +1,7 @@
 - test:
     name: {{ node.name }}
     timeout:
-      minutes: {{ job_timeout|default('600s') }}
+      minutes: {{ job_timeout|default('10') }}
 
     definitions:
     - repository: https://github.com/kernelci/test-definitions.git
