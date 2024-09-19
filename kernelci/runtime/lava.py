@@ -342,6 +342,8 @@ class LAVA(Runtime):
         resp = self._server.session.post(
             jobs_url, json=job_data, allow_redirects=False
         )
+        if resp.status_code >= 400:
+            print(f"Error submitting job: {resp.status_code}, {resp.text}")
         resp.raise_for_status()
         return resp.json()['job_ids'][0]
 
