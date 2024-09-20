@@ -21,7 +21,7 @@ device_type: {{ platform_config.name }}
 
 visibility: public
 
-priority: 10
+priority: {{ priority | default('10') }}
 
 {% if platform_config.context %}
 context:{% for key, value in platform_config.context | items %}
