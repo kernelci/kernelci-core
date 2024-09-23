@@ -129,6 +129,18 @@ class Revision(BaseModel):
     patchset: Optional[str] = Field(
         description="Patchset hash"
     )
+    commit_tags: List[str] = Field(
+        description="List of git commit tags",
+        default=[]
+    )
+    commit_message: Optional[str] = Field(
+        description="git commit message"
+    )
+    tip_of_branch: Optional[bool] = Field(
+        description=("Set to `True`, when the commit being checked out is at "
+                     "the tip of the branch at the moment of the checkout, "
+                     "otherwise `False`")
+    )
 
 
 class DefaultTimeout:
