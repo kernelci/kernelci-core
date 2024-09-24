@@ -206,3 +206,8 @@ actions:
     description: Create cpio archive
     chroot: false
     command: cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/{{ $basename -}}/rootfs.cpio.gz
+
+  - action: run
+    description: Install gsutil from Google Cloud SDK required by Tast
+    chroot: false
+    script: scripts/install-gsutil.sh
