@@ -87,6 +87,7 @@ def run_tests(args):
         'run',
         f'-resultsdir={RESULTS_DIR}',
         '-sysinfo=false',
+        '-checktestdeps=false',
         '-build=false',
         remote_ip
     ]
