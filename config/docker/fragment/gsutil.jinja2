@@ -1,0 +1,4 @@
+RUN wget -nv https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-475.0.0-linux-x86_64.tar.gz && \
+    sudo -u cros --login tar -zxf ./google-cloud-cli-475.0.0-linux-x86_64.tar.gz && \
+    sudo -u cros --login ./google-cloud-sdk/install.sh -q --usage-reporting=false && \
+    sudo -u cros --login echo "PATH=/home/cros/google-cloud-sdk/bin:$PATH" >> /home/cros/.profile
