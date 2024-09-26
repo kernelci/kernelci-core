@@ -195,6 +195,7 @@ fragments:
       - 'CONFIG_QCOM_WDT=y'
       - 'CONFIG_POWER_RESET_QCOM_PON=y'
       - 'CONFIG_USB_ONBOARD_HUB=y'
+      - 'CONFIG_USB_ONBOARD_DEV=y' # [PATCH v4 1/8] usb: misc: onboard_hub: rename to onboard_dev
       - 'CONFIG_BACKLIGHT_GPIO=y'
       - 'CONFIG_BLK_DEV_NVME=y'
       - 'CONFIG_CORESIGHT_SOURCE_ETM4X=m'
