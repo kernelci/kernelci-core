@@ -1,5 +1,4 @@
 - test:
-    namespace: prepare-dut
     definitions:
     - from: inline
       name: install-ssh-server
@@ -10,7 +9,7 @@
           name: install-ssh-server
         run:
           steps:
-          - wget -nv '{{ platform_config.params.tast_tarball }}' && tar xzf tast.tgz
+          - wget '{{ platform_config.params.tast_tarball }}' && tar xzf tast.tgz
           - install -D ./local_test_runner /usr/local/bin/local_test_runner
           - install -D ./v4l2_stateful_decoder /usr/local/bin/v4l2_stateful_decoder
           - install -D ./validate /usr/local/graphics/validate
@@ -24,8 +23,8 @@
           # TODO: Fetch fake_initctl.sh and fake_crossystem.sh from kernelci-core main branch when it's available
           # - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/main/config/rootfs/debos/overlays/tast/usr/local/bin/fake_initctl.sh -O /usr/local/bin/initctl
           # - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/main/config/rootfs/debos/overlays/tast/usr/local/bin/fake_crossystem.sh -O /usr/local/bin/crossystem
-          - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/tast-on-debian/config/rootfs/debos/overlays/tast/usr/local/bin/fake_initctl.sh -O /usr/local/bin/initctl
-          - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/tast-on-debian/config/rootfs/debos/overlays/tast/usr/local/bin/fake_crossystem.sh -O /usr/local/bin/crossystem
+          - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/main/config/rootfs/debos/overlays/tast/usr/local/bin/fake_initctl.sh -O /usr/local/bin/initctl
+          - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/main/config/rootfs/debos/overlays/tast/usr/local/bin/fake_crossystem.sh -O /usr/local/bin/crossystem
           - chmod +x /usr/local/bin/initctl
           - chmod +x /usr/local/bin/crossystem
           - touch /etc/lsb-release
@@ -34,7 +33,6 @@
       minutes: 30
 
 - test:
-    namespace: tast
     timeout:
       minutes: {{ job_timeout|default('30') }}
     docker:
@@ -88,7 +86,7 @@
             - rm -rf tast_parser.py
             # TODO: Fetch tast_parser.py from main branch when it's available
             # - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/main/config/docker/data/tast_parser.py
-            - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/tast-on-debian/config/docker/data/tast_parser.py
+            - wget https://github.com/kernelci/kernelci-core/raw/refs/heads/main/config/docker/data/tast_parser.py
             - chmod +x tast_parser.py
             - lava-test-set stop setup
             # Run Tast
