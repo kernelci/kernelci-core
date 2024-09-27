@@ -222,6 +222,64 @@ git describe --always --match=v[1-9]\*
     return describe.strip()
 
 
+def git_commit_tags(path, commit):
+    """Get the git tags
+
+    *path* is the path to the local git repository
+    *commit* is the current checked out commit
+
+    Returns list of associated git tags if exist otherwise an
+    empty list.
+    """
+    cmd = r"""
+set -e
+cd {path}
+git tag --points-at {commit}
+""".format(path=path, commit=commit)
+    result = shell_cmd(cmd)
+    tags = [tag for tag in result.splitlines() if tag]
+    return tags if tags else []
+
+
+def git_commit_message(path, commit):
+    """Get the git commit message
+
+    *path* is the path to the local git repository
+    *commit* is the current checked out commit
+
+    Returns the git commit message consists of subject and body.
+    """
+    cmd = r"""
+set -e
+cd {path}
+git show -s --format=%B {commit}
+""".format(path=path, commit=commit)
+    message = shell_cmd(cmd)
+    return message.strip()
+
+
+def git_branch_tip(path, commit, tree, branch):
+    """Get the git commit message
+
+    *path* is the path to the local git repository
+    *commit* is the current checked out commit
+    *tree* is the current checked out tree
+    *branch* is the current checked out branch
+
+    Returns `True`, when the commit being checked out is at the tip of
+    the branch at the moment of the checkout, otherwise `False`
+    """
+    cmd = r"""
+set -e
+cd {path}
+git rev-parse {tree}/{branch}
+""".format(path=path, tree=tree, branch=branch)
+    head_commit_id = shell_cmd(cmd)
+    if commit == head_commit_id:
+        return True
+    return False
+
+
 def make_tarball(kdir, tarball_name):
     """Make a kernel source tarball
 
