@@ -41,5 +41,5 @@ USER root
 RUN chmod +x /home/cros/tast_parser.py /home/cros/ssh_retry.sh
 
 # Create symlink to /usr/local/bin for tast gs:// downloads
-RUN ln -s /home/cros/trunk/chromite/scripts/gsutil /usr/local/bin/
+RUN ln -s /home/cros/trunk/chromite/bin/gsutil /usr/local/bin/
 {%- endblock %}
