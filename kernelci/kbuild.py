@@ -421,7 +421,11 @@ class KBuild():
     def extract_config(self, frag):
         """ Extract config fragments from legacy config file """
         txt = ''
-        config = frag['configs']
+        config = frag.get('configs', None)
+        if not config:
+            print("No configs section in fragment")
+            config = []
+
         for c in config:
             txt += c + '\n'
         return txt
@@ -440,6 +444,7 @@ class KBuild():
 
         if not yml:
             print(f"No suitable config file found in {LEGACY_CONFIG}")
+            self.submit_failure(f"No suitable config file found in {LEGACY_CONFIG}")
             sys.exit(1)
 
         print(f"Searching for fragment {fragname} in {cfg_path}")
@@ -447,6 +452,7 @@ class KBuild():
             frag = yml['fragments']
         else:
             print("No fragments section in config file")
+            self.submit_failure("No fragments section in config file")
             sys.exit(1)
 
         if fragname in frag:
@@ -454,6 +460,7 @@ class KBuild():
             buffer += txt
         else:
             print(f"Fragment {fragname} not found")
+            self.submit_failure(f"Fragment {fragname} not found")
             sys.exit(1)
 
         return buffer
@@ -468,7 +475,9 @@ class KBuild():
             elif fragment.startswith("CONFIG_"):
                 content = fragment + '\n'
             else:
+                # TODO: implement 'path' option properly
                 content = self.add_legacy_fragment(fragment)
+
             fragfile = os.path.join(self._fragments_dir, f"{num}.config")
             with open(fragfile, 'w') as f:
                 f.write(content)
@@ -824,6 +833,25 @@ class KBuild():
         metadata['build']['result'] = job_result
         with open(metadata_file, 'w') as f:
             json.dump(metadata, f, indent=4)
+
+    def submit_failure(self, message):
+        '''
+        Submit to API that kbuild failed due internal error
+        '''
+        node = self._node.copy()
+        node['result'] = 'incomplete'
+        node['state'] = 'done'
+        if 'data' not in node:
+            node['data'] = {}
+        node['data']['error_code'] = 'kbuild_internal_error'
+        node['data']['error_msg'] = message
+        api = kernelci.api.get_api(self._api_config, self._api_token)
+        try:
+            api.node.update(node)
+        except requests.exceptions.HTTPError as err:
+            err_msg = json.loads(err.response.content).get("detail", [])
+            self.log.error(err_msg)
+        return
 
     def submit(self, retcode, dry_run=False):
         '''
