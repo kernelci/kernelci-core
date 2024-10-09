@@ -31,7 +31,7 @@
             - >-
               lava-test-case tast-tarball --shell
               curl -s '{{ platform_config.params.tast_tarball }}'
-              \| tar xzvf -
+              \| tar xzf -
               && cp remote_test_runner /usr/bin/remote_test_runner
               && mkdir -p /usr/libexec/tast/bundles/remote/
               && cp cros /usr/libexec/tast/bundles/remote/
