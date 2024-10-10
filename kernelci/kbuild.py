@@ -21,6 +21,7 @@ Available kbuild parameters:
 - cross_compile: cross compile prefix
 - cross_compile_compat: cross compile compat prefix
 - dtbs_check: run "make dtbs_check" ONLY, it is actually a separate test
+- kselftest: false - do not build kselftest
 """
 
 import os
@@ -151,7 +152,10 @@ class KBuild():
                 self._dtbs_check = params['dtbs_check']
             else:
                 self._dtbs_check = False
-            self._disable_modules = params.get('disable_modules', False)
+            if params.get('kselftest') == 'disable':
+                self._kfselftest = False
+            else:
+                self._kfselftest = True
             self._apijobname = jobname
             self._steps = []
             self._artifacts = []
@@ -205,7 +209,7 @@ class KBuild():
             )
             self._full_artifacts = jsonobj['full_artifacts']
             self._dtbs_check = jsonobj['dtbs_check']
-            self._disable_modules = jsonobj['disable_modules']
+            self._kfselftest = jsonobj['kfselftest']
             return
         raise ValueError("No valid arguments provided")
 
@@ -303,11 +307,11 @@ class KBuild():
         if not self._dtbs_check:
             self._artifacts.append("build_kimage.log")
             self._artifacts.append("build_kimage_stderr.log")
-            if not self._disable_modules:
-                self._artifacts.append("build_modules.log")
-                self._artifacts.append("build_modules_stderr.log")
-            self._artifacts.append("build_kselftest.log")
-            self._artifacts.append("build_kselftest_stderr.log")
+            self._artifacts.append("build_modules.log")
+            self._artifacts.append("build_modules_stderr.log")
+            if self._kfselftest:
+                self._artifacts.append("build_kselftest.log")
+                self._artifacts.append("build_kselftest_stderr.log")
             # disable DTBS for some archs
             if self._arch not in DTBS_DISABLED:
                 self._artifacts.append("build_dtbs.log")
@@ -542,15 +546,15 @@ class KBuild():
             # We can check that if fragments have CONFIG_EXTRA_FIRMWARE
             self._fetch_firmware()
             self._build_kernel()
-            if not self._disable_modules:
-                self._build_modules()
-            self._build_kselftest()
+            self._build_modules()
+            if self._kfselftest:
+                self._build_kselftest()
             if self._arch not in DTBS_DISABLED:
                 self._build_dtbs()
             self._package_kimage()
-            if not self._disable_modules:
-                self._package_modules()
-            self._package_kselftest()
+            self._package_modules()
+            if self._kfselftest:
+                self._package_kselftest()
             if self._arch not in DTBS_DISABLED:
                 self._package_dtbs()
         else:
@@ -923,11 +927,12 @@ class KBuild():
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
         # do we have kselftest_tar_gz in artifact keys? then node is ok
-        kselftest_result = 'fail'
-        for artifact in af_uri:
-            if artifact == 'kselftest_tar_gz':
-                kselftest_result = 'pass'
-                break
+        if self._kfselftest:
+            kselftest_result = 'fail'
+            for artifact in af_uri:
+                if artifact == 'kselftest_tar_gz':
+                    kselftest_result = 'pass'
+                    break
 
         results = {
             'node': {
@@ -953,26 +958,30 @@ class KBuild():
         results['node']['data']['fragments'] = self._fragments
         results['node']['data']['config_full'] = self._config_full
 
-        kselftest_node = self._node.copy()
-        # remove id to not have same as parent
-        kselftest_node.pop('id')
-        kselftest_node['name'] = kselftest_node['name'] + "-kselftest"
-        kselftest_node['kind'] = 'test'
-        existing_path = kselftest_node.get('path')
-        if existing_path and isinstance(existing_path, list):
-            kselftest_node['path'] = existing_path.append(kselftest_node['name'])
-        kselftest_node['parent'] = self._node['id']
-        kselftest_node['data'] = results['node']['data'].copy()
-        kselftest_node['artifacts'] = None
-        kselftest_node['state'] = 'done'
-        kselftest_node['result'] = kselftest_result
+        # if we have kselftest, we need to add child node
+        if self._kfselftest:
+            kselftest_node = self._node.copy()
+            # remove id to not have same as parent
+            kselftest_node.pop('id')
+            kselftest_node['name'] = kselftest_node['name'] + "-kselftest"
+            kselftest_node['kind'] = 'test'
+            existing_path = kselftest_node.get('path')
+            if existing_path and isinstance(existing_path, list):
+                kselftest_node['path'] = existing_path.append(kselftest_node['name'])
+            kselftest_node['parent'] = self._node['id']
+            kselftest_node['data'] = results['node']['data'].copy()
+            kselftest_node['artifacts'] = None
+            kselftest_node['state'] = 'done'
+            kselftest_node['result'] = kselftest_result
 
-        child_nodes = [
-            {
-                'node': kselftest_node,
-                'child_nodes': []
-            }
-        ]
+            child_nodes = [
+                {
+                    'node': kselftest_node,
+                    'child_nodes': []
+                }
+            ]
+        else:
+            child_nodes = []
 
         results['child_nodes'] = child_nodes
         api_helper = kernelci.api.helper.APIHelper(api)
