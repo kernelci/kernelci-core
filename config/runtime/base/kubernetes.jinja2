@@ -32,7 +32,7 @@ spec:
 
       containers:
       - name: kernelci
-        image: ghcr.io/{{ runtime_image }}
+        image: {{ runtime_image }}
         imagePullPolicy: Always
 
         volumeMounts:

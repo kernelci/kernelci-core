@@ -147,6 +147,7 @@ class Runtime(abc.ABC):
                 if not device_dtb:
                     print(f"dtb file {job.platform_config.dtb} not found!")
                     return None
+
         params = {
             'api_config': api_config or {},
             'storage_config': job.storage_config or {},
