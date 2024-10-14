@@ -204,6 +204,10 @@ class Node(DatabaseModel):
     jobfilter: Optional[List[str]] = Field(
         description="Restrict jobs that can be scheduled by this node"
     )
+    platform_filter: Optional[List[str]] = Field(
+        description="Restrict test jobs to be scheduled on specific platforms",
+        alias='platformfilter'
+    )
     created: datetime = Field(
         default_factory=datetime.utcnow,
         description="Timestamp of node creation"
