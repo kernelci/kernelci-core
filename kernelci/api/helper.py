@@ -385,26 +385,26 @@ class APIHelper:
                         runtime=None, platform=None):
         """Create a new job node based on input and configuration"""
         jobfilter = input_node.get('jobfilter')
+        platform_filter = input_node.get('platform_filter')
         treeid = input_node.get('treeid')
         submitter = input_node.get('submitter')
-        try:
-            job_node = {
-                'kind': job_config.kind,
-                'parent': input_node['id'],
-                'name': job_config.name,
-                'path': input_node['path'] + [job_config.name],
-                'group': job_config.name,
-                'artifacts': {},
-                'jobfilter': jobfilter,
-                'treeid': treeid,
-                'submitter': submitter,
-                'data': {
-                    'kernel_revision': input_node['data']['kernel_revision'],
-                },
-            }
-        except KeyError as error:
-            print(f"Missing key {error} in input node")
-            return None
+        job_node = {
+            'kind': job_config.kind,
+            'parent': input_node['id'],
+            'name': job_config.name,
+            'path': input_node['path'] + [job_config.name],
+            'group': job_config.name,
+            'artifacts': {},
+            'treeid': treeid,
+            'submitter': submitter,
+            'data': {
+                'kernel_revision': input_node['data']['kernel_revision'],
+            },
+        }
+        if jobfilter:
+            job_node['jobfilter'] = jobfilter
+        if platform_filter:
+            job_node['platform_filter'] = platform_filter
 
         # if jobfilter not null, verify if job_config.name exist in jobfilter
         if jobfilter and job_config.name not in jobfilter:
@@ -434,7 +434,14 @@ class APIHelper:
                 print(f"Not creating node {input_node['id']} due to runtime rules "
                       f"for {runtime.config.name}")
                 return None
+        # Filter by platform if it is test job only
         if platform:
+            # if platform_filter not null, verify if platform.name exist in platform_filter
+            if platform_filter and platform.name not in platform_filter\
+               and job_config.kind == 'job':
+                print(f"Filtered: Platform {platform.name} not found in platform_filter "
+                      f"for node {input_node['id']}")
+                return None
             job_node['data']['platform'] = platform.name
             if not self.should_create_node(platform.rules, job_node, input_node):
                 print(f"Not creating node {input_node['id']} due to platform rules "
