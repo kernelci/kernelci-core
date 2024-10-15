@@ -50,6 +50,11 @@ class Job(YAMLConfigObject):  # pylint: disable=too-many-instance-attributes
         """Runtime environment image name"""
         return self._image
 
+    @image.setter
+    def image(self, value):
+        """Set the runtime environment image name"""
+        self._image = value
+
     @property
     def params(self):
         """Arbitrary parameters passed to the template"""
