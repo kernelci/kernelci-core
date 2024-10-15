@@ -13,19 +13,21 @@
 """KernelCI API model definitions used by client-facing endpoints"""
 
 from datetime import datetime, timedelta
-from typing import Any, Optional, Dict, List, ClassVar
+from typing import Any, Optional, Dict, List, ClassVar, Literal
 import enum
 from operator import attrgetter
 import json
+from typing_extensions import Annotated
 from bson import ObjectId
 from pydantic import (
     AnyHttpUrl,
     AnyUrl,
+    AfterValidator,
     BaseModel,
     Field,
     FileUrl,
+    field_validator,
     StrictInt,
-    validator,
 )
 from .models_base import (
     PyObjectId,
@@ -87,22 +89,25 @@ class KernelVersion(BaseModel):
         description="Minor version number or 'patch level' e.g. 19 in 'v4.19'"
     )
     sublevel: Optional[StrictInt] = Field(
-        description="Stable version or 'sub-level' e.g. 123 in 'v4.19.123'"
+        description="Stable version or 'sub-level' e.g. 123 in 'v4.19.123'",
+        default=None
     )
     extra: Optional[str] = Field(
-        description="Extra version string e.g. -rc2 in 'v4.19-rc2'"
+        description="Extra version string e.g. -rc2 in 'v4.19-rc2'",
+        default=None
     )
     name: Optional[str] = Field(
-        description="Version name e.g. People's Front for v4.19"
+        description="Version name e.g. People's Front for v4.19",
+        default=None
     )
 
-    _STRICT_INT_FIELDS = ['version', 'patchlevel', 'sublevel']
+    STRICT_INT_FIELDS: ClassVar[list] = ['version', 'patchlevel', 'sublevel']
 
     @classmethod
     def translate_version_fields(cls, params):
         """Translate `StrictInt` field values into `int`"""
         for key, value in params.items():
-            if key in cls._STRICT_INT_FIELDS and value:
+            if key in cls.STRICT_INT_FIELDS and value:
                 params[key] = int(value)
         return params
 
@@ -112,7 +117,7 @@ class Revision(BaseModel):
     tree: str = Field(
         description="git tree of the revision"
     )
-    url: AnyUrl | FileUrl = Field(
+    url: Annotated[AnyUrl | FileUrl, AfterValidator(str)] = Field(
         description="git URL of the revision"
     )
     branch: str = Field(
@@ -122,12 +127,15 @@ class Revision(BaseModel):
         description="git commit SHA of the revision"
     )
     describe: Optional[str] = Field(
+        default=None,
         description="git describe of the revision"
     )
     version: Optional[KernelVersion] = Field(
+        default=None,
         description="Kernel version"
     )
     patchset: Optional[str] = Field(
+        default=None,
         description="Patchset hash"
     )
     commit_tags: List[str] = Field(
@@ -135,9 +143,11 @@ class Revision(BaseModel):
         default=[]
     )
     commit_message: Optional[str] = Field(
+        default=None,
         description="git commit message"
     )
     tip_of_branch: Optional[bool] = Field(
+        default=None,
         description=("Set to `True`, when the commit being checked out is at "
                      "the tip of the branch at the moment of the checkout, "
                      "otherwise `False`")
@@ -180,31 +190,39 @@ class Node(DatabaseModel):
         description="Full path with node names from the top-level node"
     )
     group: Optional[str] = Field(
-        description="Name of a group this node belongs to"
+        description="Name of a group this node belongs to",
+        default=None
     )
     parent: Optional[PyObjectId] = Field(
-        description="Parent commit SHA"
+        description="Parent commit SHA",
+        default=None
     )
     state: StateValues = Field(
         default=StateValues.RUNNING.value,
         description="State of the node"
     )
     result: Optional[ResultValues] = Field(
-        description="Result of node"
+        default=None,
+        description="Result of node",
     )
-    artifacts: Optional[Dict[str, AnyHttpUrl]] = Field(
-        description="Artifacts associated with the node (binaries, logs...)"
+    artifacts: Optional[Dict[str, Annotated[AnyHttpUrl, AfterValidator(str)]]] = Field(
+        description="Artifacts associated with the node (binaries, logs...)",
+        default=None
     )
     data: Optional[Dict[str, Any]] = Field(
-        description="Arbitrary data stored in the node"
+        description="Arbitrary data stored in the node",
+        default=None
     )
     debug: Optional[Dict[str, Any]] = Field(
-        description="Debug info fields (for development purposes)"
+        description="Debug info fields (for development purposes)",
+        default=None
     )
     jobfilter: Optional[List[str]] = Field(
-        description="Restrict jobs that can be scheduled by this node"
+        description="Restrict jobs that can be scheduled by this node",
+        default=None
     )
     platform_filter: Optional[List[str]] = Field(
+        default=[],
         description="Restrict test jobs to be scheduled on specific platforms",
     )
     created: datetime = Field(
@@ -220,27 +238,39 @@ class Node(DatabaseModel):
         description="Node expiry timestamp"
     )
     holdoff: Optional[datetime] = Field(
-        description="Node expiry timestamp while in Available state"
+        description="Node expiry timestamp while in Available state",
+        default=None
     )
     owner: Optional[str] = Field(
-        description="Username of node owner"
+        description="Username of node owner",
+        default=None
     )
     submitter: Optional[str] = Field(
-        description="Token md5 hash to identify node origin(submitter token)"
+        description="Token md5 hash to identify node origin(submitter token)",
+        default=None
     )
     treeid: Optional[str] = Field(
-        description="Tree unique identifier"
+        description="Tree unique identifier",
+        default=None
     )
     user_groups: List[str] = Field(
         default=[],
         description="User groups that are permitted to update node"
     )
 
-    _OBJECT_ID_FIELDS = ['parent']
-    _TIMESTAMP_FIELDS = ['created', 'updated', 'timeout', 'holdoff']
+    OBJECT_ID_FIELDS: ClassVar[list] = ['parent']
+    TIMESTAMP_FIELDS: ClassVar[list] = ['created', 'updated', 'timeout', 'holdoff']
 
     def update(self):
         self.updated = datetime.utcnow()
+
+    @field_validator('user_groups')
+    def validate_groups(cls, groups):   # pylint: disable=no-self-argument
+        """Unique group constraint"""
+        unique_names = set(groups)
+        if len(unique_names) != len(groups):
+            raise ValueError("Groups must have unique names.")
+        return groups
 
     @classmethod
     def _translate_operators(cls, params):
@@ -277,7 +307,7 @@ class Node(DatabaseModel):
         be converted to ObjectId.
         """
         for key, value in params.items():
-            if key in cls._OBJECT_ID_FIELDS:
+            if key in cls.OBJECT_ID_FIELDS:
                 yield key, ObjectId(value)
 
     @classmethod
@@ -296,7 +326,7 @@ class Node(DatabaseModel):
         """
         translated_params = {}
         for key, value in params.items():
-            if key in cls._TIMESTAMP_FIELDS:
+            if key in cls.TIMESTAMP_FIELDS:
                 if isinstance(value, dict):
                     for op_key, op_value in value.items():
                         if translated_params.get(key):
@@ -325,7 +355,7 @@ class Node(DatabaseModel):
     def validate_node_state_transition(self, new_state):
         """Validate Node.state transitions"""
         if new_state == self.state:
-            return True, f"Transition to the same state: { new_state }. \
+            return True, f"Transition to the same state: {new_state}. \
                 No validation is required."
         state_transition_map = {
             'running': ['available', 'closing', 'done'],
@@ -345,7 +375,7 @@ class Hierarchy(BaseModel):
     child_nodes: List['Hierarchy']
 
 
-Hierarchy.update_forward_refs()
+Hierarchy.model_rebuild()
 
 
 class CheckoutErrorCodes(str, enum.Enum):
@@ -360,26 +390,29 @@ class CheckoutErrorCodes(str, enum.Enum):
 class CheckoutData(BaseModel):
     """Model for the data field of a Checkout node"""
     kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data"
+        description="Kernel repo revision data",
+        default=None
     )
     error_code: Optional[CheckoutErrorCodes] = Field(
-        description="Details of the failure state"
+        description="Details of the failure state",
+        default=None
     )
     error_msg: Optional[str] = Field(
-        description="Error message"
+        description="Error message",
+        default=None
     )
 
 
 class Checkout(Node):
     """API model for checkout nodes"""
     class_kind: ClassVar[str] = 'checkout'
-    kind: str = Field(
+    kind: Literal['checkout'] = Field(
         default='checkout',
         description='Type of the object',
-        const=True
     )
     data: CheckoutData = Field(
-        description="Checkout details"
+        description="Checkout details",
+        default=None
     )
 
 
@@ -387,63 +420,77 @@ class KbuildData(BaseModel):
     """Model for the data field of a Kbuild node"""
     # [TODO] Can be fetched from parent checkout node
     kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data"
+        description="Kernel repo revision data",
+        default=None
     )
     arch: Optional[str] = Field(
-        description="CPU architecture family"
+        description="CPU architecture family",
+        default=None
     )
     defconfig: Optional[str] = Field(
-        description="Kernel defconfig identifier"
+        description="Kernel defconfig identifier",
+        default=None
     )
     compiler: Optional[str] = Field(
-        description="Compiler used for the build"
+        description="Compiler used for the build",
+        default=None
     )
     error_code: Optional[ErrorCodes] = Field(
-        description="Details of the failure state"
+        description="Details of the failure state",
+        default=None
     )
     error_msg: Optional[str] = Field(
-        description="Error message"
+        description="Error message",
+        default=None
     )
     fragments: Optional[List[str]] = Field(
-        description="List of additional configuration fragments used"
+        description="List of additional configuration fragments used",
+        default=None
     )
     config_full: Optional[str] = Field(
         description=("Single-string specification of the kernel "
-                     "configuration including defconfig and fragments")
+                     "configuration including defconfig and fragments"),
+        default=None
     )
     platform: Optional[str] = Field(
-        description="Build platform"
+        description="Build platform",
+        default=None
     )
     runtime: Optional[str] = Field(
-        description="Runtime that runs the build"
+        description="Runtime that runs the build",
+        default=None
     )
     job_id: Optional[str] = Field(
-        description="Runtime job ID"
+        description="Runtime job ID",
+        default=None
     )
     job_context: Optional[str] = Field(
-        description="Kubernetes cluster name the job submitted to"
+        description="Kubernetes cluster name the job submitted to",
+        default=None
     )
     kernel_type: Optional[str] = Field(
-        description="Kernel image type (zimage, bzimage...)"
+        description="Kernel image type (zimage, bzimage...)",
+        default=None
     )
     regression: Optional[PyObjectId] = Field(
-        description="Regression node related to this build instance"
+        description="Regression node related to this build instance",
+        default=None
     )
 
 
 class Kbuild(Node):
     """API model for kbuild (kernel builds) nodes"""
     class_kind: ClassVar[str] = 'kbuild'
-    kind: str = Field(
+    kind: Literal['kbuild'] = Field(
         default='kbuild',
         description='Type of the object',
-        const=True
     )
     data: KbuildData = Field(
-        description="Kbuild details"
+        description="Kbuild details",
+        default=None
     )
 
-    _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
+    OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
         'data.regression',
     ]
 
@@ -451,73 +498,89 @@ class Kbuild(Node):
 class TestData(BaseModel):
     """Model for the data field of a Test node"""
     error_code: Optional[ErrorCodes] = Field(
-        description="Details of the failure state"
+        description="Details of the failure state",
+        default=None
     )
     error_msg: Optional[str] = Field(
-        description="Error message"
+        description="Error message",
+        default=None
     )
     # [TODO] Specify the source code file/function too?
-    test_source: Optional[AnyUrl] = Field(
-        description="Repository containing the test source code"
+    test_source: Optional[Annotated[AnyUrl, AfterValidator(str)]] = Field(
+        description="Repository containing the test source code",
+        default=None
     )
     test_revision: Optional[Revision] = Field(
-        description="Test repo revision data"
+        description="Test repo revision data",
+        default=None
     )
     platform: Optional[str] = Field(
-        description="Test platform"
+        description="Test platform",
+        default=None
     )
     device: Optional[str] = Field(
-        description="Test device"
+        description="Test device",
+        default=None
     )
     runtime: Optional[str] = Field(
-        description="Runtime that runs the test"
+        description="Runtime that runs the test",
+        default=None
     )
     job_id: Optional[str] = Field(
-        description="Runtime job ID"
+        description="Runtime job ID",
+        default=None
     )
     job_context: Optional[str] = Field(
-        description="Kubernetes cluster name the job submitted to"
+        description="Kubernetes cluster name the job submitted to",
+        default=None
     )
     regression: Optional[PyObjectId] = Field(
-        description="Regression node related to this test run"
+        description="Regression node related to this test run",
+        default=None
     )
 
     # Fields inherited from the parent kbuild or test case node
 
     kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data"
+        description="Kernel repo revision data",
+        default=None
     )
     arch: Optional[str] = Field(
-        description="CPU architecture family"
+        description="CPU architecture family",
+        default=None
     )
     defconfig: Optional[str] = Field(
-        description="Kernel defconfig identifier"
+        description="Kernel defconfig identifier",
+        default=None
     )
     config_full: Optional[str] = Field(
         description=("Single-string specification of the kernel "
-                     "configuration including defconfig and fragments")
+                     "configuration including defconfig and fragments"),
+        default=None
     )
     compiler: Optional[str] = Field(
-        description="Compiler used for the build"
+        description="Compiler used for the build",
+        default=None
     )
     kernel_type: Optional[str] = Field(
-        description="Kernel image type (zimage, bzimage...)"
+        description="Kernel image type (zimage, bzimage...)",
+        default=None
     )
 
 
 class Test(Node):
     """API model for test nodes"""
     class_kind: ClassVar[str] = 'test'
-    kind: str = Field(
+    kind: Literal['test'] = Field(
         default='test',
         description='Type of the object',
-        const=True
     )
     data: TestData = Field(
-        description="Test details"
+        description="Test details",
+        default=None
     )
 
-    _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
+    OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
         'data.regression',
     ]
 
@@ -525,16 +588,16 @@ class Test(Node):
 class Job(Node):
     """API model for job (test suite) nodes"""
     class_kind: ClassVar[str] = 'job'
-    kind: str = Field(
+    kind: Literal['job'] = Field(
         default='job',
         description='Type of the object',
-        const=True
     )
     data: TestData = Field(
-        description="Test suite details"
+        description="Test suite details",
+        default=None
     )
 
-    _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
+    OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
         'data.regression',
     ]
 
@@ -542,10 +605,12 @@ class Job(Node):
 class RegressionData(BaseModel):
     """Model for the data field of a Regression node"""
     fail_node: Optional[PyObjectId] = Field(
-        description="Node where the regression was introduced"
+        description="Node where the regression was introduced",
+        default=None
     )
     pass_node: Optional[PyObjectId] = Field(
-        description="Previous passing Node"
+        description="Previous passing Node",
+        default=None
     )
     node_sequence: Optional[List[PyObjectId]] = Field(
         default=[],
@@ -557,59 +622,68 @@ class RegressionData(BaseModel):
                      "failing and the regression is active")
     )
     error_code: Optional[ErrorCodes] = Field(
-        description="Error code of the failed job"
+        description="Error code of the failed job",
+        default=None
     )
     error_msg: Optional[str] = Field(
-        description="Error message of the failed job"
+        description="Error message of the failed job",
+        default=None
     )
     failed_kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data of the failed job"
+        description="Kernel repo revision data of the failed job",
+        default=None
     )
     arch: Optional[str] = Field(
-        description="CPU architecture family"
+        description="CPU architecture family",
+        default=None
     )
     defconfig: Optional[str] = Field(
-        description="Kernel defconfig identifier"
+        description="Kernel defconfig identifier",
+        default=None
     )
     config_full: Optional[str] = Field(
         description=("Single-string specification of the kernel "
-                     "configuration including defconfig and fragments")
+                     "configuration including defconfig and fragments"),
+        default=None
     )
     compiler: Optional[str] = Field(
-        description="Compiler used for the build"
+        description="Compiler used for the build",
+        default=None
     )
     platform: Optional[str] = Field(
-        description="Test platform"
+        description="Test platform",
+        default=None
     )
     device: Optional[str] = Field(
-        description="Test device"
+        description="Test device",
+        default=None
     )
 
 
 class Regression(Node):
     """API model for regression tracking"""
     class_kind: ClassVar[str] = 'regression'
-    kind: str = Field(
+    kind: Literal['regression'] = Field(
         default='regression',
         description='Type of the object',
-        const=True
     )
     result: Optional[ResultValues] = Field(
         default=ResultValues.FAIL.value,
         description=("PASS if the regression is 'inactive', that is, if the "
                      "test has ever passed after the regression was created. "
                      "FAIL if the regression is still 'active', ie. the test "
-                     "is still failing")
+                     "is still failing"),
     )
     data: RegressionData = Field(
-        description="Regression details"
+        description="Regression details",
+        default=None
     )
 
-    _OBJECT_ID_FIELDS = Node._OBJECT_ID_FIELDS + [
+    OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
         'data.fail_node',
         'data.pass_node',
     ]
-    _TIMESTAMP_FIELDS = Node._TIMESTAMP_FIELDS + [
+    TIMESTAMP_FIELDS = Node.TIMESTAMP_FIELDS + [
         'data.fail_node.created',
         'data.fail_node.updated',
         'data.fail_node.timeout',
@@ -696,21 +770,25 @@ class Regression(Node):
 class PublishEvent(BaseModel):
     """API model for the data of a <publish> event"""
     data: Any = Field(
-        description="Event payload"
+        description="Event payload",
+        default=None
     )
     type: Optional[str] = Field(
-        description="Type of the <publish> event"
+        description="Type of the <publish> event",
+        default=None
     )
     source: Optional[str] = Field(
-        description="Source of the <publish> event"
+        description="Source of the <publish> event",
+        default=None
     )
     attributes: Optional[Dict] = Field(
-        description="Extra Cloudevents Extension Context Attributes"
+        description="Extra Cloudevents Extension Context Attributes",
+        default=None
     )
 
     # suppress pylint error below
     # It's a known issue: https://github.com/pylint-dev/pylint/issues/6900
-    @validator('data')
+    @field_validator('data')
     def validate_data(cls, val):  # pylint: disable=no-self-argument
         """Do not allow 'None' as event payload data"""
         if not val:
@@ -724,5 +802,6 @@ def parse_node_obj(node: Node):
     """
     for submodel in type(node).__subclasses__():
         if node.kind == submodel.class_kind:
-            return submodel.parse_obj(node)
+            node_dict = node.model_dump()
+            return submodel.model_validate(node_dict)
     raise ValueError(f"Unsupported node kind: {node.kind}")
