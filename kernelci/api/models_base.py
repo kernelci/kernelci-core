@@ -12,25 +12,37 @@
 
 """Common KernelCI API model definitions"""
 
-from typing import Optional, Any
+from typing import Optional, Any, Dict
 from bson import ObjectId
 from pydantic import (
     BaseModel,
     Field,
+    model_serializer,
 )
 from pydantic.dataclasses import dataclass
+from pydantic_core import core_schema
 
 
 class PyObjectId(ObjectId):
     """Wrapper around ObjectId to be able to use it in Pydantic models"""
 
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type='string')
+    def __get_pydantic_core_schema__(
+            cls, _source_type: Any, _handler: Any
+    ) -> core_schema.CoreSchema:
+        return core_schema.json_or_python_schema(
+            json_schema=core_schema.chain_schema([
+                core_schema.str_schema(),
+                core_schema.no_info_plain_validator_function(cls.validate),
+            ]),
+            python_schema=core_schema.union_schema([
+                core_schema.is_instance_schema(ObjectId),
+                core_schema.chain_schema([
+                    core_schema.str_schema(),
+                    core_schema.no_info_plain_validator_function(cls.validate),
+                ])
+            ])
+        )
 
     @classmethod
     def validate(cls, value):
@@ -48,16 +60,13 @@ class ModelId(BaseModel):
     attribute in Mongo DB documents using the `PyObjectId` class.
     """
 
-    id: Optional[PyObjectId] = Field(alias='_id')
+    id: Optional[PyObjectId] = Field(None, alias='_id')
 
-    class Config:
-        """Configuration attributes for ModelId"""
-        arbitrary_types_allowed = True
-        use_enum_values = True
-        json_encoders = {
-            ObjectId: str,
-        }
-        allow_population_by_field_name = True
+    model_config = {
+        "arbitrary_types_allowed": True,
+        "use_enum_values": True,
+        "populate_by_name": True,
+    }
 
 
 class DatabaseModel(ModelId):
@@ -74,3 +83,12 @@ class DatabaseModel(ModelId):
     @classmethod
     def get_indexes(cls):
         """Method to get indexes"""
+
+    @model_serializer(when_used='json')
+    def serialize_model(self) -> Dict[str, Any]:
+        """Serializer for converting ObjectId to string"""
+        values = self.__dict__.copy()
+        for field_name, value in values.items():
+            if isinstance(value, ObjectId):
+                values[field_name] = str(value)
+        return values
