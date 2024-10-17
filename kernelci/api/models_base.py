@@ -12,11 +12,12 @@
 
 """Common KernelCI API model definitions"""
 
-from typing import Optional, Any
+from typing import Optional, Any, Dict
 from bson import ObjectId
 from pydantic import (
     BaseModel,
     Field,
+    model_serializer,
 )
 from pydantic.dataclasses import dataclass
 
@@ -29,11 +30,11 @@ class PyObjectId(ObjectId):
         yield cls.validate
 
     @classmethod
-    def __modify_schema__(cls, field_schema):
+    def __get_pydantic_json_schema__(cls, field_schema):
         field_schema.update(type='string')
 
     @classmethod
-    def validate(cls, value):
+    def validate(cls, value, _info):
         """Validate the value of the ObjectId"""
         if not ObjectId.is_valid(value):
             raise ValueError(f"Invalid ObjectId: {value}")
@@ -48,16 +49,13 @@ class ModelId(BaseModel):
     attribute in Mongo DB documents using the `PyObjectId` class.
     """
 
-    id: Optional[PyObjectId] = Field(alias='_id')
+    id: Optional[PyObjectId] = Field(None, alias='_id')
 
-    class Config:
-        """Configuration attributes for ModelId"""
-        arbitrary_types_allowed = True
-        use_enum_values = True
-        json_encoders = {
-            ObjectId: str,
-        }
-        allow_population_by_field_name = True
+    model_config = {
+        "arbitrary_types_allowed": True,
+        "use_enum_values": True,
+        "populate_by_name": True,
+    }
 
 
 class DatabaseModel(ModelId):
@@ -74,3 +72,12 @@ class DatabaseModel(ModelId):
     @classmethod
     def get_indexes(cls):
         """Method to get indexes"""
+
+    @model_serializer
+    def serialize_model(self) -> Dict[str, Any]:
+        """Serializer for converting ObjectId to string"""
+        values = self.__dict__.copy()
+        for field_name, value in values.items():
+            if isinstance(value, ObjectId):
+                values[field_name] = str(value)
+        return values
