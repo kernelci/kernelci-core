@@ -1,0 +1,24 @@
+- deploy:
+    kernel:
+      type: '{{ node.data.kernel_type }}'
+      url: '{{ node.artifacts.kernel }}'
+    modules:
+      compression: xz
+      url: '{{ node.artifacts.modules }}'
+    dtb:
+      url: '{{ node.artifacts.dtb }}'
+    ramdisk:
+      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{{ brarch }}/rootfs.cpio.gz'
+      compression: gz
+    os: oe
+    timeout:
+      minutes: 10
+    to: tftp
+
+- boot:
+    commands: ramdisk
+    method: barebox
+    prompts:
+    - '/ #'
+    timeout:
+      minutes: 5
