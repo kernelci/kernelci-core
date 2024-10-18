@@ -15,6 +15,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "LGPL-2.1-or-later"}
 dependencies = [
+  "azure-storage-blob==12.23.1",
   "azure-storage-file-share==12.13.0",
   "bson==0.5.10",
   "click==8.1.3",
