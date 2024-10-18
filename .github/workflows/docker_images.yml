@@ -140,7 +140,7 @@ jobs:
           pipeline_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
           cd ../kernelci-core
           rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
-          kci_arg="build --push $rev_arg --prefix=ghcr.io/${{ github.actor }}/"
+          kci_arg="build --push $rev_arg --prefix=ghcr.io/kernelci/"
           ./kci docker $kci_arg ${{ matrix.kcicmd }}
       - name: build base kernelci docker image for other branches
         if: ${{ env.USER_GIT_BRANCH != 'main' }}
@@ -153,5 +153,5 @@ jobs:
           pipeline_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
           cd ../kernelci-core
           rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
-          kci_arg="build --push $rev_arg --prefix=ghcr.io/${{ github.actor }}/staging-"
+          kci_arg="build --push $rev_arg --prefix=ghcr.io/kernelci/staging-"
           ./kci docker $kci_arg ${{ matrix.kcicmd }}
