@@ -68,7 +68,13 @@ class StorageAzureFiles(Storage):
         for src, dst in file_paths:
             file_client = root.get_file_client(file_name=dst)
             with open(src, 'rb') as src_file:
-                file_client.upload_file(src_file)
+                c_type = 'application/octet-stream'
+                if src.endswith('.gz'):
+                    c_type = 'application/gzip'
+                c_settings = {
+                    'content_settings': {'content_type': c_type}
+                }
+                file_client.upload_file(src_file, content_settings=c_settings)
             urls[dst] = urljoin(
                 self.config.base_url,
                 '/'.join([self.config.share, dest_path, dst]),
