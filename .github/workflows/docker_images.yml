@@ -62,7 +62,7 @@ jobs:
           cd kernelci-core
           export core_rev=$(git rev-parse HEAD)
           export core_url=$(git remote get-url origin)
-          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/${{ github.actor }}/ --build-arg core_url=$core_url"
+          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/ --build-arg core_url=$core_url"
           ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
       - name: build base kernelci docker image for other branches
         if: ${{ env.USER_GIT_BRANCH != 'main' }}
@@ -70,7 +70,7 @@ jobs:
           cd kernelci-core
           export core_rev=$(git rev-parse HEAD)
           export core_url=$(git remote get-url origin)
-          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/${{ github.actor }}/staging- --build-arg core_url=$core_url"
+          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/staging- --build-arg core_url=$core_url"
           ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
 
   docker-misc-build:
@@ -127,7 +127,7 @@ jobs:
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: kernelci
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: build base kernelci docker image for main branch
         if: ${{ env.USER_GIT_BRANCH == 'main' }}
