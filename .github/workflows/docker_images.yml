@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        kciarch: [ 'arc', 'arm', 'armv5', 'arm64', 'x86', 'mips', 'riscv64' ]
+        kciarch: [ 'arc', 'arm', 'armv5', 'arm64', 'x86', 'mips', 'riscv64', 'i386', 'riscv' ]
         kcicmd: [ 'clang-15 kselftest kernelci',
                   'clang-17 kselftest kernelci',
                   'gcc-12 kselftest kernelci'
