@@ -45,33 +45,14 @@
               root@$(lava-target-ip)
               cat /etc/os-release > /tmp/osrel.tmp
             - cat /tmp/osrel.tmp
+            - mkdir -p /root/.ssh
+            - echo "Host *\n\tIdentityFile /home/cros/.ssh/id_rsa" >> /root/.ssh/config
+            - ssh-keyscan $(lava-target-ip) > /root/.ssh/known_hosts
             - lava-test-set stop setup
-            - >-
-              scp
-              -o StrictHostKeyChecking=no
-              -o UserKnownHostsFile=/dev/null
-              -i /home/cros/.ssh/id_rsa
-              ./fluster_parser.py root@$(lava-target-ip):/tmp
-            - >-
-              /home/cros/ssh_retry.sh
-              -o StrictHostKeyChecking=no
-              -o UserKnownHostsFile=/dev/null
-              -i /home/cros/.ssh/id_rsa
-              root@$(lava-target-ip)
-              python3 /tmp/fluster_parser.py --run {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
+            - scp ./fluster_parser.py root@$(lava-target-ip):/tmp
+            - ssh root@$(lava-target-ip) python3 /tmp/fluster_parser.py --run {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
             - lava-test-set start get_results
-            - >-
-              scp
-              -o StrictHostKeyChecking=no
-              -o UserKnownHostsFile=/dev/null
-              -i /home/cros/.ssh/id_rsa
-              root@$(lava-target-ip):/tmp/results.xml /tmp
+            - scp root@$(lava-target-ip):/tmp/results.xml /tmp
             - lava-test-set stop get_results
-            - >-
-              /home/cros/ssh_retry.sh
-              -o StrictHostKeyChecking=no
-              -o UserKnownHostsFile=/dev/null
-              -i /home/cros/.ssh/id_rsa
-              root@$(lava-target-ip)
-              poweroff && sleep 30 || true
+            - ssh root@$(lava-target-ip) poweroff && sleep 30 || true
             - python3 ./fluster_parser.py --results
