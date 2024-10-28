@@ -805,3 +805,27 @@ def parse_node_obj(node: Node):
             node_dict = node.model_dump()
             return submodel.model_validate(node_dict)
     raise ValueError(f"Unsupported node kind: {node.kind}")
+
+
+# eventhistory model
+class EventHistory(DatabaseModel):
+    """Event history object model"""
+    timestamp: datetime = Field(
+        description='Timestamp of event creation',
+        default_factory=datetime.now
+    )
+    data: Dict[str, Any] = Field(
+        description='Event data'
+    )
+
+    @classmethod
+    def get_indexes(cls):
+        """
+        Create the index with the expiresAfterSeconds option for the
+        timestamp field to automatically remove documents after a certain
+        time.
+        Default is 86400 seconds (24 hours).
+        """
+        return [
+            cls.Index('timestamp', {'expireAfterSeconds': 86400}),
+        ]
