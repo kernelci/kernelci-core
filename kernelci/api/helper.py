@@ -562,6 +562,20 @@ class APIHelper:
         except requests.exceptions.HTTPError as error:
             raise RuntimeError(json.loads(error.response.content)) from error
 
+    def set_kv(self, namespace, key, value):
+        """Set a key-value pair in the API"""
+        try:
+            return self.api.set_kv(namespace, key, value)
+        except requests.exceptions.HTTPError as error:
+            raise RuntimeError(json.loads(error.response.content)) from error
+
+    def get_kv(self, namespace, key):
+        """Get a key-value pair from the API"""
+        try:
+            return self.api.get_kv(namespace, key)
+        except requests.exceptions.HTTPError as error:
+            raise RuntimeError(json.loads(error.response.content)) from error
+
     @classmethod
     def load_json(cls, json_path, encoding='utf-8'):
         """Read content from JSON file"""
