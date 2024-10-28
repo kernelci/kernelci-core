@@ -180,6 +180,18 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def delete_group(self, group_id: str):
         return self._delete(f'group/{group_id}')
 
+    def set_kv(self, namespace: str, key: str, value: str):
+        """
+        Set a key-value pair in the database
+        """
+        return self._post(f'kv/{namespace}/{key}', value).json()
+
+    def get_kv(self, namespace: str, key: str) -> str:
+        """
+        Get a value from the database
+        """
+        return self._get(f'kv/{namespace}/{key}').json()
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""
