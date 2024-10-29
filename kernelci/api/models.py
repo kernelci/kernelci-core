@@ -815,7 +815,8 @@ class EventHistory(DatabaseModel):
         default_factory=datetime.now
     )
     data: Dict[str, Any] = Field(
-        description='Event data'
+        description='Event data',
+        default={}
     )
 
     @classmethod
