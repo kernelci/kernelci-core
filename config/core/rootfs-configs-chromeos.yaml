@@ -28,7 +28,7 @@ rootfs_configs:
   chromiumos-asurada:
     rootfs_type: chromiumos
     board: asurada
-    branch: release-R124-15823.B
+    branch: release-R130-16033.B
     serial: ttyS0
     arch_list:
       - arm64
@@ -44,7 +44,7 @@ rootfs_configs:
   chromiumos-cherry:
     rootfs_type: chromiumos
     board: cherry
-    branch: release-R124-15823.B
+    branch: release-R130-16033.B
     serial: ttyS0
     arch_list:
       - arm64
@@ -60,7 +60,7 @@ rootfs_configs:
   chromiumos-corsola:
     rootfs_type: chromiumos
     board: corsola
-    branch: release-R124-15823.B
+    branch: release-R130-16033.B
     serial: ttyS0
     arch_list:
       - arm64
@@ -100,7 +100,7 @@ rootfs_configs:
   chromiumos-jacuzzi:
     rootfs_type: chromiumos
     board: jacuzzi
-    branch: release-R124-15823.B
+    branch: release-R130-16033.B
     serial: ttyS0
     arch_list:
       - arm64
@@ -156,7 +156,7 @@ rootfs_configs:
   chromiumos-trogdor:
     rootfs_type: chromiumos
     board: trogdor
-    branch: release-R124-15823.B
+    branch: release-R130-16033.B
     serial: ttyMSM0
     arch_list:
       - arm64
