@@ -30,6 +30,11 @@ if [ -z "$BRANCH" ]; then
   exit 1
 fi
 
+VERSION=$(echo $BRANCH | sed 's/^.*-R\([[:digit:]]*\)-.*$/\1/')
+if [ $VERSION -ge 130 ]; then
+    REPO_EXTRA_ARGS="--groups default,bluetooth"
+fi
+
 echo "Preparing depot tools"
 cd "/home/${USERNAME}/chromiumos"
 if [ ! -d depot_tools ] ; then
@@ -49,7 +54,7 @@ git config --global color.ui false
 echo "Installing dependencies"
 sudo apt install -y less
 echo "Initializing repo"
-repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${BRANCH}
+repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${BRANCH} ${REPO_EXTRA_ARGS}
 echo "Syncing repo"
 repo sync -j$(nproc)
 echo "Generating manifest"

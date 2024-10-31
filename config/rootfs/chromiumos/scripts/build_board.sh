@@ -12,6 +12,8 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 VERSION=$(echo $BRANCH | sed 's/^.*-R\([[:digit:]]*\)-.*$/\1/')
 if [ $VERSION -lt 120 ]; then
     OUT_DIR="chroot"
+elif [ $VERSION -ge 130 ]; then
+    REPO_EXTRA_ARGS="--groups default,bluetooth"
 fi
 
 function cleanup()
@@ -70,7 +72,7 @@ git config --global color.ui false
 
 if [ -n "${VANILLA_MANIFEST}" ]; then
   echo "Fetching vanilla manifest ${VANILLA_MANIFEST}"
-  repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${VANILLA_MANIFEST}
+  repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${VANILLA_MANIFEST} ${REPO_EXTRA_ARGS}
 else
   # Ensure file ownership issues won't get in the way
   git config --global safe.directory /kernelci-core
@@ -92,7 +94,7 @@ else
   fi
 
   echo "Fetching KernelCI manifest snapshot $2"
-  repo init -u "${KCICORE_URL}" -b "${KCICORE_BRANCH}" -m "config/rootfs/chromiumos/cros-snapshot-$2.xml"
+  repo init --manifest-url "${KCICORE_URL}" --manifest-branch "${KCICORE_BRANCH}" --manifest-name "config/rootfs/chromiumos/cros-snapshot-$2.xml" ${REPO_EXTRA_ARGS}
 fi
 
 repo sync -j$(nproc)
@@ -111,10 +113,10 @@ source "${SCRIPTPATH}/fixes/packagefix-${BRANCH}.sh"
 echo "Building packages (${SERIAL})"
 # Disable `builtin_fw_mali_g57` flag as it is not required when `panfrost` is enabled
 cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update -builtin_fw_mali_g57 gstreamer" \
-	 build_packages --board=${BOARD}
+	 cros build-packages --board=${BOARD}
 
 echo "Building image (${SERIAL})"
-cros_sdk build_image --enable_serial ${SERIAL} --board="${BOARD}" --boot_args "earlyprintk=serial,keep console=tty0" --noenable_rootfs_verification test
+cros_sdk cros build-image --enable-serial ${SERIAL} --board="${BOARD}" --boot-args "earlyprintk=serial,keep console=tty0" --no-enable-rootfs-verification test
 
 echo "Creating artifacts dir and copy generated image"
 sudo mkdir -p "${DATA_DIR}/${BOARD}"
