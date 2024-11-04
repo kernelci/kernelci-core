@@ -125,6 +125,7 @@ def _download_file_inner(url, file_path):
                 f.write(chunk)
         return True
 
+
 def _download_file(url, file_path):
     '''
     Download file to file_path
@@ -444,6 +445,25 @@ class KBuild():
 
         return (buffer, fragment)
 
+    def _verify_network(self):
+        """ Verify network connectivity """
+        # TBD: Different URL? pool of urls?
+        retries = 10
+        while retries > 0:
+            try:
+                r = requests.get("https://google.com")
+            except Exception as e:
+                print(f"[_verify_network] Error: {e}")
+                time.sleep(5)
+                retries -= 1
+                continue
+            if r.status_code == 200:
+                return
+            time.sleep(5)
+
+        print("[_verify_network] Network is not available")
+        sys.exit(1)
+
     def extract_config(self, frag):
         """ Extract config fragments from legacy config file """
         txt = ''
@@ -592,6 +612,7 @@ class KBuild():
 
     def write_script(self, filename):
         """ Write shell compile script to file """
+        self._verify_network()
         self._generate_script()
         with open(filename, 'w') as f:
             for step in self._steps:
