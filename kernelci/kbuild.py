@@ -30,6 +30,7 @@ import re
 import tarfile
 import json
 import requests
+import time
 import yaml
 import kernelci.api
 import kernelci.api.helper
@@ -103,18 +104,39 @@ ARTIFACT_NAMES = {
 REDIR = ' > >(tee {}) 2> >(tee {} >&1)'
 
 
+def _download_file_inner(url, file_path):
+    try:
+        r = requests.get(url, stream=True, timeout=60)
+    except requests.exceptions.RequestException as e:
+        print(f"[_download_file_inner] Error: {e}")
+        return False
+    except requests.exceptions.Timeout as e:
+        print(f"[_download_file_inner] Timeout: {e}")
+        return False
+    except requests.exceptions.ConnectionError as e:
+        print(f"[_download_file_inner] Connection error: {e}")
+        return False
+    except Exception as e:
+        print(f"[_download_file_inner] Exception: {e}")
+        return False
+    if r.status_code == 200:
+        with open(file_path, 'wb') as f:
+            for chunk in r:
+                f.write(chunk)
+        return True
+
 def _download_file(url, file_path):
     '''
     Download file to file_path
     TODO(nuclearcat): Do we have anything generic in KernelCI for this?
     '''
     print(f"[_download_file] Downloading {url} to {file_path}")
-    r = requests.get(url, stream=True, timeout=60)
-    if r.status_code == 200:
-        with open(file_path, 'wb') as f:
-            for chunk in r:
-                f.write(chunk)
-        return True
+    retries = 10
+    while retries > 0:
+        if _download_file_inner(url, file_path):
+            return True
+        time.sleep(5)
+        retries -= 1
     return False
 
 
