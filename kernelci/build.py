@@ -275,7 +275,7 @@ cd {path}
 git rev-parse {tree}/{branch}
 """.format(path=path, tree=tree, branch=branch)
     head_commit_id = shell_cmd(cmd)
-    if commit == head_commit_id:
+    if commit.strip() == head_commit_id.strip():
         return True
     return False
 
