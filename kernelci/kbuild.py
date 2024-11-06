@@ -381,6 +381,21 @@ class KBuild():
         cmd = f'echo jobsts:{jobname}=$(date +%s) >> {self._af_dir}/state.txt'
         self._steps.append(cmd)
 
+    def addcmdretry(self, cmd, retries=10):
+        '''
+        Retry command if it fails up to retries times
+        '''
+        self.addcomment(f"Retry command {cmd} {retries} times")
+        self.addcmd("for i in $(seq 1 " + str(retries) + "); do")
+        self.addcmd("  echo \"Attempt $i\"")
+        self.addcmd("  sleep 1")
+        self.addcmd("  " + cmd + " && break")
+        self.addcmd("done")
+        self.addcmd("if [ $? -ne 0 ]; then")
+        self.addcmd("  echo \"Failed to run " + cmd + "\"")
+        self.addcmd("  exit 1")
+        self.addcmd("fi")
+
     def addcmd(self, cmd, critical=True):
         '''
         critical - if True, check return code and exit, as command is critical
@@ -397,7 +412,8 @@ class KBuild():
         TODO: Implement firmware commit id meta/settings
         '''
         self.startjob("fetch_firmware")
-        self.addcmd(f"git clone {FW_GIT} --depth 1", False)
+        # self.addcmd(f"git clone {FW_GIT} --depth 1", False)
+        self.addcmdretry(f"git clone {FW_GIT} --depth 1", 10)
         self.addcmd("cd linux-firmware")
         self.addcmd("./copy-firmware.sh " + self._firmware_dir)
         self.addcmd("cd ..")
