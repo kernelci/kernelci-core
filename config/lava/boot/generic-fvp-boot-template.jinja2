@@ -68,10 +68,6 @@ actions:
     image: /tools/Base_RevC_AEMvA_pkg/models/Linux64_GCC-9.3/FVP_Base_RevC-2xAEMvA
     console_string: 'terminal_0: Listening for serial connection on port (?P<PORT>\d+)'
     arguments:
-      - "--plugin /tools/Base_RevC_AEMvA_pkg/plugins/Linux64_GCC-9.3/ScalableVectorExtension.so"
-      - "-C SVE.ScalableVectorExtension.has_sme2=0"
-      - "-C SVE.ScalableVectorExtension.has_sme=1"
-      - "-C SVE.ScalableVectorExtension.has_sve2=1"
       - "-C bp.secure_memory=0"
       - "-C cluster0.NUM_CORES=4"
       - "-C cluster1.NUM_CORES=4"
@@ -112,6 +108,16 @@ actions:
       - "-C cluster1.has_arm_v8-5=1"
       - "-C cluster1.has_arm_v8-6=1"
       - "-C cluster1.has_arm_v8-7=1"
+      - "-C cluster0.has_sve=1"
+      - "-C cluster0.sve.sve2_version=2"
+      - "-C cluster0.sve.has_sme=1"
+      - "-C cluster0.sve.has_sme2=1"
+      - "-C cluster0.sve.sme2_version=2"
+      - "-C cluster1.has_sve=1"
+      - "-C cluster1.sve.sve2_version=2"
+      - "-C cluster1.sve.has_sme=1"
+      - "-C cluster1.sve.has_sme2=1"
+      - "-C cluster1.sve.sme2_version=2"
       - "-C bp.virtioblockdevice.image_path={DISKFILE}"
       - "-C bp.hostbridge.userNetPorts=8022=22"
       - "-C bp.hostbridge.userNetworking=1"
