@@ -18,6 +18,7 @@ from pydantic import (
     BaseModel,
     Field,
     model_serializer,
+    SerializationInfo,
 )
 from pydantic.dataclasses import dataclass
 from pydantic_core import core_schema
@@ -84,11 +85,26 @@ class DatabaseModel(ModelId):
     def get_indexes(cls):
         """Method to get indexes"""
 
-    @model_serializer(when_used='json')
-    def serialize_model(self) -> Dict[str, Any]:
-        """Serializer for converting ObjectId to string"""
+    @model_serializer
+    def serialize_model(self, info: SerializationInfo) -> Dict[str, Any]:
+        """Model serializer for the below custom handling:
+        - convert ObjectId fields to string
+        - handle `exclude` fields in serialized response
+        """
         values = self.__dict__.copy()
+
+        # TODO:  # pylint: disable=fixme
+        # Remove manual handling of `exclude` fields below once
+        # the pydantic issue is fixed:
+        # https://github.com/pydantic/pydantic/issues/6575
+        if info.exclude:
+            for field in info.exclude:
+                values.pop(field, None)
+
         for field_name, value in values.items():
             if isinstance(value, ObjectId):
-                values[field_name] = str(value)
+                if info.mode == 'json':
+                    values[field_name] = str(value)
+                else:
+                    values[field_name] = value
         return values
