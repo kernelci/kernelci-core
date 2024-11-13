@@ -140,6 +140,17 @@ class Callback:
         result = kernelmsg and kernelmsg['result'] == 'pass'
         return 'pass' if result else 'fail'
 
+    def _get_os_release_measurement(self):
+        for suite_name, suite_results in self._data['results'].items():
+            if suite_name != '0_tast':
+                continue
+            tests = yaml.safe_load(suite_results)
+            tests_map = {test['name']: test for test in tests}
+            os_release = tests_map.get('os-release')
+            if os_release:
+                return os_release.get('measurement')
+        return None
+
     @classmethod
     def _get_suite_results(cls, tests):
         suite_results = {}
@@ -195,6 +206,9 @@ class Callback:
             elif isinstance(value, str):
                 node['result'] = value
                 node['kind'] = 'test'
+                if node['name'] == 'os-release':
+                    node['data'] = {"misc": {}}
+                    node['data']['misc']['measurement'] = self._get_os_release_measurement()
             hierarchy.append(item)
         return hierarchy
 
