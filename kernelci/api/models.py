@@ -566,6 +566,10 @@ class TestData(BaseModel):
         description="Kernel image type (zimage, bzimage...)",
         default=None
     )
+    misc: Optional[dict] = Field(
+        description="Miscellaneous fields (e.g. chromeos version for tast tests)",
+        default=None
+    )
 
 
 class Test(Node):
