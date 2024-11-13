@@ -27,13 +27,14 @@ def kci_event():
 
 @kci_event.command(secrets=True)
 @click.argument('channel')
+@click.option('--promisc', help="Subscribe to all users", is_flag=True)
 @Args.config
 @Args.api
 @catch_error
-def subscribe(config, api, channel, secrets):
+def subscribe(config, api, channel, secrets, promisc):
     """Subscribe to a Pub/Sub channel"""
     api = get_api(config, api, secrets)
-    sub_id = api.subscribe(channel)
+    sub_id = api.subscribe(channel, promisc)
     click.echo(sub_id)
 
 
