@@ -165,6 +165,7 @@ fragments:
       - 'CONFIG_ROOT_NFS=y'
       - 'CONFIG_REGULATOR_DA9211=y'
       - 'CONFIG_ARM_MEDIATEK_CPUFREQ=y'
+      - 'CONFIG_CPUSETS_V1=y'
       - 'CONFIG_RTC_DRV_MT6397=y'
       # This is required for sc7180-trogdor-lazor-limozeen and it hasn't been
       # merged upstream yet.
@@ -615,6 +616,7 @@ fragments:
       - 'CONFIG_BT_HCIBTUSB_MTK=y'
       - 'CONFIG_BT_HCIBTUSB=m'
       - 'CONFIG_BT=m'
+      - 'CONFIG_CPUSETS_V1=y'
       - 'CONFIG_CHARGER_CROS_USBPD=m'
       - 'CONFIG_CHARGER_WILCO=m'
       - 'CONFIG_CHROME_PLATFORMS=y'
