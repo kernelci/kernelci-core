@@ -45,10 +45,28 @@ class Kubernetes(Runtime):
         params['k8s_job_name'] = k8s_job_name
         return template.render(params)
 
+    def _get_clusters_load(self):
+        """Get the load of all clusters (number of pods in Pending state)"""
+        core_v1 = kubernetes.client.CoreV1Api()
+        load = {}
+        for context in self.config.context:
+            kubernetes.config.load_kube_config(context=context)
+            pods = core_v1.list_namespaced_pod(namespace='default')
+            load[context] = len([pod for pod in pods.items
+                                 if pod.status.phase == 'Pending'])
+            # if no pod is pending, return the context, no need to load-balance
+            # we have idle clusters
+            if load[context] == 0:
+                return {context: 0}
+        return load
+
     def submit(self, job_path):
-        # if context is array, pick any random context to load-balance
+        # if context is array, we have multiple k8s build clusters
+        # TBD: Implement caching to not check load for each job?
         if isinstance(self.config.context, list):
-            self.kcontext = random.choice(self.config.context)
+            # get the cluster with the least load
+            load = self._get_clusters_load()
+            self.kcontext = min(load, key=load.get)
         else:
             self.kcontext = self.config.context
         kubernetes.config.load_kube_config(context=self.kcontext)
