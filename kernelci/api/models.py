@@ -22,17 +22,20 @@ from bson import ObjectId
 from pydantic import (
     AnyHttpUrl,
     AnyUrl,
-    AfterValidator,
     BaseModel,
+    BeforeValidator,
     Field,
-    FileUrl,
     field_validator,
     StrictInt,
+    TypeAdapter,
 )
 from .models_base import (
     PyObjectId,
     DatabaseModel,
 )
+
+any_url_adapter = TypeAdapter(AnyUrl)
+any_http_url_adapter = TypeAdapter(AnyHttpUrl)
 
 
 class StateValues(str, enum.Enum):
@@ -117,7 +120,8 @@ class Revision(BaseModel):
     tree: str = Field(
         description="git tree of the revision"
     )
-    url: Annotated[AnyUrl | FileUrl, AfterValidator(str)] = Field(
+    url: Annotated[str, BeforeValidator(
+        lambda value: str(any_url_adapter.validate_python(value)))] = Field(
         description="git URL of the revision"
     )
     branch: str = Field(
@@ -205,7 +209,8 @@ class Node(DatabaseModel):
         default=None,
         description="Result of node",
     )
-    artifacts: Optional[Dict[str, Annotated[AnyHttpUrl, AfterValidator(str)]]] = Field(
+    artifacts: Optional[Dict[str, Annotated[str, BeforeValidator(
+        lambda value: str(any_http_url_adapter.validate_python(value)))]]] = Field(
         description="Artifacts associated with the node (binaries, logs...)",
         default=None
     )
@@ -506,7 +511,8 @@ class TestData(BaseModel):
         default=None
     )
     # [TODO] Specify the source code file/function too?
-    test_source: Optional[Annotated[AnyUrl, AfterValidator(str)]] = Field(
+    test_source: Optional[Annotated[str, BeforeValidator(
+        lambda value: str(any_url_adapter.validate_python(value)))]] = Field(
         description="Repository containing the test source code",
         default=None
     )
