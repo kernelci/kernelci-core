@@ -45,10 +45,45 @@ class Kubernetes(Runtime):
         params['k8s_job_name'] = k8s_job_name
         return template.render(params)
 
+    def _fetch_load(self, ctxname):
+        """
+        Fetch load with retry and workaround due repeating errors
+        """
+        kubernetes.config.load_kube_config(context=ctxname)
+        core_v1 = kubernetes.client.CoreV1Api()
+        pods = None
+        for _ in range(3):
+            try:
+                pods = core_v1.list_namespaced_pod(namespace='default')
+                break
+            except kubernetes.client.rest.ApiException as error:
+                print(f'Error listing pods in {ctxname}: {error}')
+                continue
+
+        if not pods:
+            print(f'No pods found in {ctxname}, returning 1000')
+            return 1000
+
+        load = len([pod for pod in pods.items if pod.status.phase == 'Pending'])
+        return load
+
+    def _get_clusters_load(self):
+        """Get the load of all clusters (number of pods in Pending state)"""
+        load = {}
+        for ctxname in self.config.context:
+            load[ctxname] = self._fetch_load(ctxname)
+            # We found free cluster, return it, no need to check others
+            if load[ctxname] == 0:
+                break
+        return load
+
     def submit(self, job_path):
-        # if context is array, pick any random context to load-balance
+        # if context is array, we have multiple k8s build clusters
+        # TBD: Implement caching to not check load for each job?
         if isinstance(self.config.context, list):
-            self.kcontext = random.choice(self.config.context)
+            # get the cluster with the least load
+            load = self._get_clusters_load()
+            self.kcontext = min(load, key=load.get)
         else:
             self.kcontext = self.config.context
         kubernetes.config.load_kube_config(context=self.kcontext)
