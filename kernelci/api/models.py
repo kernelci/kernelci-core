@@ -212,15 +212,15 @@ class Node(DatabaseModel):
     artifacts: Optional[Dict[str, Annotated[str, BeforeValidator(
         lambda value: str(any_http_url_adapter.validate_python(value)))]]] = Field(
         description="Artifacts associated with the node (binaries, logs...)",
-        default=None
+        default={}
     )
     data: Optional[Dict[str, Any]] = Field(
         description="Arbitrary data stored in the node",
-        default=None
+        default={}
     )
     debug: Optional[Dict[str, Any]] = Field(
         description="Debug info fields (for development purposes)",
-        default=None
+        default={}
     )
     jobfilter: Optional[List[str]] = Field(
         description="Restrict jobs that can be scheduled by this node",
@@ -574,7 +574,7 @@ class TestData(BaseModel):
     )
     misc: Optional[dict] = Field(
         description="Miscellaneous fields (e.g. chromeos version for tast tests)",
-        default=None
+        default={}
     )
 
 
@@ -793,7 +793,7 @@ class PublishEvent(BaseModel):
     )
     attributes: Optional[Dict] = Field(
         description="Extra Cloudevents Extension Context Attributes",
-        default=None
+        default={}
     )
 
     # suppress pylint error below
