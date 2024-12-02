@@ -262,6 +262,10 @@ class Node(DatabaseModel):
         default=[],
         description="User groups that are permitted to update node"
     )
+    processed_by_kcidb_bridge: bool = Field(
+        description="Flag to indicate if the node was processed by KCIDB-Bridge",
+        default=False
+    )
 
     OBJECT_ID_FIELDS: ClassVar[list] = ['parent']
     TIMESTAMP_FIELDS: ClassVar[list] = ['created', 'updated', 'timeout', 'holdoff']
