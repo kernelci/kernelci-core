@@ -140,6 +140,17 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
                 uri += '?noevent=true'
             return self._put(uri, node).json()
 
+        def bulkset(self, nodes: list, field: str, value: str):
+            """
+            Set a field to a value for a list of nodes(ids)
+            """
+            param = {
+                'nodes': nodes,
+                'field': field,
+                'value': value
+            }
+            return self._put(f'batch/nodeset', data=param)
+
     def subscribe(self, channel: str, promisc: Optional[bool] = None) -> int:
         params = {'promisc': promisc} if promisc else None
         resp = self._post(f'subscribe/{channel}', params=params)
