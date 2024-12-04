@@ -116,6 +116,10 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
         def findfast(
             self, attributes: Dict[str, str],
         ) -> dict:
+            """
+            Find nodes with arbitrary attributes using non-paginated
+            endpoint
+            """
             params = attributes.copy() if attributes else {}
             return self._get_fast(params, 'nodes/fast')
 
@@ -125,13 +129,16 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
         def add(self, node: dict) -> dict:
             return self._post('node', node).json()
 
-        def update(self, node: dict) -> dict:
+        def update(self, node: dict, noevent=False) -> dict:
             if node['result'] != 'incomplete':
                 data = node.get('data', {})
                 if data.get('error_code') == 'node_timeout':
                     node['data']['error_code'] = None
                     node['data']['error_msg'] = None
-            return self._put('/'.join(['node', node['id']]), node).json()
+            uri = '/'.join(['node', node['id']])
+            if noevent:
+                uri += '?noevent=true'
+            return self._put(uri, node).json()
 
     def subscribe(self, channel: str, promisc: Optional[bool] = None) -> int:
         params = {'promisc': promisc} if promisc else None
