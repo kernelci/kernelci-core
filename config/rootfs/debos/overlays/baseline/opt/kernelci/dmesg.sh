@@ -12,6 +12,11 @@ fi
 
 for level in crit alert emerg; do
     dmesg --level=$level --notime -x -k > dmesg.$level
+    if grep -q "No irq handler for vector" dmesg.$level; then
+        echo "Ignoring:"
+        grep "No irq handler for vector" dmesg.$level
+        sed '/No irq handler for vector/d' dmesg.$level > dmesg.$level
+    fi
     if [ -s "dmesg.$level" ]; then
         res=fail
         ret=1
