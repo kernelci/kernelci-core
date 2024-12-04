@@ -76,7 +76,6 @@ class Base:
         session.mount('http://', adapter)
         session.mount('https://', adapter)
 
-        print(url, params)
         resp = session.get(
             url, params=params, headers=self.data.headers,
             timeout=self.data.timeout
