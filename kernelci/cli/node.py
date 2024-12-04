@@ -65,6 +65,22 @@ def find(attributes, config, api, indent, page_length, page_number):
 @click.argument('attributes', nargs=-1)
 @Args.config
 @Args.api
+@Args.indent
+@catch_error
+# pylint: disable=too-many-arguments
+def findfast(attributes, config, api, indent):
+    """Find nodes with arbitrary attributes"""
+    api = get_api(config, api)
+    attributes = split_attributes(attributes)
+    nodes = api.node.findfast(attributes)
+    data = json.dumps(nodes, indent=indent or None)
+    click.echo(data)
+
+
+@kci_node.command
+@click.argument('attributes', nargs=-1)
+@Args.config
+@Args.api
 @catch_error
 def count(attributes, config, api):
     """Count nodes with arbitrary attributes"""

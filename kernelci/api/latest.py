@@ -113,6 +113,12 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             params = attributes.copy() if attributes else {}
             return self._get_paginated(params, 'nodes', offset, limit)
 
+        def findfast(
+            self, attributes: Dict[str, str],
+        ) -> dict:
+            params = attributes.copy() if attributes else {}
+            return self._get_fast(params, 'nodes/fast')
+
         def count(self, attributes: dict) -> int:
             return self._get('count', params=attributes).json()
 

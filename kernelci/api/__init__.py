@@ -76,6 +76,7 @@ class Base:
         session.mount('http://', adapter)
         session.mount('https://', adapter)
 
+        print(url, params)
         resp = session.get(
             url, params=params, headers=self.data.headers,
             timeout=self.data.timeout
@@ -207,6 +208,11 @@ class Base:
                 break
             offset += limit
         return objs
+
+    def _get_fast(self, input_params, path):
+        params = input_params.copy()
+        resp = self._get(path, params=params)
+        return resp.json()
 
     def _delete(self, path):
         url = self.make_url(path)
