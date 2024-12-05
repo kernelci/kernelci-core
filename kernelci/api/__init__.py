@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2023 Collabora Limited
+# Copyright (C) 2023-2024 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Denys Fedoryshchenko <denys.f@collabora.com>
 
 """KernelCI API"""
 
