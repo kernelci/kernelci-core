@@ -538,6 +538,7 @@ class APIHelper:
         root_node['result'] = results['node']['result']
         root_node['artifacts'].update(results['node']['artifacts'])
         root_node['data'].update(results['node'].get('data', {}))
+        root_node['processed_by_kcidb_bridge'] = False
         if root_node['result'] != 'incomplete':
             data = root_node.get('data', {})
             if data.get('error_code') == 'node_timeout':
@@ -562,6 +563,7 @@ class APIHelper:
             },
             'group': root['name'],
             'state': 'done',
+            'processed_by_kcidb_bridge': False,
         }
         data = self._prepare_results(root_results, parent, base)
         # Once this has been consolidated at the API level:
