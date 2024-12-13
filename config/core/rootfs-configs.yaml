@@ -105,6 +105,36 @@ rootfs_configs:
     imagesize: 2GB
     debos_memory: 8G
 
+  bookworm-gst-h26forge:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+      - klibc-utils
+      - libext2fs2
+      - libgnutls30
+      - libklibc
+      - libncursesw6
+      - libp11-kit0
+      - libunistring2
+      - sensible-utils
+    extra_packages:
+      - ca-certificates
+      - python3-requests
+      - python3-yaml
+      - unzip
+      - wget
+    script: "scripts/bookworm-gst-h26forge.sh"
+    imagesize: 4GB
+    debos_memory: 8G
+    debos_scratchsize: 16G
+
   bookworm-igt:
     rootfs_type: debos
     debian_release: bookworm
