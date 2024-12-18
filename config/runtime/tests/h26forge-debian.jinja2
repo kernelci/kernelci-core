@@ -1,0 +1,24 @@
+{# This test verifies if h26forge generate bitstream
+ # do not make h264 stateless decoder crash basic functionality:
+-#}
+- test:
+    timeout:
+      minutes: {{ job_timeout|default('15') }}
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ node.name }}
+          description: "h26forge test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - cd /opt/h26forge
+          - for i in $(seq -f "%04g" 0 99); do gst-launch-1.0 filesrc location=test_videos/video$i.264.mp4 ! parsebin ! v4l2slh264dec ! fakesink
+
+      from: inline
+      name: {{ node.name }}
+      path: inline/{{ node.name }}.yaml
