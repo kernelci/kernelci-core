@@ -131,6 +131,7 @@ rootfs_configs:
       - unzip
       - wget
     script: "scripts/bookworm-gst-h26forge.sh"
+    test_overlay: "overlays/h26forge"
     imagesize: 4GB
     debos_memory: 8G
     debos_scratchsize: 16G
