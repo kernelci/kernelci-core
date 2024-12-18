@@ -1,0 +1,23 @@
+{# This test verifies if h26forge generate bitstream
+ # do not make h264 stateless decoder crash basic functionality:
+-#}
+- test:
+    timeout:
+      minutes: {{ job_timeout|default('15') }}
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ node.name }}
+          description: "h26forge test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - KERNELCI_LAVA=y /usr/bin/h26forge-parser.sh
+
+      from: inline
+      name: {{ node.name }}
+      path: inline/{{ node.name }}.yaml
