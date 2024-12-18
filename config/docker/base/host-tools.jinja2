@@ -62,8 +62,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     bison \
     bsdmainutils \
     ccache \
+    cmake \
     cpio \
     dwarves \
+    elfutils \
     flex \
     g++ \
     gawk \
@@ -72,6 +74,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     kmod \
     libssl-dev \
     libelf-dev \
+    libdw-dev \
     lz4 \
     lzop \
     make \
@@ -88,5 +91,17 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # Install dtschema for dtbs_check
 RUN pip3 install dtschema --break-system-packages
+
+# Clone and build pahole v1.28
+RUN git clone https://git.kernel.org/pub/scm/devel/pahole/pahole.git && \
+    cd pahole && \
+    git checkout v1.28 && \
+    mkdir build && cd build && \
+    cmake .. && \
+    make && \
+    make install && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/dwarves.conf && \
+    ldconfig && \
+    cd ../.. && rm -rf pahole
 
 {% endblock %}
