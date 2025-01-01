@@ -40,8 +40,10 @@ class Kubernetes(Runtime):
         instance = os.getenv('KCI_INSTANCE', 'prod')
         if instance == 'prod':
             params['k8s_api_key'] = 'kci-api-jwt-early-access'
+            params['k8s_storage_token_name'] = 'production'
         else:
             params['k8s_api_key'] = 'kci-api-jwt-staging'
+            params['k8s_storage_token_name'] = 'staging'
         params['k8s_job_name'] = k8s_job_name
         return template.render(params)
 

@@ -63,8 +63,8 @@ spec:
           #value: {{ "/home/kernelci/.ssh/id_rsa_tarball-staging" }}
           valueFrom:
             secretKeyRef:
-              name: {{ "kci-api-azure-files-sas-staging" }}
-              key: azure-files-sas
+              name: kci-storage-tokens
+              key: {{ k8s_storage_token_name }}
 {% block k8s_command %}
         command: ["/bin/sh", "-c"]
 {% endblock %}
