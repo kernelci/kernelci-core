@@ -177,6 +177,7 @@ rootfs_configs:
       - alsa-utils
       - bc
       - ca-certificates
+      - iperf3
       - iproute2
       - iputils-ping
       - jdim
@@ -197,6 +198,7 @@ rootfs_configs:
       - liburing2
       - libxtables12
       - netbase
+      - netsniff-ng
       - openssl
       - perl
       - perl-modules-5.36
