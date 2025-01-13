@@ -176,7 +176,7 @@ class APIHelper:
 
             for item in base[key]:
                 if item in deny:
-                    print(f"rules: {key.capitalize()} {item} not allowed")
+                    print(f"rules{key}: {key.capitalize()} {item} not allowed due {deny}")
                     return False
                 if item in allow:
                     found = True
@@ -187,7 +187,7 @@ class APIHelper:
 
         else:
             if base[key] in deny or (len(allow) > 0 and base[key] not in allow):
-                print(f"rules: {key.capitalize()} {base[key]} not allowed")
+                print(f"rule[{key}]: {key.capitalize()} {base[key]} not allowed due {deny}")
                 return False
 
         return True
@@ -273,10 +273,15 @@ class APIHelper:
                     return False
 
                 # Get back to regular allow/deny list processing
-                if (node[key] in deny or
-                   (len(allow) == 0 and len(allow_combos) > 0) or
-                   (len(allow) > 0 and node[key] not in allow)):
-                    print(f"{key.capitalize()} {node[key]} not allowed")
+                if (node[key] in deny):
+                    print(f"{key.capitalize()} {node[key]} not allowed due {deny}")
+                    return False
+                if (len(allow) == 0 and len(allow_combos) > 0):
+                    print(f"{key.capitalize()} {node[key]} not allowed due"
+                          f" to tree/branch rules")
+                    return False
+                if (len(allow) > 0 and node[key] not in allow):
+                    print(f"{key.capitalize()} {node[key]} not allowed due {allow}")
                     return False
 
         return True
