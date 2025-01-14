@@ -351,7 +351,7 @@ class LAVA(Runtime):
         job_id = int(job_object)
         job_url = urljoin(self._server.url, '/'.join(['jobs', str(job_id)]))
         while True:
-            resp = self._server.session.get(job_url)
+            resp = self._server.session.get(job_url, timeout=30)
             resp.raise_for_status()
             data = resp.json()
             if data['state'] == 'Finished':
@@ -375,7 +375,8 @@ class LAVA(Runtime):
             'definition': job,
         }
         resp = self._server.session.post(
-            jobs_url, json=job_data, allow_redirects=False
+            jobs_url, json=job_data, allow_redirects=False,
+            timeout=30,
         )
         if resp.status_code >= 400:
             print(f"Error submitting job: {resp.status_code}, {resp.text}")
