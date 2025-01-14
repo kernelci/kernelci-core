@@ -3,10 +3,20 @@
       url: '{{ node.artifacts.kernel }}'
       image_arg: -kernel {kernel} -serial stdio --append "console=ttyS0"
       type: {{ node.data.kernel_type }}
+{%- if boot_commands == 'nfs' %}
+    nfsrootfs:
+      url: '{{ nfsroot }}/full.rootfs.tar.xz'
+      compression: xz
     ramdisk:
-      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/{{ brarch }}/rootfs.cpio.gz'
-      image_arg: -initrd {ramdisk}
+      url: '{{ nfsroot }}/initrd.cpio.gz'
       compression: gz
+    os: debian
+{%- else %}
+    ramdisk:
+      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{{ brarch }}/rootfs.cpio.gz'
+      compression: gz
+    os: oe
+{%- endif %}
 {%- if device_dtb %}
     dtb:
       url: '{{ node.artifacts.dtb }}'
@@ -18,7 +28,11 @@
 
 - boot:
     method: grub
+  {%- if boot_commands == 'nfs' %}
+    commands: nfs
+  {%- else %}
     commands: ramdisk
+  {%- endif %}
     failure_retry: 3
     prompts:
     - '/ #'
