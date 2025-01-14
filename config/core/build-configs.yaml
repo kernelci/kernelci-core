@@ -650,6 +650,7 @@ fragments:
       - 'CONFIG_I2C_HID_ACPI=m'
       - 'CONFIG_I2C_HID=m'
       - 'CONFIG_I2C_PIIX4=m'
+      - 'CONFIG_IGB=y'
       - 'CONFIG_IIO_CROS_EC_ACCEL_LEGACY=m'
       - 'CONFIG_IIO_CROS_EC_BARO=m'
       - 'CONFIG_IIO_CROS_EC_LIGHT_PROX=m'
