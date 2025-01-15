@@ -70,7 +70,8 @@ jobs:
           cd kernelci-core
           export core_rev=$(git rev-parse HEAD)
           export core_url=$(git remote get-url origin)
-          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/staging- --build-arg core_url=$core_url"
+          echo "core_rev=$core_rev core_url=$core_url"
+          kci_arg="build --push --verbose --build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/staging- --build-arg core_url=$core_url"
           ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
 
   docker-misc-build:
