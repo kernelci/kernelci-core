@@ -206,10 +206,14 @@ rootfs_configs:
       - armhf
     extra_packages:
       - alsa-utils
+      - arping
       - bc
+      - bpftool
       - ca-certificates
+      - ethtool
       - iperf3
       - iproute2
+      - iptables
       - iputils-ping
       - jdim
       - jq
@@ -229,7 +233,9 @@ rootfs_configs:
       - liburing2
       - libxtables12
       - netbase
+      - netperf
       - netsniff-ng
+      - net-tools
       - openssl
       - perl
       - perl-modules-5.36
@@ -241,6 +247,8 @@ rootfs_configs:
       - socat
       - tappy
       - tcpdump
+      - traceroute
+      - tshark
       - tpm2-tools
       - wget
       - xz-utils
