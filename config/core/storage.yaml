@@ -24,3 +24,8 @@ storage:
     host: staging.kernelci.org
     base_url: http://storage.staging.kernelci.org/
     api_url: https://api.staging.kernelci.org
+
+  kci-storage:
+    storage_type: backend
+    base_url: http://mon.kernelci.org:3000/
+    api_url: http://mon.kernelci.org:3000/
