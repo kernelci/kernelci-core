@@ -311,6 +311,8 @@ class KBuild():
         self.addcmd("export INSTALL_MOD_PATH=_modules_")
         self.addcmd("export INSTALL_MOD_STRIP=1")
         self.addcmd("export INSTALL_DTBS_PATH=_dtbs_")
+        self.addcmd("export CC=" + self._compiler)
+        self.addcmd("export HOSTCC=" + self._compiler)
         # if self._compiler start with clang- we need to set env vars
         if self._compiler.startswith("clang-"):
             # LLVM=1, can be suffix with version in future, like -14
