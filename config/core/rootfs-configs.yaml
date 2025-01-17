@@ -233,7 +233,6 @@ rootfs_configs:
       - liburing2
       - libxtables12
       - netbase
-      - netperf
       - netsniff-ng
       - net-tools
       - openssl
