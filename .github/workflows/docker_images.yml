@@ -50,8 +50,13 @@ jobs:
           cd kernelci-core
           python3 -m pip install '.[dev]'
           sudo cp -R config /etc/kernelci/
+      - name: Login to the DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -64,6 +69,8 @@ jobs:
           export core_url=$(git remote get-url origin)
           kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/ --build-arg core_url=$core_url"
           ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
+          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=kernelci/ --build-arg core_url=$core_url"
+          ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
       - name: build base kernelci docker image for other branches
         if: ${{ env.USER_GIT_BRANCH != 'main' }}
         run: |
@@ -72,6 +79,8 @@ jobs:
           export core_url=$(git remote get-url origin)
           echo "core_rev=$core_rev core_url=$core_url"
           kci_arg="build --push --verbose --build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/staging- --build-arg core_url=$core_url"
+          ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
+          kci_arg="build --push --verbose --build-arg core_rev=$core_rev --prefix=kernelci/staging- --build-arg core_url=$core_url"
           ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
 
   docker-misc-build:
@@ -87,7 +96,6 @@ jobs:
                   'kernelci lava-callback',
                   'k8s kernelci',
                   'qemu',
-
                    ]
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor)
@@ -124,8 +132,13 @@ jobs:
           cd kernelci-core
           python3 -m pip install '.[dev]'
           sudo cp -R config /etc/kernelci/
+      - name: Login to the DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: kernelci
@@ -143,6 +156,8 @@ jobs:
           rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
           kci_arg="build --push $rev_arg --prefix=ghcr.io/kernelci/"
           ./kci docker $kci_arg ${{ matrix.kcicmd }}
+          kci_arg="build --push $rev_arg --prefix=kernelci/"
+          ./kci docker $kci_arg ${{ matrix.kcicmd }}
       - name: build base kernelci docker image for other branches
         if: ${{ env.USER_GIT_BRANCH != 'main' }}
         run: |
@@ -155,4 +170,6 @@ jobs:
           cd ../kernelci-core
           rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
           kci_arg="build --push $rev_arg --prefix=ghcr.io/kernelci/staging-"
+          ./kci docker $kci_arg ${{ matrix.kcicmd }}
+          kci_arg="build --push $rev_arg --prefix=kernelci/staging-"
           ./kci docker $kci_arg ${{ matrix.kcicmd }}
