@@ -11,6 +11,7 @@ import enum
 import importlib
 import json
 import urllib
+import sys
 from typing import Dict, Optional, Sequence
 
 from cloudevents.http import CloudEvent
@@ -155,11 +156,14 @@ class Base:
         session = requests.Session()
         session.mount('http://', adapter)
         session.mount('https://', adapter)
-
+        print(f"PUT: {url} timeout: {self.data.timeout}")
+        datasz = sys.getsizeof(data)
+        print(f"PUT: size of data: {datasz}")
         resp = session.put(
             url, json=data, headers=self.data.headers,
             params=params, timeout=self.data.timeout
         )
+        print(f"PUT: status code: {resp.status_code} {resp.text}")
         resp.raise_for_status()
         return resp
 
