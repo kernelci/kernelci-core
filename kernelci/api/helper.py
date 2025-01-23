@@ -537,8 +537,11 @@ class APIHelper:
         Logic need fix:
         https://github.com/kernelci/kernelci-core/issues/2386
         """
+        print("Get root")
         root_from_db = self.api.node.get(root['id'])
+        print("Merge root")
         root_node = merge(root_from_db, root)
+        print("Copy root")
         root_node = root.copy()
         root_node['result'] = results['node']['result']
         root_node['artifacts'].update(results['node']['artifacts'])
@@ -554,6 +557,7 @@ class APIHelper:
             'node': root_node,
             'child_nodes': results['child_nodes'],
         }
+        print("Get parent")
         parent = self.api.node.get(root['parent'])
         base = {
             'data': {
@@ -570,13 +574,18 @@ class APIHelper:
             'state': 'done',
             'processed_by_kcidb_bridge': False,
         }
+        print("Prepare results")
         data = self._prepare_results(root_results, parent, base)
+        print("Prepared results")
         # Once this has been consolidated at the API level:
         # self.api.create_node_hierarchy(data)
         node_id = data['node']['id']
         # pylint: disable=protected-access
+        print(f"Submit results for node {node_id} data {data}")
         try:
-            return self.api._put(f'nodes/{node_id}', data).json()
+            putret = self.api._put(f'nodes/{node_id}', data).json()
+            print(f"Submit results for node {node_id} done: {putret}")
+            return putret
         except requests.exceptions.HTTPError as error:
             raise RuntimeError(json.loads(error.response.content)) from error
 
