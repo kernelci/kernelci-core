@@ -95,6 +95,7 @@ jobs:
                   'kernelci lava-callback',
                   'k8s kernelci',
                   'qemu',
+                  'buildroot',
                    ]
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor)
