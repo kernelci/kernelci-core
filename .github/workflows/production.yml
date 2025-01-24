@@ -10,3 +10,21 @@ jobs:
         with:
             GIT_OWNER: 'kernelci'
             GIT_BRANCH: 'main'
+    deploy-k8s-production:
+        runs-on: ubuntu-latest
+        needs: call-docker-build
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                repository: kernelci/kernelci-deploy
+                ref: main
+            - name: Set up kubectl
+              uses: azure/k8s-set-context@v4
+              with:
+                method: kubeconfig
+                kubeconfig: ${{ secrets.KUBECONFIG }}
+            - name: Deploy to production
+              run: |
+                cd kernelci-deploy
+                ./api-production-update.sh workflow
