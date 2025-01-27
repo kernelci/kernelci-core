@@ -33,7 +33,6 @@ jobs:
             kcicmd: 'clang-17 kselftest kernelci'
           - kciarch: 'arc'
             kcicmd: 'clang-15 kselftest kernelci'
-          - kciarch: 'arc'
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor)
     runs-on: ubuntu-22.04
@@ -56,10 +55,9 @@ jobs:
           cd kernelci-core
           python3 -m pip install '.[dev]'
           sudo cp -R config /etc/kernelci/
-      - name: Create docker config from secrets
+      - name: Dockerhub login by token
         run: |
-          mkdir -p ~/.docker
-          echo ${{ secrets.DOCKERCONFIG }} | > ~/.docker/config.json
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
@@ -72,10 +70,12 @@ jobs:
           cd kernelci-core
           export core_rev=$(git rev-parse HEAD)
           export core_url=$(git remote get-url origin)
-          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/ --build-arg core_url=$core_url"
-          ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
-          kci_arg="build --push --build-arg core_rev=$core_rev --prefix=kernelci/ --build-arg core_url=$core_url"
-          ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
+          kci_arg="--build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/ --build-arg core_url=$core_url"
+          ./kci docker build --push $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
+          NAME=$(./kci docker name --prefix=ghcr.io/kernelci/ ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }})
+          DHNAME=$(./kci docker name --prefix=kernelci/ ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }})
+          docker tag $NAME $DHNAME
+          docker push $DHNAME
       - name: build base kernelci docker image for other branches
         if: ${{ env.USER_GIT_BRANCH != 'main' }}
         run: |
@@ -83,10 +83,12 @@ jobs:
           export core_rev=$(git rev-parse HEAD)
           export core_url=$(git remote get-url origin)
           echo "core_rev=$core_rev core_url=$core_url"
-          kci_arg="build --push --verbose --build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/staging- --build-arg core_url=$core_url"
-          ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
-          kci_arg="build --push --verbose --build-arg core_rev=$core_rev --prefix=kernelci/staging- --build-arg core_url=$core_url"
-          ./kci docker $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
+          kci_arg="--build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/staging- --build-arg core_url=$core_url"
+          ./kci docker build --push $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
+          NAME=$(./kci docker name --prefix=ghcr.io/kernelci/staging- ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }})
+          DHNAME=$(./kci docker name --prefix=kernelci/staging- ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }})
+          docker tag $NAME $DHNAME
+          docker push $DHNAME
 
   docker-misc-build:
     strategy:
@@ -104,6 +106,9 @@ jobs:
                   'buildroot kernelci',
                   'debos kernelci',
                    ]
+        exclude:
+          - kcicmd: 'rustc-1.74 kselftest kernelci --arch x86'
+          - kcicmd: 'rustc-1.75 kselftest kernelci --arch x86'
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor)
     runs-on: ubuntu-22.04
@@ -139,10 +144,9 @@ jobs:
           cd kernelci-core
           python3 -m pip install '.[dev]'
           sudo cp -R config /etc/kernelci/
-      - name: Create docker config from secrets
+      - name: Dockerhub login by token
         run: |
-          mkdir -p ~/.docker
-          echo ${{ secrets.DOCKERCONFIG }} | > ~/.docker/config.json
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
@@ -160,10 +164,12 @@ jobs:
           pipeline_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
           cd ../kernelci-core
           rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
-          kci_arg="build --push $rev_arg --prefix=ghcr.io/kernelci/"
-          ./kci docker $kci_arg ${{ matrix.kcicmd }}
-          kci_arg="build --push $rev_arg --prefix=kernelci/"
-          ./kci docker $kci_arg ${{ matrix.kcicmd }}
+          kci_arg="$rev_arg --prefix=ghcr.io/kernelci/"
+          ./kci docker build --push $kci_arg ${{ matrix.kcicmd }}
+          NAME=$(./kci docker name --prefix=ghcr.io/kernelci/ ${{ matrix.kcicmd }})
+          DHNAME=$(./kci docker name --prefix=kernelci/ ${{ matrix.kcicmd }})
+          docker tag $NAME $DHNAME
+          docker push $DHNAME
       - name: build base kernelci docker image for other branches
         if: ${{ env.USER_GIT_BRANCH != 'main' }}
         run: |
@@ -175,7 +181,10 @@ jobs:
           pipeline_rev=$(git show --pretty=format:%H -s origin/${{ env.USER_GIT_BRANCH }})
           cd ../kernelci-core
           rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
-          kci_arg="build --push $rev_arg --prefix=ghcr.io/kernelci/staging-"
-          ./kci docker $kci_arg ${{ matrix.kcicmd }}
-          kci_arg="build --push $rev_arg --prefix=kernelci/staging-"
-          ./kci docker $kci_arg ${{ matrix.kcicmd }}
+          kci_arg="$rev_arg --prefix=ghcr.io/kernelci/staging-"
+          ./kci docker build --push $kci_arg ${{ matrix.kcicmd }}
+          NAME=$(./kci docker name --prefix=ghcr.io/kernelci/staging- ${{ matrix.kcicmd }})
+          DHNAME=$(./kci docker name --prefix=kernelci/staging- ${{ matrix.kcicmd }})
+          docker tag $NAME $DHNAME
+          docker push $DHNAME
+
