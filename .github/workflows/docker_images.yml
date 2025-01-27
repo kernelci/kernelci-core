@@ -28,6 +28,11 @@ jobs:
                   'clang-17 kselftest kernelci',
                   'gcc-12 kselftest kernelci'
                    ]
+        exclude:
+          - kciarch: 'arc'
+            kcicmd: 'clang-17 kselftest kernelci'
+          - kciarch: 'arm'
+            kcicmd: 'clang-17 kselftest kernelci'
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor)
     runs-on: ubuntu-22.04
