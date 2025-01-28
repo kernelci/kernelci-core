@@ -150,7 +150,7 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
                 'field': field,
                 'value': value
             }
-            return self._put(f'batch/nodeset', data=param)
+            return self._put('batch/nodeset', data=param)
 
     def subscribe(self, channel: str, promisc: Optional[bool] = None) -> int:
         params = {'promisc': promisc} if promisc else None
