@@ -51,9 +51,10 @@ class APIHelper:
         """API object"""
         return self._api
 
-    def subscribe_filters(self, filters=None, channel='node'):
+    def subscribe_filters(self, filters=None, channel='node',
+                          promiscuous=False):
         """Subscribe to a channel with some added filters"""
-        sub_id = self.api.subscribe(channel)
+        sub_id = self.api.subscribe(channel, promiscuous)
         self._filters[sub_id] = filters
         return sub_id
 
