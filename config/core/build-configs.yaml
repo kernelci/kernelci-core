@@ -645,6 +645,9 @@ fragments:
       - 'CONFIG_USB_RTL8152=m'
       - 'CONFIG_USB_USBNET=m'
       - 'CONFIG_USB_NET_AX8817X=m'
+      - 'CONFIG_DWMAC_MEDIATEK=m'
+      - 'CONFIG_NET_VENDOR_MEDIATEK=y'
+      - 'CONFIG_NET_MEDIATEK_STAR_EMAC=m'
 
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
