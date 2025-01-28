@@ -24,8 +24,7 @@ def merge(primary: dict, secondary: dict):
     for key in primary:
         result[key] = primary[key]
         if key in secondary:
-            if isinstance(primary[key], dict) and \
-               isinstance(secondary[key], dict):
+            if isinstance(primary[key], dict) and isinstance(secondary[key], dict):
                 result[key] = merge(primary[key], secondary[key])
             else:
                 result[key] = secondary[key]
@@ -51,7 +50,7 @@ class APIHelper:
         """API object"""
         return self._api
 
-    def subscribe_filters(self, filters=None, channel='node'):
+    def subscribe_filters(self, filters=None, channel="node"):
         """Subscribe to a channel with some added filters"""
         sub_id = self.api.subscribe(channel)
         self._filters[sub_id] = filters
@@ -73,8 +72,8 @@ class APIHelper:
 
     def get_node_from_event(self, event_data):
         """Listen for an event and get the matching node object from it"""
-        if 'id' in event_data:
-            return self.api.node.get(event_data['id'])
+        if "id" in event_data:
+            return self.api.node.get(event_data["id"])
         return None
 
     def pubsub_event_filter(self, sub_id, event):
@@ -96,8 +95,10 @@ class APIHelper:
                     if sub_key not in event.get(key):
                         continue
                     if isinstance(sub_value, tuple):
-                        if not any(sub_sub_value == event.get(key).get(sub_key)
-                                   for sub_sub_value in sub_value):
+                        if not any(
+                            sub_sub_value == event.get(key).get(sub_key)
+                            for sub_sub_value in sub_value
+                        ):
                             return False
                     elif sub_value != event.get(key).get(sub_key):
                         return False
@@ -120,9 +121,8 @@ class APIHelper:
             # Crude (provisional) filtering of non-node events
             if not node:
                 continue
-            if all(self.pubsub_event_filter(sub_id, obj)
-                   for obj in [node, event]):
-                return node, event.get('is_hierarchy')
+            if all(self.pubsub_event_filter(sub_id, obj) for obj in [node, event]):
+                return node, event.get("is_hierarchy")
 
     def _find_container(self, field, node):
         """
@@ -156,8 +156,8 @@ class APIHelper:
         if not base:
             return True
 
-        deny = [f.lstrip('!') for f in rules[key] if f.startswith('!')]
-        allow = [f for f in rules[key] if not f.startswith('!')]
+        deny = [f.lstrip("!") for f in rules[key] if f.startswith("!")]
+        allow = [f for f in rules[key] if not f.startswith("!")]
 
         # Rules are appied depending on how the data is initially stored:
         # * if it's a list (e.g. config fragments), then it must contain
@@ -176,7 +176,9 @@ class APIHelper:
 
             for item in base[key]:
                 if item in deny:
-                    print(f"rules{key}: {key.capitalize()} {item} not allowed due {deny}")
+                    print(
+                        f"rules{key}: {key.capitalize()} {item} not allowed due {deny}"
+                    )
                     return False
                 if item in allow:
                     found = True
@@ -187,7 +189,9 @@ class APIHelper:
 
         else:
             if base[key] in deny or (len(allow) > 0 and base[key] not in allow):
-                print(f"rule[{key}]: {key.capitalize()} {base[key]} not allowed due {deny}")
+                print(
+                    f"rule[{key}]: {key.capitalize()} {base[key]} not allowed due {deny}"
+                )
                 return False
 
         return True
@@ -216,19 +220,19 @@ class APIHelper:
         deny_combos = []
 
         for rule in rules[key]:
-            if ':' in rule:
+            if ":" in rule:
                 combo = {}
                 # we use ':' as a tree/branch separator as this character is forbidden
                 # in git branch names, so if found it should be present only once.
-                [combo['tree'], combo['branch']] = rule.split(':', 1)
-                if combo['tree'].startswith('!'):
-                    combo['tree'] = combo['tree'].lstrip('!')
+                [combo["tree"], combo["branch"]] = rule.split(":", 1)
+                if combo["tree"].startswith("!"):
+                    combo["tree"] = combo["tree"].lstrip("!")
                     deny_combos.append(combo)
                 else:
                     allow_combos.append(combo)
             else:
-                if rule.startswith('!'):
-                    deny.append(rule.lstrip('!'))
+                if rule.startswith("!"):
+                    deny.append(rule.lstrip("!"))
                 else:
                     allow.append(rule)
 
@@ -243,7 +247,7 @@ class APIHelper:
         """
         match = None
         for combo in combos:
-            if node['tree'] == combo['tree'] and node['branch'] == combo['branch']:
+            if node["tree"] == combo["tree"] and node["branch"] == combo["branch"]:
                 match = combo
                 break
         return match
@@ -257,7 +261,9 @@ class APIHelper:
         """
         for key in ("tree", "branch"):
             if key in rules:
-                (allow, allow_combos, deny, deny_combos) = self._extract_combos(rules, key)
+                (allow, allow_combos, deny, deny_combos) = self._extract_combos(
+                    rules, key
+                )
                 # Process combos first:
                 # * if the tree/branch combination matches an allowed combo, then the node
                 #   fulfills the tree/branch rules and we can move forward to processing
@@ -268,19 +274,23 @@ class APIHelper:
                     break
                 match = self._match_combos(node, deny_combos)
                 if match:
-                    print(f"Tree/branch combination "
-                          f"{match['tree']}/{match['branch']} not allowed")
+                    print(
+                        f"Tree/branch combination "
+                        f"{match['tree']}/{match['branch']} not allowed"
+                    )
                     return False
 
                 # Get back to regular allow/deny list processing
-                if (node[key] in deny):
+                if node[key] in deny:
                     print(f"{key.capitalize()} {node[key]} not allowed due {deny}")
                     return False
-                if (len(allow) == 0 and len(allow_combos) > 0):
-                    print(f"{key.capitalize()} {node[key]} not allowed due"
-                          f" to tree/branch rules")
+                if len(allow) == 0 and len(allow_combos) > 0:
+                    print(
+                        f"{key.capitalize()} {node[key]} not allowed due"
+                        f" to tree/branch rules"
+                    )
                     return False
-                if (len(allow) > 0 and node[key] not in allow):
+                if len(allow) > 0 and node[key] not in allow:
                     print(f"{key.capitalize()} {node[key]} not allowed due {allow}")
                     return False
 
@@ -363,23 +373,27 @@ class APIHelper:
 
             # Special case as there is no field in the node giving us the full
             # kernel version in "x.y" format
-            if key.endswith('_version'):
-                kver = node['data']['kernel_revision']['version']
-                major = kver['version']
-                minor = kver['patchlevel']
-                rule_major = rules[key]['version']
-                rule_minor = rules[key]['patchlevel']
-                if (key.startswith('min') and
-                    ((major < rule_major) or
-                     (major == rule_major and minor < rule_minor))):
-                    print(f"rules: Version {major}.{minor} older than minimum version "
-                          f"({rule_major}.{rule_minor})")
+            if key.endswith("_version"):
+                kver = node["data"]["kernel_revision"]["version"]
+                major = kver["version"]
+                minor = kver["patchlevel"]
+                rule_major = rules[key]["version"]
+                rule_minor = rules[key]["patchlevel"]
+                if key.startswith("min") and (
+                    (major < rule_major) or (major == rule_major and minor < rule_minor)
+                ):
+                    print(
+                        f"rules: Version {major}.{minor} older than minimum version "
+                        f"({rule_major}.{rule_minor})"
+                    )
                     return False
-                if (key.startswith('max') and
-                    ((major > rule_major) or
-                     (major == rule_major and minor > rule_minor))):
-                    print(f"rules: Version {major}.{minor} more recent than maximum version "
-                          f"({rule_major}.{rule_minor})")
+                if key.startswith("max") and (
+                    (major > rule_major) or (major == rule_major and minor > rule_minor)
+                ):
+                    print(
+                        f"rules: Version {major}.{minor} more recent than maximum version "
+                        f"({rule_major}.{rule_minor})"
+                    )
                     return False
 
             elif not self._is_allowed(rules, key, node, parent):
@@ -387,89 +401,95 @@ class APIHelper:
 
         return True
 
-    def create_job_node(self, job_config, input_node,
-                        runtime=None, platform=None):
+    def create_job_node(self, job_config, input_node, runtime=None, platform=None):
         """Create a new job node based on input and configuration"""
-        jobfilter = input_node.get('jobfilter')
-        platform_filter = input_node.get('platform_filter')
-        treeid = input_node.get('treeid')
-        submitter = input_node.get('submitter')
+        jobfilter = input_node.get("jobfilter")
+        platform_filter = input_node.get("platform_filter")
+        treeid = input_node.get("treeid")
+        submitter = input_node.get("submitter")
         job_node = {
-            'kind': job_config.kind,
-            'parent': input_node['id'],
-            'name': job_config.name,
-            'path': input_node['path'] + [job_config.name],
-            'group': job_config.name,
-            'artifacts': {},
-            'treeid': treeid,
-            'submitter': submitter,
-            'data': {
-                'kernel_revision': input_node['data']['kernel_revision'],
+            "kind": job_config.kind,
+            "parent": input_node["id"],
+            "name": job_config.name,
+            "path": input_node["path"] + [job_config.name],
+            "group": job_config.name,
+            "artifacts": {},
+            "treeid": treeid,
+            "submitter": submitter,
+            "data": {
+                "kernel_revision": input_node["data"]["kernel_revision"],
             },
         }
         if jobfilter:
-            job_node['jobfilter'] = jobfilter
+            job_node["jobfilter"] = jobfilter
         if platform_filter:
-            job_node['platform_filter'] = platform_filter
+            job_node["platform_filter"] = platform_filter
 
         # if jobfilter not null, verify if job_config.name exist in jobfilter
         if jobfilter and job_config.name not in jobfilter:
-            print(f"Filtered: Job {job_config.name} not found in jobfilter "
-                  f"for node {input_node['id']}")
+            print(
+                f"Filtered: Job {job_config.name} not found in jobfilter "
+                f"for node {input_node['id']}"
+            )
             return None
 
         if not self.should_create_node(job_config.rules, job_node, input_node):
-            print(f"Not creating node due to job rules for {job_config.name} "
-                  f"evaluating node {input_node['id']}")
+            print(
+                f"Not creating node due to job rules for {job_config.name} "
+                f"evaluating node {input_node['id']}"
+            )
             return None
         # Test-specific fields inherited from parent node (kbuild or
         # job) if available
-        if job_config.kind == 'job':
-            job_node['data']['kernel_type'] = input_node['data'].get('kernel_type')
-            job_node['data']['arch'] = input_node['data'].get('arch')
-            job_node['data']['defconfig'] = input_node['data'].get('defconfig')
-            job_node['data']['config_full'] = input_node['data'].get('config_full')
-            job_node['data']['compiler'] = input_node['data'].get('compiler')
+        if job_config.kind == "job":
+            job_node["data"]["kernel_type"] = input_node["data"].get("kernel_type")
+            job_node["data"]["arch"] = input_node["data"].get("arch")
+            job_node["data"]["defconfig"] = input_node["data"].get("defconfig")
+            job_node["data"]["config_full"] = input_node["data"].get("config_full")
+            job_node["data"]["compiler"] = input_node["data"].get("compiler")
         # This information is highly useful, as we might
         # extract from it the following, for example:
         # in case of lab: lab-name, device-name
         # in case of kubernetes: cluster name
         if runtime:
-            job_node['data']['runtime'] = runtime.config.name
+            job_node["data"]["runtime"] = runtime.config.name
             if not self.should_create_node(runtime.config.rules, job_node, input_node):
-                print(f"Not creating node {input_node['id']} due to runtime rules "
-                      f"for {runtime.config.name}")
+                print(
+                    f"Not creating node {input_node['id']} due to runtime rules "
+                    f"for {runtime.config.name}"
+                )
                 return None
         # Filter by platform if it is test job only
         if platform:
             # if platform_filter not null, verify if platform.name exist in platform_filter
-            if platform_filter and platform.name not in platform_filter\
-               and job_config.kind == 'job':
-                print(f"Filtered: Platform {platform.name} not found in platform_filter "
-                      f"for node {input_node['id']}")
+            if (
+                platform_filter
+                and platform.name not in platform_filter
+                and job_config.kind == "job"
+            ):
+                print(
+                    f"Filtered: Platform {platform.name} not found in platform_filter "
+                    f"for node {input_node['id']}"
+                )
                 return None
-            job_node['data']['platform'] = platform.name
+            job_node["data"]["platform"] = platform.name
             if not self.should_create_node(platform.rules, job_node, input_node):
-                print(f"Not creating node {input_node['id']} due to platform rules "
-                      f"for {platform.name}")
+                print(
+                    f"Not creating node {input_node['id']} due to platform rules "
+                    f"for {platform.name}"
+                )
                 return None
             # Process potential f-strings in node's data with platform attributes
-            kernel_revision = job_node['data']['kernel_revision']['version']
+            kernel_revision = job_node["data"]["kernel_revision"]["version"]
             extra_args = {
-                'krev': f"{kernel_revision['version']}.{kernel_revision['patchlevel']}"
+                "krev": f"{kernel_revision['version']}.{kernel_revision['patchlevel']}"
             }
             extra_args.update(job_config.params)
             try:
-                job_node['data'] = platform.format_params(job_node['data'], extra_args)
-            except KeyError as error:
-                print(f"KeyError dyring creating job node: {error}")
-                return None
-            except ValueError as error:
-                print(f"ValueError during creating job node: {error}")
-                return None
+                job_node["data"] = platform.format_params(job_node["data"], extra_args)
             except Exception as error:
-                print(f"Exception Error during creating job node: {error}")
-                return None
+                print(f"Exception Error during creating job node{job_node['id']}: {error}")
+                raise
         try:
             return self._api.node.add(job_node)
         except requests.exceptions.HTTPError as error:
@@ -483,12 +503,12 @@ class APIHelper:
         """
         # pylint: disable=protected-access
         try:
-            return self.api._post('node', regression)
+            return self.api._post("node", regression)
         except requests.exceptions.HTTPError as error:
             raise RuntimeError(json.loads(error.response.content)) from error
 
     def _prepare_results(self, results, parent, base):
-        node = results['node'].copy()
+        node = results["node"].copy()
         # Merge `Node.data` instead of overwriting it
         for key, value in base.items():
             if isinstance(value, dict):
@@ -498,15 +518,15 @@ class APIHelper:
                     node.update({key: value})
             else:
                 node[key] = value
-        node['path'] = (parent['path'] if parent else []) + [node['name']]
-        if 'kind' not in node:
-            node['kind'] = parent['kind']
+        node["path"] = (parent["path"] if parent else []) + [node["name"]]
+        if "kind" not in node:
+            node["kind"] = parent["kind"]
         child_nodes = []
-        for child_node in results['child_nodes']:
+        for child_node in results["child_nodes"]:
             child_nodes.append(self._prepare_results(child_node, node, base))
         return {
-            'node': node,
-            'child_nodes': child_nodes,
+            "node": node,
+            "child_nodes": child_nodes,
         }
 
     def submit_results(self, results, root):
@@ -537,46 +557,46 @@ class APIHelper:
         Logic need fix:
         https://github.com/kernelci/kernelci-core/issues/2386
         """
-        root_from_db = self.api.node.get(root['id'])
+        root_from_db = self.api.node.get(root["id"])
         root_node = merge(root_from_db, root)
         root_node = root.copy()
-        root_node['result'] = results['node']['result']
-        root_node['artifacts'].update(results['node']['artifacts'])
-        root_node['data'].update(results['node'].get('data', {}))
-        root_node['processed_by_kcidb_bridge'] = False
-        if root_node['result'] != 'incomplete':
-            data = root_node.get('data', {})
-            if data.get('error_code') == 'node_timeout':
-                root_node['data']['error_code'] = None
-                root_node['data']['error_msg'] = None
+        root_node["result"] = results["node"]["result"]
+        root_node["artifacts"].update(results["node"]["artifacts"])
+        root_node["data"].update(results["node"].get("data", {}))
+        root_node["processed_by_kcidb_bridge"] = False
+        if root_node["result"] != "incomplete":
+            data = root_node.get("data", {})
+            if data.get("error_code") == "node_timeout":
+                root_node["data"]["error_code"] = None
+                root_node["data"]["error_msg"] = None
 
         root_results = {
-            'node': root_node,
-            'child_nodes': results['child_nodes'],
+            "node": root_node,
+            "child_nodes": results["child_nodes"],
         }
-        parent = self.api.node.get(root['parent'])
+        parent = self.api.node.get(root["parent"])
         base = {
-            'data': {
-                'kernel_revision': root['data'].get('kernel_revision'),
-                'kernel_type': root['data'].get('kernel_type'),
-                'arch': root['data'].get('arch'),
-                'defconfig': root['data'].get('defconfig'),
-                'config_full': root['data'].get('config_full'),
-                'compiler': root['data'].get('compiler'),
-                'platform': root['data'].get('platform'),
-                'runtime': root['data'].get('runtime'),
+            "data": {
+                "kernel_revision": root["data"].get("kernel_revision"),
+                "kernel_type": root["data"].get("kernel_type"),
+                "arch": root["data"].get("arch"),
+                "defconfig": root["data"].get("defconfig"),
+                "config_full": root["data"].get("config_full"),
+                "compiler": root["data"].get("compiler"),
+                "platform": root["data"].get("platform"),
+                "runtime": root["data"].get("runtime"),
             },
-            'group': root['name'],
-            'state': 'done',
-            'processed_by_kcidb_bridge': False,
+            "group": root["name"],
+            "state": "done",
+            "processed_by_kcidb_bridge": False,
         }
         data = self._prepare_results(root_results, parent, base)
         # Once this has been consolidated at the API level:
         # self.api.create_node_hierarchy(data)
-        node_id = data['node']['id']
+        node_id = data["node"]["id"]
         # pylint: disable=protected-access
         try:
-            return self.api._put(f'nodes/{node_id}', data).json()
+            return self.api._put(f"nodes/{node_id}", data).json()
         except requests.exceptions.HTTPError as error:
             raise RuntimeError(json.loads(error.response.content)) from error
 
@@ -595,7 +615,7 @@ class APIHelper:
             raise RuntimeError(json.loads(error.response.content)) from error
 
     @classmethod
-    def load_json(cls, json_path, encoding='utf-8'):
+    def load_json(cls, json_path, encoding="utf-8"):
         """Read content from JSON file"""
         with open(json_path, encoding=encoding) as json_file:
             return json.load(json_file)
