@@ -487,15 +487,9 @@ class APIHelper:
             extra_args.update(job_config.params)
             try:
                 job_node["data"] = platform.format_params(job_node["data"], extra_args)
-            except KeyError as error:
-                print(f"KeyError dyring creating job node: {error}")
-                return None
-            except ValueError as error:
-                print(f"ValueError during creating job node: {error}")
-                return None
             except Exception as error:
-                print(f"Exception Error during creating job node: {error}")
-                return None
+                print(f"Exception Error during creating job node{job_node['id']}: {error}")
+                raise
         try:
             return self._api.node.add(job_node)
         except requests.exceptions.HTTPError as error:
