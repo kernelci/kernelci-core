@@ -706,6 +706,9 @@ class KBuild():
             self.addcmd("cp arch/" + self._arch + "/boot/" + img + " ../artifacts", False)
             # add image to artifacts relative to artifacts dir
             self._artifacts.append(img)
+        # https://github.com/kernelci/kernelci-project/issues/509
+        self.addcmd("cp vmlinux ../artifacts", False)
+        self._artifacts.append("vmlinux")
         self.addcmd("cd ..")
 
     def _package_modules(self):
@@ -852,6 +855,12 @@ class KBuild():
                 dst_filename = artifact + ".gz"
             else:
                 dst_filename = artifact
+            # if it is vmlinux - use xz compression
+            if artifact == "vmlinux":
+                os.system(f"xz -k {artifact_path}")
+                artifact_path = artifact_path + ".xz"
+                compressed_file = True
+                dst_filename = artifact + ".xz"
             stored_url = storage.upload_single(
                 (artifact_path, dst_filename), root_path
             )
