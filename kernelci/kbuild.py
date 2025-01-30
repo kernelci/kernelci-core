@@ -706,6 +706,9 @@ class KBuild():
             self.addcmd("cp arch/" + self._arch + "/boot/" + img + " ../artifacts", False)
             # add image to artifacts relative to artifacts dir
             self._artifacts.append(img)
+        # https://github.com/kernelci/kernelci-project/issues/509
+        self.addcmd("cp vmlinux ../artifacts", False)
+        self._artifacts.append("vmlinux")
         self.addcmd("cd ..")
 
     def _package_modules(self):
