@@ -40,6 +40,18 @@ rootfs_configs:
     script: "scripts/install-bootrr.sh"
     test_overlay: "overlays/baseline"
 
+  bookworm-blktest:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+      - amd64
+    extra_packages:
+      - ca-certificates
+      - ethtool
+      - iproute2
+      - python3-minimal
+    script: "scripts/bookworm-blktest.sh"
+
   bookworm-cros-ec:
     rootfs_type: debos
     debian_release: bookworm
