@@ -6,10 +6,13 @@ set -e
 
 # Build-depends needed to build the test suites, they'll be removed later
 BUILD_DEPS="\
-    fio \
     gcc \
     g++ \
-    make
+    make \
+    git \
+    ca-certificates \
+    libclang-dev \
+    curl
 "
 
 export DEBIAN_FRONTEND=noninteractive
@@ -20,6 +23,14 @@ apt-get install --no-install-recommends -y ${BUILD_DEPS}
 # Configure git
 git config --global user.email "bot@kernelci.org"
 git config --global user.name "KernelCI Bot"
+
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+. "$HOME/.cargo/env" || true
+# Install dependencies for blktests
+cargo install --version=^0.1 rublk
+# cleanup cargo cache
+rm -rf /root/.cargo/registry
+rustup self uninstall -y
 
 ########################################################################
 # Build blktest                                                        #
