@@ -72,6 +72,8 @@ rootfs_configs:
       - libext2fs2
       - ncurses-bin
       - bsdextrautils
+      - wget
+      - curl
     script: "scripts/bookworm-blktest.sh"
     crush_image_options:
       - filesystem
