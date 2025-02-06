@@ -74,6 +74,7 @@ rootfs_configs:
       - bsdextrautils
       - wget
       - curl
+      - zutils
     script: "scripts/bookworm-blktest.sh"
     crush_image_options:
       - filesystem
