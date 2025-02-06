@@ -42,6 +42,8 @@ git clone --depth 1 $BLKTEST_URL .
 
 make
 make install
+mkdir -p /usr/local/blktests/contrib
+cp -r contrib/* /usr/local/blktests/contrib
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
