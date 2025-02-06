@@ -42,6 +42,7 @@ git clone --depth 1 $BLKTEST_URL .
 
 make
 make install
+# contrib required too
 mkdir -p /usr/local/blktests/contrib
 cp -r contrib/* /usr/local/blktests/contrib
 

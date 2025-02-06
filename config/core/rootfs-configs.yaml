@@ -43,7 +43,7 @@ rootfs_configs:
   bookworm-blktest:
     rootfs_type: debos
     debian_release: bookworm
-    imagesize: 2GB
+    imagesize: 4GB
     debos_memory: 8G
     arch_list:
       - amd64
@@ -53,6 +53,9 @@ rootfs_configs:
       - iproute2
       - python3-minimal
       - python3-pip
+      - python3-yaml
+      - python3-requests
+      - python3-jinja2
       - e2fsprogs
       - xfsprogs
       - f2fs-tools
@@ -72,10 +75,9 @@ rootfs_configs:
       - libext2fs2
       - ncurses-bin
       - bsdextrautils
+      - zutils
       - wget
       - curl
-      - zutils
-      - gzip
     script: "scripts/bookworm-blktest.sh"
     crush_image_options:
       - filesystem
