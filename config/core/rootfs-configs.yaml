@@ -75,10 +75,10 @@ rootfs_configs:
       - wget
       - curl
       - zutils
+      - gzip
     script: "scripts/bookworm-blktest.sh"
     crush_image_options:
       - filesystem
-      - compress_tool
       - hostname_tool
       - systemd
       - misc_packages
