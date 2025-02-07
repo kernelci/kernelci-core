@@ -42,4 +42,36 @@ RUN chmod +x /home/cros/tast_parser.py /home/cros/ssh_retry.sh
 
 # Create symlink to /usr/local/bin for tast gs:// downloads
 RUN ln -s /home/cros/trunk/chromite/bin/gsutil /usr/local/bin/
+
+RUN apt install -y jq
+USER cros
+WORKDIR /home/cros
+
+RUN git clone "https://chromium.googlesource.com/chromiumos/platform/tast-tests" && \
+cd tast-tests && git checkout release-R130-16033.B && cd .. && \
+mv tast-tests/src/go.chromium.org/tast-tests/cros/local/bundles/cros/video/data/test_vectors . && \
+rm -rf tast-tests
+
+RUN (find test_vectors -name '*.external' | xargs -P 4 -I '#' bash -c '\
+url=`jq -r .url #`;\
+filename=#;\
+dest=${filename%.external};\
+echo "Downloading $dest";\
+gsutil -q cp "$url" "$dest"; \
+echo "Finished $(basename "$dest")";\
+')
+
+RUN tar -czf "/home/cros/test_vectors.tar.gz" \
+./test_vectors/av1 \
+./test_vectors/h264 \
+./test_vectors/hevc \
+./test_vectors/vp8
+
+RUN tar -czf "/home/cros/test_vectors-vp9.tar.gz" \
+./test_vectors/vp9
+
+RUN rm -rf test_vectors
+
+USER root
+
 {%- endblock %}
