@@ -56,6 +56,7 @@ rootfs_configs:
       - python3-yaml
       - python3-requests
       - python3-jinja2
+      - python3-jsonschema
       - e2fsprogs
       - xfsprogs
       - f2fs-tools
