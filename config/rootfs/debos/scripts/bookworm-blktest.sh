@@ -12,7 +12,8 @@ BUILD_DEPS="\
     git \
     ca-certificates \
     libclang-dev \
-    curl
+    curl \
+    python3-pip
 "
 
 export DEBIAN_FRONTEND=noninteractive
@@ -45,6 +46,15 @@ make install
 # contrib required too
 mkdir -p /usr/local/blktests/contrib
 cp -r contrib/* /usr/local/blktests/contrib
+
+git clone https://github.com/open-iscsi/configshell-fb
+cd configshell-fb
+pip install . --break-system-packages
+
+git clone https://github.com/nuclearcat/nvmetcli
+cd nvmetcli
+git checkout rest-install
+python3 setup.py install
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
