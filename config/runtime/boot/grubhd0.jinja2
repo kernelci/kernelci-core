@@ -1,0 +1,35 @@
+- deploy:
+    kernel:
+      url: '{{ node.artifacts.kernel }}'
+      image_arg: -kernel {kernel} -serial stdio --append "console=ttyS1,115200"
+      type: {{ node.data.kernel_type }}
+    os: oe
+    to: tftp
+
+
+- boot:
+    method: grub
+    commands:
+      - linux (hd0,gpt2)/boot/vmlinuz-6.1.0-30-amd64 root=UUID=02bb21d5-cf3b-4d38-8bea-082496adbf5a ro console=tty0 console=ttyS1,115200
+      - initrd (hd0,gpt2)/boot/initrd.img-6.1.0-30-amd64
+      - boot
+    prompts:
+      - 'root@supermicro-as-2015hr-tnr-cbg-0'
+      - 'doug@supermicro-as-2015hr-tnr-cbg-0'
+    auto_login:
+      login_prompt: 'login:'
+      username: doug
+      password_prompt: 'Password:'
+      password: DougIsHero
+      login_commands:
+        - sudo su
+    failure_retry: 3
+    timeout:
+      minutes: 20
+    timeouts:
+      bootloader-commands:
+        minutes: 3
+      auto-login-action:
+        minutes: 6
+      login-action:
+        minutes: 2
