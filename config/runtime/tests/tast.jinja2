@@ -50,6 +50,17 @@
             - >-
               lava-test-case os-release --result pass
               --measurement $(sed -e '/VERSION_ID/!d' -e 's/.*=//' /tmp/osrel.tmp)
+            - sudo -u cros --login ssh-keyscan -t rsa $(lava-target-ip) > ~/.ssh/known_hosts
+{%- if 'v4l2' in tests|join(' ') %}
+            - sudo -u cros --login scp test_vectors.tar.gz root@$(lava-target-ip):/usr || true
+            - sudo -u cros --login ssh root@$(lava-target-ip) tar -xzf /usr/test_vectors.tar.gz -C
+              /usr/local/share/tast/data/go.chromium.org/tast-tests/cros/local/bundles/cros/video/data/ || true
+{%- endif %}
+{%- if 'vp9' in tests|join(' ') %}
+            - sudo -u cros --login scp test_vectors-vp9.tar.gz root@$(lava-target-ip):/usr || true
+            - sudo -u cros --login ssh root@$(lava-target-ip) tar -xzf /usr/test_vectors-vp9.tar.gz -C
+            /usr/local/share/tast/data/go.chromium.org/tast-tests/cros/local/bundles/cros/video/data/ || true
+{%- endif %}
             - lava-test-set stop setup
             - >-
               ./tast_parser.py --run
