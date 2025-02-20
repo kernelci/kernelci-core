@@ -36,10 +36,13 @@ rustup self uninstall -y
 ########################################################################
 # Build blktest                                                        #
 ########################################################################
-BLKTEST_URL=https://github.com/osandov/blktests.git
+# Change nuclearcat/blktests to kernelci/blktests to use the official
+# repo as soon as the fix-ynl-location branch is merged.
+BLKTEST_URL=https://github.com/nuclearcat/blktests.git
 mkdir -p /var/tests/blktest && cd /var/tests/blktest
 
-git clone --depth 1 $BLKTEST_URL .
+git clone $BLKTEST_URL .
+git checkout fix-ynl-location
 
 make
 make install
