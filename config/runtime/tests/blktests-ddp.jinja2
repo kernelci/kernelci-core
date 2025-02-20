@@ -19,9 +19,9 @@
             steps:
               - apt-get update
               - apt-get install -y sshpass
-              - sshpass -p 'DougIsHero' ssh -o StrictHostKeyChecking=no doug@$(lava-target-ip) "cd nvidia-blktest && mkdir -p mnt && sudo ./orchestrator.py orchestrator.yml {{ node.id }} {{ api_config.name }} {{ rootfs }}"
+              - sshpass -p 'DougIsHero' ssh -T -o StrictHostKeyChecking=no doug@$(lava-target-ip) "cd nvidia-blktest && mkdir -p mnt && sudo ./orchestrator.py orchestrator.yml {{ node.id }} {{ api_config.name }} {{ rootfs }}"
               - lava-test-case nvme_056_tcp_ddp --shell sshpass -p 'DougIsHero' ssh -o StrictHostKeyChecking=no doug@$(lava-target-ip) "grep 'pass' nvidia-blktest/nvme_056_tcp_ddp.test"
-              - sshpass -p 'DougIsHero' ssh -o StrictHostKeyChecking=no doug@$(lava-target-ip) "sync && sudo systemctl poweroff"
+              - sshpass -p 'DougIsHero' ssh -T -o StrictHostKeyChecking=no doug@$(lava-target-ip) "sync && sudo systemctl poweroff"
               - sleep 10
 
 
