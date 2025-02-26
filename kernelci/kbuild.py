@@ -576,6 +576,7 @@ class KBuild():
                     self._getcrosfragment(self._defconfig)
                 f.write(content)
             self.addcmd("make olddefconfig")
+            self._config_full = self._defconfig + self._config_full
         else:
             if isinstance(self._defconfig, str):
                 self.addcmd("make " + self._defconfig)
