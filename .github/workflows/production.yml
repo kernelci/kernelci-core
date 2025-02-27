@@ -17,7 +17,7 @@ jobs:
                 DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
               uses: Ilshidur/action-discord@master
               with:
-                args: 'KernelCI production deploy started: ${{ inputs.message }} by ${{ github.actor }}'
+                args: 'Maestro production deploy started: "${{ inputs.message }}" by ${{ github.actor }}'
     call-docker-build:
         uses: ./.github/workflows/docker_images.yml
         secrets: inherit
@@ -47,4 +47,4 @@ jobs:
                 DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
               uses: Ilshidur/action-discord@master
               with:
-                args: 'KernelCI production deploy completed.'
+                args: 'Maestro production deploy completed.'
