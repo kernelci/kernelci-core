@@ -35,4 +35,4 @@ jobs:
         secrets: inherit
         with:
             GIT_OWNER: 'kernelci'
-            GIT_BRANCH: 'staging-snapshot'
+            GIT_BRANCH: 'staging.kernelci.org'
