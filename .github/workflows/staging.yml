@@ -32,6 +32,7 @@ jobs:
     call-docker-build:
         needs: prepare-staging-branches
         uses: ./.github/workflows/docker_images.yml
+        secrets: inherit
         with:
             GIT_OWNER: 'kernelci'
             GIT_BRANCH: 'staging-snapshot'
