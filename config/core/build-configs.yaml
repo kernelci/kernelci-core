@@ -998,6 +998,11 @@ fragments:
       iwlwifi-9000-pu-b0-jf-b0-46.ucode
       "'
 
+  x86-drm:
+    path: "kernel/configs/x86-board.config"
+    configs:
+      - 'CONFIG_DRM_VKMS=m'
+
   x86_kvm_guest:
     path: "kernel/configs/kvm_guest.config"
 
