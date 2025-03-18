@@ -359,7 +359,7 @@ class BuildConfig(YAMLConfigObject):
 
     yaml_tag = u'!BuildConfig'
 
-    def __init__(self, name, tree, branch, variants, reference=None):
+    def __init__(self, name, tree, branch, variants, reference=None, architectures=None):
         """A build configuration defines the actual kernels to be built.
 
         *name* is the name of the build configuration.  It is arbitrary and
@@ -384,6 +384,7 @@ class BuildConfig(YAMLConfigObject):
         self._branch = branch
         self._variants = variants
         self._reference = reference
+        self._architectures = architectures
 
     @classmethod
     def load_from_yaml(cls, config, name, trees, fragments, b_envs, defaults):
@@ -404,6 +405,7 @@ class BuildConfig(YAMLConfigObject):
         reference = config.get('reference', defaults.get('reference'))
         if reference:
             kw['reference'] = Reference.load_from_yaml(reference, trees)
+        kw['architectures'] = config.get('architectures', None)
         return cls(**kw)
 
     @property
@@ -421,6 +423,10 @@ class BuildConfig(YAMLConfigObject):
     @property
     def variants(self):
         return list(self._variants.values())
+
+    @property
+    def architectures(self):
+        return self._architectures
 
     def get_variant(self, name):
         return self._variants[name]
