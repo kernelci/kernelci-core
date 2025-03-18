@@ -413,6 +413,10 @@ class CheckoutData(BaseModel):
         description="Error message",
         default=None
     )
+    architecture_filter: Optional[List[str]] = Field(
+        description="Architecture filter",
+        default=None
+    )
 
 
 class Checkout(Node):
