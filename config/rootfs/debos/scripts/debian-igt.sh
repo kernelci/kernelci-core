@@ -45,7 +45,7 @@ echo '{  "tests_suites": [' >> $BUILDFILE
 # Build libdrm
 ########################################################################
 
-DRM_URL=git://anongit.freedesktop.org/mesa/drm
+DRM_URL=https://gitlab.freedesktop.org/mesa/drm.git
 
 mkdir -p /tmp/tests/libdrm && cd /tmp/tests/libdrm
 git clone --depth=1 $DRM_URL .
