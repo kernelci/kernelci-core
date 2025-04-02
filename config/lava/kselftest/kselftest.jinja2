@@ -20,7 +20,7 @@
       path: automated/linux/kselftest/kselftest.yaml
       name: {{ plan }}
       parameters:
-        TESTPROG_URL: {{ kselftests_url }}
+        KSELFTEST_PATH: /opt/kselftest
         SKIPFILE: /dev/null
         TST_CMDFILES: {{ kselftest_collections }}
         TST_CASENAME: {{ kselftest_tests }}

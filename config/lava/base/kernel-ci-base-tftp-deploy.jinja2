@@ -28,8 +28,17 @@ actions:
 {%- if nfsrootfs_url %}
     nfsrootfs:
       url: {{ nfsrootfs_url }}
+      format: tar
       {%- if nfsroot_compression %}
       compression: {{ nfsroot_compression }}
+      {%- endif %}
+      {%- if kselftests_url %}
+      overlays:
+        kselftest:
+          url: {{ kselftests_url }}
+          compression: gz
+          format: tar
+          path: /opt/kselftest
       {%- endif %}
 {%- endif %}
 {%- if initrd_url %}
