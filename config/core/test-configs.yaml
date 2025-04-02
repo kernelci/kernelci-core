@@ -1533,12 +1533,6 @@ device_types:
     dtb: 'lan966x-kontron-kswitch-d10-mmt-8g.dtb'
     boot_method: uboot
 
-  kontron-pitx-imx8m:
-    mach: freescale
-    class: arm64-dtb
-    dtb: 'freescale/imx8mq-kontron-pitx-imx8m.dtb'
-    boot_method: uboot
-
   kontron-sl28-var3-ads2:
     mach: freescale
     class: arm64-dtb
@@ -3058,11 +3052,6 @@ test_configs:
       - baseline-nfs
 
   - device_type: kontron-kswitch-d10-mmt-8g
-    test_plans:
-      - baseline
-      - baseline-nfs
-
-  - device_type: kontron-pitx-imx8m
     test_plans:
       - baseline
       - baseline-nfs
