@@ -71,7 +71,7 @@ jobs:
           export core_rev=$(git rev-parse HEAD)
           export core_url=$(git remote get-url origin)
           kci_arg="--build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/ --build-arg core_url=$core_url"
-          ./kci docker build --push $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
+          ./kci docker build --verbose --push $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
           NAME=$(./kci docker name --prefix=ghcr.io/kernelci/ ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }})
           DHNAME=$(./kci docker name --prefix=kernelci/ ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }})
           docker tag $NAME $DHNAME
@@ -84,7 +84,7 @@ jobs:
           export core_url=$(git remote get-url origin)
           echo "core_rev=$core_rev core_url=$core_url"
           kci_arg="--build-arg core_rev=$core_rev --prefix=ghcr.io/kernelci/staging- --build-arg core_url=$core_url"
-          ./kci docker build --push $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
+          ./kci docker build --verbose --push $kci_arg ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }}
           NAME=$(./kci docker name --prefix=ghcr.io/kernelci/staging- ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }})
           DHNAME=$(./kci docker name --prefix=kernelci/staging- ${{ matrix.kcicmd }} --arch ${{ matrix.kciarch }})
           docker tag $NAME $DHNAME
@@ -165,7 +165,7 @@ jobs:
           cd ../kernelci-core
           rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
           kci_arg="$rev_arg --prefix=ghcr.io/kernelci/"
-          ./kci docker build --push $kci_arg ${{ matrix.kcicmd }}
+          ./kci docker build --verbose --push $kci_arg ${{ matrix.kcicmd }}
           NAME=$(./kci docker name --prefix=ghcr.io/kernelci/ ${{ matrix.kcicmd }})
           DHNAME=$(./kci docker name --prefix=kernelci/ ${{ matrix.kcicmd }})
           docker tag $NAME $DHNAME
@@ -182,7 +182,7 @@ jobs:
           cd ../kernelci-core
           rev_arg="--build-arg core_rev=$core_rev --build-arg api_rev=$api_rev --build-arg pipeline_rev=$pipeline_rev"
           kci_arg="$rev_arg --prefix=ghcr.io/kernelci/staging-"
-          ./kci docker build --push $kci_arg ${{ matrix.kcicmd }}
+          ./kci docker build --verbose --push $kci_arg ${{ matrix.kcicmd }}
           NAME=$(./kci docker name --prefix=ghcr.io/kernelci/staging- ${{ matrix.kcicmd }})
           DHNAME=$(./kci docker name --prefix=kernelci/staging- ${{ matrix.kcicmd }})
           docker tag $NAME $DHNAME
