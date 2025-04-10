@@ -4,6 +4,9 @@
 
 set -e
 
+# Version of Kirk to install
+KIRK_VERSION=v1.5
+
 # Build-depends needed to build the test suites, they'll be removed later
 BUILD_DEPS="\
     gcc \
@@ -69,6 +72,14 @@ make install
 cd testcases/open_posix_testsuite/ && ./configure
 make all -j$NBCPU
 make install prefix=/opt/ltp
+
+########################################################################
+# Install kirk                                                         #
+########################################################################
+
+git clone https://github.com/linux-test-project/kirk /opt/kirk
+cd /opt/kirk
+git reset --hard $KIRK_VERSION
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
