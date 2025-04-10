@@ -983,6 +983,8 @@ fragments:
       amdgpu/stoney_uvd.bin
       amdgpu/stoney_vce.bin
       amdgpu/yellow_carp_vcn.bin
+      i915/adlp_dmc.bin
+      i915/adlp_guc_70.bin
       i915/glk_dmc_ver1_04.bin
       i915/kbl_dmc_ver1_04.bin
       rtl_nic/rtl8153a-4.fw
