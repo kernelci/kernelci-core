@@ -12,3 +12,5 @@
             TST_CMDFILES: "{{ tst_cmdfiles|default('') }}"
             SKIP_INSTALL: "{{ skip_install }}"
             SKIPFILE: {{ skipfile }}
+            SHARD_NUMBER: {{ shard_number|default(1) }}
+            SHARD_INDEX: {{ shard_index|default(1) }}
