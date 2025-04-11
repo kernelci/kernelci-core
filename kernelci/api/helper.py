@@ -388,6 +388,16 @@ class APIHelper:
 
         return True
 
+    def _fsanitize_node_fields(self, node, field_name):
+        """
+        Sanitize node fields to escape curly braces
+        """
+        if field_name in node:
+            # double each found bracket to escape it
+            node[field_name] = node[field_name].replace('}', '}}')
+            node[field_name] = node[field_name].replace('{', '{{')
+        return node
+
     def create_job_node(self, job_config, input_node,
                         runtime=None, platform=None):
         """Create a new job node based on input and configuration"""
@@ -455,11 +465,16 @@ class APIHelper:
                       f"for {platform.name}")
                 return None
             # Process potential f-strings in node's data with platform attributes
+            # krev is used for ChromeOS config version mapping
             kernel_revision = job_node['data']['kernel_revision']['version']
             extra_args = {
                 'krev': f"{kernel_revision['version']}.{kernel_revision['patchlevel']}"
             }
             extra_args.update(job_config.params)
+            # same time we need to make sure commit_message filtered from f-strings
+            # as it is user supplied and might contain {} symbols
+            job_node = self._fsanitize_node_fields(job_node, 'commit_message')
+
             try:
                 job_node['data'] = platform.format_params(job_node['data'], extra_args)
             except Exception as error:
