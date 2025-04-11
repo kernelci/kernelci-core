@@ -89,7 +89,7 @@ class Docker:
         try:
             _, build_log = client.images.build(
                 fileobj=dockerfile_obj, tag=name, buildargs=buildargs,
-                nocache=nocache
+                nocache=nocache, rm=True, forcerm=True
             )
             build_err = None
         except docker.errors.BuildError as exc:
