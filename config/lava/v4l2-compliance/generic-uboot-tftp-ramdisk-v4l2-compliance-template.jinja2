@@ -1,7 +1,0 @@
-{% extends 'boot/generic-uboot-tftp-ramdisk-boot-template.jinja2' %}
-{% block actions %}
-{{ super () }}
-
-{% include 'v4l2-compliance/v4l2-compliance.jinja2' %}
-
-{% endblock %}
