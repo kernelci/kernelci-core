@@ -112,7 +112,8 @@ class Docker(Runtime):
             command=os.path.join('/home/kernelci', job_path),
             environment=self._env,
             extra_hosts=docker_hosts,
-            detach=True
+            detach=True,
+            remove=True
         )
 
     def get_job_id(self, job_object):
