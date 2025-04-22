@@ -2,7 +2,9 @@ USER root
 {% include 'fragment/gcloud.jinja2' %}
 
 # KCIDB python for kcidb bridge service
-RUN python3 -m pip install git+https://github.com/kernelci/kcidb.git --break-system-packages
+#RUN python3 -m pip install git+https://github.com/kernelci/kcidb.git --break-system-packages
+# TEST ONLY
+RUN python3 -m pip install git+https://github.com/nuclearcat/kcidb.git@add-rest-support --break-system-packages
 
 # Install logspec
 RUN pip install git+https://github.com/kernelci/logspec.git
