@@ -387,6 +387,13 @@ fragments:
       "'
 
 
+  coverage:
+    path: "kernel/configs/coverage.config"
+    configs:
+      - 'CONFIG_DEBUG_FS=y'
+      - 'CONFIG_GCOV_KERNEL=y'
+      - 'CONFIG_GCOV_PROFILE_ALL=y'
+
   crypto:
     path: "kernel/configs/crypto.config"
     configs:
