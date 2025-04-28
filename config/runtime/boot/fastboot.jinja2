@@ -18,11 +18,12 @@
             path: /opt/kselftest
           {%- endif %}
 
+{% set dtb = device_dtb.split('/')[-1] %}
     postprocess:
       docker:
         image: ghcr.io/mwasilew/docker-mkbootimage:master
         steps:
-        - mkbootimg --header_version 2 --kernel Image --dtb qcs6490-rb3gen2.dtb --cmdline "earlycon clk_ignore_unused pd_ignore_unused audit=0" --ramdisk rootfs.cpio.gz --output boot.img
+        - mkbootimg --header_version 2 --kernel Image --dtb {{ dtb }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk rootfs.cpio.gz --output boot.img
     to: downloads
 
 - deploy:

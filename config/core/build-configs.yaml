@@ -387,6 +387,13 @@ fragments:
       "'
 
 
+  coverage:
+    path: "kernel/configs/coverage.config"
+    configs:
+      - 'CONFIG_DEBUG_FS=y'
+      - 'CONFIG_GCOV_KERNEL=y'
+      - 'CONFIG_GCOV_PROFILE_ALL=y'
+
   crypto:
     path: "kernel/configs/crypto.config"
     configs:
@@ -446,6 +453,31 @@ fragments:
 
   debug:
     path: "kernel/configs/debug.config"
+
+  fault-injection:
+    path: "kernel/configs/fault-injection.config"
+    configs:
+      - 'CONFIG_DEBUG_KERNEL=y'
+      - 'CONFIG_FAULT_INJECTION=y'
+      - 'CONFIG_FAILSLAB=y'
+      - 'CONFIG_FAIL_PAGE_ALLOC=y'
+      - 'CONFIG_FAULT_INJECTION_USERCOPY=y'
+      - 'CONFIG_BLOCK=y'
+      - 'CONFIG_FAIL_MAKE_REQUEST=y'
+      - 'CONFIG_FAIL_IO_TIMEOUT=y'
+      - 'CONFIG_FUTEX=y'
+      - 'CONFIG_FAIL_FUTEX=y'
+      - 'CONFIG_DEBUG_FS=y'
+      - 'CONFIG_FAULT_INJECTION_DEBUG_FS=y'
+      - 'CONFIG_FAIL_SKB_REALLOC=y'
+      - 'CONFIG_FAULT_INJECTION_CONFIGFS=y'
+      - 'CONFIG_STACKTRACE_SUPPORT=y'
+      - 'CONFIG_FRAME_POINTER=y'
+      - 'CONFIG_FAULT_INJECTION_STACKTRACE_FILTER=y'
+      - 'CONFIG_MMC=y'
+      - 'CONFIG_FAIL_MMC_REQUEST=y'
+      - 'CONFIG_FUNCTION_ERROR_INJECTION=y'
+      - 'CONFIG_FAIL_FUNCTION=y'
 
   ima:
     path: "kernel/configs/ima.config"
@@ -983,6 +1015,8 @@ fragments:
       amdgpu/stoney_uvd.bin
       amdgpu/stoney_vce.bin
       amdgpu/yellow_carp_vcn.bin
+      i915/adlp_dmc.bin
+      i915/adlp_guc_70.bin
       i915/glk_dmc_ver1_04.bin
       i915/kbl_dmc_ver1_04.bin
       rtl_nic/rtl8153a-4.fw

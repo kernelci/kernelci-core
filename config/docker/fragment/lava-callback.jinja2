@@ -7,7 +7,7 @@ RUN git fetch origin $pipeline_rev
 RUN git checkout FETCH_HEAD
 WORKDIR /home/kernelci/callback
 USER root
-RUN pip3 install -r /tmp/kernelci-pipeline/docker/lava-callback/requirements.txt
+RUN pip3 install -r /tmp/kernelci-pipeline/requirements-lava-callback.txt
 USER kernelci
 WORKDIR /home/kernelci/
 RUN mv /tmp/kernelci-pipeline/* /home/kernelci/

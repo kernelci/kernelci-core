@@ -1,8 +1,0 @@
-{% extends 'boot-nfs/generic-barebox-tftp-nfs-template.jinja2' %}
-
-{% block actions %}
-{{ super () }}
-
-{% include 'kselftest/kselftest.jinja2' %}
-
-{% endblock %}
