@@ -20,7 +20,7 @@ jobs:
     steps:
 
       - name: Check out source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -58,7 +58,7 @@ jobs:
     name: Lint
     steps:
       - name: Check out source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 32  # This is necessary to get the commits
 
@@ -78,7 +78,7 @@ jobs:
           pip install -r requirements.txt
 
       - if: env.CHANGED_FILES
-        uses: marian-code/python-lint-annotate@v3
+        uses: marian-code/python-lint-annotate@v4
         name: Run linter annotations
         with:
           python-root-list: ${{ env.CHANGED_FILES }}
@@ -94,7 +94,7 @@ jobs:
           echo CHANGED_KCI_FILES=$(echo $(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} -- | grep -v '.*\.md' | grep '^kci_\|^scripts/kci-')) >> $GITHUB_ENV
 
       - if: env.CHANGED_KCI_FILES
-        uses: marian-code/python-lint-annotate@v3
+        uses: marian-code/python-lint-annotate@v4
         name: Run pycodestyle annotations on kci scripts
         with:
           python-root-list: ${{ env.CHANGED_KCI_FILES }}
