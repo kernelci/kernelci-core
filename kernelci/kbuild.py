@@ -163,6 +163,10 @@ class KBuild():
             if isinstance(self._defconfig, str) and '+' in self._defconfig:
                 self._defconfig = self._defconfig.split('+')
             self._fragments = params['fragments']
+            if 'coverage' in self._fragments:
+                self._coverage = True
+            else:
+                self._coverage = False
             if 'cross_compile' in params:
                 self._cross_compile = params['cross_compile']
             else:
@@ -618,6 +622,8 @@ class KBuild():
                 self._build_dtbs()
             self._package_kimage()
             self._package_modules()
+            if self._coverage:
+                self._package_coverage()
             if self._kfselftest:
                 self._package_kselftest()
             if self._arch not in DTBS_DISABLED:
@@ -740,6 +746,26 @@ class KBuild():
         self.addcmd("set -e")
         # add modules to artifacts relative to artifacts dir
         self._artifacts.append("modules.tar.xz")
+
+    def _package_coverage(self):
+        """ Add coverage source packaging steps """
+        self.startjob("package_coverage")
+        self.addcmd("cd " + self._srcdir)
+        # Add conditional block for gcov packing
+        # Disable quit on error, as we don't want to fail here
+        self.addcmd("set +e")
+        # << CONDITIONAL START >>
+        self.addcmd("if grep -q \"CONFIG_GCOV_KERNEL=y\" .config; then")
+        # gcov needs both the source code **as configured for the build** (including
+        # symlinks) and coverage data (*.gcno files)
+        # See https://www.kernel.org/doc/html/v6.12/dev-tools/gcov.html for details
+        self.addcmd(f"find {self._srcdir} \\( -name '*.gcno' -o -name '*.[ch]' " +
+                    "-o -type l \\) -a -perm /u+r,g+r | tar cJf " +
+                    f"{self._af_dir}/coverage-source.tar.xz -P -T -", False)
+        # << CONDITIONAL END >>
+        self.addcmd("fi")
+        self.addcmd("set -e")
+        self._artifacts.append("coverage-source.tar.xz")
 
     def _package_kselftest(self):
         """ Add kselftest packagin steps """
