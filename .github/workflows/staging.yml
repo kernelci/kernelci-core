@@ -26,9 +26,9 @@ jobs:
             - name: Prepare staging branches
               run: |
                   cd kernelci-deploy/tools
-                  ./kci-pending.py --push ${{ secrets.GHPAT}} kernelci-core
-                  ./kci-pending.py --push ${{ secrets.GHPAT}} kernelci-api
-                  ./kci-pending.py --push ${{ secrets.GHPAT}} kernelci-pipeline
+                  ./kci-pending.py --push ${{ secrets.GHPAT}} kernelci-core --token ${{ secrets.GITHUB_TOKEN }}
+                  ./kci-pending.py --push ${{ secrets.GHPAT}} kernelci-api --token ${{ secrets.GITHUB_TOKEN }}
+                  ./kci-pending.py --push ${{ secrets.GHPAT}} kernelci-pipeline --token ${{ secrets.GITHUB_TOKEN }}
     call-docker-build:
         needs: prepare-staging-branches
         uses: ./.github/workflows/docker_images.yml
