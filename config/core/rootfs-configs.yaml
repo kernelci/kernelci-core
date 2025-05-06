@@ -337,6 +337,7 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
+      - curl
       - dosfstools
       - gdb-minimal
       - libnuma-dev
