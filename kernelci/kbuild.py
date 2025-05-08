@@ -39,6 +39,8 @@ import kernelci.config.storage
 import kernelci.storage
 
 
+CIP_CONFIG_URL = \
+    "https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-/raw/master/{branch}/{config}"  # noqa
 CROS_CONFIG_URL = \
     "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
 LEGACY_CONFIG = [
@@ -429,6 +431,25 @@ class KBuild():
         self.addcmd("cd ..")
         # self.addcmd("rm -rf linux-firmware")
 
+    def _download_file(self, url):
+        """ Download file from url and return it in buffer """
+        try:
+            response = requests.get(url, timeout=30)
+            if response.status_code == 200:
+                return response.content
+        except requests.exceptions.RequestException as e:
+            print(f"Error downloading file: {e}")
+        return None
+
+    def _getcipfragment(self, fragment):
+        """ Get CIP specific configuration fragments """
+        [(branch, config)] = re.findall(r"cip://([\w\-.]+)/(.*)", fragment)
+        url = CIP_CONFIG_URL.format(branch=branch, config=config)
+        buffer = self._download_file(url)
+        if not buffer:
+            raise FileNotFoundError("Error reading {}".format(url))
+        return str(buffer)
+
     def _getcrosfragment(self, fragment):
         """ Get ChromeOS specific configuration fragments """
         # The ChromeOS kernel only has release branches for LTS kernels
@@ -544,6 +565,8 @@ class KBuild():
             content = ''
             if fragment.startswith("cros://"):
                 (content, fragment) = self._getcrosfragment(fragment)
+            elif fragment.startswith("cip://"):
+                content = self._getcipfragment(fragment)
             elif fragment.startswith("CONFIG_"):
                 content = fragment + '\n'
             else:
