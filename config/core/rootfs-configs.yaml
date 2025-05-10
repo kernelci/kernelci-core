@@ -113,6 +113,15 @@ rootfs_configs:
     script: "scripts/bookworm-cros-ec-tests.sh"
     test_overlay: ""
 
+  bookworm-fault-injection:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    script: "scripts/bookworm-fault-injection.sh"
+
   bookworm-gst-fluster:
     rootfs_type: debos
     debian_release: bookworm
