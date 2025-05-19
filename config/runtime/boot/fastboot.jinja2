@@ -10,6 +10,14 @@
         format: cpio.newc
         overlays:
           lava: true
+          {%- if node.artifacts.kselftest_tar_gz %}
+          kselftest:
+            url: {{ node.artifacts.kselftest_tar_gz }}
+            compression: gz
+            format: tar
+            path: /opt/kselftest
+          {%- endif %}
+
 {% set dtb = device_dtb.split('/')[-1] %}
     postprocess:
       docker:
