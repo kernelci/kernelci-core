@@ -391,11 +391,18 @@ class APIHelper:
     def _fsanitize_node_fields(self, node, field_name):
         """
         Sanitize node fields to escape curly braces
+        We need to walk over multiple levels of the node dict to find the field
+        and escape the curly braces.
         """
-        if field_name in node:
-            # double each found bracket to escape it
-            node[field_name] = node[field_name].replace('}', '}}')
-            node[field_name] = node[field_name].replace('{', '{{')
+        if isinstance(node, dict):
+            for k, val in node.items():
+                if k == field_name and isinstance(val, str):
+                    node[k] = val.replace('}', '}}').replace('{', '{{')
+                else:
+                    self._fsanitize_node_fields(val, field_name)
+        elif isinstance(node, list):
+            for item in node:
+                self._fsanitize_node_fields(item, field_name)
         return node
 
     def create_job_node(self, job_config, input_node,
