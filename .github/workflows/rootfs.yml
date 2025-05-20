@@ -37,7 +37,7 @@ env:
 jobs:
   rootfs-build:
     # only selected people can trigger this job
-    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","pawiecz","musamaanjum","nfraprado"]', github.actor)
+    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","pawiecz","musamaanjum","nfraprado","crazoes"]', github.actor)
     runs-on: ubuntu-22.04
     environment: deploysecrets
     steps:
