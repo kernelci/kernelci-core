@@ -784,11 +784,11 @@ class KBuild():
         # See https://www.kernel.org/doc/html/v6.12/dev-tools/gcov.html for details
         self.addcmd(f"find {self._srcdir} \\( -name '*.gcno' -o -name '*.[ch]' " +
                     "-o -type l \\) -a -perm /u+r,g+r | tar cJf " +
-                    f"{self._af_dir}/coverage-source.tar.xz -P -T -", False)
+                    f"{self._af_dir}/coverage_source.tar.xz -P -T -", False)
         # << CONDITIONAL END >>
         self.addcmd("fi")
         self.addcmd("set -e")
-        self._artifacts.append("coverage-source.tar.xz")
+        self._artifacts.append("coverage_source.tar.xz")
 
     def _package_kselftest(self):
         """ Add kselftest packagin steps """
