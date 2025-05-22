@@ -25,7 +25,6 @@
                   /usr/local/bin/failcmd \
                   --probability={{ probability|default(100) }} \
                   --times={{ times|default(100) }} \
-                  --interval={{ interval|default(100) }} \
                   --verbose=2 \
                   "{{ test_command }}"
                 sleep {{ sleep_time|default(10) }}
