@@ -86,7 +86,6 @@ class Callback:
     def __init__(self, data):
         """This class can be used to parse LAVA callback data"""
         self._data = data
-        self._meta = None
 
     def get_data(self):
         """Get the raw callback data"""
@@ -96,11 +95,13 @@ class Callback:
         """Get the ID of the tested device"""
         return self._data.get('actual_device_id')
 
+    def get_job_definition(self, key):
+        """Get the job definition"""
+        return yaml.safe_load(self._data.get('definition')).get(key)
+
     def get_meta(self, key):
         """Get a metadata value from the job definition"""
-        if self._meta is None:
-            self._meta = yaml.safe_load(self._data['definition'])['metadata']
-        return self._meta.get(key)
+        return self.get_job_definition('metadata').get(key)
 
     def get_job_status(self):
         """Get the job status"""
