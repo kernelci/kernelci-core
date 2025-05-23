@@ -1058,12 +1058,18 @@ class KBuild():
                     kselftest_result = 'pass'
                     break
 
+        if job_result == 'pass':
+            job_state = 'available'
+        else:
+            job_state = 'done'
+
         results = {
             'node': {
                 'name': self._apijobname,
                 'result': job_result,
-                'state': 'done',
+                'state': job_state,
                 'artifacts': af_uri,
+                'holdoff': str(datetime.utcnow() + timedelta(minutes=10)),
             },
             'child_nodes': []
         }
