@@ -1,0 +1,39 @@
+    - from: inline
+      name: upload
+      path: inline/upload.yaml
+      repository:
+        metadata:
+          description: GCOV artifacts upload
+          format: Lava-Test Test Definition 1.0
+          name: upload
+          environment:
+            - lava-test-shell
+          os:
+          - debian
+        run:
+          steps:
+          - GCDA=/sys/kernel/debug/gcov
+          # Bail out if $GCDA doesn't exist (as GCOV is likely not enabled)
+          - test -d ${GCDA} || exit 0
+          - TEMPDIR=$(mktemp -d)
+          - UPLOAD_PATH="{{ node.name }}-{{ node.id }}"
+          - UPLOAD_NAME="gcov.tar.xz"
+          # Retrieve GCOV artifacts
+          # Taken from https://www.kernel.org/doc/html/v6.12/dev-tools/gcov.html#appendix-b-gather-on-test-sh
+          - find $GCDA -type d -exec mkdir -p $TEMPDIR/\{\} \;
+          - find $GCDA -name '*.gcda' -exec sh -c 'cat < $0 > '$TEMPDIR'/$0' {} \;
+          - find $GCDA -name '*.gcno' -exec sh -c 'cp -d $0 '$TEMPDIR'/$0' {} \;
+          - tar cJf ${UPLOAD_NAME} -C $TEMPDIR sys
+          - rm -rf $TEMPDIR
+          # Use set +x so we can don't echo secret tokens in the logs
+          - set +x
+          - . /lava-${LAVA_JOB_ID}/secrets
+          - >-
+            lava-test-case "artifact-upload:coverage_data:{{ storage_config.base_url }}/${UPLOAD_PATH}/${UPLOAD_NAME}"
+            --shell curl -X POST {{ storage_config.base_url }}/upload
+            -H "Authorization: Bearer ${UPLOAD_TOKEN}"
+            -F "file0=@${UPLOAD_NAME}"
+            -F "path=${UPLOAD_PATH}"
+
+secrets:
+  UPLOAD_TOKEN: {{ storage_config.name }}-token
