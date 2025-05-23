@@ -427,8 +427,10 @@ class KBuild():
         # self.addcmdretry(f"git clone {FW_GIT} --depth 1", 10)
         # This file available https://storage.kernelci.org/linux-firmware.tar.gz
         # we download it there for better reliability
-        self.addcmd("wget -c -t 10 --retry-on-host-error " +
-                    "https://storage.kernelci.org/linux-firmware.tar.gz -O linux-firmware.tar.gz")
+        #self.addcmd("wget -c -t 10 --retry-on-host-error " +
+        #            "https://storage.kernelci.org/linux-firmware.tar.gz -O linux-firmware.tar.gz")
+        # We should have cached copy of linux-firmware.tar.gz at /data directory
+        self.addcmd("cp /data/linux-firmware.tar.gz .")
         self.addcmd("tar -xzf linux-firmware.tar.gz")
         self.addcmd("cd linux-firmware")
         self.addcmd("./copy-firmware.sh " + self._firmware_dir)
