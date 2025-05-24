@@ -74,10 +74,4 @@ Repository = "https://github.com/kernelci/kernelci-core"
 
 [project.scripts]
 kci = "kernelci.scripts.kci:main"
-kci_bisect = "kernelci.scripts.kci_bisect:main"
-kci_build = "kernelci.scripts.kci_build:main"
-kci_data = "kernelci.scripts.kci_data:main"
 kci_rootfs = "kernelci.scripts.kci_rootfs:main"
-kci_test = "kernelci.scripts.kci_test:main"
-kci-bisect-lava-v2-callback = "kernelci.scripts.kci_bisect_lava_v2_callback:main"
-kci-bisect-push-results = "kernelci.scripts.kci_bisect_push_results:main"
