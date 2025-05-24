@@ -24,6 +24,11 @@ spec:
       - name: compile-volume
         emptyDir: { }
 
+      - name: resource-cache
+        persistentVolumeClaim:
+          claimName: shared-data   # RWX PVC!
+          readOnly: true
+
       tolerations:
       - key: "kubernetes.azure.com/scalesetpriority"
         operator: "Equal"
@@ -40,6 +45,9 @@ spec:
           name: compile-volume
         - mountPath: "/dev/shm"
           name: dev-shm
+        - mountPath: "/data"
+          name: resource-cache
+          readOnly: true
 
         # FIXME: Request safe defaults to not overload node with
         # parallel pods
