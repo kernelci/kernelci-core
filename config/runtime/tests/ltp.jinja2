@@ -3,6 +3,9 @@
     timeout:
       minutes: {{ job_timeout|default(15) }}
     definitions:
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-reset.jinja2" %}
+{% endif %}
     - repository: https://github.com/kernelci/test-definitions
       from: git
       revision: kernelci.org
@@ -12,3 +15,6 @@
         TST_CMDFILES: "{{ tst_cmdfiles|default('') }}"
         SKIP_INSTALL: "{{ skip_install }}"
         SKIPFILE: {{ skipfile }}
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-upload.jinja2" %}
+{% endif %}
