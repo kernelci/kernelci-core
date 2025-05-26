@@ -352,6 +352,7 @@ rootfs_configs:
       - gdb-minimal
       - libnuma-dev
       - ntfs-3g
+      - python3
     script: "scripts/bookworm-ltp.sh"
     imagesize: 2GB
     debos_memory: 8G
