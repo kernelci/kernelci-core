@@ -80,6 +80,7 @@ make install prefix=/opt/ltp
 git clone https://github.com/linux-test-project/kirk /opt/kirk
 cd /opt/kirk
 git reset --hard $KIRK_VERSION
+rm -rf ./.git
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
