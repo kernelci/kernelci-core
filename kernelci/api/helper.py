@@ -551,9 +551,12 @@ class APIHelper:
         root_node = merge(root_from_db, root)
         root_node = root.copy()
         root_node['result'] = results['node']['result']
+        root_node['state'] = results['node'].get('state', 'done')
         root_node['artifacts'].update(results['node']['artifacts'])
         root_node['data'].update(results['node'].get('data', {}))
         root_node['processed_by_kcidb_bridge'] = False
+        if 'holdoff' in results['node']:
+            root_node['holdoff'] = results['node']['holdoff']
         if root_node['result'] != 'incomplete':
             data = root_node.get('data', {})
             if data.get('error_code') == 'node_timeout':
@@ -577,7 +580,6 @@ class APIHelper:
                 'runtime': root['data'].get('runtime'),
             },
             'group': root['name'],
-            'state': 'done',
             'processed_by_kcidb_bridge': False,
         }
         data = self._prepare_results(root_results, parent, base)
