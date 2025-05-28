@@ -33,12 +33,15 @@ import json
 import requests
 import time
 import yaml
+import concurrent.futures
+import threading
+import subprocess
 import kernelci.api
 import kernelci.api.helper
 import kernelci.config
 import kernelci.config.storage
 import kernelci.storage
-
+from typing import Dict, Tuple, List
 
 CIP_CONFIG_URL = \
     "https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-/raw/master/{branch}/{config}"  # noqa
@@ -889,50 +892,108 @@ class KBuild():
 
     def upload_artifacts(self):
         '''
-        Upload artifacts to storage
+        Upload artifacts to storage using parallel processing
         '''
-        # TODO: Upload not using upload_single, but upload as multiple files
         print("[_upload_artifacts] Uploading artifacts to storage")
+
+        # Thread-safe dictionaries for results
         node_af = {}
+        node_af_lock = threading.Lock()
+
         storage = self._get_storage()
         root_path = '-'.join([self._apijobname, self._node['id']])
+
+        # Prepare all artifacts for upload
+        upload_tasks = []
         for artifact in self._artifacts:
-            compressed_file = False
             artifact_path = os.path.join(self._af_dir, artifact)
-            print(f"[_upload_artifacts] Uploading {artifact} to {root_path} "
-                  f"artifact_path: {artifact_path}")
-            # small discourse, if it is .log file - compress it, but keep original
-            # upload .gz. then delete this gz
+            upload_tasks.append((artifact, artifact_path))
+
+        # Function to handle a single artifact upload
+        # args: (artifact, artifact_path)
+        # returns: (artifact, stored_url, error)
+        def process_and_upload_artifact(task: Tuple[str, str]) -> Tuple[str, str, str]:
+            artifact, artifact_path = task
+            compressed_file = False
+            dst_filename = artifact
+            upload_path = artifact_path
+
+            print(f"[_upload_artifacts] Processing {artifact}")
+
+            # Handle compression
             if artifact.endswith(".log"):
-                os.system(f"gzip -k {artifact_path}")
-                artifact_path = artifact_path + ".gz"
+                # Use subprocess for better control and error handling
+                subprocess.run(['gzip', '-k', artifact_path], check=True)
+                upload_path = artifact_path + ".gz"
                 compressed_file = True
                 dst_filename = artifact + ".gz"
-            else:
-                dst_filename = artifact
-            # if it is vmlinux - use xz compression
-            if artifact == "vmlinux":
-                os.system(f"xz -k {artifact_path}")
-                artifact_path = artifact_path + ".xz"
+            elif artifact == "vmlinux":
+                subprocess.run(['xz', '-k', artifact_path], check=True)
+                upload_path = artifact_path + ".xz"
                 compressed_file = True
                 dst_filename = artifact + ".xz"
-            stored_url = storage.upload_single(
-                (artifact_path, dst_filename), root_path
-            )
-            self._full_artifacts[artifact] = stored_url
-            artifact_key = self.map_artifact_name(artifact)
-            # map bzImage, zImage, Image,etc to "kernel"
-            if artifact in KERNEL_IMAGE_NAMES[self._arch]:
-                node_af['kernel'] = stored_url
-                # Future jobs can expect the kernel "type" as a parameter,
-                # which is actually the lowercase version of the kernel image
-                # filename
-                self._node['data']['kernel_type'] = artifact.lower()
-            else:
-                node_af[artifact_key] = stored_url
-            if compressed_file:
-                os.unlink(artifact_path)
-            print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
+
+            # Upload the file
+            try:
+                stored_url = storage.upload_single(
+                    (upload_path, dst_filename), root_path
+                )
+
+                # Clean up compressed file if needed
+                # TBD: Check if we need to keep the compressed file? Maybe
+                # we dont care, pod will die anyway
+                if compressed_file:
+                    os.unlink(upload_path)
+
+                print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
+                return artifact, stored_url, None
+            except Exception as e:
+                print(f"[_upload_artifacts] Error uploading {artifact}: {e}")
+                if compressed_file and os.path.exists(upload_path):
+                    os.unlink(upload_path)
+                return artifact, None, str(e)
+
+        # Process uploads in parallel
+        max_workers = min(10, len(upload_tasks))  # Limit concurrent uploads
+        successful_uploads = 0
+        failed_uploads = []
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            future_to_task = {
+                executor.submit(process_and_upload_artifact, task): task
+                for task in upload_tasks
+            }
+
+            # Process results as they complete
+            for future in concurrent.futures.as_completed(future_to_task):
+                artifact, stored_url, error = future.result()
+
+                if error:
+                    failed_uploads.append((artifact, error))
+                    continue
+
+                successful_uploads += 1
+                self._full_artifacts[artifact] = stored_url
+                artifact_key = self.map_artifact_name(artifact)
+
+                # Thread-safe update of node_af
+                with node_af_lock:
+                    if artifact in KERNEL_IMAGE_NAMES[self._arch]:
+                        node_af['kernel'] = stored_url
+                        self._node['data']['kernel_type'] = artifact.lower()
+                    else:
+                        node_af[artifact_key] = stored_url
+
+        # Report results
+        print(f"[_upload_artifacts] Upload complete: {successful_uploads} successful, "
+              f"{len(failed_uploads)} failed")
+
+        if failed_uploads:
+            print("[_upload_artifacts] Failed uploads:")
+            for artifact, error in failed_uploads:
+                print(f"  - {artifact}: {error}")
+
         print("[_upload_artifacts] Artifacts uploaded to storage")
         return node_af
 
