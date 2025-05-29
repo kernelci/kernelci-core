@@ -113,6 +113,18 @@ rootfs_configs:
     script: "scripts/bookworm-cros-ec-tests.sh"
     test_overlay: ""
 
+  bookworm-deqp-runner:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    script: "scripts/bookworm-deqp-runner.sh"
+    imagesize: 4GB
+    debos_memory: 8G
+    debos_scratchsize: 16G
+
   bookworm-fault-injection:
     rootfs_type: debos
     debian_release: bookworm
