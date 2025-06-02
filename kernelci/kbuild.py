@@ -291,8 +291,6 @@ class KBuild():
         os.makedirs(self._srcdir, exist_ok=True)
         self._fragments_dir = os.path.join(self._af_dir, "fragments")
         os.makedirs(self._fragments_dir, exist_ok=True)
-        # Add shell script header, assume bash
-        self._steps.append("#!/bin/bash -e")
         # Add comments about build metadata
         self.addcomment("Build metadata:")
         self.addcomment("  arch: " + self._arch)
@@ -427,7 +425,7 @@ class KBuild():
         # self.addcmdretry(f"git clone {FW_GIT} --depth 1", 10)
         # This file available https://storage.kernelci.org/linux-firmware.tar.gz
         # we download it there for better reliability
-        #self.addcmd("wget -c -t 10 --retry-on-host-error " +
+        # self.addcmd("wget -c -t 10 --retry-on-host-error " +
         #            "https://storage.kernelci.org/linux-firmware.tar.gz -O linux-firmware.tar.gz")
         # We should have cached copy of linux-firmware.tar.gz at /data directory
         self.addcmd("cp /data/linux-firmware.tar.gz .")
@@ -672,9 +670,25 @@ class KBuild():
         """ Write shell compile script to file """
         self._verify_network()
         self._generate_script()
+        fixed_header = """#!/bin/bash
+set -eE -o pipefail          # -E ⇒ trap inherits in functions/subshells
+
+stage=2                      # 1 = build, 2 = infrastructure
+
+trap 'case $stage in
+          0) exit 0;;        # any build command succeeded
+          1) exit 1;;        # any build command failed
+          2) exit 2;;        # any test command failed
+          *) exit $?;        # fallback for unexpected errors
+      esac' ERR
+
+"""
         with open(filename, 'w') as f:
+            f.write(fixed_header)
             for step in self._steps:
                 f.write(step + "\n")
+            f.write("stage=0\n")
+            f.write("kill $tailpid || true\n")
         print(f"Script written to {filename}")
         # copy to artifacts dir
         os.system(f"cp {filename} {self._af_dir}/build.sh")
@@ -684,9 +698,11 @@ class KBuild():
         self.startjob("build_kernel")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_kimage.log and build_kimage_stderr.log
+        self.addcmd("stage=1")  # stage 1 failure is kernel build failure
         self.addcmd("make -j$(nproc) " + MAKE_TARGETS[self._arch] + " " +
                     REDIR.format(self._af_dir + "/build_kimage.log",
                                  self._af_dir + "/build_kimage_stderr.log"))
+        self.addcmd("stage=2")
         self.addcmd("cd ..")
 
     def _build_modules(self):
@@ -700,10 +716,12 @@ class KBuild():
         self.addcmd("if [ $? -eq 0 ]; then")
         self.addcmd("set -e")
         # output to separate build_modules.log
+        self.addcmd("stage=1")
         self.addcmd("make -j$(nproc) modules " +
                     REDIR.format(self._af_dir + "/build_modules.log",
                                  self._af_dir + "/build_modules_stderr.log"))
         # << CONDITIONAL END >>
+        self.addcmd("stage=2")
         self.addcmd("fi")
         self.addcmd("set -e")
         self.addcmd("cd ..")
@@ -713,9 +731,11 @@ class KBuild():
         self.startjob("build_dtbs")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_dtbs.log
+        self.addcmd("stage=1")  # stage 1 failure is kernel build failure
         self.addcmd("make -j$(nproc) dtbs " +
                     REDIR.format(self._af_dir + "/build_dtbs.log",
                                  self._af_dir + "/build_dtbs_stderr.log"), False)
+        self.addcmd("stage=2")
         self.addcmd("cd ..")
 
     def _build_kselftest(self):
@@ -723,18 +743,22 @@ class KBuild():
         self.startjob("build_kselftest")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_kselftest.log
+        self.addcmd("stage=1")  # stage 1 failure is kselftest build failure
         self.addcmd("make -j$(nproc) kselftest-gen_tar " +
                     REDIR.format(self._af_dir + "/build_kselftest.log",
                                  self._af_dir + "/build_kselftest_stderr.log"), False)
+        self.addcmd("stage=2")
 
     def _build_dtbs_check(self):
         """ Check if dtbs are present """
         self.startjob("build_dtbs_check")
         self.addcmd("cd " + self._srcdir)
+        self.addcmd("stage=1")
         self.addcmd("make -j$(nproc) dtbs_check" + " --output-sync " +
                     REDIR.format(self._af_dir + "/build_dtbs_check.log",
                                  self._af_dir + "/build_dtbs_check_stderr.log") +
                     " && echo DTBS_CHECK_OK || echo DTBS_CHECK_FAILED $?", False)
+        self.addcmd("stage=2")
         self.addcmd("cd ..")
 
     def _package_kimage(self):
@@ -762,7 +786,9 @@ class KBuild():
         # << CONDITIONAL START >>
         self.addcmd("if [ $? -eq 0 ]; then")
         self.addcmd("set -e")
+        self.addcmd("stage=1")  # stage 1 failure is kernel build failure
         self.addcmd("make modules_install")
+        self.addcmd("stage=2")  # stage 2 failure is infrastructure failure
         self.addcmd(f"tar -C _modules_ -cJf {self._af_dir}/modules.tar.xz .")
         self.addcmd("cd ..")
         self.addcmd("rm -rf _modules_")
@@ -1069,7 +1095,12 @@ class KBuild():
         print("[_submit] Submitting results to API")
         # TODO/FIXME: real detailed job result
         # pass fail skip incomplete
-        if retcode != 0:
+        # retcode = 1 is build failure (fail),
+        # 2 is infrastructure failure (incomplete),
+        # 0 is success (pass)
+        if retcode == 2:
+            self.submit_failure("Infrastructure failure")
+        elif retcode == 1:
             job_result = 'fail'
         else:
             job_result = 'pass'
