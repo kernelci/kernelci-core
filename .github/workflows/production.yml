@@ -48,3 +48,14 @@ jobs:
               uses: Ilshidur/action-discord@master
               with:
                 args: 'Maestro production deploy completed.'
+    discord-notify-failure:
+        runs-on: ubuntu-latest
+        if: failure()
+        needs: [discord-notify-start, call-docker-build, deploy-k8s-production]
+        steps:
+            - name: Notify failure to Discord
+              env:
+                DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+              uses: Ilshidur/action-discord@master
+              with:
+                args: '❌ Maestro production deploy failed.'
