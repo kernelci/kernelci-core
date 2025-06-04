@@ -322,6 +322,19 @@ rootfs_configs:
       - xz-utils
     script: "scripts/bookworm-kselftest.sh"
 
+  bookworm-kvm-unit-tests:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+      - amd64
+      - arm64
+    extra_packages:
+      - python3-minimal
+      - python3-unittest2
+      - python3-yaml
+      - qemu-system
+    script: "scripts/bookworm-kvm-unit-tests.sh"
+
   bookworm-libcamera:
     rootfs_type: debos
     debian_release: bookworm
