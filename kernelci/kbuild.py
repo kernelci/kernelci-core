@@ -1079,6 +1079,7 @@ trap 'case $stage in
     def submit_failure(self, message):
         '''
         Submit to API that kbuild failed due internal error
+        (Infrastructure failure)
         '''
         node = self._node.copy()
         node['result'] = 'incomplete'
@@ -1093,7 +1094,7 @@ trap 'case $stage in
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
-        return
+        sys.exit(0)
 
     def submit(self, retcode, dry_run=False):
         '''
@@ -1169,6 +1170,7 @@ trap 'case $stage in
 
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
+        
         # do we have kselftest_tar_gz in artifact keys? then node is ok
         if self._kfselftest:
             kselftest_result = 'fail'
@@ -1176,6 +1178,13 @@ trap 'case $stage in
                 if artifact == 'kselftest_tar_gz':
                     kselftest_result = 'pass'
                     break
+
+        # This is second line of defense against kernel build failure,
+        # if 'kernel' is not in artifacts, we assume it is a failure
+        # but keep in mind dtbs_check can be run without kernel
+        if 'kernel' not in af_uri and not self._dtbs_check:
+            self.submit_failure("Kernel image not found in artifacts")
+
 
         if job_result == 'pass':
             job_state = 'available'
