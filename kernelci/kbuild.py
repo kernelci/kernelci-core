@@ -1170,7 +1170,7 @@ trap 'case $stage in
 
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
-        
+
         # do we have kselftest_tar_gz in artifact keys? then node is ok
         if self._kfselftest:
             kselftest_result = 'fail'
@@ -1184,7 +1184,6 @@ trap 'case $stage in
         # but keep in mind dtbs_check can be run without kernel
         if 'kernel' not in af_uri and not self._dtbs_check:
             self.submit_failure("Kernel image not found in artifacts")
-
 
         if job_result == 'pass':
             job_state = 'available'
