@@ -415,6 +415,28 @@ class KBuild():
             cmd += " || true"
         self._steps.append(cmd)
 
+    def enable_trap(self):
+        """ Enable trap for error handling, if shell script fails """
+        en_trap = """
+set -eE -o pipefail
+
+trap 'case $stage in
+          0) exit 0;;        # any build command succeeded
+          1) exit 1;;        # any build command failed
+          2) exit 2;;        # any test command failed
+          *) exit $?;        # fallback for unexpected errors
+      esac' ERR
+"""
+        self._steps.append(en_trap)
+
+    def disable_trap(self):
+        """ Disable trap for error handling,
+        if we have for example command EXPECTED to fail """
+        dis_trap = """set +eE -o pipefail
+trap - ERR
+"""
+        self._steps.append(dis_trap)
+
     def _fetch_firmware(self):
         '''
         Fetch firmware from linux-firmware repo
@@ -709,12 +731,12 @@ trap 'case $stage in
         """ Add kernel modules build steps """
         self.startjob("build_modules")
         self.addcmd("cd " + self._srcdir)
-        self.addcmd("set +e")
+        self.disable_trap()
         # Add conditional block for modules build
         self.addcmd("grep \"CONFIG_MODULES=y\" .config")
         # << CONDITIONAL START >>
         self.addcmd("if [ $? -eq 0 ]; then")
-        self.addcmd("set -e")
+        self.enable_trap()
         # output to separate build_modules.log
         self.addcmd("stage=1")
         self.addcmd("make -j$(nproc) modules " +
@@ -723,7 +745,8 @@ trap 'case $stage in
         # << CONDITIONAL END >>
         self.addcmd("stage=2")
         self.addcmd("fi")
-        self.addcmd("set -e")
+        self.enable_trap()
+        # was -e here
         self.addcmd("cd ..")
 
     def _build_dtbs(self):
@@ -781,11 +804,11 @@ trap 'case $stage in
         self.addcmd("cd " + self._srcdir)
         # Add conditional block for modules install
         # disable quit on error, as we don't want to fail if no modules
-        self.addcmd("set +e")
+        self.disable_trap()
         self.addcmd("grep \"CONFIG_MODULES=y\" .config")
         # << CONDITIONAL START >>
         self.addcmd("if [ $? -eq 0 ]; then")
-        self.addcmd("set -e")
+        self.enable_trap()
         self.addcmd("stage=1")  # stage 1 failure is kernel build failure
         self.addcmd("make modules_install")
         self.addcmd("stage=2")  # stage 2 failure is infrastructure failure
@@ -794,13 +817,14 @@ trap 'case $stage in
         self.addcmd("rm -rf _modules_")
         # << ELSE >>
         self.addcmd("else")
+        self.enable_trap()
         self.addcmd("echo \"No modules to install\"")
         self.addcmd("cd ..")
         # << CONDITIONAL END >>
         self.addcmd("fi")
-        self.addcmd("set -e")
         # add modules to artifacts relative to artifacts dir
         self._artifacts.append("modules.tar.xz")
+        self.enable_trap()
 
     def _package_coverage(self):
         """ Add coverage source packaging steps """
@@ -808,7 +832,7 @@ trap 'case $stage in
         self.addcmd("cd " + self._srcdir)
         # Add conditional block for gcov packing
         # Disable quit on error, as we don't want to fail here
-        self.addcmd("set +e")
+        self.disable_trap()
         # << CONDITIONAL START >>
         self.addcmd("if grep -q \"CONFIG_GCOV_KERNEL=y\" .config; then")
         # gcov needs both the source code **as configured for the build** (including
@@ -819,7 +843,7 @@ trap 'case $stage in
                     f"{self._af_dir}/coverage_source.tar.xz -P -T -", False)
         # << CONDITIONAL END >>
         self.addcmd("fi")
-        self.addcmd("set -e")
+        self.enable_trap()
         self._artifacts.append("coverage_source.tar.xz")
 
     def _package_kselftest(self):
