@@ -684,6 +684,8 @@ trap - ERR
         self.startjob(None)
         # indicate script is ended
         self.addcmd("echo Build script is completed, tail will be killed now")
+        self.addcmd("stage=0")
+        self.disable_trap()
         # kill tail
         self.addcmd("kill $tailpid || true")
         print("Shell script generated")
