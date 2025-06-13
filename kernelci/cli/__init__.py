@@ -18,6 +18,7 @@ import functools
 import json
 import re
 import typing
+import traceback
 
 import click
 import requests
@@ -89,8 +90,9 @@ def catch_error(func):
                 '\n'.join((str(ex), str(detail))) if detail else ex
             ) from ex
         except KeyError as ex:
+            traceback.print_exc()
             raise click.ClickException(
-                f"KerError: Value not found for {str(ex)}") from ex
+                f"KeyError: Value not found for {str(ex)}") from ex
     return call
 
 
