@@ -263,7 +263,12 @@ def get_api(config, api,
     """
     if not isinstance(config, dict):
         config = kernelci.config.load(config)
-    api_config = config['api'][api]
+    api_section = config.get('api', None)
+    if api_section is None:
+        raise click.ClickException("No API section found in the toml config")
+    api_config = api_section.get(api, None)
+    if api_config is None:
+        raise click.ClickException(f"API config {api} not found in the toml config")
     token = secrets.api.token if secrets else None
     return kernelci.api.get_api(api_config, token)
 

@@ -19,11 +19,11 @@
 
 # -- Sample global defaults ---
 #
-# [kci]
-# verbose = true
-# indent = 2
-# api = 'production'
-# storage = 'docker-host'
+[kci]
+verbose = true
+indent = 2
+api = 'production'
+storage = 'docker-host'
 
 # -- Sample docker command config --
 #
