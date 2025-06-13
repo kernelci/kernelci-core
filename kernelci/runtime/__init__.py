@@ -88,7 +88,11 @@ class Runtime(abc.ABC):
             self._templates.append(custom_template_dir)
             # Add relevant subdirectories
             for subdir in ["runtime", "runtime/base", "runtime/boot", "runtime/tests"]:
-                sub_path = os.path.join(custom_template_dir, subdir) if not custom_template_dir.endswith(subdir) else custom_template_dir
+                sub_path = (
+                    os.path.join(custom_template_dir, subdir)
+                    if not custom_template_dir.endswith(subdir)
+                    else custom_template_dir
+                )
                 if os.path.isdir(sub_path):
                     self._templates.append(sub_path)
         self._user = user
@@ -231,7 +235,8 @@ def get_runtime(config, user=None, token=None, custom_template_dir=None):
     """
     module_name = '.'.join(['kernelci', 'runtime', config.lab_type])
     runtime_module = importlib.import_module(module_name)
-    return runtime_module.get_runtime(config, user=user, token=token, custom_template_dir=custom_template_dir)
+    return runtime_module.get_runtime(config, user=user, token=token,
+                                      custom_template_dir=custom_template_dir)
 
 
 def get_all_runtimes(runtime_configs, opts, custom_template_dir=None):
@@ -251,7 +256,8 @@ def get_all_runtimes(runtime_configs, opts, custom_template_dir=None):
             opts.get_from_section(section, opt)
             for opt in ('user', 'runtime_token')
         )
-        runtime = get_runtime(config, user=user, token=token, custom_template_dir=custom_template_dir)
+        runtime = get_runtime(config, user=user, token=token,
+                              custom_template_dir=custom_template_dir)
         yield config_name, runtime
 
 
