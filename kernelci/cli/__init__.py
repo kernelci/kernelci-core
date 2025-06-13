@@ -180,6 +180,7 @@ class KciGroup(click.core.Group):
 
 @click.group(cls=KciGroup)
 @Args.settings
+# @Args.config  # Removed to allow subcommands to receive -c/--yaml-config
 @click.pass_context
 def kci(ctx, settings):
     """Entry point for the kci command line tool"""
