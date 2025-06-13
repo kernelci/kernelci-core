@@ -108,17 +108,7 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
         configs['storage'][storage]
         if storage else None
     )
-    if not runtime:
-        raise click.ClickException("No runtime provided (--runtime)")
-    runtimes_section = configs.get('runtimes', None)
-    if runtimes_section is None:
-        raise click.ClickException("No runtimes section found in the config")
-    runtime_config = runtimes_section.get(runtime, None)
-    if runtime_config is None:
-        raise click.ClickException(f"Runtime {runtime} not found in the config")
-    runtime = kernelci.runtime.get_runtime(
-        runtime_config, token=secrets.api.runtime_token,
-        custom_template_dir=config[0] if config else None)
+    runtime = _get_runtime(runtime, config, secrets)
     params = runtime.get_params(job, api.config)
     if not params:
         raise click.ClickException("Invalid job parameters, aborting...")
@@ -136,6 +126,16 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
         click.echo(f"Job saved in {output_file}")
     else:
         click.echo(job_data)
+
+
+def _get_runtime(runtime, config, secrets):
+    configs = kernelci.config.load(config)
+    runtime_config = configs['runtimes'][runtime]
+    runtime = kernelci.runtime.get_runtime(
+        runtime_config, token=secrets.api.runtime_token,
+        custom_template_dir=config[0] if config else None
+    )
+    return runtime
 
 
 @kci_job.command(secrets=True)
