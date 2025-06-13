@@ -12,7 +12,7 @@ import os
 import requests
 import yaml
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, ChoiceLoader
 
 from kernelci.config.base import get_system_arch
 
@@ -75,13 +75,22 @@ class Runtime(abc.ABC):
     TEMPLATES = ['config/runtime', '/etc/kernelci/runtime']
 
     # pylint: disable=unused-argument
-    def __init__(self, config, user=None, token=None):
+    def __init__(self, config, user=None, token=None, custom_template_dir=None):
         """A Runtime object can be used to run jobs in a runtime environment
 
         *config* is a kernelci.config.runtime.Runtime object
+        *custom_template_dir* is an optional custom directory for Jinja2 templates
         """
         self._config = config
-        self._templates = self.TEMPLATES
+        self._templates = self.TEMPLATES.copy()
+        if custom_template_dir:
+            # Add the main custom dir
+            self._templates.append(custom_template_dir)
+            # Add relevant subdirectories
+            for subdir in ["runtime", "runtime/base", "runtime/boot", "runtime/tests"]:
+                sub_path = os.path.join(custom_template_dir, subdir) if not custom_template_dir.endswith(subdir) else custom_template_dir
+                if os.path.isdir(sub_path):
+                    self._templates.append(sub_path)
         self._user = user
         self._token = token
 
@@ -96,8 +105,9 @@ class Runtime(abc.ABC):
         return self._templates
 
     def _get_template(self, job_config):
+        loaders = [FileSystemLoader(path) for path in self.templates]
         jinja2_env = Environment(
-            loader=FileSystemLoader(self.templates),
+            loader=ChoiceLoader(loaders),
             extensions=["jinja2.ext.do"]
         )
         jinja2_env.globals.update(self._get_jinja2_functions())
@@ -211,19 +221,20 @@ class Runtime(abc.ABC):
         """Wait for a job to complete and get the exit status code"""
 
 
-def get_runtime(config, user=None, token=None):
+def get_runtime(config, user=None, token=None, custom_template_dir=None):
     """Get the Runtime object for a given runtime config.
 
     *config* is a kernelci.config.runtime.Runtime object
     *user* is the name of the user to connect to the runtime
     *token* is the associated token to connect to the runtime
+    *custom_template_dir* is an optional custom directory for Jinja2 templates
     """
     module_name = '.'.join(['kernelci', 'runtime', config.lab_type])
     runtime_module = importlib.import_module(module_name)
-    return runtime_module.get_runtime(config, user=user, token=token)
+    return runtime_module.get_runtime(config, user=user, token=token, custom_template_dir=custom_template_dir)
 
 
-def get_all_runtimes(runtime_configs, opts):
+def get_all_runtimes(runtime_configs, opts, custom_template_dir=None):
     """Get all the Runtime objects based on the runtime configs and options
 
     This will iterate over all the runtimes configs and yield a (name, runtime)
@@ -232,6 +243,7 @@ def get_all_runtimes(runtime_configs, opts):
 
     *runtime_configs* is the 'runtimes' config loaded from YAML
     *opts* is an Options object loaded from the CLI args and settings file
+    *custom_template_dir* is an optional custom directory for Jinja2 templates
     """
     for config_name, config in runtime_configs.items():
         section = ('runtime', config_name)
@@ -239,7 +251,8 @@ def get_all_runtimes(runtime_configs, opts):
             opts.get_from_section(section, opt)
             for opt in ('user', 'runtime_token')
         )
-        yield config_name, get_runtime(config, user, token)
+        runtime = get_runtime(config, user=user, token=token, custom_template_dir=custom_template_dir)
+        yield config_name, runtime
 
 
 def evaluate_test_suite_result(child_nodes):
