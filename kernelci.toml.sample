@@ -22,7 +22,7 @@
 # [kci]
 # verbose = true
 # indent = 2
-# api = 'docker-host'
+# api = 'production'
 # storage = 'docker-host'
 
 # -- Sample docker command config --
