@@ -55,7 +55,8 @@ def new(name, input_node_id, platform,  # pylint: disable=too-many-arguments
         if runtime not in configs['runtimes']:
             raise click.ClickException(f"Invalid runtime {runtime}")
         runtime = kernelci.runtime.get_runtime(
-            configs['runtimes'][runtime], token=secrets.api.runtime_token)
+            configs['runtimes'][runtime], token=secrets.api.runtime_token,
+            custom_template_dir=config[0] if config else None)
     job_node = helper.create_job_node(job_config, input_node,
                                       platform=platform_config, runtime=runtime)
     if job_node:
@@ -89,7 +90,13 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
             job_node['artifacts'].update(parent_node['artifacts'])
         else:
             job_node['artifacts'] = parent_node['artifacts']
-    job = kernelci.runtime.Job(job_node, configs['jobs'][job_node['name']])
+    jobs_section = configs.get('jobs', None)
+    if jobs_section is None:
+        raise click.ClickException("No jobs section found in the config")
+    job_config = jobs_section.get(job_node['name'], None)
+    if job_config is None:
+        raise click.ClickException(f"Job {job_node['name']} not found in the config")
+    job = kernelci.runtime.Job(job_node, job_config)
     if platform is None:
         if 'platform' not in job_node['data']:
             raise click.ClickException(
@@ -101,9 +108,7 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
         configs['storage'][storage]
         if storage else None
     )
-    runtime_config = configs['runtimes'][runtime]
-    runtime = kernelci.runtime.get_runtime(
-        runtime_config, token=secrets.api.runtime_token)
+    runtime = _get_runtime(runtime, config, secrets)
     params = runtime.get_params(job, api.config)
     if not params:
         raise click.ClickException("Invalid job parameters, aborting...")
@@ -123,6 +128,16 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
         click.echo(job_data)
 
 
+def _get_runtime(runtime, config, secrets):
+    configs = kernelci.config.load(config)
+    runtime_config = configs['runtimes'][runtime]
+    runtime = kernelci.runtime.get_runtime(
+        runtime_config, token=secrets.api.runtime_token,
+        custom_template_dir=config[0] if config else None
+    )
+    return runtime
+
+
 @kci_job.command(secrets=True)
 @click.argument('job-path')
 @click.option('--wait', is_flag=True)
@@ -136,7 +151,8 @@ def submit(runtime, job_path, wait,  # pylint: disable=too-many-arguments
     configs = kernelci.config.load(config)
     runtime_config = configs['runtimes'][runtime]
     runtime = kernelci.runtime.get_runtime(
-        runtime_config, token=secrets.api.runtime_token
+        runtime_config, token=secrets.api.runtime_token,
+        custom_template_dir=config[0] if config else None
     )
     job = runtime.submit(job_path)
     click.echo(runtime.get_job_id(job))

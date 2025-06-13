@@ -38,7 +38,6 @@ def get_config_paths(config_paths):
         for config_path in ['config/core', '/etc/kernelci/core']:
             if os.path.isdir(config_path):
                 config_paths.append(config_path)
-                break
     elif isinstance(config_paths, str):
         config_paths = [config_paths]
     return config_paths
