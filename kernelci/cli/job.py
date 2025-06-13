@@ -107,7 +107,14 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
         configs['storage'][storage]
         if storage else None
     )
-    runtime_config = configs['runtimes'][runtime]
+    if not runtime:
+        raise click.ClickException("No runtime provided (--runtime)")
+    runtimes_section = configs.get('runtimes', None)
+    if runtimes_section is None:
+        raise click.ClickException("No runtimes section found in the config")
+    runtime_config = runtimes_section.get(runtime, None)
+    if runtime_config is None:
+        raise click.ClickException(f"Runtime {runtime} not found in the config")
     runtime = kernelci.runtime.get_runtime(
         runtime_config, token=secrets.api.runtime_token)
     params = runtime.get_params(job, api.config)
