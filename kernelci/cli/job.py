@@ -55,7 +55,7 @@ def new(name, input_node_id, platform,  # pylint: disable=too-many-arguments
         if runtime not in configs['runtimes']:
             raise click.ClickException(f"Invalid runtime {runtime}")
         runtime = kernelci.runtime.get_runtime(
-            configs['runtimes'][runtime], token=secrets.api.runtime_token)
+            configs['runtimes'][runtime], token=secrets.api.runtime_token, custom_template_dir=config[0] if config else None)
     job_node = helper.create_job_node(job_config, input_node,
                                       platform=platform_config, runtime=runtime)
     if job_node:
@@ -116,7 +116,7 @@ def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
     if runtime_config is None:
         raise click.ClickException(f"Runtime {runtime} not found in the config")
     runtime = kernelci.runtime.get_runtime(
-        runtime_config, token=secrets.api.runtime_token)
+        runtime_config, token=secrets.api.runtime_token, custom_template_dir=config[0] if config else None)
     params = runtime.get_params(job, api.config)
     if not params:
         raise click.ClickException("Invalid job parameters, aborting...")
@@ -149,7 +149,7 @@ def submit(runtime, job_path, wait,  # pylint: disable=too-many-arguments
     configs = kernelci.config.load(config)
     runtime_config = configs['runtimes'][runtime]
     runtime = kernelci.runtime.get_runtime(
-        runtime_config, token=secrets.api.runtime_token
+        runtime_config, token=secrets.api.runtime_token, custom_template_dir=config[0] if config else None
     )
     job = runtime.submit(job_path)
     click.echo(runtime.get_job_id(job))
