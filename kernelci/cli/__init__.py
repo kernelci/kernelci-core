@@ -18,6 +18,7 @@ import functools
 import json
 import re
 import typing
+import traceback
 
 import click
 import requests
@@ -89,8 +90,9 @@ def catch_error(func):
                 '\n'.join((str(ex), str(detail))) if detail else ex
             ) from ex
         except KeyError as ex:
+            traceback.print_exc()
             raise click.ClickException(
-                f"KerError: Value not found for {str(ex)}") from ex
+                f"KernelCI Error: Value not found for {str(ex)}") from ex
     return call
 
 
@@ -178,6 +180,7 @@ class KciGroup(click.core.Group):
 
 @click.group(cls=KciGroup)
 @Args.settings
+# @Args.config  # Removed to allow subcommands to receive -c/--yaml-config
 @click.pass_context
 def kci(ctx, settings):
     """Entry point for the kci command line tool"""
@@ -263,7 +266,12 @@ def get_api(config, api,
     """
     if not isinstance(config, dict):
         config = kernelci.config.load(config)
-    api_config = config['api'][api]
+    api_section = config.get('api', None)
+    if api_section is None:
+        raise click.ClickException("No API section found in the config")
+    api_config = api_section.get(api, None)
+    if api_config is None:
+        raise click.ClickException(f"API config {api} not found in the config")
     token = secrets.api.token if secrets else None
     return kernelci.api.get_api(api_config, token)
 

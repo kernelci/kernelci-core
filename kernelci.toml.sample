@@ -34,3 +34,8 @@
 #
 # [kci.secrets]
 # api.docker-host.token = 'my-secret-token'
+
+[kci]
+verbose = true
+indent = 2
+api = 'production'
