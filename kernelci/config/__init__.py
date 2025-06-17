@@ -22,9 +22,9 @@ def iterate_yaml_files(config_path: str):
     over the file(s) as (path, data) 2-tuples.
     """
     if config_path.endswith('.yaml'):
-        yaml_files = [config_path]
+        yaml_files = iter([config_path])
     else:
-        yaml_files = glob.glob(os.path.join(config_path, "*.yaml"))
+        yaml_files = glob.iglob(os.path.join(config_path, "**", "*.yaml"), recursive=True)
     for yaml_path in yaml_files:
         with open(yaml_path, encoding='utf8') as yaml_file:
             data = yaml.safe_load(yaml_file)

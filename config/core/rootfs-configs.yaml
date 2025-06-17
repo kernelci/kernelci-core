@@ -1,7 +1,3 @@
-# This is LEGACY system config, do not send any new patches for this file.
-# More details:
-# https://lore.kernel.org/kernelci/5b603b8f-c9b2-4148-7212-dd69a3fdf506@collabora.com/T/#u
-
 rootfs_configs:
   bookworm:
     rootfs_type: debos
@@ -116,6 +112,27 @@ rootfs_configs:
     linux_fw_version: d526e044bddaa2c2ad855c7296147e49be0ab03c
     script: "scripts/bookworm-cros-ec-tests.sh"
     test_overlay: ""
+
+  bookworm-deqp-runner:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    script: "scripts/bookworm-deqp-runner.sh"
+    imagesize: 4GB
+    debos_memory: 8G
+    debos_scratchsize: 16G
+
+  bookworm-fault-injection:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    script: "scripts/bookworm-fault-injection.sh"
 
   bookworm-gst-fluster:
     rootfs_type: debos
@@ -290,6 +307,7 @@ rootfs_configs:
       - perl
       - perl-modules-5.36
       - procps
+      - psmisc
       - publicsuffix
       - python3-minimal
       - python3-unittest2
@@ -341,10 +359,13 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
+      - ca-certificates
+      - curl
       - dosfstools
       - gdb-minimal
       - libnuma-dev
       - ntfs-3g
+      - python3
     script: "scripts/bookworm-ltp.sh"
     imagesize: 2GB
     debos_memory: 8G

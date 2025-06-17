@@ -1,0 +1,12 @@
+    - from: inline
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: reset-gcov
+          description: Reset GCOV data
+        run:
+          steps:
+          - GCOV_RESET="/sys/kernel/debug/gcov/reset"
+          - if [ -f ${GCOV_RESET} ]; then echo 1 > ${GCOV_RESET}; fi
+      name: reset-gcov
+      path: inline/reset-gcov.yaml

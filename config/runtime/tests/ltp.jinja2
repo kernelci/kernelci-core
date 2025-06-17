@@ -3,12 +3,20 @@
     timeout:
       minutes: {{ job_timeout|default(15) }}
     definitions:
-       - repository: https://github.com/kernelci/test-definitions
-         from: git
-         revision: kernelci.org
-         path: automated/linux/ltp/ltp.yaml
-         name: {{ node.name }}
-         parameters:
-            TST_CMDFILES: "{{ tst_cmdfiles|default('') }}"
-            SKIP_INSTALL: "{{ skip_install }}"
-            SKIPFILE: {{ skipfile }}
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-reset.jinja2" %}
+{% endif %}
+    - repository: https://github.com/kernelci/test-definitions
+      from: git
+      revision: kernelci.org
+      path: automated/linux/ltp/ltp.yaml
+      name: {{ node.name }}
+      parameters:
+        TST_CMDFILES: "{{ tst_cmdfiles|default('') }}"
+        SHARD_NUMBER: {{ shard_number|default(1) }}
+        SHARD_INDEX: {{ shard_index|default(1) }}
+        SKIP_INSTALL: "{{ skip_install }}"
+        SKIPFILE: {{ skipfile }}
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-upload.jinja2" %}
+{% endif %}

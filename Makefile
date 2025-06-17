@@ -37,6 +37,4 @@ unit-tests:
 	python3 -m pytest tests
 
 validate-yaml:
-	./kci config validate
-	./kci_build validate
 	./kci_rootfs validate

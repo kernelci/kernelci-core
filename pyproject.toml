@@ -21,7 +21,7 @@ dependencies = [
   "click==8.1.3",
   "cloudevents==1.9.0",
   "docker==7.1.0",
-  "jinja2==3.1.5",
+  "jinja2==3.1.6",
   "kubernetes==26.1.0",
   "paramiko==3.4.0",
   "pydantic==2.9.2",
@@ -74,10 +74,4 @@ Repository = "https://github.com/kernelci/kernelci-core"
 
 [project.scripts]
 kci = "kernelci.scripts.kci:main"
-kci_bisect = "kernelci.scripts.kci_bisect:main"
-kci_build = "kernelci.scripts.kci_build:main"
-kci_data = "kernelci.scripts.kci_data:main"
 kci_rootfs = "kernelci.scripts.kci_rootfs:main"
-kci_test = "kernelci.scripts.kci_test:main"
-kci-bisect-lava-v2-callback = "kernelci.scripts.kci_bisect_lava_v2_callback:main"
-kci-bisect-push-results = "kernelci.scripts.kci_bisect_push_results:main"

@@ -16,6 +16,7 @@ import yaml
 BUILDROOT_ARCH = {
     'arm': 'armel',
     'x86_64': 'x86',
+    'riscv64': 'riscv',
 }
 
 CROS_ARCH = {

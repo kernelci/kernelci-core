@@ -1,0 +1,31 @@
+- test:
+    timeout:
+      minutes: {{ job_timeout|default(20) }}
+    definitions:
+    - from: inline
+      name: "fault-injection-{{ test_name }}"
+      path: inline/fault-injection.yaml
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: fault-injection
+          description: |
+             Fault injection: {{ test_name }}
+             Type: {{ fail_type|default('failslab') }} | Iterations: {{ iterations|default(5) }}
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+            - |
+              for i in $(seq 1 {{ iterations|default(5) }}); do
+                echo "Iteration $i: {{ test_name }}"
+                FAILCMD_TYPE={{ fail_type|default('failslab') }} \
+                  /usr/local/bin/failcmd \
+                  --probability={{ probability|default(100) }} \
+                  --times={{ times|default(100) }} \
+                  --verbose=2 \
+                  "{{ test_command }}"
+                sleep {{ sleep_time|default(10) }}
+              done

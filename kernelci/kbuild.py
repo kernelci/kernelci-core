@@ -24,6 +24,7 @@ Available kbuild parameters:
 - kselftest: false - do not build kselftest
 """
 
+from datetime import datetime, timedelta
 import os
 import sys
 import re
@@ -32,13 +33,18 @@ import json
 import requests
 import time
 import yaml
+import concurrent.futures
+import threading
+import subprocess
 import kernelci.api
 import kernelci.api.helper
 import kernelci.config
 import kernelci.config.storage
 import kernelci.storage
+from typing import Dict, Tuple, List
 
-
+CIP_CONFIG_URL = \
+    "https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-/raw/master/{branch}/{config}"  # noqa
 CROS_CONFIG_URL = \
     "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
 LEGACY_CONFIG = [
@@ -163,6 +169,10 @@ class KBuild():
             if isinstance(self._defconfig, str) and '+' in self._defconfig:
                 self._defconfig = self._defconfig.split('+')
             self._fragments = params['fragments']
+            if 'coverage' in self._fragments:
+                self._coverage = True
+            else:
+                self._coverage = False
             if 'cross_compile' in params:
                 self._cross_compile = params['cross_compile']
             else:
@@ -281,8 +291,6 @@ class KBuild():
         os.makedirs(self._srcdir, exist_ok=True)
         self._fragments_dir = os.path.join(self._af_dir, "fragments")
         os.makedirs(self._fragments_dir, exist_ok=True)
-        # Add shell script header, assume bash
-        self._steps.append("#!/bin/bash -e")
         # Add comments about build metadata
         self.addcomment("Build metadata:")
         self.addcomment("  arch: " + self._arch)
@@ -407,6 +415,28 @@ class KBuild():
             cmd += " || true"
         self._steps.append(cmd)
 
+    def enable_trap(self):
+        """ Enable trap for error handling, if shell script fails """
+        en_trap = """
+set -eE -o pipefail
+
+trap 'case $stage in
+          0) exit 0;;        # success
+          1) exit 1;;        # any build command failed
+          2) exit 2;;        # any test command failed
+          *) exit $?;        # fallback for unexpected errors
+      esac' ERR
+"""
+        self._steps.append(en_trap)
+
+    def disable_trap(self):
+        """ Disable trap for error handling,
+        if we have for example command EXPECTED to fail """
+        dis_trap = """set +eE -o pipefail
+trap - ERR
+"""
+        self._steps.append(dis_trap)
+
     def _fetch_firmware(self):
         '''
         Fetch firmware from linux-firmware repo
@@ -417,13 +447,34 @@ class KBuild():
         # self.addcmdretry(f"git clone {FW_GIT} --depth 1", 10)
         # This file available https://storage.kernelci.org/linux-firmware.tar.gz
         # we download it there for better reliability
-        self.addcmd("wget -c -t 10 --retry-on-host-error " +
-                    "https://storage.kernelci.org/linux-firmware.tar.gz -O linux-firmware.tar.gz")
+        # self.addcmd("wget -c -t 10 --retry-on-host-error " +
+        #            "https://storage.kernelci.org/linux-firmware.tar.gz -O linux-firmware.tar.gz")
+        # We should have cached copy of linux-firmware.tar.gz at /data directory
+        self.addcmd("cp /data/linux-firmware.tar.gz .")
         self.addcmd("tar -xzf linux-firmware.tar.gz")
         self.addcmd("cd linux-firmware")
         self.addcmd("./copy-firmware.sh " + self._firmware_dir)
         self.addcmd("cd ..")
         # self.addcmd("rm -rf linux-firmware")
+
+    def _download_file(self, url):
+        """ Download file from url and return it in buffer """
+        try:
+            response = requests.get(url, timeout=30)
+            if response.status_code == 200:
+                return response.content
+        except requests.exceptions.RequestException as e:
+            print(f"Error downloading file: {e}")
+        return None
+
+    def _getcipfragment(self, fragment):
+        """ Get CIP specific configuration fragments """
+        [(branch, config)] = re.findall(r"cip://([\w\-.]+)/(.*)", fragment)
+        url = CIP_CONFIG_URL.format(branch=branch, config=config)
+        buffer = self._download_file(url)
+        if not buffer:
+            raise FileNotFoundError("Error reading {}".format(url))
+        return str(buffer)
 
     def _getcrosfragment(self, fragment):
         """ Get ChromeOS specific configuration fragments """
@@ -540,6 +591,8 @@ class KBuild():
             content = ''
             if fragment.startswith("cros://"):
                 (content, fragment) = self._getcrosfragment(fragment)
+            elif fragment.startswith("cip://"):
+                content = self._getcipfragment(fragment)
             elif fragment.startswith("CONFIG_"):
                 content = fragment + '\n'
             else:
@@ -618,6 +671,8 @@ class KBuild():
                 self._build_dtbs()
             self._package_kimage()
             self._package_modules()
+            if self._coverage:
+                self._package_coverage()
             if self._kfselftest:
                 self._package_kselftest()
             if self._arch not in DTBS_DISABLED:
@@ -637,9 +692,25 @@ class KBuild():
         """ Write shell compile script to file """
         self._verify_network()
         self._generate_script()
+        fixed_header = """#!/bin/bash
+set -eE -o pipefail          # -E ⇒ trap inherits in functions/subshells
+
+stage=2                      # 1 = build, 2 = infrastructure
+
+trap 'case $stage in
+          0) exit 0;;        # any build command succeeded
+          1) exit 1;;        # any build command failed
+          2) exit 2;;        # any test command failed
+          *) exit $?;        # fallback for unexpected errors
+      esac' ERR
+
+"""
         with open(filename, 'w') as f:
+            f.write(fixed_header)
             for step in self._steps:
                 f.write(step + "\n")
+            f.write("stage=0\n")
+            f.write("kill $tailpid || true\n")
         print(f"Script written to {filename}")
         # copy to artifacts dir
         os.system(f"cp {filename} {self._af_dir}/build.sh")
@@ -649,28 +720,33 @@ class KBuild():
         self.startjob("build_kernel")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_kimage.log and build_kimage_stderr.log
+        self.addcmd("stage=1")  # stage 1 failure is kernel build failure
         self.addcmd("make -j$(nproc) " + MAKE_TARGETS[self._arch] + " " +
                     REDIR.format(self._af_dir + "/build_kimage.log",
                                  self._af_dir + "/build_kimage_stderr.log"))
+        self.addcmd("stage=2")
         self.addcmd("cd ..")
 
     def _build_modules(self):
         """ Add kernel modules build steps """
         self.startjob("build_modules")
         self.addcmd("cd " + self._srcdir)
-        self.addcmd("set +e")
+        self.disable_trap()
         # Add conditional block for modules build
         self.addcmd("grep \"CONFIG_MODULES=y\" .config")
         # << CONDITIONAL START >>
         self.addcmd("if [ $? -eq 0 ]; then")
-        self.addcmd("set -e")
+        self.enable_trap()
         # output to separate build_modules.log
+        self.addcmd("stage=1")
         self.addcmd("make -j$(nproc) modules " +
                     REDIR.format(self._af_dir + "/build_modules.log",
                                  self._af_dir + "/build_modules_stderr.log"))
         # << CONDITIONAL END >>
+        self.addcmd("stage=2")
         self.addcmd("fi")
-        self.addcmd("set -e")
+        self.enable_trap()
+        # was -e here
         self.addcmd("cd ..")
 
     def _build_dtbs(self):
@@ -678,9 +754,11 @@ class KBuild():
         self.startjob("build_dtbs")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_dtbs.log
+        self.addcmd("stage=1")  # stage 1 failure is kernel build failure
         self.addcmd("make -j$(nproc) dtbs " +
                     REDIR.format(self._af_dir + "/build_dtbs.log",
                                  self._af_dir + "/build_dtbs_stderr.log"), False)
+        self.addcmd("stage=2")
         self.addcmd("cd ..")
 
     def _build_kselftest(self):
@@ -688,18 +766,22 @@ class KBuild():
         self.startjob("build_kselftest")
         self.addcmd("cd " + self._srcdir)
         # output to separate build_kselftest.log
+        self.addcmd("stage=1")  # stage 1 failure is kselftest build failure
         self.addcmd("make -j$(nproc) kselftest-gen_tar " +
                     REDIR.format(self._af_dir + "/build_kselftest.log",
                                  self._af_dir + "/build_kselftest_stderr.log"), False)
+        self.addcmd("stage=2")
 
     def _build_dtbs_check(self):
         """ Check if dtbs are present """
         self.startjob("build_dtbs_check")
         self.addcmd("cd " + self._srcdir)
+        self.addcmd("stage=1")
         self.addcmd("make -j$(nproc) dtbs_check" + " --output-sync " +
                     REDIR.format(self._af_dir + "/build_dtbs_check.log",
                                  self._af_dir + "/build_dtbs_check_stderr.log") +
                     " && echo DTBS_CHECK_OK || echo DTBS_CHECK_FAILED $?", False)
+        self.addcmd("stage=2")
         self.addcmd("cd ..")
 
     def _package_kimage(self):
@@ -722,24 +804,47 @@ class KBuild():
         self.addcmd("cd " + self._srcdir)
         # Add conditional block for modules install
         # disable quit on error, as we don't want to fail if no modules
-        self.addcmd("set +e")
+        self.disable_trap()
         self.addcmd("grep \"CONFIG_MODULES=y\" .config")
         # << CONDITIONAL START >>
         self.addcmd("if [ $? -eq 0 ]; then")
-        self.addcmd("set -e")
+        self.enable_trap()
+        self.addcmd("stage=1")  # stage 1 failure is kernel build failure
         self.addcmd("make modules_install")
+        self.addcmd("stage=2")  # stage 2 failure is infrastructure failure
         self.addcmd(f"tar -C _modules_ -cJf {self._af_dir}/modules.tar.xz .")
         self.addcmd("cd ..")
         self.addcmd("rm -rf _modules_")
         # << ELSE >>
         self.addcmd("else")
+        self.enable_trap()
         self.addcmd("echo \"No modules to install\"")
         self.addcmd("cd ..")
         # << CONDITIONAL END >>
         self.addcmd("fi")
-        self.addcmd("set -e")
         # add modules to artifacts relative to artifacts dir
         self._artifacts.append("modules.tar.xz")
+        self.enable_trap()
+
+    def _package_coverage(self):
+        """ Add coverage source packaging steps """
+        self.startjob("package_coverage")
+        self.addcmd("cd " + self._srcdir)
+        # Add conditional block for gcov packing
+        # Disable quit on error, as we don't want to fail here
+        self.disable_trap()
+        # << CONDITIONAL START >>
+        self.addcmd("if grep -q \"CONFIG_GCOV_KERNEL=y\" .config; then")
+        # gcov needs both the source code **as configured for the build** (including
+        # symlinks) and coverage data (*.gcno files)
+        # See https://www.kernel.org/doc/html/v6.12/dev-tools/gcov.html for details
+        self.addcmd(f"find {self._srcdir} \\( -name '*.gcno' -o -name '*.[ch]' " +
+                    "-o -type l \\) -a -perm /u+r,g+r | tar cJf " +
+                    f"{self._af_dir}/coverage_source.tar.xz -P -T -", False)
+        # << CONDITIONAL END >>
+        self.addcmd("fi")
+        self.enable_trap()
+        self._artifacts.append("coverage_source.tar.xz")
 
     def _package_kselftest(self):
         """ Add kselftest packagin steps """
@@ -839,50 +944,108 @@ class KBuild():
 
     def upload_artifacts(self):
         '''
-        Upload artifacts to storage
+        Upload artifacts to storage using parallel processing
         '''
-        # TODO: Upload not using upload_single, but upload as multiple files
         print("[_upload_artifacts] Uploading artifacts to storage")
+
+        # Thread-safe dictionaries for results
         node_af = {}
+        node_af_lock = threading.Lock()
+
         storage = self._get_storage()
         root_path = '-'.join([self._apijobname, self._node['id']])
+
+        # Prepare all artifacts for upload
+        upload_tasks = []
         for artifact in self._artifacts:
-            compressed_file = False
             artifact_path = os.path.join(self._af_dir, artifact)
-            print(f"[_upload_artifacts] Uploading {artifact} to {root_path} "
-                  f"artifact_path: {artifact_path}")
-            # small discourse, if it is .log file - compress it, but keep original
-            # upload .gz. then delete this gz
+            upload_tasks.append((artifact, artifact_path))
+
+        # Function to handle a single artifact upload
+        # args: (artifact, artifact_path)
+        # returns: (artifact, stored_url, error)
+        def process_and_upload_artifact(task: Tuple[str, str]) -> Tuple[str, str, str]:
+            artifact, artifact_path = task
+            compressed_file = False
+            dst_filename = artifact
+            upload_path = artifact_path
+
+            print(f"[_upload_artifacts] Processing {artifact}")
+
+            # Handle compression
             if artifact.endswith(".log"):
-                os.system(f"gzip -k {artifact_path}")
-                artifact_path = artifact_path + ".gz"
+                # Use subprocess for better control and error handling
+                subprocess.run(['gzip', '-k', artifact_path], check=True)
+                upload_path = artifact_path + ".gz"
                 compressed_file = True
                 dst_filename = artifact + ".gz"
-            else:
-                dst_filename = artifact
-            # if it is vmlinux - use xz compression
-            if artifact == "vmlinux":
-                os.system(f"xz -k {artifact_path}")
-                artifact_path = artifact_path + ".xz"
+            elif artifact == "vmlinux":
+                subprocess.run(['xz', '-k', artifact_path], check=True)
+                upload_path = artifact_path + ".xz"
                 compressed_file = True
                 dst_filename = artifact + ".xz"
-            stored_url = storage.upload_single(
-                (artifact_path, dst_filename), root_path
-            )
-            self._full_artifacts[artifact] = stored_url
-            artifact_key = self.map_artifact_name(artifact)
-            # map bzImage, zImage, Image,etc to "kernel"
-            if artifact in KERNEL_IMAGE_NAMES[self._arch]:
-                node_af['kernel'] = stored_url
-                # Future jobs can expect the kernel "type" as a parameter,
-                # which is actually the lowercase version of the kernel image
-                # filename
-                self._node['data']['kernel_type'] = artifact.lower()
-            else:
-                node_af[artifact_key] = stored_url
-            if compressed_file:
-                os.unlink(artifact_path)
-            print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
+
+            # Upload the file
+            try:
+                stored_url = storage.upload_single(
+                    (upload_path, dst_filename), root_path
+                )
+
+                # Clean up compressed file if needed
+                # TBD: Check if we need to keep the compressed file? Maybe
+                # we dont care, pod will die anyway
+                if compressed_file:
+                    os.unlink(upload_path)
+
+                print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
+                return artifact, stored_url, None
+            except Exception as e:
+                print(f"[_upload_artifacts] Error uploading {artifact}: {e}")
+                if compressed_file and os.path.exists(upload_path):
+                    os.unlink(upload_path)
+                return artifact, None, str(e)
+
+        # Process uploads in parallel
+        max_workers = min(10, len(upload_tasks))  # Limit concurrent uploads
+        successful_uploads = 0
+        failed_uploads = []
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            future_to_task = {
+                executor.submit(process_and_upload_artifact, task): task
+                for task in upload_tasks
+            }
+
+            # Process results as they complete
+            for future in concurrent.futures.as_completed(future_to_task):
+                artifact, stored_url, error = future.result()
+
+                if error:
+                    failed_uploads.append((artifact, error))
+                    continue
+
+                successful_uploads += 1
+                self._full_artifacts[artifact] = stored_url
+                artifact_key = self.map_artifact_name(artifact)
+
+                # Thread-safe update of node_af
+                with node_af_lock:
+                    if artifact in KERNEL_IMAGE_NAMES[self._arch]:
+                        node_af['kernel'] = stored_url
+                        self._node['data']['kernel_type'] = artifact.lower()
+                    else:
+                        node_af[artifact_key] = stored_url
+
+        # Report results
+        print(f"[_upload_artifacts] Upload complete: {successful_uploads} successful, "
+              f"{len(failed_uploads)} failed")
+
+        if failed_uploads:
+            print("[_upload_artifacts] Failed uploads:")
+            for artifact, error in failed_uploads:
+                print(f"  - {artifact}: {error}")
+
         print("[_upload_artifacts] Artifacts uploaded to storage")
         return node_af
 
@@ -913,9 +1076,10 @@ class KBuild():
         with open(metadata_file, 'w') as f:
             json.dump(metadata, f, indent=4)
 
-    def submit_failure(self, message):
+    def submit_failure(self, message, af_uri=None):
         '''
         Submit to API that kbuild failed due internal error
+        (Infrastructure failure)
         '''
         node = self._node.copy()
         node['result'] = 'incomplete'
@@ -924,13 +1088,16 @@ class KBuild():
             node['data'] = {}
         node['data']['error_code'] = 'kbuild_internal_error'
         node['data']['error_msg'] = message
+        # if artifacts are provided, add them to node
+        if af_uri:
+            node['artifacts'] = af_uri
         api = kernelci.api.get_api(self._api_config, self._api_token)
         try:
             api.node.update(node)
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
-        return
+        sys.exit(0)
 
     def submit(self, retcode, dry_run=False):
         '''
@@ -956,7 +1123,12 @@ class KBuild():
         print("[_submit] Submitting results to API")
         # TODO/FIXME: real detailed job result
         # pass fail skip incomplete
-        if retcode != 0:
+        # retcode = 1 is build failure (fail),
+        # 2 is infrastructure failure (incomplete),
+        # 0 is success (pass)
+        if retcode == 2:
+            self.submit_failure("Infrastructure failure")
+        elif retcode == 1:
             job_result = 'fail'
         else:
             job_result = 'pass'
@@ -1001,6 +1173,7 @@ class KBuild():
 
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
+
         # do we have kselftest_tar_gz in artifact keys? then node is ok
         if self._kfselftest:
             kselftest_result = 'fail'
@@ -1009,12 +1182,27 @@ class KBuild():
                     kselftest_result = 'pass'
                     break
 
+        # This is second line of defense against kernel build failure,
+        # if 'kernel' is not in artifacts, we assume it is a failure
+        # but keep in mind dtbs_check can be run without kernel
+        # um also special case, but need investigation
+        if 'kernel' not in af_uri and not self._dtbs_check \
+           and job_result == 'pass' \
+           and self._arch != 'um':
+            self.submit_failure("Kernel image not found in artifacts", af_uri)
+
+        if job_result == 'pass':
+            job_state = 'available'
+        else:
+            job_state = 'done'
+
         results = {
             'node': {
                 'name': self._apijobname,
                 'result': job_result,
-                'state': 'done',
+                'state': job_state,
                 'artifacts': af_uri,
+                'holdoff': str(datetime.utcnow() + timedelta(minutes=10)),
             },
             'child_nodes': []
         }

@@ -4,6 +4,9 @@
 
 set -e
 
+LTP_URL="https://github.com/linux-test-project/ltp.git"
+LTP_SHA=20250530
+
 # Version of Kirk to install
 KIRK_VERSION=v1.5
 
@@ -35,13 +38,10 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
 git config --global http.sslverify false
 
-LTP_URL="https://github.com/linux-test-project/ltp.git"
-LTP_SHA=$(git ls-remote ${LTP_URL} | head -n 1 | cut -f 1)
-
 echo '    {"name": "ltp-tests", "git_url": "'$LTP_URL'", "git_commit": "'$LTP_SHA'" }' >> $BUILDFILE
 echo '  ]}' >> $BUILDFILE
 
-git clone -b master ${LTP_URL}
+git clone -b ${LTP_SHA} ${LTP_URL}
 cd ltp
 
 # See https://github.com/kernelci/kernelci-core/issues/948
@@ -80,6 +80,7 @@ make install prefix=/opt/ltp
 git clone https://github.com/linux-test-project/kirk /opt/kirk
 cd /opt/kirk
 git reset --hard $KIRK_VERSION
+rm -rf ./.git
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
