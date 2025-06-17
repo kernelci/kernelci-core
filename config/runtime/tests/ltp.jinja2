@@ -17,6 +17,8 @@
         SHARD_INDEX: {{ shard_index|default(1) }}
         SKIP_INSTALL: "{{ skip_install }}"
         SKIPFILE: {{ skipfile }}
+        RUNNER: /opt/kirk/kirk
+        KIRK_WORKERS: {{ workers|default('1') }}
 {% if "coverage" in node.data.config_full %}
 {% include "util/gcov-upload.jinja2" %}
 {% endif %}
