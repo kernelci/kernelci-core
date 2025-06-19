@@ -62,6 +62,9 @@ class BaseJob:
     def __init__(self, api_config, node, workspace):
         self._api = self._get_api(api_config)
         self._node = node
+        self._parent = None
+        if node.get('parent'):
+            self._parent = self._api.node.get(self._node['parent'])
         self._workspace = workspace
 
     def _get_api(self, api_config_yaml):
@@ -86,22 +89,27 @@ class BaseJob:
         storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
         return kernelci.storage.get_storage(storage_config, storage_cred)
 
-    def _get_tarball_url(self, node):
-        if node.get('artifacts') and 'tarball' in node['artifacts']:
-            return node['artifacts']['tarball']
+    def _get_artifact_url(self, node, artifact):
+        if node.get('artifacts') and artifact in node['artifacts']:
+            return node['artifacts'][artifact]
         if node.get('parent'):
             parent = self._api.node.get(node['parent'])
-            return self._get_tarball_url(parent)
-        raise ValueError(f"'tarball' artifact not found in node {self._node['id']} ancestors")
+            return self._get_artifact_url(parent, artifact)
+        raise ValueError(f"'{artifact}' artifact not found in node {node['id']} ancestors")
 
-    def _get_source(self, url):
+    def _get_tarball_url(self, node):
+        return self._get_artifact_url(node, 'tarball')
+
+    def _get_source(self, url, path=None):
+        if path is None:
+            path = self._workspace
         resp = requests.get(url, stream=True)
         resp.raise_for_status()
         tarball_name = os.path.basename(urllib.parse.urlparse(url).path)
         base, ext = tarball_name.split('.tar.')
         with tarfile.open(fileobj=resp.raw, mode=f'r|{ext}') as tarball:
-            tarball.extractall(path=self._workspace)
-        return os.path.join(self._workspace, base)
+            tarball.extractall(path=path)
+        return os.path.join(path, base)
 
     def _run(self, src_path):
         raise NotImplementedError("_run() method required to run job")
@@ -119,10 +127,14 @@ class BaseJob:
         if self._node.get('debug') and 'dry_run' in self._node['debug']:
             return self.dry_run(self._node['debug']['result'])
 
-        print("Getting kernel source tree...")
-        tarball_url = self._get_tarball_url(self._node)
-        src_path = self._get_source(tarball_url)
-        print(f"Source directory: {src_path}")
+        if self._parent and self._parent.get('kind') == 'checkout':
+            print("Getting kernel source tree...")
+            tarball_url = self._get_tarball_url(self._node)
+            src_path = self._get_source(tarball_url)
+            print(f"Source directory: {src_path}")
+        else:
+            src_path = self._workspace
+
         print("Running job...")
         return self._run(src_path)
 
