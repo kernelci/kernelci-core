@@ -325,6 +325,7 @@ rootfs_configs:
   bookworm-kvm-unit-tests:
     rootfs_type: debos
     debian_release: bookworm
+    imagesize: 2GB
     arch_list:
       - amd64
       - arm64
