@@ -192,7 +192,7 @@ class Callback:
     def _get_results_hierarchy(self, results):
         hierarchy = []
         for name, value in results.items():
-            node = {'name': name}
+            node = {'name': name, 'state': 'done'}
             child_nodes = []
             item = {'node': node, 'child_nodes': child_nodes}
             if isinstance(value, dict):
