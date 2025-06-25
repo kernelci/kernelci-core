@@ -559,6 +559,8 @@ class APIHelper:
         root_node = root.copy()
         root_node['result'] = results['node']['result']
         root_node['state'] = results['node'].get('state', 'done')
+        if root_node.get('artifacts') is None:
+            root_node['artifacts'] = {}
         root_node['artifacts'].update(results['node']['artifacts'])
         root_node['data'].update(results['node'].get('data', {}))
         root_node['processed_by_kcidb_bridge'] = False
