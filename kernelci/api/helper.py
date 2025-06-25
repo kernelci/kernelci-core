@@ -559,7 +559,10 @@ class APIHelper:
         root_node = root.copy()
         root_node['result'] = results['node']['result']
         root_node['state'] = results['node'].get('state', 'done')
-        root_node['artifacts'].update(results['node']['artifacts'])
+        if root_node.get('artifacts'):
+            root_node['artifacts'].update(results['node']['artifacts'])
+        else:
+            root_node['artifacts'] = results['node']['artifacts']
         root_node['data'].update(results['node'].get('data', {}))
         root_node['processed_by_kcidb_bridge'] = False
         if 'holdoff' in results['node']:
