@@ -26,7 +26,9 @@
           - tar xf main.tar.gz -C /opt/
       name: platform-test-parameters-fetch
       path: inline/platform-test-parameters-fetch.yaml
-
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-reset.jinja2" %}
+{% endif %}
     - repository: https://github.com/kernelci/test-definitions.git
       from: git
       revision: kernelci.org
@@ -39,3 +41,6 @@
         TST_CASENAME: '{{ tests }}'
         SKIP_INSTALL: True
         ENV: '{{ env }}'
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-upload.jinja2" %}
+{% endif %}
