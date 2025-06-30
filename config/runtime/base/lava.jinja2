@@ -35,6 +35,17 @@ context:
   {% endif %}
 {% endif %}
 
+{%- if "coverage" in node.data.config_full -%}
+{%-   set coverage_timeout = 10 -%}
+{%- else -%}
+{%-   set coverage_timeout = 0 -%}
+{%- endif -%}
+{%- if job_timeout and (job_timeout > 15) -%}
+{%-   set full_timeout = job_timeout + 15 + coverage_timeout -%}
+{%- else -%}
+{%-   set full_timeout = 30 + coverage_timeout -%}
+{%- endif -%}
+
 timeouts:
   action:
     minutes: 10
@@ -42,11 +53,7 @@ timeouts:
     power-off:
       seconds: 30
   job:
-{%- if job_timeout and (job_timeout > 30) %}
-    minutes: {{ job_timeout + 15 }}
-{%- else %}
-    minutes: 30
-{%- endif %}
+    minutes: {{ full_timeout }}
   queue:
     days: 2
 
