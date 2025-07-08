@@ -80,7 +80,7 @@ jobs:
           echo "ROOTFS_TIMECODE=$(date +%Y%m%d.0)" >> $GITHUB_ENV
       - name: Copy files via scp to staging
         if: ${{ env.ROOTFS_DESTINATION == 'staging' }}
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USERNAME }}
@@ -91,7 +91,7 @@ jobs:
           strip_components: 8
       - name: Copy files via scp to production
         if: ${{ env.ROOTFS_DESTINATION == 'production' }}
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USERNAME }}
