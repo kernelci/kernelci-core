@@ -120,6 +120,13 @@ rootfs_configs:
       - amd64
       - arm64
       - armhf
+    extra_packages:
+      - dropbear
+      - libdrm2
+      - libproc2-0
+      - python3-minimal
+      - sntp
+      - zstd
     script: "scripts/bookworm-deqp-runner.sh"
     imagesize: 4GB
     debos_memory: 8G
