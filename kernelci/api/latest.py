@@ -163,7 +163,7 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
     def send_event(self, channel: str, data):
         self._post('/'.join(['publish', channel]), data)
 
-    def receive_event(self, sub_id: int):
+    def receive_event(self, sub_id: int, block: bool = True):
         path = '/'.join(['listen', str(sub_id)])
         while True:
             resp = self._get(path)
@@ -172,6 +172,10 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
                 continue
             event = from_json(data)
             if event.data == 'BEEP':
+                if not block:
+                    # If block is False, return None
+                    # for semi-nonblocking operation
+                    return None
                 continue
             return event
 
