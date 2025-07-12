@@ -64,9 +64,13 @@ class APIHelper:
             self._filters.pop(sub_id)
         self.api.unsubscribe(sub_id)
 
-    def receive_event_data(self, sub_id):
-        """Receive CloudEvent from Pub/Sub and return its data payload"""
-        return self.api.receive_event(sub_id).data
+    def receive_event_data(self, sub_id, keep_alive=False):
+        """Receive CloudEvent from Pub/Sub and return its data payload
+        If keep_alive is True, on receiving an "keep-alive" event,
+        such as "BEEP" ping, it will return None instead of the data.
+        Without this, it will block until an event is received.
+        """
+        return self.api.receive_event(sub_id, keep_alive=keep_alive).data
 
     def pop_event_data(self, list_name):
         """Receive CloudEvent from Redis list and return its data payload"""
