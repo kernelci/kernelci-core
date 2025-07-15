@@ -130,6 +130,8 @@ class Callback:
         login = (
             tests_map.get('auto-login-action') or tests_map.get('login-action')
         )
+        if not login:
+            return None
         result = login and login['result'] == 'pass'
         return 'pass' if result else 'fail'
 
@@ -137,6 +139,8 @@ class Callback:
     def _get_kernelmsg_case(cls, tests):
         tests_map = {test['name']: test for test in tests}
         kernelmsg = tests_map.get('kernel-messages')
+        if not kernelmsg:
+            return None
         result = kernelmsg and kernelmsg['result'] == 'pass'
         return 'pass' if result else 'fail'
 
@@ -169,10 +173,14 @@ class Callback:
         for suite_name, suite_results in self._data['results'].items():
             tests = yaml.safe_load(suite_results)
             if suite_name == 'lava':
-                results['setup'] = {
-                    'login': self._get_login_case(tests),
-                    'kernelmsg': self._get_kernelmsg_case(tests)
+                setup = {
+                    key: result for key, result in {
+                        'login': self._get_login_case(tests),
+                        'kernelmsg': self._get_kernelmsg_case(tests)
+                    }.items() if result
                 }
+                if setup:
+                    results['setup'] = setup
             else:
                 suite_name = suite_name.partition("_")[2]
                 results[suite_name] = self._get_suite_results(tests)
