@@ -130,7 +130,7 @@ class APIHelper:
                 continue
             if all(self.pubsub_event_filter(sub_id, obj)
                    for obj in [node, event]):
-                return node, event.get('is_hierarchy')
+                return node, event.get('is_hierarchy'), event.get('is_retry')
 
     def _find_container(self, field, node):
         """
