@@ -45,6 +45,11 @@ cargo install --locked  \
 popd
 rm -rf deqp-runner
 
+# Configure dropbear to allow blank password logins and generate host keys
+apt-get install --no-install-recommends -y dropbear
+sed -i 's/#DROPBEAR_EXTRA_ARGS=""/DROPBEAR_EXTRA_ARGS="-R -B"/' /etc/default/dropbear
+systemctl enable dropbear
+
 # Cleanup cargo cache
 rm -rf /root/.cargo/registry
 rustup self uninstall -y

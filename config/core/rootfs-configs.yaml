@@ -121,7 +121,6 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
-      - dropbear
       - libdrm2
       - libproc2-0
       - python3-minimal
