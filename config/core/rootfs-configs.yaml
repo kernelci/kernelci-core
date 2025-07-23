@@ -121,9 +121,14 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
-      - dropbear
+      - libcairo2
       - libdrm2
+      - libdw1
+      - libglib2.0-0
+      - libpciaccess0
       - libproc2-0
+      - libudev1
+      - libunwind8
       - python3-minimal
       - sntp
       - zstd
