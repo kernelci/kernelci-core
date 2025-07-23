@@ -4,7 +4,7 @@ api:
     url: http://172.17.0.1:8001
 
   production:
-    url: https://kernelci-api.westus3.cloudapp.azure.com
+    url: https://api.kernelci.org/
 
   staging:
     url: https://staging.kernelci.org:9000
