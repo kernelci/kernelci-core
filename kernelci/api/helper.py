@@ -130,7 +130,7 @@ class APIHelper:
                 continue
             if all(self.pubsub_event_filter(sub_id, obj)
                    for obj in [node, event]):
-                return node, event.get('is_hierarchy')
+                return node, event.get('is_hierarchy'), event.get('is_retry')
 
     def _find_container(self, field, node):
         """
@@ -413,7 +413,7 @@ class APIHelper:
         return node
 
     def create_job_node(self, job_config, input_node,
-                        runtime=None, platform=None):
+                        runtime=None, platform=None, retry_counter=0):
         """Create a new job node based on input and configuration"""
         jobfilter = input_node.get('jobfilter')
         platform_filter = input_node.get('platform_filter')
@@ -431,6 +431,7 @@ class APIHelper:
             'data': {
                 'kernel_revision': input_node['data']['kernel_revision'],
             },
+            'retry_counter': retry_counter,
         }
         if jobfilter:
             job_node['jobfilter'] = jobfilter
