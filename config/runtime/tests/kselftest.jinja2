@@ -13,7 +13,9 @@
           - systemctl stop systemd-timesyncd || true
       name: timesync-off
       path: inline/timesync-off.yaml
-
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-reset.jinja2" %}
+{% endif %}
     - repository: https://github.com/kernelci/test-definitions.git
       from: git
       revision: kernelci.org
@@ -26,3 +28,6 @@
         TST_CASENAME: '{{ tests }}'
         SKIP_INSTALL: True
         ENV: '{{ env }}'
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-upload.jinja2" %}
+{% endif %}
