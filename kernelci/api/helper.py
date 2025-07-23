@@ -412,6 +412,34 @@ class APIHelper:
                 self._fsanitize_node_fields(item, field_name)
         return node
 
+    def _is_job_filtered(self, node):
+        """
+        Check whether a node should be created based on the jobfilter list, if any.
+        Jobs can be created in the following cases:
+          * jobfilter explicitly contains the job name
+          * jobfilter contains the name of either the job or one of its ancestors
+            suffixed with a '+' sign.
+
+        As an example, if jobfilter contains 'kbuild-job-x86' (and no other entry),
+        then only the job named 'kbuild-job-x86' will be created. However, if this
+        entry is changed to 'kbuild-job-x86+', then the listed kbuild job will be
+        created, but also all of the (child) test jobs it would trigger.
+        """
+        jobfilter = node.get('jobfilter')
+        # if jobfilter not null, first check node.name exists in jobfilter
+        if jobfilter and node['name'] not in jobfilter:
+            # now check whether one the following is true:
+            #   * jobfilter contains the job name suffixed with '+'
+            #   * at least one element of the node's 'path' appears in jobilfter
+            #     with a '+' suffix
+            for filt in (item.rstrip('+') for item in jobfilter if item.endswith('+')):
+                if filt in node['path'] or filt == node['name']:
+                    return False
+
+            return True
+
+        return False
+
     def create_job_node(self, job_config, input_node,
                         runtime=None, platform=None, retry_counter=0):
         """Create a new job node based on input and configuration"""
@@ -438,8 +466,7 @@ class APIHelper:
         if platform_filter:
             job_node['platform_filter'] = platform_filter
 
-        # if jobfilter not null, verify if job_config.name exist in jobfilter
-        if jobfilter and job_config.name not in jobfilter:
+        if self._is_job_filtered(job_node):
             print(f"Filtered: Job {job_config.name} not found in jobfilter "
                   f"for node {input_node['id']}")
             return None
