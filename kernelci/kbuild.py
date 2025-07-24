@@ -1224,7 +1224,8 @@ trap 'case $stage in
         results['node']['data']['config_full'] = self._config_full
 
         # if we have kselftest, we need to add child node
-        if self._kfselftest:
+        # but only if build was successful
+        if self._kfselftest and job_result == 'pass':
             kselftest_node = self._node.copy()
             # remove id to not have same as parent
             kselftest_node.pop('id')
