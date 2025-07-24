@@ -33,7 +33,7 @@
       path: automated/linux/kselftest/kselftest.yaml
       name: '{{ node.name }}'
       parameters:
-        TESTPROG_URL: '{{ node.artifacts.kselftest_tar_gz }}'
+        KSELFTEST_PATH: /opt/kselftest
         SKIPFILE: /dev/null
         TST_CMDFILES: '{{ collections }}'
         TST_CASENAME: '{{ tests }}'
