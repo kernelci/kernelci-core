@@ -269,6 +269,10 @@ class Node(DatabaseModel):
         description="Flag to indicate if the node was processed by KCIDB-Bridge",
         default=False
     )
+    retry_counter: int = Field(
+        default=0,
+        description="Number of times the job has retried"
+    )
 
     OBJECT_ID_FIELDS: ClassVar[list] = ['parent']
     TIMESTAMP_FIELDS: ClassVar[list] = ['created', 'updated', 'timeout', 'holdoff']
