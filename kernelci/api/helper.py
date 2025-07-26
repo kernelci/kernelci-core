@@ -467,7 +467,7 @@ class APIHelper:
 
         if self._is_job_filtered(job_node):
             print(f"Filtered: Job {job_config.name} not found in jobfilter "
-                  f"for node {input_node['id']}")
+                  f"for node {input_node['id']} ({jobfilter})")
             return None
 
         if not self.should_create_node(job_config.rules, job_node, input_node):
