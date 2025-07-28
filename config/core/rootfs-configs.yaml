@@ -293,6 +293,7 @@ rootfs_configs:
       - bc
       - bpftool
       - ca-certificates
+      - curl
       - ethtool
       - iperf3
       - iproute2
