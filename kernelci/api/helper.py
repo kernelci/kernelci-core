@@ -441,7 +441,7 @@ class APIHelper:
         return False
 
     def create_job_node(self, job_config, input_node,
-                        runtime=None, platform=None):
+                        runtime=None, platform=None, retry_counter=0):
         """Create a new job node based on input and configuration"""
         jobfilter = input_node.get('jobfilter')
         platform_filter = input_node.get('platform_filter')
@@ -459,6 +459,7 @@ class APIHelper:
             'data': {
                 'kernel_revision': input_node['data']['kernel_revision'],
             },
+            'retry_counter': retry_counter,
         }
         if jobfilter:
             job_node['jobfilter'] = jobfilter
