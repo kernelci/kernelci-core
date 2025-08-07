@@ -61,12 +61,42 @@
             - sudo -u cros --login ssh root@$(lava-target-ip) tar -xzf /usr/test_vectors-vp9.tar.gz -C
             /usr/local/share/tast/data/go.chromium.org/tast-tests/cros/local/bundles/cros/video/data/ || true
 {%- endif %}
+{% if "coverage" in node.data.config_full %}
+            - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa /home/cros/gcov_* root@$(lava-target-ip):/usr/local/bin || true
+            - /home/cros/ssh_retry.sh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa root@$(lava-target-ip) /usr/local/bin/gcov_reset.sh || true
+            - lava-test-case gcov-scripts --result pass
+{% endif %}
             - lava-test-set stop setup
             - >-
               ./tast_parser.py --run
 {%- for test in tests %}
               {{ test }}
 {%- endfor %}
+              || true
+{% if "coverage" in node.data.config_full %}
+            - UPLOAD_PATH="{{ node.name }}-{{ node.id }}"
+            - UPLOAD_NAME="gcov.tar.gz"
+            # Pack and retrieve GCOV artifacts
+            - /home/cros/ssh_retry.sh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa root@$(lava-target-ip) /usr/local/bin/gcov_pack.sh
+              "/tmp/${UPLOAD_NAME}" || true
+            - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa root@$(lava-target-ip):"/tmp/${UPLOAD_NAME}" . || true
+            # Use set +x so we can don't echo secret tokens in the logs
+            - set +x
+            - . /lava-${LAVA_JOB_ID}/secrets
+            - >-
+              lava-test-case "artifact-upload:coverage_data:{{ storage_config.base_url }}/${UPLOAD_PATH}/${UPLOAD_NAME}"
+              --shell curl -X POST {{ storage_config.base_url }}/upload
+              -H "Authorization: Bearer ${UPLOAD_TOKEN}"
+              -F "file0=@${UPLOAD_NAME}"
+              -F "path=${UPLOAD_PATH}"
+              || true
+            # Re-enable set -x for the final commands
+            - set -x
+{% endif %}
             # Wait for DUT to shut down, or keep going if unreachable (e.g. crashed)
             - >-
               /home/cros/ssh_retry.sh
@@ -76,3 +106,7 @@
               root@$(lava-target-ip)
               poweroff && sleep 30 || true
             - ./tast_parser.py --results
+{% if "coverage" in node.data.config_full %}
+secrets:
+  UPLOAD_TOKEN: {{ storage_config.name }}-token
+{% endif %}
