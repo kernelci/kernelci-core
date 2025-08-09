@@ -474,7 +474,11 @@ trap - ERR
         buffer = self._download_file(url)
         if not buffer:
             raise FileNotFoundError("Error reading {}".format(url))
-        return str(buffer)
+        try:
+            plain_str = buffer.decode('utf-8')
+        except UnicodeDecodeError:
+            raise ValueError("Error decoding {}".format(url))
+        return plain_str
 
     def _getcrosfragment(self, fragment):
         """ Get ChromeOS specific configuration fragments """
