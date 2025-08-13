@@ -467,8 +467,8 @@ class APIHelper:
             job_node['platform_filter'] = platform_filter
 
         if self._is_job_filtered(job_node):
-            print(f"Filtered: Job {job_config.name} not found in jobfilter "
-                  f"for node {input_node['id']}")
+            print(f"Not creating node due to job filter. Job {job_config.name} "
+                  f"not found in jobfilter for node {input_node['id']}")
             return None
 
         if not self.should_create_node(job_config.rules, job_node, input_node):
