@@ -90,14 +90,25 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     u-boot-tools \
     uuid-dev \
     wget \
-    xz-utils
+    xz-utils \
+# FIXME: LCOV Dependencies, to be dropped when installing through apt
+    libjson-perl \
+    libperlio-gzip-perl \
+    libcapture-tiny-perl \
+    libdatetime-perl \
+    libtimedate-perl \
+    libdevel-cover-perl
 
 # Install dtschema for dtbs_check
 RUN pip3 install dtschema --break-system-packages
 
-# Install gcovr from pip as bookworm's version is too old
+# Install LCOV from upstream as bookworm's version is too old
 # FIXME: revert to installing with apt after switching to trixie
-RUN pip3 install gcovr --break-system-packages
+RUN wget -c https://github.com/linux-test-project/lcov/releases/download/v2.3.1/lcov-2.3.1.tar.gz && \
+    tar xvf lcov-2.3.1.tar.gz && \
+    cd lcov-2.3.1 && \
+    make install && \
+    cd .. && rm -rf lcov-2.3.1*
 
 # Download and build pahole v1.28
 RUN wget -c https://web.git.kernel.org/pub/scm/devel/pahole/pahole.git/snapshot/pahole-1.29.tar.gz && \
