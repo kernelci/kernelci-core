@@ -355,6 +355,14 @@ class Node(DatabaseModel):
         return translated_params
 
     @classmethod
+    def _translate_retry_counter(cls, params):
+        """Translate `retry_counter` field values into `int`"""
+        for key, value in params.items():
+            if key == "retry_counter":
+                params[key] = int(value)
+        return params
+
+    @classmethod
     def translate_fields(cls, params: dict):
         """Translate fields in `params` into objects as applicable
 
@@ -366,6 +374,7 @@ class Node(DatabaseModel):
         translated = dict(cls._translate_operators(params))
         translated.update(cls._translate_object_ids(translated))
         translated.update(cls._translate_timestamps(translated))
+        translated.update(cls._translate_retry_counter(translated))
         return translated
 
     def validate_node_state_transition(self, new_state):
