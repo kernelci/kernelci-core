@@ -269,7 +269,7 @@ class Node(DatabaseModel):
         description="Flag to indicate if the node was processed by KCIDB-Bridge",
         default=False
     )
-    retry_counter: int = Field(
+    retry_counter: StrictInt = Field(
         default=0,
         description="Number of times the job has retried"
     )
