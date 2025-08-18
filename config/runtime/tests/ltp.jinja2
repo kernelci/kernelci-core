@@ -19,6 +19,7 @@
         SKIPFILE: {{ skipfile }}
         RUNNER: /opt/kirk/kirk
         KIRK_WORKERS: {{ workers|default('1') }}
+        EXTRA_KIRK_ARGS: "{{ extra_kirk_args|default('') }}"
 {% if "coverage" in node.data.config_full %}
 {% include "util/gcov-upload.jinja2" %}
 {% endif %}
