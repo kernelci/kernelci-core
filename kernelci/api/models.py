@@ -627,6 +627,19 @@ class Job(Node):
     ]
 
 
+class Process(Node):
+    """API model for post-processing job nodes"""
+    class_kind: ClassVar[str] = 'process'
+    kind: Literal['process'] = Field(
+        default='process',
+        description='Type of the object',
+    )
+
+    OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
+        'data.regression',
+    ]
+
+
 class RegressionData(BaseModel):
     """Model for the data field of a Regression node"""
     fail_node: Optional[PyObjectId] = Field(
