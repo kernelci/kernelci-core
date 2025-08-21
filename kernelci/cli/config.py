@@ -119,6 +119,49 @@ def compare_builds(merged_data):
     return result
 
 
+def forecast_tests(merged_data, kbuild, checkout):
+    """
+    Forecast tests for a given kbuild and checkout.
+    """
+    tests = []
+    jobs = merged_data.get("scheduler", [])
+    for job in jobs:
+        kind = job.get("event", {}).get("kind")
+        if kind != "kbuild":
+            continue
+        if job.get("event", {}).get("name") != kbuild:
+            continue
+        scheduler_rules = job.get("rules", [])
+        job_name = job.get("job")
+        job_data = merged_data.get("jobs", {}).get(job_name, {})
+        job_rules = job_data.get("rules", [])
+        # we might have rules in scheduler entries too
+        scheduler_rules = job.get("rules", [])
+        node = {
+            "kind": "kbuild",
+            "data": {
+                "kernel_revision": {
+                    "tree": checkout.get("tree"),
+                    "branch": checkout.get("branch"),
+                    "version": {
+                        "version": 6,
+                        "patchlevel": 16,
+                        "extra": "-rc3-973-gb7d1bbd97f77"
+                    },
+                }
+            },
+        }
+        if not validate_rules(node, job_rules) or not validate_rules(node, scheduler_rules):
+            continue
+        # runtime/name in scheduler
+        runtime = job.get("runtime", {}).get("name")
+        platforms = job.get("platforms", [])
+        test_name = f"{job_name} ({runtime}) {platforms}"
+        tests.append(test_name)
+
+    return tests
+
+
 # pylint: disable=too-many-branches disable=too-many-locals
 def do_forecast(merged_data):
     """
@@ -172,7 +215,12 @@ def do_forecast(merged_data):
             }
             if not validate_rules(node, job_rules) or not validate_rules(node, scheduler_rules):
                 continue
-            checkout["kbuilds"].append(job_name)
+            tests = forecast_tests(merged_data, job_name, checkout)
+            kbuild = {
+                "name": job_name,
+                "tests": tests
+            }
+            checkout["kbuilds"].append(kbuild)
         checkout["kbuilds_identical"] = compare_builds(merged_data)
 
     # print the results
@@ -185,7 +233,10 @@ def do_forecast(merged_data):
             print(f"  Number of builds: {num_builds}")
             print("  Builds:")
             for build in checkout["kbuilds"]:
-                print(f"    - {build}")
+                print(f"    - {build['name']}")
+                print(f"      Number of tests: {len(build.get('tests', []))}")
+                for test in build.get('tests', []):
+                    print(f"      - {test}")
         else:
             print("  No builds found for this checkout")
 
