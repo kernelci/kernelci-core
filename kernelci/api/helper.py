@@ -134,7 +134,8 @@ class APIHelper:
 
     def _find_container(self, field, node):
         """
-        Return the first found dict containing a field of a given name
+        Return the first found dict containing a field of a given name,
+        recursing through all of the node's ancestors if not found.
         """
         for item in node:
             if isinstance(node[item], dict):
@@ -143,24 +144,24 @@ class APIHelper:
                     return base_object
             elif field == item:
                 return node
+        if node.get('parent'):
+            parent = self._api.node.get(node['parent'])
+            return self._find_container(field, parent)
         return None
 
-    # pylint: disable=too-many-arguments
-    def _is_allowed(self, rules, key, node, parent):
+    def _is_allowed(self, rules, key, node):
         """
         Check whether the value of a specific node attribute matches
         a filtering rule. As the specified attribute might not be present
         in the node being created, we fall back to checking the value in its
-        parent node in such cases.
+        ancestor nodes.
 
         Returns True if the rule allows the current value, False otherwise.
         """
 
-        # Find the node (or parent node) attribute corresponding to the
+        # Find the node (or ancestor node) attribute corresponding to the
         # rule we're applying
         base = self._find_container(key, node)
-        if not base and parent:
-            base = self._find_container(key, parent)
         if not base:
             return True
 
@@ -294,7 +295,7 @@ class APIHelper:
 
         return True
 
-    def should_create_node(self, rules, node, parent=None):
+    def should_create_node(self, rules, node):
         """
         Check whether a node should be created based on configured rules.
         Those can be specified in the job, platform or runtime configuration
@@ -356,11 +357,9 @@ class APIHelper:
         # Process the tree and branch rules first as they need specific processing
         # for handling tree/branch combinations
 
-        # Find the node (or parent node) attribute containing the "tree" (and therefore
+        # Find the node (or ancestor node) attribute containing the "tree" (and therefore
         # "branch") value
         ref_base = self._find_container("tree", node)
-        if not ref_base and parent:
-            ref_base = self._find_container("tree", parent)
         if ref_base and not self._is_tree_branch_allowed(ref_base, rules):
             return False
 
@@ -390,7 +389,7 @@ class APIHelper:
                           f"({rule_major}.{rule_minor})")
                     return False
 
-            elif not self._is_allowed(rules, key, node, parent):
+            elif not self._is_allowed(rules, key, node):
                 return False
 
         return True
@@ -440,6 +439,7 @@ class APIHelper:
 
         return False
 
+    # pylint: disable=too-many-arguments
     def create_job_node(self, job_config, input_node,
                         runtime=None, platform=None, retry_counter=0):
         """Create a new job node based on input and configuration"""
@@ -471,7 +471,7 @@ class APIHelper:
                   f"not found in jobfilter for node {input_node['id']}")
             return None
 
-        if not self.should_create_node(job_config.rules, job_node, input_node):
+        if not self.should_create_node(job_config.rules, job_node):
             print(f"Not creating node due to job rules for {job_config.name} "
                   f"evaluating node {input_node['id']}")
             return None
@@ -489,7 +489,7 @@ class APIHelper:
         # in case of kubernetes: cluster name
         if runtime:
             job_node['data']['runtime'] = runtime.config.name
-            if not self.should_create_node(runtime.config.rules, job_node, input_node):
+            if not self.should_create_node(runtime.config.rules, job_node):
                 print(f"Not creating node {input_node['id']} due to runtime rules "
                       f"for {runtime.config.name}")
                 return None
@@ -502,7 +502,7 @@ class APIHelper:
                       f"for node {input_node['id']}")
                 return None
             job_node['data']['platform'] = platform.name
-            if not self.should_create_node(platform.rules, job_node, input_node):
+            if not self.should_create_node(platform.rules, job_node):
                 print(f"Not creating node {input_node['id']} due to platform rules "
                       f"for {platform.name}")
                 return None
