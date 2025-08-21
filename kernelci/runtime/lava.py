@@ -267,7 +267,7 @@ result: {job_result} -> {final_job_result}")
 
         return {
             'node': {
-                'name': job_node['name'],
+                'name': f"{job_node['name']}-lava-testjob",
                 'result': job_result,
                 'artifacts': {},
                 'data': job_node['data'],
