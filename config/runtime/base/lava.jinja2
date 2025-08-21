@@ -36,15 +36,16 @@ context:
 {% endif %}
 
 {%- if "coverage" in node.data.config_full -%}
-{%-   set coverage_timeout = 10 -%}
+{%-   set coverage_timeout = 20 -%}
 {%- else -%}
 {%-   set coverage_timeout = 0 -%}
 {%- endif -%}
 {%- if job_timeout and (job_timeout > 15) -%}
-{%-   set full_timeout = job_timeout + 15 + coverage_timeout -%}
+{%-   set test_timeout = job_timeout + coverage_timeout -%}
 {%- else -%}
-{%-   set full_timeout = 30 + coverage_timeout -%}
+{%-   set test_timeout = 15 + coverage_timeout -%}
 {%- endif -%}
+{%- set full_timeout = 15 + test_timeout -%}
 
 timeouts:
   action:

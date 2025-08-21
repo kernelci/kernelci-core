@@ -1,7 +1,7 @@
 - test:
     name: {{ node.name }}
     timeout:
-      minutes: {{ job_timeout|default(15) }}
+      minutes: {{ test_timeout|default(15) }}
     definitions:
 {% if "coverage" in node.data.config_full %}
 {% include "util/gcov-reset.jinja2" %}
