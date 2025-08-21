@@ -31,7 +31,7 @@
 {% endif %}
     - repository: https://github.com/linaro/test-definitions.git
       from: git
-      revision: kernelci.org
+      revision: master
       path: automated/linux/kselftest/kselftest.yaml
       name: '{{ node.name }}'
       parameters:
