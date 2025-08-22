@@ -478,6 +478,11 @@ fragments:
       - 'CONFIG_FAIL_MMC_REQUEST=y'
       - 'CONFIG_FUNCTION_ERROR_INJECTION=y'
       - 'CONFIG_FAIL_FUNCTION=y'
+      - 'CONFIG_BLK_DEV_NULL_BLK_FAULT_INJECTION=y'
+      - 'CONFIG_BLK_DEV=y'
+      - 'CONFIG_BLK_DEV_NULL_BLK=m'
+      - 'CONFIG_SCSI_DEBUG=m'
+      - 'CONFIG_BLK_DEV_UBLK=y'
 
   ima:
     path: "kernel/configs/ima.config"
