@@ -23,6 +23,16 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 {{ super() }}
 
 ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
+staging.kernelci.org/\
+config/docker/data/gcov_pack.sh \
+/home/cros/gcov_pack.sh
+
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
+staging.kernelci.org/\
+config/docker/data/gcov_reset.sh \
+/home/cros/gcov_reset.sh
+
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
 kernelci.org/\
 config/docker/data/tast_parser.py \
 /home/cros/tast_parser.py
@@ -38,7 +48,8 @@ rootfs/debos/overlays/fluster/usr/bin/fluster_parser.py \
 
 # Needed by LAVA to install the overlay
 USER root
-RUN chmod +x /home/cros/tast_parser.py /home/cros/ssh_retry.sh
+RUN chmod +x /home/cros/tast_parser.py /home/cros/ssh_retry.sh \
+             /home/cros/gcov_pack.sh /home/cros/gcov_reset.sh
 
 # Create symlink to /usr/local/bin for tast gs:// downloads
 RUN ln -s /home/cros/trunk/chromite/bin/gsutil /usr/local/bin/
