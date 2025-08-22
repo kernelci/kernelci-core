@@ -15,7 +15,8 @@ BUILD_DEPS="\
     build-essential \
     ca-certificates \
     curl \
-    git
+    git \
+    python3-pip
 "
 
 export DEBIAN_FRONTEND=noninteractive
@@ -49,6 +50,14 @@ rm -rf deqp-runner
 apt-get install --no-install-recommends -y dropbear
 sed -i 's/#DROPBEAR_EXTRA_ARGS=""/DROPBEAR_EXTRA_ARGS="-R -B"/' /etc/default/dropbear
 systemctl enable dropbear
+
+# Install ci-fairy for kci-gitlab pipeline to upload artifacts to S3 from DUT
+CI_TEMPLATES_COMMIT="aec7a6ce7bb38902c70641526f6611e27141784a"
+pip3 install --break-system-packages \
+    "ci-fairy[s3] @ git+https://gitlab.freedesktop.org/freedesktop/ci-templates@$CI_TEMPLATES_COMMIT"
+
+# Cleanup pip cache
+rm -rf /root/.cache/pip
 
 # Cleanup cargo cache
 rm -rf /root/.cargo/registry
