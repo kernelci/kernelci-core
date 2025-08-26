@@ -100,7 +100,7 @@ RUN pip3 install dtschema --break-system-packages
 RUN pip3 install gcovr --break-system-packages
 
 # Download and build pahole v1.28
-RUN wget -c https://web.git.kernel.org/pub/scm/devel/pahole/pahole.git/snapshot/pahole-1.29.tar.gz && \
+RUN wget -c https://storage.kernelci.org/pahole-1.29.tar.gz && \
     tar -xzf pahole-1.29.tar.gz && \
     cd pahole-1.29 && \
     mkdir build && cd build && \
