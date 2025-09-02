@@ -59,6 +59,9 @@ cd nvmetcli
 git checkout rest-install
 python3 setup.py install
 
+# Packages to run blktests
+apt-get install --no-install-recommends -y blktrace fio gawk pciutils xfsprogs
+
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
 ########################################################################
