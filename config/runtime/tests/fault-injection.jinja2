@@ -23,8 +23,9 @@
                 echo "Iteration $i: {{ test_name }}"
                 FAILCMD_TYPE={{ fail_type|default('failslab') }} \
                   /usr/local/bin/failcmd \
-                  --probability={{ probability|default(100) }} \
-                  --times={{ times|default(100) }} \
+                  --interval={{ interval|default(1) }} \
+                  --probability={{ probability|default(range(1, 101)|random) }} \
+                  --times={{ times|default(-1) }} \
                   --verbose=2 \
                   "{{ test_command }}"
                 sleep {{ sleep_time|default(10) }}
