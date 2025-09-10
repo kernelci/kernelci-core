@@ -73,8 +73,8 @@ def _format_dict_strings(param, fmap):
     if isinstance(param, str):
         try:
             param = param.format_map(fmap)
-        except (KeyError, ValueError) as e:
-            print(f"Format string error in param '{param}': {e}")
+        except (KeyError, ValueError) as exc:
+            print(f"Format string error in param '{param}': {exc}")
             return param  # Don't do anything but keep python happy
     elif isinstance(param, dict):
         for key in param:
