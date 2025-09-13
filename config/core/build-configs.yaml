@@ -1016,6 +1016,7 @@ fragments:
       rtw88/rtw8822c_wow_fw.bin
       rtw89/rtw8852a_fw.bin
       iwlwifi-so-a0-gf-a0-86.ucode
+      iwlwifi-so-a0-gf-a0-89.ucode
       iwlwifi-so-a0-gf-a0.pnvm
       iwlwifi-QuZ-a0-hr-b0-77.ucode
       iwlwifi-7265D-29.ucode
