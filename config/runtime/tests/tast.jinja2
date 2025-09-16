@@ -78,6 +78,7 @@
 {% if "coverage" in node.data.config_full %}
             - UPLOAD_PATH="{{ node.name }}-{{ node.id }}"
             - UPLOAD_NAME="gcov.tar.gz"
+            - STORAGE_BASE_URL="{{ storage_config.base_url.rstrip('/') }}"
             # Pack and retrieve GCOV artifacts
             - /home/cros/ssh_retry.sh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
               -i /home/cros/.ssh/id_rsa root@$(lava-target-ip) /usr/local/bin/gcov_pack.sh
@@ -88,8 +89,8 @@
             - set +x
             - . /lava-${LAVA_JOB_ID}/secrets
             - >-
-              lava-test-case "artifact-upload:coverage_data:{{ storage_config.base_url }}/${UPLOAD_PATH}/${UPLOAD_NAME}"
-              --shell curl -X POST {{ storage_config.base_url }}/upload
+              lava-test-case "artifact-upload:coverage_data:${STORAGE_BASE_URL}/${UPLOAD_PATH}/${UPLOAD_NAME}"
+              --shell curl -X POST ${STORAGE_BASE_URL}/upload
               -H "Authorization: Bearer ${UPLOAD_TOKEN}"
               -F "file0=@${UPLOAD_NAME}"
               -F "path=${UPLOAD_PATH}"
