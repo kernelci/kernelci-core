@@ -18,6 +18,7 @@
           - TEMPDIR=$(mktemp -d)
           - UPLOAD_PATH="{{ node.name }}-{{ node.id }}"
           - UPLOAD_NAME="gcov.tar.gz"
+          - STORAGE_BASE_URL="{{ storage_config.base_url.rstrip('/') }}"
           # Retrieve GCOV artifacts
           # Taken from https://www.kernel.org/doc/html/v6.12/dev-tools/gcov.html#appendix-b-gather-on-test-sh
           - find $GCDA -type d -exec mkdir -p $TEMPDIR/\{\} \;
@@ -29,8 +30,8 @@
           - set +x
           - . /lava-${LAVA_JOB_ID}/secrets
           - >-
-            lava-test-case "artifact-upload:coverage_data:{{ storage_config.base_url }}/${UPLOAD_PATH}/${UPLOAD_NAME}"
-            --shell curl -X POST {{ storage_config.base_url }}/upload
+            lava-test-case "artifact-upload:coverage_data:${STORAGE_BASE_URL}/${UPLOAD_PATH}/${UPLOAD_NAME}"
+            --shell curl -X POST ${STORAGE_BASE_URL}/upload
             -H "Authorization: Bearer ${UPLOAD_TOKEN}"
             -F "file0=@${UPLOAD_NAME}"
             -F "path=${UPLOAD_PATH}"
