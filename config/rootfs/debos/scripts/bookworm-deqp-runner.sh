@@ -59,9 +59,9 @@ pip3 install --break-system-packages \
 # Cleanup pip cache
 rm -rf /root/.cache/pip
 
-# Cleanup cargo cache
-rm -rf /root/.cargo/registry
-rustup self uninstall -y
+# Cleanup rust
+rm -rf /root/.cargo
+rm -rf /root/.rustup
 
 apt-get remove --purge -y ${BUILD_DEPS}
 apt-get autoremove --purge -y
