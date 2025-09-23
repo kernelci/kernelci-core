@@ -13,6 +13,11 @@ on:
         description: 'Branch'
         required: true
         default: 'main'
+      SKIP_COMPILER_IMAGES:
+        type: boolean
+        description: 'Skip building compiler images'
+        required: false
+        default: false
 
 env:
   USER_GIT_OWNER: ${{ inputs.GIT_OWNER }}
@@ -34,7 +39,7 @@ jobs:
           - kciarch: 'arc'
             kcicmd: 'clang-15 kselftest kernelci'
     # only selected people can trigger this job
-    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor)
+    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor) && !inputs.SKIP_COMPILER_IMAGES
     runs-on: ubuntu-22.04
     environment: deploydocker
     steps:
