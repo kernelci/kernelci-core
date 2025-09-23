@@ -10,7 +10,6 @@ import os
 import sys
 import tempfile
 import unittest
-from pathlib import Path
 from unittest.mock import Mock, patch
 import yaml
 import toml
@@ -18,6 +17,7 @@ import toml
 from kernelci.context import KContext, create_context, create_context_from_args
 
 
+# pylint: disable=too-many-public-methods
 class TestKContext(unittest.TestCase):
     """Test cases for KContext class"""
 
@@ -74,17 +74,17 @@ class TestKContext(unittest.TestCase):
 
         # Write test files
         self.yaml_path = os.path.join(self.test_dir, 'config.yaml')
-        with open(self.yaml_path, 'w') as f:
-            yaml.dump(self.yaml_config, f)
+        with open(self.yaml_path, 'w', encoding='utf-8') as yaml_file:
+            yaml.dump(self.yaml_config, yaml_file)
 
         self.toml_path = os.path.join(self.test_dir, 'secrets.toml')
-        with open(self.toml_path, 'w') as f:
-            toml.dump(self.toml_secrets, f)
+        with open(self.toml_path, 'w', encoding='utf-8') as toml_file:
+            toml.dump(self.toml_secrets, toml_file)
 
     def tearDown(self):
         """Clean up test fixtures"""
         # Remove test files
-        import shutil
+        import shutil  # pylint: disable=import-outside-toplevel
         shutil.rmtree(self.test_dir)
 
     def test_init_with_paths(self):
@@ -258,11 +258,11 @@ class TestKContext(unittest.TestCase):
         api_config = {'api': {'test': {'url': 'https://test.com'}}}
         storage_config = {'storage': {'test': {'base_url': 'https://storage.test.com'}}}
 
-        with open(os.path.join(config_dir, 'api.yaml'), 'w') as f:
-            yaml.dump(api_config, f)
+        with open(os.path.join(config_dir, 'api.yaml'), 'w', encoding='utf-8') as yaml_file:
+            yaml.dump(api_config, yaml_file)
 
-        with open(os.path.join(config_dir, 'storage.yaml'), 'w') as f:
-            yaml.dump(storage_config, f)
+        with open(os.path.join(config_dir, 'storage.yaml'), 'w', encoding='utf-8') as yaml_file:
+            yaml.dump(storage_config, yaml_file)
 
         ctx = KContext(config_paths=config_dir)
 
@@ -325,8 +325,8 @@ class TestKContext(unittest.TestCase):
         }
 
         alt_toml_path = os.path.join(self.test_dir, 'alt_secrets.toml')
-        with open(alt_toml_path, 'w') as f:
-            toml.dump(alt_secrets, f)
+        with open(alt_toml_path, 'w', encoding='utf-8') as toml_file:
+            toml.dump(alt_secrets, toml_file)
 
         # Create config for alternative APIs
         alt_config = {
@@ -339,8 +339,8 @@ class TestKContext(unittest.TestCase):
         }
 
         alt_yaml_path = os.path.join(self.test_dir, 'alt_config.yaml')
-        with open(alt_yaml_path, 'w') as f:
-            yaml.dump(alt_config, f)
+        with open(alt_yaml_path, 'w', encoding='utf-8') as yaml_file:
+            yaml.dump(alt_config, yaml_file)
 
         ctx = KContext(
             config_paths=alt_yaml_path,

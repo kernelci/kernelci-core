@@ -26,6 +26,9 @@ def iterate_yaml_files(config_path: str):
     else:
         yaml_files = glob.iglob(os.path.join(config_path, "**", "*.yaml"), recursive=True)
     for yaml_path in yaml_files:
+        # Skip debos template files which contain Go template syntax
+        if '/debos/' in yaml_path:
+            continue
         with open(yaml_path, encoding='utf8') as yaml_file:
             data = yaml.safe_load(yaml_file)
             yield yaml_path, data
