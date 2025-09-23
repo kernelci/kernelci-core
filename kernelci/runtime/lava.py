@@ -3,14 +3,16 @@
 # Copyright (C) 2019 Linaro Limited
 # Author: Dan Rue <dan.rue@linaro.org>
 #
-# Copyright (C) 2019, 2021-2023 Collabora Limited
+# Copyright (C) 2019, 2021-2025 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Michal Galka <michal.galka@collabora.com>
+# Author: Denys Fedoryshchenko <denys.f@collabora.com>
 
 """LAVA runtime implementation"""
 
 from collections import namedtuple
 import time
+import uuid
 from urllib.parse import urljoin
 
 import requests
@@ -300,8 +302,9 @@ class LAVA(Runtime):
     API_VERSION = 'v0.2'
     RestAPIServer = namedtuple('RestAPIServer', ['url', 'session'])
 
-    def __init__(self, configs, **kwargs):
+    def __init__(self, configs, context=None, **kwargs):
         super().__init__(configs, **kwargs)
+        self._context = context
         self._server = self._connect()
 
     def _get_priority(self, job):
@@ -368,6 +371,8 @@ class LAVA(Runtime):
             time.sleep(3)
 
     def _connect(self):
+        if not hasattr(self.config, 'url') or not self.config.url:
+            return self.RestAPIServer(None, None)
         rest_url = f'{self.config.url}/api/{self.API_VERSION}/'
         rest_api = self.RestAPIServer(rest_url, requests.Session())
         rest_api.session.params = {'format': 'json', 'limit': '256'}
@@ -378,6 +383,9 @@ class LAVA(Runtime):
         return rest_api
 
     def _submit(self, job):
+        if self._server.url is None:
+            return self._store_job_in_external_storage(job)
+
         jobs_url = urljoin(self._server.url, 'jobs/')
         job_data = {
             'definition': job,
@@ -390,6 +398,36 @@ class LAVA(Runtime):
             print(f"Error submitting job: {resp.status_code}, {resp.text}")
         resp.raise_for_status()
         return resp.json()['job_ids'][0]
+
+    def _store_job_in_external_storage(self, job):
+        """Store job in external storage when LAVA server URL is not defined"""
+        if not self._context:
+            raise ValueError("Context is required for external storage but was not provided")
+
+        # Get default storage configuration name from TOML [DEFAULT] section
+        storage_name = self._context.get_default_storage_config()
+        if not storage_name:
+            # Fallback to first available storage if no default is specified
+            storage_names = self._context.get_storage_names()
+            if not storage_names:
+                raise ValueError("No storage configurations found in context")
+            storage_name = storage_names[0]
+
+        storage = self._context.init_storage(storage_name)
+        if not storage:
+            raise ValueError(f"Failed to initialize storage '{storage_name}'")
+
+        # Generate a unique filename for the job
+        filename = f"lava_job_definition"
+
+        # Store the job definition in external storage
+        try:
+            job_bytes = job.encode('utf-8')
+            storage.upload_single((filename, job_bytes))
+            print(f"Job stored in external storage '{storage_name}': {filename}")
+            return None
+        except Exception as e:
+            raise ValueError(f"Failed to store job in external storage: {e}")
 
 
 def get_runtime(runtime_config, **kwargs):

@@ -468,6 +468,22 @@ class KContext:
         """
         return self.get_api_config(name)
 
+    def get_default_storage_config(self) -> Optional[str]:
+        """Get default storage configuration name from TOML [DEFAULT] section
+
+        Returns:
+            Default storage configuration name or None if not found
+        """
+        return self.get_secret("DEFAULT.storage_config")
+
+    def get_default_api_config(self) -> Optional[str]:
+        """Get default API configuration name from TOML [DEFAULT] section
+
+        Returns:
+            Default API configuration name or None if not found
+        """
+        return self.get_secret("DEFAULT.api_config")
+
     def get_storage_names(self) -> List[str]:
         """Get list of all available storage configuration names
 
