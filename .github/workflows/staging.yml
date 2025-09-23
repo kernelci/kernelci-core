@@ -2,6 +2,12 @@ name: 'Staging deploy'
 
 on:
     workflow_dispatch:
+        inputs:
+            SKIP_COMPILER_IMAGES:
+                type: boolean
+                description: 'Skip building compiler images'
+                required: false
+                default: false
 
 jobs:
     prepare-staging-branches:
@@ -36,4 +42,4 @@ jobs:
         with:
             GIT_OWNER: 'kernelci'
             GIT_BRANCH: 'staging.kernelci.org'
-            SKIP_COMPILER_IMAGES: false
+            SKIP_COMPILER_IMAGES: ${{ inputs.SKIP_COMPILER_IMAGES }}
