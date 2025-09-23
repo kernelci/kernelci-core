@@ -17,6 +17,7 @@ from urllib.parse import urljoin
 
 import requests
 import yaml
+import tempfile
 
 from kernelci.runtime import (
     Runtime,
@@ -302,10 +303,11 @@ class LAVA(Runtime):
     API_VERSION = 'v0.2'
     RestAPIServer = namedtuple('RestAPIServer', ['url', 'session'])
 
-    def __init__(self, configs, context=None, **kwargs):
+    def __init__(self, configs, kcictx=None, **kwargs):
         super().__init__(configs, **kwargs)
-        self._context = context
+        self._context = kcictx
         self._server = self._connect()
+        self._stored_url = None
 
     def _get_priority(self, job):
         # Scale the job priority (from 0-100) within the available levels
@@ -333,6 +335,10 @@ class LAVA(Runtime):
             params['notify'] = self.config.notify
             params['priority'] = self._get_priority(job)
         return params
+    
+    def get_job_definition_url(self):
+        """Get the URL where the job definition was stored if any"""
+        return self._stored_url
 
     def generate(self, job, params):
         template = self._get_template(job.config)
@@ -417,17 +423,31 @@ class LAVA(Runtime):
         if not storage:
             raise ValueError(f"Failed to initialize storage '{storage_name}'")
 
-        # Generate a unique filename for the job
-        filename = f"lava_job_definition"
-
+        date_str = time.strftime("%Y%m%d")
+        unique_id = uuid.uuid4().hex
+        upload_path = f"/jobs/{date_str}/{unique_id}.yaml"
+        print(f"Storing def '{storage_name}' path: {upload_path} name: {unique_id}.yaml")
+        stored_url = None
         # Store the job definition in external storage
         try:
             job_bytes = job.encode('utf-8')
-            storage.upload_single((filename, job_bytes))
-            print(f"Job stored in external storage '{storage_name}': {filename}")
-            return None
+            with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
+                tmp_file.write(job_bytes)
+                tmp_file.flush()
+                local_file = tmp_file.name
+                artifact_name = f"{unique_id}.yaml"
+                stored_url = storage.upload_single(
+                    (local_file, artifact_name), upload_path,
+                )
+                self._stored_url = stored_url
+
+            if not self._stored_url:
+                raise ValueError("Upload returned no URL")
+            print(f"Job stored at URL: {stored_url}")
         except Exception as e:
             raise ValueError(f"Failed to store job in external storage: {e}")
+        
+        return None
 
 
 def get_runtime(runtime_config, **kwargs):

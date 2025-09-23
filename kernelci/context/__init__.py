@@ -81,7 +81,7 @@ class KContext:
         # Set default paths if not provided
         if not config_paths:
             # Check default locations
-            default_locations = ["config/core", "/etc/kernelci/core"]
+            default_locations = ["config"]
             for loc in default_locations:
                 if os.path.exists(loc):
                     config_paths = loc
@@ -89,7 +89,7 @@ class KContext:
 
         if not secrets_path:
             # Check default secrets locations
-            default_secrets = ["kernelci.toml", "/etc/kernelci/secrets.toml"]
+            default_secrets = ["kernelci.toml"]
             for loc in default_secrets:
                 if os.path.exists(loc):
                     secrets_path = loc
@@ -114,14 +114,15 @@ class KContext:
         Returns:
             Namespace with parsed CLI arguments
         """
-        # First, find where --runtimes appears and extract its values
-        argv = sys.argv[1:]  # Skip program name
+        # Create a copy of sys.argv to avoid modifying the original
+        argv = sys.argv[1:].copy()  # Skip program name and make a copy
         runtimes = []
 
-        # Find --runtimes and collect its values
+        # Find --runtimes and collect its values without modifying argv
         i = 0
         while i < len(argv):
             if argv[i] == "--runtimes":
+                runtime_idx = i
                 i += 1
                 # Collect values until we hit another option or end
                 while i < len(argv):
@@ -140,20 +141,46 @@ class KContext:
                 break
             i += 1
 
-        # Now parse the standard arguments
-        parser = argparse.ArgumentParser(add_help=False)
-        parser.add_argument("--settings", help="Path to TOML settings/secrets file")
-        parser.add_argument(
-            "--secrets", help="Path to TOML secrets file (alias for settings)"
-        )
-        parser.add_argument("--config", help="Path to YAML config file or directory")
-        parser.add_argument("--name", help="Program/section name")
+        # Create a custom namespace to store our values without consuming arguments
+        args = argparse.Namespace()
 
-        # Parse known args only to avoid conflicts with main program arguments
-        args, _ = parser.parse_known_args()
-
-        # Add the runtimes we extracted
+        # Manually extract our specific arguments without consuming them from sys.argv
+        # This way, other parsers can still access all arguments
+        args.settings = None
+        args.secrets = None
+        args.config = None
+        args.name = None
         args.runtimes = runtimes
+
+        # Look for our specific arguments in argv
+        i = 0
+        while i < len(argv):
+            if argv[i] == "--settings" and i + 1 < len(argv):
+                args.settings = argv[i + 1]
+                i += 2
+            elif argv[i] == "--secrets" and i + 1 < len(argv):
+                args.secrets = argv[i + 1]
+                i += 2
+            elif argv[i] == "--config" and i + 1 < len(argv):
+                args.config = argv[i + 1]
+                i += 2
+            elif argv[i] == "--name" and i + 1 < len(argv):
+                args.name = argv[i + 1]
+                i += 2
+            elif argv[i].startswith("--settings="):
+                args.settings = argv[i].split("=", 1)[1]
+                i += 1
+            elif argv[i].startswith("--secrets="):
+                args.secrets = argv[i].split("=", 1)[1]
+                i += 1
+            elif argv[i].startswith("--config="):
+                args.config = argv[i].split("=", 1)[1]
+                i += 1
+            elif argv[i].startswith("--name="):
+                args.name = argv[i].split("=", 1)[1]
+                i += 1
+            else:
+                i += 1
 
         return args
 
