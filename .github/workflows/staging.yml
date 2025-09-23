@@ -36,3 +36,4 @@ jobs:
         with:
             GIT_OWNER: 'kernelci'
             GIT_BRANCH: 'staging.kernelci.org'
+            SKIP_COMPILER_IMAGES: false
