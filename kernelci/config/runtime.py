@@ -83,7 +83,7 @@ class RuntimeLAVA(Runtime):
 
     # This should be solved by dropping the "priority" attribute
     # pylint: disable=too-many-arguments
-    def __init__(self, url, priority=None, priority_min=None,
+    def __init__(self, url=None, priority=None, priority_min=None,
                  priority_max=None, queue_timeout=None, notify=None,
                  **kwargs):
         super().__init__(**kwargs)

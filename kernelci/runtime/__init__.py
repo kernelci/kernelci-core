@@ -76,11 +76,12 @@ class Runtime(abc.ABC):
     TEMPLATES = ['config/runtime', '/etc/kernelci/runtime']
 
     # pylint: disable=unused-argument
-    def __init__(self, config, user=None, token=None, custom_template_dir=None):
+    def __init__(self, config, user=None, token=None, custom_template_dir=None, kcictx=None):
         """A Runtime object can be used to run jobs in a runtime environment
 
         *config* is a kernelci.config.runtime.Runtime object
         *custom_template_dir* is an optional custom directory for Jinja2 templates
+        *kcictx* is an optional KernelCI context object for passing program context
         """
         self._config = config
         self._templates = self.TEMPLATES.copy()
@@ -230,21 +231,23 @@ class Runtime(abc.ABC):
         """Wait for a job to complete and get the exit status code"""
 
 
-def get_runtime(config, user=None, token=None, custom_template_dir=None):
+def get_runtime(config, user=None, token=None, custom_template_dir=None, kcictx=None):
     """Get the Runtime object for a given runtime config.
 
     *config* is a kernelci.config.runtime.Runtime object
     *user* is the name of the user to connect to the runtime
     *token* is the associated token to connect to the runtime
     *custom_template_dir* is an optional custom directory for Jinja2 templates
+    *kcictx* is an optional KernelCI context object for passing program context
     """
     module_name = '.'.join(['kernelci', 'runtime', config.lab_type])
     runtime_module = importlib.import_module(module_name)
     return runtime_module.get_runtime(config, user=user, token=token,
-                                      custom_template_dir=custom_template_dir)
+                                      custom_template_dir=custom_template_dir,
+                                      kcictx=kcictx)
 
 
-def get_all_runtimes(runtime_configs, opts, custom_template_dir=None):
+def get_all_runtimes(runtime_configs, opts, custom_template_dir=None, kcictx=None):
     """Get all the Runtime objects based on the runtime configs and options
 
     This will iterate over all the runtimes configs and yield a (name, runtime)
@@ -254,6 +257,7 @@ def get_all_runtimes(runtime_configs, opts, custom_template_dir=None):
     *runtime_configs* is the 'runtimes' config loaded from YAML
     *opts* is an Options object loaded from the CLI args and settings file
     *custom_template_dir* is an optional custom directory for Jinja2 templates
+    *kcictx* is an optional KernelCI context object for passing program context
     """
     for config_name, config in runtime_configs.items():
         section = ('runtime', config_name)
@@ -262,7 +266,8 @@ def get_all_runtimes(runtime_configs, opts, custom_template_dir=None):
             for opt in ('user', 'runtime_token')
         )
         runtime = get_runtime(config, user=user, token=token,
-                              custom_template_dir=custom_template_dir)
+                              custom_template_dir=custom_template_dir,
+                              kcictx=kcictx)
         yield config_name, runtime
 
 
