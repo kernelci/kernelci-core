@@ -11,13 +11,13 @@
 """LAVA runtime implementation"""
 
 from collections import namedtuple
+import tempfile
 import time
 import uuid
 from urllib.parse import urljoin
 
 import requests
 import yaml
-import tempfile
 
 from kernelci.runtime import (
     Runtime,
@@ -335,7 +335,7 @@ class LAVA(Runtime):
             params['notify'] = self.config.notify
             params['priority'] = self._get_priority(job)
         return params
-    
+
     def get_job_definition_url(self):
         """Get the URL where the job definition was stored if any"""
         return self._stored_url
@@ -444,10 +444,8 @@ class LAVA(Runtime):
             if not self._stored_url:
                 raise ValueError("Upload returned no URL")
             print(f"Job stored at URL: {stored_url}")
-        except Exception as e:
-            raise ValueError(f"Failed to store job in external storage: {e}")
-        
-        return None
+        except Exception as exc:
+            raise ValueError(f"Failed to store job in external storage: {exc}") from exc
 
 
 def get_runtime(runtime_config, **kwargs):

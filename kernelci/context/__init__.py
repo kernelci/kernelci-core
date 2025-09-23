@@ -517,7 +517,7 @@ class KContext:
         Returns:
             List of storage configuration names
         """
-        storage_section = self._get_section_configs("storage")
+        storage_section = self.get_section_configs("storage")
         if storage_section and isinstance(storage_section, dict):
             return list(storage_section.keys())
         return []
@@ -528,7 +528,7 @@ class KContext:
         Returns:
             List of API configuration names
         """
-        api_section = self._get_section_configs("api")
+        api_section = self.get_section_configs("api")
         if api_section and isinstance(api_section, dict):
             return list(api_section.keys())
         return []
