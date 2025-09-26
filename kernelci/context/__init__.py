@@ -339,16 +339,7 @@ class KContext:
         if cred:
             result["storage_cred"] = cred
 
-        # Also check for alternative secret locations
-        if not cred:
-            # Check for password format
-            cred = self.get_secret(f"storage.{name}.password")
-            if cred:
-                result["storage_cred"] = cred
-            # Check kci.secrets format
-            cred = self.get_secret(f"kci.secrets.storage.{name}.password")
-            if cred:
-                result["storage_cred"] = cred
+        result['name'] = name  # Include the name in the config for reference
 
         return result
 

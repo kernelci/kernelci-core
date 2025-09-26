@@ -304,57 +304,6 @@ class TestKContext(unittest.TestCase):
         self.assertIn(self.toml_path, repr_str)
         self.assertIn('test', repr_str)
 
-    def test_alternative_secret_formats(self):
-        """Test alternative secret location formats"""
-        # Create secrets with alternative format
-        alt_secrets = {
-            'kci': {
-                'secrets': {
-                    'api': {
-                        'alt-api': {
-                            'token': 'alt-token'
-                        }
-                    },
-                    'storage': {
-                        'alt-storage': {
-                            'password': 'alt-password'
-                        }
-                    }
-                }
-            }
-        }
-
-        alt_toml_path = os.path.join(self.test_dir, 'alt_secrets.toml')
-        with open(alt_toml_path, 'w', encoding='utf-8') as toml_file:
-            toml.dump(alt_secrets, toml_file)
-
-        # Create config for alternative APIs
-        alt_config = {
-            'api': {
-                'alt-api': {'url': 'https://alt-api.com'}
-            },
-            'storage': {
-                'alt-storage': {'base_url': 'https://alt-storage.com'}
-            }
-        }
-
-        alt_yaml_path = os.path.join(self.test_dir, 'alt_config.yaml')
-        with open(alt_yaml_path, 'w', encoding='utf-8') as yaml_file:
-            yaml.dump(alt_config, yaml_file)
-
-        ctx = KContext(
-            config_paths=alt_yaml_path,
-            secrets_path=alt_toml_path
-        )
-
-        # Test API with alternative secret location
-        api_config = ctx.get_api_config('alt-api')
-        self.assertEqual(api_config['token'], 'alt-token')
-
-        # Test storage with password instead of storage_cred
-        storage_config = ctx.get_storage_config('alt-storage')
-        self.assertEqual(storage_config['storage_cred'], 'alt-password')
-
     def test_parse_cli_args(self):
         """Test parsing CLI arguments directly"""
         # Mock sys.argv
