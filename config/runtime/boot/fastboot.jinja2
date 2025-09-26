@@ -5,7 +5,11 @@
       dtb:
         url: '{{ node.artifacts.dtb }}'
       ramdisk:
+        {% if boot_commands == "ramdisk" %}
+        url: '{{ ramdiskroot }}/rootfs.cpio.gz'
+        {% else %}
         url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{{ brarch }}/rootfs.cpio.gz'
+        {% endif %}
         compression: gz
         format: cpio.newc
         overlays:
@@ -15,12 +19,24 @@
             compression: xz
             format: tar
             path: /
+          {% if boot_commands == "ramdisk" %}
+          kselftest:
+            compression: gz
+            format: tar
+            path: /opt/kselftests/mainline/
+            url: {{ node.artifacts.kselftest_tar_gz }}
+          {% endif %}
 {% set dtb = device_dtb.split('/')[-1] %}
+{% if boot_commands == "ramdisk" %}
+  {% set ramdisk_name = "rootfs.cpio.gz" %}
+{% else %}
+  {% set ramdisk_name = "rootfs.cpio.gz" %}
+{% endif %}
     postprocess:
       docker:
         image: ghcr.io/mwasilew/docker-mkbootimage:master
         steps:
-        - mkbootimg --header_version 2 --kernel Image --dtb {{ dtb }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk rootfs.cpio.gz --output boot.img
+        - mkbootimg --header_version 2 --kernel Image --dtb {{ dtb }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk {{ ramdisk_name }} --output boot.img
     to: downloads
 
 - deploy:
