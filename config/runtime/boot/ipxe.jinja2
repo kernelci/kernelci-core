@@ -1,0 +1,48 @@
+{%- if boot_commands == 'nfs' and nfsroot is not defined %}
+{%-   set nfsroot = 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250117.0/' + debarch %}
+{%- endif %}
+
+- deploy:
+    kernel:
+      type: {{ node.data.kernel_type }}
+      url: '{{ node.artifacts.kernel }}'
+    modules:
+      compression: xz
+      url: '{{ node.artifacts.modules }}'
+{%- if device_dtb %}
+    dtb:
+      url: '{{ node.artifacts.dtb }}'
+{%- endif %}
+{%- if boot_commands == 'nfs' %}
+    nfsrootfs:
+      url: '{{ nfsroot }}/full.rootfs.tar.xz'
+      compression: xz
+    ramdisk:
+      url: '{{ nfsroot }}/initrd.cpio.gz'
+      compression: gz
+    os: debian
+{%- else %}
+    ramdisk:
+      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{{ brarch }}/rootfs.cpio.gz'
+      compression: gz
+    os: oe
+{%- endif %}
+    timeout:
+      minutes: 10
+    to: tftp
+
+- boot:
+    method: ipxe
+    commands: {{ boot_commands | default('ramdisk', true) }}
+    failure_retry: 3
+    prompts:
+    - '/ #'
+    timeout:
+      minutes: 20
+    timeouts:
+      bootloader-commands:
+        minutes: 3
+      auto-login-action:
+        minutes: 6
+      login-action:
+        minutes: 2
