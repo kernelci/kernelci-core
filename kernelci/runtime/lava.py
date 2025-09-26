@@ -3,14 +3,17 @@
 # Copyright (C) 2019 Linaro Limited
 # Author: Dan Rue <dan.rue@linaro.org>
 #
-# Copyright (C) 2019, 2021-2023 Collabora Limited
+# Copyright (C) 2019, 2021-2025 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Michal Galka <michal.galka@collabora.com>
+# Author: Denys Fedoryshchenko <denys.f@collabora.com>
 
 """LAVA runtime implementation"""
 
 from collections import namedtuple
+import tempfile
 import time
+import uuid
 from urllib.parse import urljoin
 
 import requests
@@ -300,9 +303,11 @@ class LAVA(Runtime):
     API_VERSION = 'v0.2'
     RestAPIServer = namedtuple('RestAPIServer', ['url', 'session'])
 
-    def __init__(self, configs, **kwargs):
+    def __init__(self, configs, kcictx=None, **kwargs):
         super().__init__(configs, **kwargs)
+        self._context = kcictx
         self._server = self._connect()
+        self._stored_url = None
 
     def _get_priority(self, job):
         # Scale the job priority (from 0-100) within the available levels
@@ -330,6 +335,10 @@ class LAVA(Runtime):
             params['notify'] = self.config.notify
             params['priority'] = self._get_priority(job)
         return params
+
+    def get_job_definition_url(self):
+        """Get the URL where the job definition was stored if any"""
+        return self._stored_url
 
     def generate(self, job, params):
         template = self._get_template(job.config)
@@ -368,6 +377,8 @@ class LAVA(Runtime):
             time.sleep(3)
 
     def _connect(self):
+        if not hasattr(self.config, 'url') or not self.config.url:
+            return self.RestAPIServer(None, None)
         rest_url = f'{self.config.url}/api/{self.API_VERSION}/'
         rest_api = self.RestAPIServer(rest_url, requests.Session())
         rest_api.session.params = {'format': 'json', 'limit': '256'}
@@ -378,6 +389,9 @@ class LAVA(Runtime):
         return rest_api
 
     def _submit(self, job):
+        if self._server.url is None:
+            return self._store_job_in_external_storage(job)
+
         jobs_url = urljoin(self._server.url, 'jobs/')
         job_data = {
             'definition': job,
@@ -390,6 +404,48 @@ class LAVA(Runtime):
             print(f"Error submitting job: {resp.status_code}, {resp.text}")
         resp.raise_for_status()
         return resp.json()['job_ids'][0]
+
+    def _store_job_in_external_storage(self, job):
+        """Store job in external storage when LAVA server URL is not defined"""
+        if not self._context:
+            raise ValueError("Context is required for external storage but was not provided")
+
+        # Get default storage configuration name from TOML [DEFAULT] section
+        storage_name = self._context.get_default_storage_config()
+        if not storage_name:
+            # Fallback to first available storage if no default is specified
+            storage_names = self._context.get_storage_names()
+            if not storage_names:
+                raise ValueError("No storage configurations found in context")
+            storage_name = storage_names[0]
+
+        storage = self._context.init_storage(storage_name)
+        if not storage:
+            raise ValueError(f"Failed to initialize storage '{storage_name}'")
+
+        date_str = time.strftime("%Y%m%d")
+        unique_id = uuid.uuid4().hex
+        upload_path = f"/jobs/{date_str}/{unique_id}.yaml"
+        print(f"Storing def '{storage_name}' path: {upload_path} name: {unique_id}.yaml")
+        stored_url = None
+        # Store the job definition in external storage
+        try:
+            job_bytes = job.encode('utf-8')
+            with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
+                tmp_file.write(job_bytes)
+                tmp_file.flush()
+                local_file = tmp_file.name
+                artifact_name = f"{unique_id}.yaml"
+                stored_url = storage.upload_single(
+                    (local_file, artifact_name), upload_path,
+                )
+                self._stored_url = stored_url
+
+            if not self._stored_url:
+                raise ValueError("Upload returned no URL")
+            print(f"Job stored at URL: {stored_url}")
+        except Exception as exc:
+            raise ValueError(f"Failed to store job in external storage: {exc}") from exc
 
 
 def get_runtime(runtime_config, **kwargs):
