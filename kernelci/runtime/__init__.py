@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2019, 2021-2023 Collabora Limited
+# Copyright (C) 2019, 2021-2025 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Denys Fedoryshchenko <denys.f@collabora.com>
 
 """KernelCI Runtime environment base class definition"""
 
@@ -142,6 +143,9 @@ class Runtime(abc.ABC):
         instanceid = os.environ.get('KCI_INSTANCE')
         instance_callback = os.environ.get('KCI_INSTANCE_CALLBACK')
         device_dtb = None
+        device_type = job.platform_config.name
+        if job.platform_config.base_name and len(job.platform_config.base_name) > 0:
+            device_type = job.platform_config.base_name
         if job.platform_config.dtb and len(job.platform_config.dtb) > 0:
             # verify if we have metadata at all
             if 'metadata' not in job.node['artifacts']:
@@ -172,6 +176,7 @@ class Runtime(abc.ABC):
             'node': job.node,
             'runtime': self.config.lab_type,
             'runtime_image': job.config.image,
+            'device_type': device_type,
         }
         if job.platform_config.params:
             params.update(job.platform_config.params)
