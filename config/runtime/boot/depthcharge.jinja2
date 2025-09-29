@@ -27,7 +27,16 @@
 {%- if boot_commands == 'nfs' and nfsroot %}
     nfsrootfs:
       compression: xz
+      format: tar
       url: '{{ nfsroot }}/full.rootfs.tar.xz'
+      {%- if node.artifacts.kselftest_tar_gz %}
+      overlays:
+        kselftest:
+          url: {{ node.artifacts.kselftest_tar_gz }}
+          compression: gz
+          format: tar
+          path: /opt/kselftest
+      {%- endif %}
     ramdisk:
       compression: gz
       url: '{{ nfsroot }}/initrd.cpio.gz'
