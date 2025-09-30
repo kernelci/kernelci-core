@@ -11,14 +11,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  check:
+  unit-tests:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ['3.10', '3.11']
 
     steps:
-
       - name: Check out source code
         uses: actions/checkout@v4
 
@@ -39,17 +38,85 @@ jobs:
         run: |
           make unit-tests
 
+  pycodestyle:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+          cache-dependency-path: 'requirements-dev.txt'
+
+      - name: Install Python packages
+        run: |
+          pip install -r requirements-dev.txt
+
       - name: Run pycodestyle
         run: |
           make pycodestyle
+
+  pylint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+          cache-dependency-path: 'requirements-dev.txt'
+
+      - name: Install Python packages
+        run: |
+          pip install -r requirements-dev.txt
 
       - name: Run pylint
         run: |
           make pylint
 
+  mypy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+          cache-dependency-path: 'requirements-dev.txt'
+
+      - name: Install Python packages
+        run: |
+          pip install -r requirements-dev.txt
+
       - name: Run mypy
         run: |
           make mypy
+
+  validate-yaml:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+          cache-dependency-path: 'requirements-dev.txt'
+
+      - name: Install Python packages
+        run: |
+          pip install -r requirements-dev.txt
 
       - name: Run YAML config validation
         run: |
