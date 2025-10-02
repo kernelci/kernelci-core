@@ -41,7 +41,7 @@ def kci_docker():
 
     The image and fragment names are positional arguments.  For example:
 
-        kci docker build gcc-10 --arch=x86 kernelci kselftest
+        kci docker build gcc-12 --arch=x86 kernelci kselftest
 
         kci docker generate kernelci
     """
