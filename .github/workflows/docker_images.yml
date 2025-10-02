@@ -53,7 +53,6 @@ jobs:
           path: kernelci-core
       - name: Prepare necessary tools
         run: |
-          sudo apt-get remove containerd.io
           pip3 install --upgrade pip
           cd kernelci-core
           python3 -m pip install '.[dev]' --break-system-packages
@@ -149,7 +148,6 @@ jobs:
           path: kernelci-api
       - name: Prepare necessary tools
         run: |
-          sudo apt-get remove containerd.io
           pip3 install --upgrade pip
           cd kernelci-core
           python3 -m pip install '.[dev]' --break-system-packages
