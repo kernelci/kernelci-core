@@ -147,11 +147,6 @@ jobs:
           ref: ${{ env.USER_GIT_BRANCH }}
           fetch-depth: 0
           path: kernelci-api
-      - name: Cache apt packages
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: python3-pip git docker.io python3-docker
-          version: 1.0
       - name: Prepare necessary tools
         run: |
           sudo apt-get remove containerd.io
@@ -159,6 +154,15 @@ jobs:
           cd kernelci-core
           python3 -m pip install '.[dev]' --break-system-packages
           sudo cp -R config /etc/kernelci/
+      - name: Cache apt packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: python3-pip git docker.io python3-docker
+          version: 1.0
+      - name: Make sure docker is running
+        run: |
+          sudo systemctl start docker
+          sudo systemctl status docker
       - name: Dockerhub login by token
         run: |
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
