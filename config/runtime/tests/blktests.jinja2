@@ -1,0 +1,19 @@
+- test:
+    timeout:
+      minutes: {{ job_timeout|default('20') }}
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ node.name }}
+          description: "blktests"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - /usr/bin/run-blktests.sh "{{ test_group }}" "{{ test_device }}"
+      from: inline
+      name: {{ node.name }}
+      path: inline/{{ node.name }}.yaml
