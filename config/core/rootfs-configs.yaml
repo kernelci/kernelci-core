@@ -86,6 +86,7 @@ rootfs_configs:
       - misc_packages
       - package_management
       - misc_directories
+    test_overlay: "overlays/blktests"
 
 
   bookworm-cros-ec:
