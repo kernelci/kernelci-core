@@ -383,28 +383,6 @@ rootfs_configs:
       - e2fsprogs
     script: "scripts/bookworm-libhugetlbfs.sh"
 
-  bookworm-ltp:
-    rootfs_type: debos
-    debian_release: bookworm
-    arch_list:
-      - amd64
-      - arm64
-      - armhf
-    extra_packages:
-      - ca-certificates
-      - curl
-      - dosfstools
-      - gdb-minimal
-      - iproute2
-      - jq
-      - libnuma-dev
-      - net-tools
-      - ntfs-3g
-      - python3
-    script: "scripts/bookworm-ltp.sh"
-    imagesize: 2GB
-    debos_memory: 8G
-
   bookworm-rt:
     rootfs_type: debos
     debian_release: bookworm
@@ -520,3 +498,26 @@ rootfs_configs:
       - x86
     frags:
       - baseline
+
+  trixie-ltp:
+    rootfs_type: debos
+    debian_release: trixie
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - ca-certificates
+      - curl
+      - dosfstools
+      - gdb-minimal
+      - iproute2
+      - jq
+      - libnuma-dev
+      - net-tools
+      - ntfs-3g
+      - python3
+    script: "scripts/trixie-ltp.sh"
+    imagesize: 2GB
+    debos_memory: 8G
+
