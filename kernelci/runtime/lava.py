@@ -121,7 +121,9 @@ class Callback:
     def _get_job_failure_metadata(self):
         """Get failed lava job metadata fields such as error type and
         error message"""
-        lava_yaml = self._data['results']['lava']
+        lava_yaml = self._data['results'].get('lava')
+        if not lava_yaml:
+            return None
         lava = yaml.safe_load(lava_yaml)
         stages = {stage['name']: stage for stage in lava}
         job_meta = stages.get('job', {}).get('metadata')
@@ -250,6 +252,8 @@ class Callback:
                 job_node['data']['error_msg'] = job_meta.get('error_msg')
             else:
                 print(f"Job failure metadata not found for node: {job_node['id']}")
+                job_node['data']['error_code'] = "Infrastructure"
+                job_node['data']['error_msg'] = "Unknown infrastructure error"
 
         child_nodes = self._get_results_hierarchy(results)
 
@@ -280,7 +284,10 @@ result: {job_result} -> {final_job_result}")
 
     def get_log_parser(self):
         """Get a LogParser object from the callback data"""
-        return LogParser(self._data['log'])
+        log = self._data.get('log')
+        if not log:
+            return None
+        return LogParser(log)
 
     def to_file(self, filename):
         """Write the callback data to a JSON file"""
