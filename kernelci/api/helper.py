@@ -198,18 +198,18 @@ class APIHelper:
 
             for item in base[key]:
                 if item in deny:
-                    print(f"rules{key}: {key.capitalize()} {item} not allowed due {deny}")
+                    print(f"rules[{key}]: {key.capitalize()} {item} not allowed due !{deny}")
                     return False
                 if item in allow:
                     found = True
 
             if not found:
-                print(f"rules: {key.capitalize()} missing one of {allow}")
+                print(f"rules[{key}]: {key.capitalize()} missing one of {allow}")
                 return False
 
         else:
             if base[key] in deny or (len(allow) > 0 and base[key] not in allow):
-                print(f"rule[{key}]: {key.capitalize()} {base[key]} not allowed due {deny}")
+                print(f"rules[{key}]: {key.capitalize()} {base[key]} not allowed due !{deny}")
                 return False
 
         return True
@@ -290,20 +290,20 @@ class APIHelper:
                     break
                 match = self._match_combos(node, deny_combos)
                 if match:
-                    print(f"Tree/branch combination "
+                    print(f"rules[{key}]: Tree/branch combination "
                           f"{match['tree']}/{match['branch']} not allowed")
                     return False
 
                 # Get back to regular allow/deny list processing
                 if node[key] in deny:
-                    print(f"{key.capitalize()} {node[key]} not allowed due {deny}")
+                    print(f"rules[{key}]: {key.capitalize()} {node[key]} not allowed due !{deny}")
                     return False
                 if (len(allow) == 0 and len(allow_combos) > 0):
-                    print(f"{key.capitalize()} {node[key]} not allowed due"
+                    print(f"rules[{key}]: {key.capitalize()} {node[key]} not allowed due"
                           f" to tree/branch rules")
                     return False
                 if (len(allow) > 0 and node[key] not in allow):
-                    print(f"{key.capitalize()} {node[key]} not allowed due {allow}")
+                    print(f"rules[{key}]: {key.capitalize()} {node[key]} not allowed due {allow}")
                     return False
 
         return True
@@ -392,13 +392,13 @@ class APIHelper:
                 if (key.startswith('min') and
                     ((major < rule_major) or
                      (major == rule_major and minor < rule_minor))):
-                    print(f"rules: Version {major}.{minor} older than minimum version "
+                    print(f"rules[{key}]: Version {major}.{minor} older than minimum version "
                           f"({rule_major}.{rule_minor})")
                     return False
                 if (key.startswith('max') and
                     ((major > rule_major) or
                      (major == rule_major and minor > rule_minor))):
-                    print(f"rules: Version {major}.{minor} more recent than maximum version "
+                    print(f"rules[{key}]: Version {major}.{minor} newer than maximum version "
                           f"({rule_major}.{rule_minor})")
                     return False
 
