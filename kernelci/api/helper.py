@@ -162,11 +162,24 @@ class APIHelper:
         # Find the node (or ancestor node) attribute corresponding to the
         # rule we're applying
         base = self._find_container(key, node)
-        if not base:
-            return True
 
         deny = [f.lstrip('!') for f in rules[key] if f.startswith('!')]
         allow = [f for f in rules[key] if not f.startswith('!')]
+
+        # If the parameter (key) associated to a given rule cannot be found
+        # in the current hierarchy, there are two cases:
+        # * the rule only excludes certain values (no allowed value, only
+        #   denied ones): as the parameter doesn't exist, it can't use a
+        #   denied value, so we can proceed with creating the node
+        # * the rule does have an allow-list: here we can assume that the
+        #   parameter is REQUIRED to have one of the allowed values, and
+        #   therefore MUST exist; if it doesn't, then we shouldn't create
+        #   the node on the basis that its rules aren; t fulfilled
+        if not base:
+            if len(allow) > 0:
+                print(f"rules[{key}]: attribute '{key}' not found in node hierarchy")
+                return False
+            return True
 
         # Rules are appied depending on how the data is initially stored:
         # * if it's a list (e.g. config fragments), then it must contain
