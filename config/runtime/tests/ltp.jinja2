@@ -1,3 +1,8 @@
+{# Set default extra_kirk_args to a random value between 1 and 100
+   for ltp-fault-injection jobs if it is not defined. #}
+{%- if "fault-injection" in node.data.config_full and extra_kirk_args is not defined %}
+{%-   set extra_kirk_args = '-F ' ~ (range(1, 101)|random) %}
+{%- endif %}
 - test:
     name: {{ node.name }}
     timeout:
