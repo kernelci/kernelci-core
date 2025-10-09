@@ -73,9 +73,15 @@ def _format_dict_strings(param, fmap):
     if isinstance(param, str):
         try:
             param = param.format_map(fmap)
-        except (KeyError, ValueError) as exc:
-            print(f"Format string error in param '{param}': {exc}")
+        # Upon loading the config files, we go through lots of fields (e.g. `nfsroot`)
+        # that contain unresolved params (such as `debarch` or `kver`) as we're not
+        # processing a job yet. In such cases, format_map() returns a KeyError we can
+        # just ignore.
+        except KeyError:
             return param  # Don't do anything but keep python happy
+        except ValueError as exc:
+            print(f"Format string error in param '{param}': {exc}")
+            return param  # Return the unformatted param, this will help spot the error
     elif isinstance(param, dict):
         for key in param:
             param[key] = _format_dict_strings(param[key], fmap)
