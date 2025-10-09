@@ -114,33 +114,6 @@ rootfs_configs:
     script: "scripts/bookworm-cros-ec-tests.sh"
     test_overlay: ""
 
-  bookworm-deqp-runner:
-    rootfs_type: debos
-    debian_release: bookworm
-    arch_list:
-      - amd64
-      - arm64
-      - armhf
-    extra_packages:
-      - libcairo2
-      - libdrm-amdgpu1
-      - libdrm-nouveau2
-      - libdrm2
-      - libdw1
-      - libglib2.0-0
-      - libpciaccess0
-      - libpixman-1-0
-      - libproc2-0
-      - libudev1
-      - libunwind8
-      - python3-minimal
-      - sntp
-      - zstd
-    script: "scripts/bookworm-deqp-runner.sh"
-    imagesize: 4GB
-    debos_memory: 8G
-    debos_scratchsize: 16G
-
   bookworm-fault-injection:
     rootfs_type: debos
     debian_release: bookworm
@@ -519,3 +492,30 @@ rootfs_configs:
       - x86
     frags:
       - baseline
+
+  trixie-deqp-runner:
+    rootfs_type: debos
+    debian_release:  trixie
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - libcairo2
+      - libdrm-amdgpu1
+      - libdrm-nouveau2
+      - libdrm2
+      - libdw1t64
+      - libglib2.0-0t64
+      - libpciaccess0
+      - libpixman-1-0
+      - libproc2-0
+      - libudev1
+      - libunwind8
+      - python3-minimal
+      - ntpsec-ntpdig
+      - zstd
+    script: "scripts/trixie-deqp-runner.sh"
+    imagesize: 4GB
+    debos_memory: 8G
+    debos_scratchsize: 16G
