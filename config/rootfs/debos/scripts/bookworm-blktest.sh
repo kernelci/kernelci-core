@@ -36,13 +36,52 @@ rustup self uninstall -y
 ########################################################################
 # Build blktest                                                        #
 ########################################################################
-# Change nuclearcat/blktests to kernelci/blktests to use the official
-# repo as soon as the fix-ynl-location branch is merged.
-BLKTEST_URL=https://github.com/nuclearcat/blktests.git
+BLKTEST_URL=https://github.com/linux-blktests/blktests.git
+BLKTESTS_SHA=a0519619
 mkdir -p /var/tests/blktest && cd /var/tests/blktest
 
 git clone $BLKTEST_URL .
-git checkout fix-ynl-location
+git checkout $BLKTESTS_SHA
+
+######################################################################
+# Apply patch: See https://github.com/linux-blktests/blktests/pull/160
+# Author: Denys Fedoryshchenko <denys.f@collabora.com>
+# Fix: Update YNL CLI path after kernel commit ab88c2b3739a
+# Remove this after the PR is merged upstream
+######################################################################
+echo -e "\
+diff --git a/tests/nvme/056 b/tests/nvme/056
+index 2babe69..bdf0d67 100755
+--- a/tests/nvme/056
++++ b/tests/nvme/056
+@@ -38,15 +38,15 @@ requires() {
+ 
+ have_netlink_cli() {
+ 	local cli
+-	cli=\"\${KERNELSRC}/tools/net/ynl/cli.py\"
++	cli=\"\${KERNELSRC}/tools/net/ynl/pyynl/cli.py\"
+ 
+ 	if ! [ -f \"\$cli\" ]; then
+-		SKIP_REASONS+=(\"Kernel sources do not have tools/net/ynl/cli.py\")
++		SKIP_REASONS+=(\"Kernel sources do not have tools/net/ynl/pyynl/cli.py\")
+ 		return 1
+ 	fi
+ 
+ 	if ! \"\$cli\" -h &> /dev/null; then
+-		SKIP_REASONS+=(\"Cannot run the kernel tools/net/ynl/cli.py\")
++		SKIP_REASONS+=(\"Cannot run the kernel tools/net/ynl/pyynl/cli.py\")
+ 		return 1;
+ 	fi
+ 
+@@ -69,7 +69,7 @@ set_conditions() {
+ }
+ 
+ netlink_cli() {
+-	\"\${KERNELSRC}/tools/net/ynl/cli.py\" \\
++	\"\${KERNELSRC}/tools/net/ynl/pyynl/cli.py\" \\
+ 		--spec \"\${KERNELSRC}/Documentation/netlink/specs/ulp_ddp.yaml\" \\
+ 		\"\$@\"
+ }" | patch -p1
 
 make
 make install
