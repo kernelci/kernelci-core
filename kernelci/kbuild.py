@@ -55,7 +55,7 @@ FW_GIT = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmwar
 
 # TODO: find a way to automatically fetch this information
 LATEST_LTS_MAJOR = 6
-LATEST_LTS_MINOR = 6
+LATEST_LTS_MINOR = 12
 
 DTBS_DISABLED = {
     'i386': True,
