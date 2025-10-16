@@ -131,23 +131,34 @@ class Callback:
 
     @classmethod
     def _get_login_case(cls, tests):
-        tests_map = {test['name']: test for test in tests}
-        login = (
-            tests_map.get('auto-login-action') or tests_map.get('login-action')
-        )
-        if not login:
+        # When boot has failure_retry set, there may be multiple login attempts
+        # We should return 'pass' if ANY attempt passed, 'fail' only if ALL failed
+        login_tests = [
+            test for test in tests
+            if test['name'] in ('auto-login-action', 'login-action')
+        ]
+        if not login_tests:
             return None
-        result = login and login['result'] == 'pass'
-        return 'pass' if result else 'fail'
+
+        # Check if any login attempt passed
+        any_passed = any(test['result'] == 'pass' for test in login_tests)
+        return 'pass' if any_passed else 'fail'
 
     @classmethod
     def _get_kernelmsg_case(cls, tests):
-        tests_map = {test['name']: test for test in tests}
-        kernelmsg = tests_map.get('kernel-messages')
-        if not kernelmsg:
+        # When boot has failure_retry set, there may be multiple kernel-messages checks
+        # Unlike login, we return 'fail' if ANY attempt failed, because kernel-messages
+        # failure means we caught kernel panic, oops, or other critical errors
+        kernelmsg_tests = [
+            test for test in tests
+            if test['name'] == 'kernel-messages'
+        ]
+        if not kernelmsg_tests:
             return None
-        result = kernelmsg and kernelmsg['result'] == 'pass'
-        return 'pass' if result else 'fail'
+
+        # Check if any kernel-messages check failed (caught panic/oops/etc)
+        any_failed = any(test['result'] == 'fail' for test in kernelmsg_tests)
+        return 'fail' if any_failed else 'pass'
 
     def _get_os_release_measurement(self):
         for suite_name, suite_results in self._data['results'].items():
