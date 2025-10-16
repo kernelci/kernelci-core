@@ -1,6 +1,5 @@
 #!/bin/bash
-set -euo pipefail
-set -x
+set -eux
 
 TEST_GROUP="${1:-}"
 TEST_DEV="${2:-}"
@@ -10,6 +9,7 @@ if [ -z "$TEST_GROUP" ] || [ -z "$TEST_DEV" ]; then
     exit 1
 fi
 
+RESULT_DIR="/tmp/blktests-results"
 LOOPBACK_REQUIRED=false
 LOOPDEV=""
 LOOPFILE=""
@@ -26,6 +26,24 @@ cleanup() {
 }
 trap cleanup EXIT
 
+parse_results() {
+    if [ -d "$RESULT_DIR" ]; then
+        find "$RESULT_DIR" -type f -regex '.*/[^/]+/[^/]+/[0-9][0-9][0-9]' | sort | while read -r result_file; do
+            test_name=$(basename "$result_file")
+            group=$(basename "$(dirname "$result_file")")
+            status=$(grep -m1 "^status" "$result_file" | cut -f2)
+
+            case "$status" in
+                pass|fail) ;;
+                "not run") status="skip" ;;
+                *) status="fail" ;;
+            esac
+
+            lava-test-case "${group}/${test_name}" --result "$status"
+        done
+    fi
+}
+
 if [ "$LOOPBACK_REQUIRED" = true ]; then
     LOOPFILE=$(mktemp /tmp/loopdisk.XXXX.img)
     truncate -s 1G "$LOOPFILE"
@@ -36,7 +54,16 @@ if [ "$LOOPBACK_REQUIRED" = true ]; then
     TEST_DEV="$LOOPDEV"
 fi
 
-mkdir -p /tmp/blktests-results
+mkdir -p "$RESULT_DIR"
 cd /usr/local/blktests/
 echo "TEST_DEVS=('$TEST_DEV')" > config
-./check -c config "$TEST_GROUP" --output /tmp/blktests-results
+set +e
+./check -c config "$TEST_GROUP" --output "$RESULT_DIR"
+set -e
+exit_code=$?
+
+set +x
+parse_results
+set -x
+
+exit $exit_code
