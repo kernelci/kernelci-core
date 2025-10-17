@@ -36,7 +36,7 @@ context:
 {% endif %}
 
 {%- if "coverage" in node.data.config_full -%}
-{%-   set coverage_timeout = 20 -%}
+{%-   set coverage_timeout = 30 -%}
 {%- else -%}
 {%-   set coverage_timeout = 0 -%}
 {%- endif -%}
