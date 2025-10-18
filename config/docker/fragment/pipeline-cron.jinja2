@@ -1,0 +1,26 @@
+USER kernelci
+ARG pipeline_url=https://github.com/kernelci/kernelci-pipeline.git
+ARG pipeline_rev=main
+RUN git clone --depth=1 $pipeline_url /home/kernelci
+WORKDIR /home/kernelci
+RUN git fetch origin $pipeline_rev
+RUN git checkout FETCH_HEAD
+ENV KCI_VER_PIPELINE=$pipeline_rev
+
+USER root
+
+# Install kci-dev package
+RUN pip install git+https://github.com/kernelci/kci-dev.git@main
+
+# Install cron package
+RUN apt-get update && apt-get install -y cron
+
+# Install requirements to run pipeline cron service
+RUN pip3 install -r requirements-cron.txt
+
+# Register the cron job
+RUN cp /home/kernelci/tools/cron/maestro-validate-cron-job.txt /etc/cron.d/maestro-validate-cron-job
+RUN chmod 0644 /etc/cron.d/maestro-validate-cron-job
+RUN crontab /etc/cron.d/maestro-validate-cron-job
+
+CMD ["cron", "-f"]
