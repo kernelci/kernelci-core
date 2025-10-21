@@ -22,10 +22,15 @@ class Kubernetes(Runtime):
     """
 
     JOB_NAME_CHARACTERS = string.ascii_lowercase + string.digits
+    # Default timeout for Kubernetes API calls in seconds
+    # This prevents indefinite hangs on network issues
+    DEFAULT_API_TIMEOUT = 30
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.kcontext = None
+        # Allow timeout to be configured, otherwise use default
+        self.api_timeout = getattr(self.config, 'api_timeout', self.DEFAULT_API_TIMEOUT)
 
     @classmethod
     def _get_job_file_name(cls, params):
@@ -56,10 +61,20 @@ class Kubernetes(Runtime):
         pods = None
         for _ in range(3):
             try:
-                pods = core_v1.list_namespaced_pod(namespace='default')
+                # Add client-side timeout to prevent indefinite hangs on network issues
+                # _request_timeout is passed to urllib3 and controls socket timeout
+                pods = core_v1.list_namespaced_pod(
+                    namespace='default',
+                    timeout_seconds=60,  # Server-side timeout
+                    _request_timeout=self.api_timeout  # Client-side timeout
+                )
                 break
             except kubernetes.client.rest.ApiException as error:
                 print(f'Error listing pods in {ctxname}: {error}')
+                continue
+            except Exception as error:  # pylint: disable=broad-except
+                # Catch timeout and other exceptions (e.g., urllib3.exceptions.ReadTimeoutError)
+                print(f'Exception listing pods in {ctxname}: {error}')
                 continue
 
         if not pods:
@@ -104,7 +119,10 @@ class Kubernetes(Runtime):
         core_v1 = kubernetes.client.CoreV1Api()
         job_name = job_object[0][0].metadata.labels['job-name']
         for event in watch.stream(
-                func=core_v1.list_namespaced_pod, namespace='default'):
+                func=core_v1.list_namespaced_pod,
+                namespace='default',
+                timeout_seconds=3600,  # Server-side timeout (1 hour)
+                _request_timeout=self.api_timeout):  # Client-side timeout
             if event['type'] != 'MODIFIED':
                 continue
             if job_name not in event['object'].metadata.name:
