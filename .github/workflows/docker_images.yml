@@ -111,6 +111,7 @@ jobs:
                   'kernelci',
                   'kernelci api',
                   'kernelci pipeline',
+                  'kernelci pipeline-cron',
                   'kernelci lava-callback',
                   'k8s kernelci',
                   'qemu',
