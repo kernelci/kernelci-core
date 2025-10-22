@@ -1,4 +1,6 @@
 name: 'Production deploy'
+permissions:
+  contents: write
 
 on:
     workflow_dispatch:
@@ -27,6 +29,7 @@ jobs:
               with:
                 repository: kernelci/kernelci-core
                 ref: main
+                fetch-depth: 0
             - name: Tag repositories
               run: |
                 git config --global user.name "github-actions[bot]"
@@ -46,14 +49,19 @@ jobs:
               with:
                 repository: kernelci/kernelci-pipeline
                 ref: main
+                fetch-depth: 0
+                token: ${{ secrets.GHPAT }}
+                persist-credentials: false
             - name: Tag repositories
+              env:
+                TOKEN: ${{ secrets.GHPAT }}
               run: |
                 git config --global user.name "github-actions[bot]"
                 git config --global user.email "github-actions[bot]@users.noreply.github.com"
                 TAG="production-$(date +'%Y%m%d%H%M%S')"
                 echo "Tagging repositories with tag: $TAG"
                 git tag $TAG
-                git remote set-url origin https://x-access-token:${{ secrets.GHPAT}}@github.com/kernelci/kernelci-pipeline.git
+                git remote set-url origin https://x-access-token:${TOKEN}@github.com/kernelci/kernelci-pipeline.git
                 git push origin $TAG
                 echo "Tagged kernelci/kernelci-pipeline with $TAG"
                 # Add similar tagging commands for other repositories as needed
@@ -66,14 +74,19 @@ jobs:
               with:
                 repository: kernelci/kernelci-api
                 ref: main
+                fetch-depth: 0
+                token: ${{ secrets.GHPAT }}
+                persist-credentials: false
             - name: Tag repositories
+              env:
+                TOKEN: ${{ secrets.GHPAT }}
               run: |
                 git config --global user.name "github-actions[bot]"
                 git config --global user.email "github-actions[bot]@users.noreply.github.com"
                 TAG="production-$(date +'%Y%m%d%H%M%S')"
                 echo "Tagging repositories with tag: $TAG"
                 git tag $TAG
-                git remote set-url origin https://x-access-token:${{ secrets.GHPAT }}@github.com/kernelci/kernelci-api.git
+                git remote set-url origin https://x-access-token:${TOKEN}@github.com/kernelci/kernelci-api.git
                 git push origin $TAG
                 echo "Tagged kernelci/kernelci-api with $TAG"
                 # Add similar tagging commands for other repositories as needed
