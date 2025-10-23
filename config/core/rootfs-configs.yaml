@@ -397,10 +397,12 @@ rootfs_configs:
       - gdb-minimal
       - iproute2
       - jq
+      - kexec-tools
       - libnuma-dev
       - net-tools
       - ntfs-3g
       - python3
+      - sudo
     script: "scripts/bookworm-ltp.sh"
     imagesize: 2GB
     debos_memory: 8G

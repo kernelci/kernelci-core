@@ -22,6 +22,7 @@ BUILD_DEPS="\
     flex \
     m4 \
     libc6-dev \
+    libcap-dev \
     libnuma-dev \
 "
 
