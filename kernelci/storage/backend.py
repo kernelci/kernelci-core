@@ -27,6 +27,36 @@ class StorageBackend(Storage):
             if hasattr(file_tuple[1], 'close'):
                 file_tuple[1].close()
 
+    def _handle_http_error(self, exc, attempt, max_retries, retry_delay):
+        """Handle HTTP errors during upload with retry logic."""
+        # Only retry on server errors (5xx status codes)
+        if exc.response is not None and 500 <= exc.response.status_code < 600:
+            if attempt < max_retries - 1:
+                status = exc.response.status_code
+                reason = exc.response.reason
+                print(f"Upload attempt {attempt + 1} failed with "
+                      f"{status} {reason}: {exc}")
+                print(f"Retrying in {retry_delay} seconds... "
+                      f"({max_retries - attempt - 1} retries remaining)")
+                time.sleep(retry_delay)
+                return exc  # Return exception to be saved as last_exception
+            print(f"Upload failed after {max_retries} attempts")
+            return exc
+        # For non-5xx errors (like 4xx client errors), don't retry
+        raise exc
+
+    def _handle_network_error(self, exc, attempt, max_retries, retry_delay):
+        """Handle network errors during upload with retry logic."""
+        if attempt < max_retries - 1:
+            print(f"Upload attempt {attempt + 1} failed with "
+                  f"{type(exc).__name__}: {exc}")
+            print(f"Retrying in {retry_delay} seconds... "
+                  f"({max_retries - attempt - 1} retries remaining)")
+            time.sleep(retry_delay)
+        else:
+            print(f"Upload failed after {max_retries} attempts")
+        return exc
+
     def _upload(self, file_paths, dest_path):
         headers = {
             'Authorization': self.credentials,
@@ -64,14 +94,18 @@ class StorageBackend(Storage):
                 if 'files' in locals():
                     self._close_files(files)
 
-                last_exception = exc
-                if attempt < max_retries - 1:
-                    print(f"Upload attempt {attempt + 1} failed with {type(exc).__name__}: {exc}")
-                    print(f"Retrying in {retry_delay} seconds... "
-                          f"({max_retries - attempt - 1} retries remaining)")
-                    time.sleep(retry_delay)
-                else:
-                    print(f"Upload failed after {max_retries} attempts")
+                last_exception = self._handle_network_error(
+                    exc, attempt, max_retries, retry_delay
+                )
+
+            except requests.exceptions.HTTPError as exc:
+                # Close any open files before retry
+                if 'files' in locals():
+                    self._close_files(files)
+
+                last_exception = self._handle_http_error(
+                    exc, attempt, max_retries, retry_delay
+                )
 
             except Exception:
                 # Close files on any other exception and re-raise
