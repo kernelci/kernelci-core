@@ -1,0 +1,90 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+{# PULL_LABS job definition template - generates JSON format #}
+{# This template creates a job definition according to PULL_LABS protocol Section 3 #}
+{
+  "artifacts": {
+{%- if node.artifacts.kernel %}
+    "kernel": "{{ node.artifacts.kernel }}"
+{%- endif %}
+{%- if node.artifacts.modules %},
+    "modules": "{{ node.artifacts.modules }}"
+{%- endif %}
+{%- if node.artifacts.kselftest %},
+    "kselftest": "{{ node.artifacts.kselftest }}"
+{%- endif %}
+{%- if node.artifacts.rootfs %},
+    "rootfs_type": "{{ node.artifacts.rootfs }}"
+{%- endif %}
+{%- if node.artifacts.initrd %},
+    "initrd": "{{ node.artifacts.initrd }}"
+{%- endif %}
+{%- if node.artifacts.dtb %},
+    "dtb": "{{ node.artifacts.dtb }}"
+{%- endif %}
+  },
+  "tests": [
+{%- if test_definitions %}
+{%- for test in test_definitions %}
+    {
+      "id": "{{ test.id }}",
+      "type": "{{ test.type }}",
+      "depends": {{ test.depends | tojson }},
+      "timeout_s": {{ test.timeout_s | default(600) }}
+{%- if test.subset %},
+      "subset": {{ test.subset | tojson }}
+{%- endif %}
+{%- if test.parameters %},
+      "parameters": "{{ test.parameters }}"
+{%- endif %}
+{%- if test.pre_commands %},
+      "pre-commands": {{ test.pre_commands | tojson }}
+{%- else %},
+      "pre-commands": []
+{%- endif %}
+{%- if test.post_commands %},
+      "post-commands": {{ test.post_commands | tojson }}
+{%- else %},
+      "post-commands": []
+{%- endif %}
+    }{{ "," if not loop.last else "" }}
+{%- endfor %}
+{%- else %}
+    {
+      "id": "boot-test-{{ node.id[:8] }}",
+      "type": "boot",
+      "depends": [],
+      "timeout_s": 600,
+      "pre-commands": [],
+      "post-commands": []
+    }
+{%- endif %}
+  ],
+  "environment": {
+    "platform": "{{ platform_config.name }}",
+    "arch": "{{ platform_config.arch }}",
+    "console": {
+      "method": "{{ platform_config.console_method | default('serial') }}",
+      "baud": {{ platform_config.console_baud | default(115200) }}
+    }
+{%- if platform_config.params and platform_config.params.requirements %}
+    ,"requirements": {{ platform_config.params.requirements | tojson }}
+{%- endif %}
+  },
+  "callback": {
+    "url": "{{ instance_callback }}/node/{{ node.id }}",
+    "token_name": "{{ callback_token_name | default('kernelci-pipeline-callback') }}"
+  }
+{%- if node.artifacts.metadata %}
+  ,"integrity": {
+    "sha256": {
+{%- if checksums %}
+{%- for artifact_name, checksum in checksums.items() %}
+      "{{ artifact_name }}": "{{ checksum }}"{{ "," if not loop.last else "" }}
+{%- endfor %}
+{%- else %}
+      "_comment": "Checksums would be populated from metadata.json if available"
+{%- endif %}
+    }
+  }
+{%- endif %}
+}
