@@ -12,11 +12,14 @@
 {%- if node.artifacts.kselftest %},
     "kselftest": "{{ node.artifacts.kselftest }}"
 {%- endif %}
-{%- if node.artifacts.rootfs %},
-    "rootfs_type": "{{ node.artifacts.rootfs }}"
+{%- if nfsroot is defined and nfsroot %},
+    "nfsroot": "{{ nfsroot }}"
 {%- endif %}
-{%- if node.artifacts.initrd %},
-    "initrd": "{{ node.artifacts.initrd }}"
+{%- if ramdisk is defined and ramdisk %},
+    "ramdisk": "{{ ramdisk }}"
+{%- endif %}
+{%- if initrd is defined and initrd %},
+    "initrd": "{{ initrd }}"
 {%- endif %}
 {%- if node.artifacts.dtb %},
     "dtb": "{{ node.artifacts.dtb }}"
