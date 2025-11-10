@@ -282,7 +282,6 @@ class PullLabs(Runtime):
     def __init__(self, config, kcictx=None, **kwargs):
         super().__init__(config, **kwargs)
         self._context = kcictx
-        self._stored_url = None
 
     def get_params(self, job, api_config=None):
         """Get job template parameters with PULL_LABS-specific additions"""
@@ -291,10 +290,6 @@ class PullLabs(Runtime):
             params["timeout"] = self.config.timeout
             params["poll_interval"] = self.config.poll_interval
         return params
-
-    def get_job_definition_url(self):
-        """Get the URL where the job definition was stored if any"""
-        return self._stored_url
 
     def generate(self, job, params):
         """Generate PULL_LABS job definition in JSON format
@@ -378,27 +373,9 @@ class PullLabs(Runtime):
 
         Returns a unique job ID
         """
-        if not self._context:
-            raise ValueError(
-                "Context is required for external storage but was not provided"
-            )
-
         # Get storage configuration
-        storage_name = self.config.storage_name
-        if not storage_name:
-            # Get default storage configuration name
-            storage_name = self._context.get_default_storage_config()
-
-        if not storage_name:
-            # Fallback to first available storage
-            storage_names = self._context.get_storage_names()
-            if not storage_names:
-                raise ValueError("No storage configurations found in context")
-            storage_name = storage_names[0]
-
-        storage = self._context.init_storage(storage_name)
-        if not storage:
-            raise ValueError(f"Failed to initialize storage '{storage_name}'")
+        config_storage_name = getattr(self.config, 'storage_name', None)
+        storage, storage_name = self._get_storage_config(self._context, config_storage_name)
 
         # Generate unique ID and path
         date_str = time.strftime("%Y%m%d")

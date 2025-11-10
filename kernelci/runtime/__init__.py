@@ -99,6 +99,7 @@ class Runtime(abc.ABC):
                     self._templates.append(sub_path)
         self._user = user
         self._token = token
+        self._stored_url = None
 
     @property
     def config(self):
@@ -138,6 +139,41 @@ class Runtime(abc.ABC):
     def match(self, filter_data):
         """Apply filters and return True if they match, False otherwise."""
         return self.config.match(filter_data)
+
+    def _get_storage_config(self, kcictx, storage_name=None):
+        """Get storage configuration and initialize storage
+
+        *kcictx* is the KernelCI context object
+        *storage_name* is an optional storage name to use
+
+        Returns a tuple of (storage object, storage_name)
+        """
+        if not kcictx:
+            raise ValueError(
+                "Context is required for external storage but was not provided"
+            )
+
+        # Get storage configuration name
+        if not storage_name:
+            # Get default storage configuration name from TOML [DEFAULT] section
+            storage_name = kcictx.get_default_storage_config()
+
+        if not storage_name:
+            # Fallback to first available storage if no default is specified
+            storage_names = kcictx.get_storage_names()
+            if not storage_names:
+                raise ValueError("No storage configurations found in context")
+            storage_name = storage_names[0]
+
+        storage = kcictx.init_storage(storage_name)
+        if not storage:
+            raise ValueError(f"Failed to initialize storage '{storage_name}'")
+
+        return storage, storage_name
+
+    def get_job_definition_url(self):
+        """Get the URL where the job definition was stored if any"""
+        return self._stored_url
 
     def get_params(self, job, api_config=None):
         """Get job template parameters"""
