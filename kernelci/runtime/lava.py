@@ -325,7 +325,6 @@ class LAVA(Runtime):
         super().__init__(configs, **kwargs)
         self._context = kcictx
         self._server = self._connect()
-        self._stored_url = None
 
     def _get_priority(self, job):
         # Scale the job priority (from 0-100) within the available levels
@@ -353,10 +352,6 @@ class LAVA(Runtime):
             params['notify'] = self.config.notify
             params['priority'] = self._get_priority(job)
         return params
-
-    def get_job_definition_url(self):
-        """Get the URL where the job definition was stored if any"""
-        return self._stored_url
 
     def generate(self, job, params):
         template = self._get_template(job.config)
@@ -425,21 +420,7 @@ class LAVA(Runtime):
 
     def _store_job_in_external_storage(self, job):
         """Store job in external storage when LAVA server URL is not defined"""
-        if not self._context:
-            raise ValueError("Context is required for external storage but was not provided")
-
-        # Get default storage configuration name from TOML [DEFAULT] section
-        storage_name = self._context.get_default_storage_config()
-        if not storage_name:
-            # Fallback to first available storage if no default is specified
-            storage_names = self._context.get_storage_names()
-            if not storage_names:
-                raise ValueError("No storage configurations found in context")
-            storage_name = storage_names[0]
-
-        storage = self._context.init_storage(storage_name)
-        if not storage:
-            raise ValueError(f"Failed to initialize storage '{storage_name}'")
+        storage, storage_name = self._get_storage_config(self._context)
 
         date_str = time.strftime("%Y%m%d")
         unique_id = uuid.uuid4().hex
