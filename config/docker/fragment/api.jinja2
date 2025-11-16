@@ -19,7 +19,7 @@ RUN git clone --depth=1 $api_url /tmp/kernelci-api
 WORKDIR /tmp/kernelci-api
 RUN git fetch origin $api_rev
 RUN git checkout FETCH_HEAD
-RUN python3 -m pip install '.[dev]' --break-system-packages
+RUN python3 -m pip install '.[dev]' --break-system-packages --ignore-installed
 WORKDIR /home/kernelci
 RUN rm -rf /tmp/kernelci-api
 
