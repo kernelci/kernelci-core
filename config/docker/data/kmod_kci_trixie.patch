@@ -1,35 +1,43 @@
-diff -Naur kmod-31+20240202/debian/changelog kmod-31+20240202_new/debian/changelog
---- kmod-31+20240202/debian/changelog	2024-10-02 15:40:49.000000000 +0300
-+++ kmod-31+20240202_new/debian/changelog	2025-11-16 23:02:12.920050994 +0200
+diff -Naur kmod-34.2/debian/changelog kmod-34.2_new/debian/changelog
+--- kmod-34.2/debian/changelog	2025-04-25 12:50:41.000000000 +0300
++++ kmod-34.2_new/debian/changelog	2025-11-16 23:25:34.103792800 +0200
 @@ -1,3 +1,9 @@
-+kmod (31+20250000-2ubuntu7.1) noble; urgency=medium
++kmod (34.2-3000) unstable; urgency=medium
 +
 +  * Add zlib support
 +
 + -- Denys Fedoryshchenko <denys.f@collabora.com>  Fri, 16 Nov 2025 11:37:04 +0300
 +
- kmod (31+20240202-2ubuntu7.1) noble; urgency=medium
+ kmod (34.2-2) unstable; urgency=medium
  
-   * SRU: LP: #2083480: No-change rebuild to disable frame pointers on
-diff -Naur kmod-31+20240202/debian/control kmod-31+20240202_new/debian/control
---- kmod-31+20240202/debian/control	2024-04-18 13:06:53.000000000 +0300
-+++ kmod-31+20240202_new/debian/control	2025-11-16 23:01:17.013940067 +0200
+   * kmod.initramfs-hook: if compressed modules have been copied to the
+diff -Naur kmod-34.2/debian/control kmod-34.2_new/debian/control
+--- kmod-34.2/debian/control	2025-04-25 12:47:10.000000000 +0300
++++ kmod-34.2_new/debian/control	2025-11-16 23:25:57.571523159 +0200
 @@ -9,6 +9,7 @@
    liblzma-dev (>= 5.4.5-0.2),
    libssl-dev,
    libzstd-dev, zstd <!nocheck>,
 +  zlib1g-dev,
-   gtk-doc-tools, xsltproc,
- Standards-Version: 4.6.2.0
- Rules-Requires-Root: no
-diff -Naur kmod-31+20240202/debian/rules kmod-31+20240202_new/debian/rules
---- kmod-31+20240202/debian/rules	2024-04-18 13:06:53.000000000 +0300
-+++ kmod-31+20240202_new/debian/rules	2025-11-16 23:00:34.956668154 +0200
-@@ -21,6 +21,7 @@
-   --enable-gtk-doc \
-   --with-openssl \
-   --with-xz \
-+  --with-zlib \
-   --with-zstd \
-   --disable-test-modules \
-   --enable-debug
+   linux-headers-generic [!armel !i386 !mips64el !sh4 !x32] <!nocheck>,
+   linux-headers-mips64r6el [mips64el] <!nocheck>,
+   linux-headers-rpi [armel] <!nocheck>,
+diff -Naur kmod-34.2/debian/rules kmod-34.2_new/debian/rules
+--- kmod-34.2/debian/rules	2025-04-25 12:47:10.000000000 +0300
++++ kmod-34.2_new/debian/rules	2025-11-16 23:27:04.158101565 +0200
+@@ -27,13 +27,13 @@
+   -D docs=$(KMOD_ENABLE_DOCS) \
+   -D openssl=enabled \
+   -D dlopen=all \
+-  -D zlib=disabled \
++  -D zlib=enabled \
+   -D xz=enabled \
+   -D zstd=enabled
+ CONFFLAGS_udeb = $(CONFFLAGS) \
+   -D docs=false \
+   -D openssl=disabled \
+-  -D zlib=disabled \
++  -D zlib=enabled \
+   -D xz=enabled \
+   -D zstd=disabled
+ 
