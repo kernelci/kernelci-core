@@ -3,11 +3,11 @@
 {% block packages %}
 {{ super() }}
 RUN wget -q -O - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-archive-keyring.gpg
-RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/trixie/ llvm-toolchain-trixie-12 main' \
+RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/trixie/ llvm-toolchain-trixie-21 main' \
    >> /etc/apt/sources.list.d/clang.list
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    clang-12 lld-12 llvm-12
+    clang-21 lld-21 llvm-21
 
-ENV PATH=/usr/lib/llvm-12/bin:${PATH}
+ENV PATH=/usr/lib/llvm-21/bin:${PATH}
 {%- endblock %}
