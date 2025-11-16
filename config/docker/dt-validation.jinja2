@@ -10,8 +10,8 @@
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc-12 \
-    gcc-12-plugin-dev \
+    gcc-14 \
+    gcc-14-plugin-dev \
     git \
     python3-dev \
     python3-pip \
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     swig
 
 RUN update-alternatives --install \
-    /usr/bin/x86_64-linux-gnu-gcc x86_64-linux-gnu-gcc /usr/bin/gcc-12 500
+    /usr/bin/x86_64-linux-gnu-gcc x86_64-linux-gnu-gcc /usr/bin/gcc-14 500
 
 RUN pip3 install \
     git+https://github.com/devicetree-org/dt-schema.git@master
