@@ -1,0 +1,35 @@
+diff -Naur kmod-31+20240202/debian/changelog kmod-31+20240202_new/debian/changelog
+--- kmod-31+20240202/debian/changelog	2024-10-02 15:40:49.000000000 +0300
++++ kmod-31+20240202_new/debian/changelog	2025-11-16 23:02:12.920050994 +0200
+@@ -1,3 +1,9 @@
++kmod (31+20250000-2ubuntu7.1) noble; urgency=medium
++
++  * Add zlib support
++
++ -- Denys Fedoryshchenko <denys.f@collabora.com>  Fri, 16 Nov 2025 11:37:04 +0300
++
+ kmod (31+20240202-2ubuntu7.1) noble; urgency=medium
+ 
+   * SRU: LP: #2083480: No-change rebuild to disable frame pointers on
+diff -Naur kmod-31+20240202/debian/control kmod-31+20240202_new/debian/control
+--- kmod-31+20240202/debian/control	2024-04-18 13:06:53.000000000 +0300
++++ kmod-31+20240202_new/debian/control	2025-11-16 23:01:17.013940067 +0200
+@@ -9,6 +9,7 @@
+   liblzma-dev (>= 5.4.5-0.2),
+   libssl-dev,
+   libzstd-dev, zstd <!nocheck>,
++  zlib1g-dev,
+   gtk-doc-tools, xsltproc,
+ Standards-Version: 4.6.2.0
+ Rules-Requires-Root: no
+diff -Naur kmod-31+20240202/debian/rules kmod-31+20240202_new/debian/rules
+--- kmod-31+20240202/debian/rules	2024-04-18 13:06:53.000000000 +0300
++++ kmod-31+20240202_new/debian/rules	2025-11-16 23:00:34.956668154 +0200
+@@ -21,6 +21,7 @@
+   --enable-gtk-doc \
+   --with-openssl \
+   --with-xz \
++  --with-zlib \
+   --with-zstd \
+   --disable-test-modules \
+   --enable-debug

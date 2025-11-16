@@ -39,7 +39,7 @@ ADD https://raw.githubusercontent.com/kernelci/kernelci-core/main/config/docker/
 .
 
 RUN apt-get source kmod
-WORKDIR /root/patches/kmod-30+20221128
+WORKDIR /root/patches/kmod-31+20240202
 RUN patch -p1 < ../kmod_kci_trixie.patch
 RUN mk-build-deps -ir \
     -t "apt-get -o Debug::pkgProblemResolver=yes -y --no-install-recommends"
