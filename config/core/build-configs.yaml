@@ -1075,9 +1075,9 @@ build_environments:
     cc_version: 16
     arch_params: *clang_15_arch_params
 
-  clang-17:
+  clang-21:
     cc: clang
-    cc_version: 17
+    cc_version: 21
     arch_params: *clang_15_arch_params
 
   rustc-1.74:
@@ -1664,8 +1664,8 @@ build_configs:
 #              - 'allmodconfig'
 
       # Current development clang release
-      clang-17:
-        build_environment: clang-17
+      clang-21:
+        build_environment: clang-21
         architectures:
           <<: *arch_clang_configs
 
