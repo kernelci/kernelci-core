@@ -16,7 +16,7 @@ RUN git checkout FETCH_HEAD
 # Refresh distro pip instead of attempting an in-place upgrade
 RUN apt-get update && apt-get install --no-install-recommends -y python3-pip
 RUN pip3 install --upgrade setuptools wheel --break-system-packages
-RUN python3 -m pip install .[dev] --break-system-packages
+RUN python3 -m pip install .[dev] --break-system-packages --ignore-installed
 RUN cp -R config /etc/kernelci/
 WORKDIR /root
 RUN rm -rf /tmp/kernelci-core
