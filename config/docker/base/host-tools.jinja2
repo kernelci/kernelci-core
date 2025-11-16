@@ -13,9 +13,9 @@ RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries
 
 # Prepare environment for building packages
 #RUN sed -i -- 's/# deb-src/deb-src/g' /etc/apt/sources.list
-RUN echo "deb-src http://deb.debian.org/debian bookworm main non-free contrib" \
+RUN echo "deb-src http://deb.debian.org/debian trixie main non-free contrib" \
     >> /etc/apt/sources.list
-RUN echo "deb-src http://deb.debian.org/debian-security/ bookworm-security main contrib non-free" \
+RUN echo "deb-src http://deb.debian.org/debian-security/ trixie-security main contrib non-free" \
     >> /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -33,19 +33,19 @@ WORKDIR /root/patches
 # Get patch to enable compression
 #ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
 #kernelci.org/\
-#config/docker/data/kmod_kci_bookworm.patch \
+#config/docker/data/kmod_kci_trixie.patch \
 #.
-ADD https://raw.githubusercontent.com/kernelci/kernelci-core/main/config/docker/data/kmod_kci_bookworm.patch \
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/main/config/docker/data/kmod_kci_trixie.patch \
 .
 
 RUN apt-get source kmod
 WORKDIR /root/patches/kmod-30+20221128
-RUN patch -p1 < ../kmod_kci_bookworm.patch
+RUN patch -p1 < ../kmod_kci_trixie.patch
 RUN mk-build-deps -ir \
     -t "apt-get -o Debug::pkgProblemResolver=yes -y --no-install-recommends"
 RUN debuild -b -uc -us
 
-FROM mirror.gcr.io/debian:bookworm
+FROM mirror.gcr.io/debian:trixie
 MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 ENV DEBIAN_FRONTEND=noninteractive
 {%- endblock %}
@@ -94,10 +94,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # Install dtschema for dtbs_check
 RUN pip3 install dtschema --break-system-packages
-
-# Install gcovr from pip as bookworm's version is too old
-# FIXME: revert to installing with apt after switching to trixie
-RUN pip3 install gcovr --break-system-packages
 
 # Download and build pahole v1.28
 RUN wget -c https://storage.kernelci.org/pahole-1.29.tar.gz && \

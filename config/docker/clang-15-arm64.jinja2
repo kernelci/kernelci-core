@@ -7,7 +7,7 @@
 RUN dpkg --add-architecture arm64
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    libgcc-12-dev:arm64
+    libgcc-14-dev:arm64
 
 {%- endblock %}
 

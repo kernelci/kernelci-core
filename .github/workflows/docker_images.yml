@@ -31,7 +31,7 @@ jobs:
         kciarch: [ 'arc', 'arm', 'armv5', 'arm64', 'x86', 'mips', 'riscv64' ]
         kcicmd: [ 'clang-15 kselftest kernelci',
                   'clang-17 kselftest kernelci',
-                  'gcc-12 kselftest kernelci'
+                  'gcc-14 kselftest kernelci'
                    ]
         exclude:
           - kciarch: 'arc'
@@ -105,7 +105,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        kcicmd: [ 'gcc-12 kunit kernelci --arch x86',
+        kcicmd: [ 'gcc-14 kunit kernelci --arch x86',
                   'rustc-1.74 kselftest kernelci --arch x86',
                   'rustc-1.75 kselftest kernelci --arch x86',
                   'kernelci',

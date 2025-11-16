@@ -3,10 +3,10 @@
 {% block packages %}
 {{ super() }}
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc-12 \
-    gcc-12-plugin-dev
+    gcc-14 \
+    gcc-14-plugin-dev
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 500
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 500
 
 # 32-bit support for host tools and kselftest
 RUN apt-get update && apt-get install --no-install-recommends -y \

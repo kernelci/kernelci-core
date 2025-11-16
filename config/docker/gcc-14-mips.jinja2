@@ -3,28 +3,28 @@
 {% block packages %}
 {{ super() }}
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc-12-mips-linux-gnu
+    gcc-14-mips-linux-gnu
 
 RUN update-alternatives \
     --install /usr/bin/mips-linux-gnu-gcc \
               mips-linux-gnu-gcc \
-              /usr/bin/mips-linux-gnu-gcc-12 500 \
+              /usr/bin/mips-linux-gnu-gcc-14 500 \
     --slave /usr/bin/mips-linux-gnu-gcc-ar \
             mips-linux-gnu-ar \
-            /usr/bin/mips-linux-gnu-gcc-ar-12 \
+            /usr/bin/mips-linux-gnu-gcc-ar-14 \
     --slave /usr/bin/mips-linux-gnu-gcc-nm \
             mips-linux-gnu-nm \
-            /usr/bin/mips-linux-gnu-gcc-nm-12 \
+            /usr/bin/mips-linux-gnu-gcc-nm-14 \
     --slave /usr/bin/mips-linux-gnu-gcc-ranlib \
             mips-linux-gnu-ranlib \
-            /usr/bin/mips-linux-gnu-gcc-ranlib-12 \
+            /usr/bin/mips-linux-gnu-gcc-ranlib-14 \
     --slave /usr/bin/mips-linux-gnu-gcc-gcov \
             mips-linux-gnu-gcov \
-            /usr/bin/mips-linux-gnu-gcov-12 \
+            /usr/bin/mips-linux-gnu-gcov-14 \
     --slave /usr/bin/mips-linux-gnu-gcc-gcov-dump \
             mips-linux-gnu-gcov-dump \
-            /usr/bin/mips-linux-gnu-gcov-dump-12 \
+            /usr/bin/mips-linux-gnu-gcov-dump-14 \
     --slave /usr/bin/mips-linux-gnu-gcc-gcov-tool \
             mips-linux-gnu-gcov-tool \
-            /usr/bin/mips-linux-gnu-gcov-tool-12
+            /usr/bin/mips-linux-gnu-gcov-tool-14
 {%- endblock %}
