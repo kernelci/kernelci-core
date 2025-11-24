@@ -50,7 +50,6 @@ jobs:
           path: kernelci-core
       - name: Prepare necessary tools
         run: |
-          pip3 install --upgrade pip
           cd kernelci-core
           python3 -m pip install '.[dev]' --break-system-packages
           sudo cp -R config /etc/kernelci/
@@ -146,7 +145,6 @@ jobs:
           path: kernelci-api
       - name: Prepare necessary tools
         run: |
-          pip3 install --upgrade pip
           cd kernelci-core
           python3 -m pip install '.[dev]' --break-system-packages
           sudo cp -R config /etc/kernelci/
@@ -202,4 +200,3 @@ jobs:
           DHNAME=$(./kci docker name --prefix=kernelci/staging- ${{ matrix.kcicmd }})
           docker tag $NAME $DHNAME
           docker push $DHNAME
-
