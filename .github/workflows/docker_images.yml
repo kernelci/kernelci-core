@@ -48,6 +48,12 @@ jobs:
           submodules: recursive
           fetch-depth: 0
           path: kernelci-core
+      - name: Setup Python with pip cache
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+          cache-dependency-path: kernelci-core/pyproject.toml
       - name: Prepare necessary tools
         run: |
           cd kernelci-core
@@ -143,6 +149,12 @@ jobs:
           ref: ${{ env.USER_GIT_BRANCH }}
           fetch-depth: 0
           path: kernelci-api
+      - name: Setup Python with pip cache
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+          cache-dependency-path: kernelci-core/pyproject.toml
       - name: Prepare necessary tools
         run: |
           cd kernelci-core
