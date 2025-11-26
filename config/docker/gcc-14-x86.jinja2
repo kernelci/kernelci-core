@@ -16,9 +16,4 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # GCC i386.h header fix for the Debian package
 RUN apt-get update && apt-get install --no-install-recommends -y curl patch
-#RUN cd / && \
-#    curl -s https://raw.githubusercontent.com/kernelci/kernelci-core/\
-#kernelci.org/\
-#config/docker/data/gcc-header-fix.patch \
-#    | patch -p1
-#{%- endblock %}
+{% endblock %}
