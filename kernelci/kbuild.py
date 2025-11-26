@@ -47,10 +47,6 @@ CIP_CONFIG_URL = \
     "https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-/raw/master/{branch}/{config}"  # noqa
 CROS_CONFIG_URL = \
     "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
-LEGACY_CONFIG = [
-    'config/core/build-configs.yaml',
-    '/etc/kernelci/core/build-configs.yaml',
-]
 FW_GIT = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"  # noqa
 
 # TODO: find a way to automatically fetch this information
@@ -153,7 +149,8 @@ class KBuild():
     if node, jobname and params are provided, create new build object
     if jsonobj is provided, load class from serialized json
     '''
-    def __init__(self, node=None, jobname=None, params=None, jsonobj=None, apiconfig=None):
+    def __init__(self, node=None, jobname=None, params=None, jsonobj=None, apiconfig=None,
+                 fragment_configs=None):
         # Retrieve and store API token for future use
         self._api_token = os.environ.get('KCI_API_TOKEN')
         if not self._api_token:
@@ -169,6 +166,7 @@ class KBuild():
             if isinstance(self._defconfig, str) and '+' in self._defconfig:
                 self._defconfig = self._defconfig.split('+')
             self._fragments = params['fragments']
+            self._fragment_configs = fragment_configs or {}
             if 'coverage' in self._fragments:
                 self._coverage = True
             else:
@@ -221,6 +219,7 @@ class KBuild():
             self._compiler = jsonobj['compiler']
             self._defconfig = jsonobj['defconfig']
             self._fragments = jsonobj['fragments']
+            self._fragment_configs = jsonobj.get('fragment_configs', {})
             self._cross_compile = jsonobj['cross_compile']
             self._cross_compile_compat = jsonobj['cross_compile_compat']
             self._steps = jsonobj['steps']
@@ -554,40 +553,16 @@ trap - ERR
             txt += c + '\n'
         return txt
 
-    def add_legacy_fragment(self, fragname):
-        """ Add legacy config fragment from build-configs.yaml """
-        buffer = ''
-        yml = None
-        for cfg_path in LEGACY_CONFIG:
-            if not os.path.exists(cfg_path):
-                continue
-            with open(cfg_path, 'r') as cfgfile:
-                content = cfgfile.read()
-                yml = yaml.safe_load(content)
-                break
-
-        if not yml:
-            print(f"No suitable config file found in {LEGACY_CONFIG}")
-            self.submit_failure(f"No suitable config file found in {LEGACY_CONFIG}")
+    def add_fragment(self, fragname):
+        """ Get config fragment from passed fragment_configs """
+        if fragname not in self._fragment_configs:
+            print(f"Fragment {fragname} not found in fragment_configs")
+            self.submit_failure(f"Fragment {fragname} not found in fragment_configs")
             sys.exit(1)
 
-        print(f"Searching for fragment {fragname} in {cfg_path}")
-        if 'fragments' in yml:
-            frag = yml['fragments']
-        else:
-            print("No fragments section in config file")
-            self.submit_failure("No fragments section in config file")
-            sys.exit(1)
-
-        if fragname in frag:
-            txt = self.extract_config(frag[fragname])
-            buffer += txt
-        else:
-            print(f"Fragment {fragname} not found")
-            self.submit_failure(f"Fragment {fragname} not found")
-            sys.exit(1)
-
-        return buffer
+        frag = self._fragment_configs[fragname]
+        print(f"Using fragment {fragname} from inline configs")
+        return self.extract_config(frag)
 
     def _parse_fragments(self, firmware=False):
         """ Parse fragments kbuild config and create config fragments """
@@ -601,8 +576,8 @@ trap - ERR
             elif fragment.startswith("CONFIG_"):
                 content = fragment + '\n'
             else:
-                # TODO: implement 'path' option properly
-                content = self.add_legacy_fragment(fragment)
+                # Use fragment configs passed from scheduler
+                content = self.add_fragment(fragment)
 
             fragfile = os.path.join(self._fragments_dir, f"{num}.config")
             with open(fragfile, 'w') as f:
