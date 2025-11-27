@@ -1102,7 +1102,7 @@ trap 'case $stage in
             api.node.update(node)
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
-            self.log.error(err_msg)
+            print(f"[submit_failure] Error: {err_msg}")
         sys.exit(0)
 
     def submit(self, retcode, dry_run=False):
