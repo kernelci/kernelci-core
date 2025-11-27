@@ -243,6 +243,7 @@ class KBuild():
             self._full_artifacts = jsonobj['full_artifacts']
             self._dtbs_check = jsonobj['dtbs_check']
             self._kfselftest = jsonobj['kfselftest']
+            self._coverage = jsonobj.get('coverage', False)
             return
         raise ValueError("No valid arguments provided")
 
