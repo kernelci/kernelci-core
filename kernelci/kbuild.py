@@ -1237,7 +1237,7 @@ trap 'case $stage in
             kselftest_node['kind'] = 'test'
             existing_path = kselftest_node.get('path')
             if existing_path and isinstance(existing_path, list):
-                kselftest_node['path'] = existing_path.append(kselftest_node['name'])
+                kselftest_node['path'] = existing_path + [kselftest_node['name']]
             kselftest_node['parent'] = self._node['id']
             kselftest_node['data'] = results['node']['data'].copy()
             kselftest_node['artifacts'] = None
