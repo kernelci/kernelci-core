@@ -243,6 +243,7 @@ class KBuild():
             self._full_artifacts = jsonobj['full_artifacts']
             self._dtbs_check = jsonobj['dtbs_check']
             self._kfselftest = jsonobj['kfselftest']
+            self._coverage = jsonobj.get('coverage', False)
             return
         raise ValueError("No valid arguments provided")
 
@@ -1102,7 +1103,7 @@ trap 'case $stage in
             api.node.update(node)
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
-            self.log.error(err_msg)
+            print(f"[submit_failure] Error: {err_msg}")
         sys.exit(0)
 
     def submit(self, retcode, dry_run=False):
@@ -1237,7 +1238,7 @@ trap 'case $stage in
             kselftest_node['kind'] = 'test'
             existing_path = kselftest_node.get('path')
             if existing_path and isinstance(existing_path, list):
-                kselftest_node['path'] = existing_path.append(kselftest_node['name'])
+                kselftest_node['path'] = existing_path + [kselftest_node['name']]
             kselftest_node['parent'] = self._node['id']
             kselftest_node['data'] = results['node']['data'].copy()
             kselftest_node['artifacts'] = None
