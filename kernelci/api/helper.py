@@ -9,9 +9,21 @@
 
 from typing import Dict
 import json
+import os
 import requests
 
 from . import API
+
+
+def _is_debug_enabled():
+    """Check if KCI_DEBUG environment variable is set to enable verbose logging."""
+    return os.environ.get('KCI_DEBUG', '').lower() in ('1', 'true', 'yes')
+
+
+def _debug_print(message):
+    """Print message only if KCI_DEBUG is enabled."""
+    if _is_debug_enabled():
+        print(message)
 
 
 def merge(primary: dict, secondary: dict):
@@ -480,13 +492,13 @@ class APIHelper:
             job_node['platform_filter'] = platform_filter
 
         if self._is_job_filtered(job_node):
-            print(f"Not creating node due to job filter. Job {job_config.name} "
-                  f"not found in jobfilter for node {input_node['id']}")
+            _debug_print(f"Not creating node due to job filter. Job {job_config.name} "
+                         f"not found in jobfilter for node {input_node['id']}")
             return None
 
         if not self.should_create_node(job_config.rules, job_node):
-            print(f"Not creating node due to job rules for {job_config.name} "
-                  f"evaluating node {input_node['id']}")
+            _debug_print(f"Not creating node due to job rules for {job_config.name} "
+                         f"evaluating node {input_node['id']}")
             return None
         # Test-specific fields inherited from parent node (kbuild or
         # job) if available
@@ -503,21 +515,21 @@ class APIHelper:
         if runtime:
             job_node['data']['runtime'] = runtime.config.name
             if not self.should_create_node(runtime.config.rules, job_node):
-                print(f"Not creating node {input_node['id']} due to runtime rules "
-                      f"for {runtime.config.name}")
+                _debug_print(f"Not creating node {input_node['id']} due to runtime rules "
+                             f"for {runtime.config.name}")
                 return None
         # Filter by platform if it is test job only
         if platform:
             # if platform_filter not null, verify if platform.name exist in platform_filter
             if platform_filter and platform.name not in platform_filter\
                and job_config.kind == 'job':
-                print(f"Filtered: Platform {platform.name} not found in platform_filter "
-                      f"for node {input_node['id']}")
+                _debug_print(f"Filtered: Platform {platform.name} not found in platform_filter "
+                             f"for node {input_node['id']}")
                 return None
             job_node['data']['platform'] = platform.name
             if not self.should_create_node(platform.rules, job_node):
-                print(f"Not creating node {input_node['id']} due to platform rules "
-                      f"for {platform.name}")
+                _debug_print(f"Not creating node {input_node['id']} due to platform rules "
+                             f"for {platform.name}")
                 return None
             # Process potential f-strings in node's data with platform attributes
             # krev is used for ChromeOS config version mapping

@@ -165,3 +165,41 @@ Then the `kci_build install_kernel` command normally requires `--kdir`,
 so they don't need to be provided on the command line: `db_config` is in the
 `[DEFAULT]` section, `db_token` in the `[db:localhost]` section and `kdir` in
 the `[kci_build]` section.
+
+## Environment Variables
+
+In addition to the TOML settings file, KernelCI tools support several
+environment variables for runtime configuration:
+
+| Variable | Description |
+|----------|-------------|
+| `KCI_API_TOKEN` | API authentication token |
+| `KCI_SETTINGS` | Path to the TOML settings file |
+| `KCI_INSTANCE` | Instance type (`prod`, `staging`) |
+| `KCI_INSTANCE_CALLBACK` | LAVA callback URL |
+| `KCI_STORAGE_CREDENTIALS` | Storage backend credentials |
+| `KCI_DEBUG` | Enable verbose debug logging |
+
+### `KCI_DEBUG`
+
+When `KCI_DEBUG` is set to `1`, `true`, or `yes`, KernelCI will output
+additional debug messages that are normally suppressed to reduce log noise.
+This includes verbose messages about job and platform filtering decisions
+during scheduling.
+
+Example usage:
+```bash
+export KCI_DEBUG=1
+# or
+KCI_DEBUG=true ./run-scheduler.sh
+```
+
+The `kci` CLI tool also provides a `--debug` / `-d` flag for commands that
+support it, which automatically sets `KCI_DEBUG=1`:
+
+```bash
+kci config forecast --debug -c /path/to/config
+```
+
+This is particularly useful for debugging why certain jobs or platforms are
+being filtered out during scheduling.

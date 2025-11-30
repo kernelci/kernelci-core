@@ -243,8 +243,11 @@ def do_forecast(merged_data):
 
 @kci_config.command
 @Args.config
-def forecast(config):
-    """Dump entries from the SECTION of the pipeline YAML configuration"""
+@Args.debug
+def forecast(config, debug):
+    """Forecast builds and tests for each tree/branch combination"""
+    if debug:
+        os.environ['KCI_DEBUG'] = '1'
     config_paths = kernelci.config.get_config_paths(config)
     if not config_paths:
         return
