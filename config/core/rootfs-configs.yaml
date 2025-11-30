@@ -507,16 +507,22 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
+      - btrfs-progs
       - ca-certificates
       - curl
       - dosfstools
+      - e2fsprogs
       - gdb-minimal
       - iproute2
       - jq
       - libnuma-dev
       - net-tools
+      - nfs-kernel-server
       - ntfs-3g
+      - parted
       - python3
+      - quota
+      - xfsprogs
     script: "scripts/trixie-ltp.sh"
     imagesize: 2GB
     debos_memory: 8G
