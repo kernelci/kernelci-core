@@ -12,7 +12,7 @@
 
 """Common KernelCI API model definitions"""
 
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, List, Tuple, Union
 from bson import ObjectId
 from pydantic import (
     BaseModel,
@@ -74,8 +74,14 @@ class DatabaseModel(ModelId):
     """Database model"""
     @dataclass
     class Index():
-        """Index class"""
-        field: str
+        """Index class
+
+        field: Either a single field name (str) for simple indexes,
+               or a list of (field, direction) tuples for compound indexes.
+               Direction is typically 1 (ascending) or -1 (descending).
+        attributes: MongoDB index options (e.g., {'expireAfterSeconds': 3600})
+        """
+        field: Union[str, List[Tuple[str, int]]]
         attributes: dict[str, Any]
 
     def update(self):
