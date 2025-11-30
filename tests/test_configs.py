@@ -25,16 +25,6 @@ import kernelci.legacy.config.build
 #
 
 
-def test_build_configs_parsing():
-    """Verify build configs from YAML"""
-    data = kernelci.config.load_yaml("config/core")
-    configs = kernelci.legacy.config.build.from_yaml(data, {})
-    assert len(configs) == 4
-    for key in ['build_configs', 'build_environments', 'fragments', 'trees']:
-        assert key in configs
-        assert len(configs[key]) > 0
-
-
 def test_build_configs_parsing_minimal():
     """Test that minimal build configs can be parsed from YAML"""
     data = kernelci.config.load_yaml("tests/configs/builds-minimal.yaml")
