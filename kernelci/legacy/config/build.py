@@ -359,7 +359,8 @@ class BuildConfig(YAMLConfigObject):
 
     yaml_tag = u'!BuildConfig'
 
-    def __init__(self, name, tree, branch, variants, reference=None, architectures=None):
+    def __init__(self, name, tree, branch, variants, reference=None,
+                 architectures=None, frequency=None):
         """A build configuration defines the actual kernels to be built.
 
         *name* is the name of the build configuration.  It is arbitrary and
@@ -378,6 +379,10 @@ class BuildConfig(YAMLConfigObject):
                     bisections when no base commit is found for the good and
                     bad revisions.  It can also be None if no reference branch
                     can be used with this build configuration.
+
+        *frequency* is an optional string that limits how often a checkout node
+                    can be created for this tree/branch. Format: [Nd][Nh][Nm]
+                    e.g. "1d" for once per day, "12h" for twice per day.
         """
         self._name = name
         self._tree = tree
@@ -385,6 +390,7 @@ class BuildConfig(YAMLConfigObject):
         self._variants = variants
         self._reference = reference
         self._architectures = architectures
+        self._frequency = frequency
 
     @classmethod
     def load_from_yaml(cls, config, name, trees, fragments, b_envs, defaults):
@@ -406,6 +412,7 @@ class BuildConfig(YAMLConfigObject):
         if reference:
             kw['reference'] = Reference.load_from_yaml(reference, trees)
         kw['architectures'] = config.get('architectures', None)
+        kw['frequency'] = config.get('frequency', None)
         return cls(**kw)
 
     @property
@@ -435,16 +442,21 @@ class BuildConfig(YAMLConfigObject):
     def reference(self):
         return self._reference
 
+    @property
+    def frequency(self):
+        return self._frequency
+
     @classmethod
     def to_yaml(cls, dumper, data):
-        return dumper.represent_mapping(
-            u'tag:yaml.org,2002:map', {
-                'tree': data.tree.name,
-                'branch': data.branch,
-                'variants': {var.name: var for var in data.variants},
-                'reference': data.reference,
-            }
-        )
+        result = {
+            'tree': data.tree.name,
+            'branch': data.branch,
+            'variants': {var.name: var for var in data.variants},
+            'reference': data.reference,
+        }
+        if data.frequency:
+            result['frequency'] = data.frequency
+        return dumper.represent_mapping(u'tag:yaml.org,2002:map', result)
 
 
 def from_yaml(data, filters):
