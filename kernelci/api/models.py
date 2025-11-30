@@ -16,6 +16,7 @@
 from datetime import datetime, timedelta
 from typing import Any, Optional, Dict, List, ClassVar, Literal
 import enum
+import os
 from operator import attrgetter
 import json
 from typing_extensions import Annotated
@@ -855,11 +856,28 @@ def parse_node_obj(node: Node):
 
 
 # eventhistory model
+# Environment variable to configure TTL (default 7 days = 604800 seconds)
+# Set EVENT_HISTORY_TTL_SECONDS to override
+EVENT_HISTORY_TTL_SECONDS = int(os.getenv('EVENT_HISTORY_TTL_SECONDS', '604800'))
+
+
 class EventHistory(DatabaseModel):
     """Event history object model"""
     timestamp: datetime = Field(
         description='Timestamp of event creation',
         default_factory=datetime.now
+    )
+    sequence_id: Optional[int] = Field(
+        default=None,
+        description='Sequential ID for pub/sub ordering (auto-generated)'
+    )
+    channel: Optional[str] = Field(
+        default='node',
+        description='Pub/Sub channel name'
+    )
+    owner: Optional[str] = Field(
+        default=None,
+        description='Username of event publisher'
     )
     data: Dict[str, Any] = Field(
         description='Event data',
@@ -871,9 +889,11 @@ class EventHistory(DatabaseModel):
         """
         Create the index with the expiresAfterSeconds option for the
         timestamp field to automatically remove documents after a certain
-        time.
-        Default is 86400 seconds (24 hours).
+        time. Default is 604800 seconds (7 days), configurable via
+        EVENT_HISTORY_TTL_SECONDS environment variable.
+        Also creates compound index for efficient pub/sub catch-up queries.
         """
         return [
-            cls.Index('timestamp', {'expireAfterSeconds': 86400}),
+            cls.Index('timestamp', {'expireAfterSeconds': EVENT_HISTORY_TTL_SECONDS}),
+            cls.Index([('channel', 1), ('sequence_id', 1)], {}),
         ]
