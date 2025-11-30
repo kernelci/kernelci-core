@@ -67,6 +67,10 @@ class Args:  # pylint: disable=too-few-public-methods
         '-v', '--verbose/--no-verbose', default=None,
         help="Print more details output"
     )
+    debug = click.option(
+        '-d', '--debug', is_flag=True, default=False,
+        help="Enable debug output (sets KCI_DEBUG=1)"
+    )
 
 
 def catch_error(func):
