@@ -10,6 +10,11 @@ FROM mirror.gcr.io/debian:trixie
 MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Exclude doc and man files to reduce image size
+RUN echo 'path-exclude=/usr/share/doc/*' > /etc/dpkg/dpkg.cfg.d/excludes && \
+    echo 'path-exclude=/usr/share/man/*' >> /etc/dpkg/dpkg.cfg.d/excludes && \
+    echo 'path-exclude=/usr/share/info/*' >> /etc/dpkg/dpkg.cfg.d/excludes
+
 {%- block multistage %}{% endblock %}
 
 # Docker for jenkins really needs procps otherwise the jenkins side fails
