@@ -13,12 +13,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 {%- block multistage %}{% endblock %}
 
 # Docker for jenkins really needs procps otherwise the jenkins side fails
-RUN apt-get update && apt-get install --no-install-recommends -y procps
-
 # SSL / HTTPS support
 RUN apt-get update && apt-get install --no-install-recommends -y \
     apt-transport-https \
-    ca-certificates
+    ca-certificates \
+    procps
 
 {%- block packages %}{% endblock %}
 
