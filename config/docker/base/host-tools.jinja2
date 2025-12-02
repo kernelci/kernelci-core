@@ -3,22 +3,18 @@
 {% block multistage %}
 # Build custom kmod package with compression enabled
 
-# SSL / HTTPS support
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    apt-transport-https \
-    ca-certificates
-
-# Add retries
-RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries
+# Add retries and deb-src entries
+RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries && \
+    echo "deb-src http://deb.debian.org/debian trixie main non-free contrib" \
+        >> /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian-security/ trixie-security main contrib non-free" \
+        >> /etc/apt/sources.list
 
 # Prepare environment for building packages
-#RUN sed -i -- 's/# deb-src/deb-src/g' /etc/apt/sources.list
-RUN echo "deb-src http://deb.debian.org/debian trixie main non-free contrib" \
-    >> /etc/apt/sources.list
-RUN echo "deb-src http://deb.debian.org/debian-security/ trixie-security main contrib non-free" \
-    >> /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https \
     build-essential \
+    ca-certificates \
     cdbs \
     devscripts \
     equivs \
