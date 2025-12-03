@@ -1,7 +1,8 @@
+{%- set console_dev = 'ttyAMA0' if platform_config.context.arch in ['arm', 'arm64'] else 'ttyS0' -%}
 - deploy:
     images:
       kernel:
-        image_arg: -kernel {kernel} -append "console={{ platform_config.context.serial|default('ttyS0') }},115200 root=/dev/ram0 debug
+        image_arg: -kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug
           verbose console_msg_format=syslog earlycon"
         url: '{{ node.artifacts.kernel }}'
       ramdisk:
