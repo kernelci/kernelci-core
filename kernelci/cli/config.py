@@ -11,10 +11,17 @@ import json
 
 import click
 import yaml
+from jinja2 import Environment, FileSystemLoader
 
 import kernelci.config
 import kernelci.api.helper
 from . import Args, kci
+
+
+REPORT_TEMPLATE_PATHS = [
+    'config/report',
+    '/etc/kernelci/config/report',
+]
 
 
 @kci.group(name='config')
@@ -163,10 +170,9 @@ def forecast_tests(merged_data, kbuild, checkout):
 
 
 # pylint: disable=too-many-branches disable=too-many-locals
-def do_forecast(merged_data):
+def get_forecast_data(merged_data):
     """
-    We will simulate checkout event on each tree/branch
-    and try to build list of builds/tests it will run
+    Process merged data to get forecast of builds and tests.
     """
     checkouts = []
     build_configs = merged_data.get("build_configs", {})
@@ -223,7 +229,13 @@ def do_forecast(merged_data):
             checkout["kbuilds"].append(kbuild)
         checkout["kbuilds_identical"] = compare_builds(merged_data)
 
-    # print the results
+    return checkouts
+
+
+def print_forecast(checkouts):
+    """
+    Print the forecast results to stdout.
+    """
     for checkout in checkouts:
         print(f"Checkout: {checkout.get('tree')}:{checkout.get('branch')}")
         if checkout.get("kbuilds_identical"):
@@ -241,10 +253,30 @@ def do_forecast(merged_data):
             print("  No builds found for this checkout")
 
 
+def generate_html_report(checkouts, output_dir):
+    """
+    Generate an HTML report for the forecast using Jinja2 template.
+    """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    jinja2_env = Environment(loader=FileSystemLoader(REPORT_TEMPLATE_PATHS))
+    template = jinja2_env.get_template("forecast.jinja2")
+
+    json_data = json.dumps(checkouts)
+    final_html = template.render(checkouts_json=json_data)
+
+    with open(os.path.join(output_dir, "index.html"), "w", encoding="utf-8") as outfile:
+        outfile.write(final_html)
+
+    print(f"Forecast report generated at: {os.path.join(output_dir, 'index.html')}")
+
+
 @kci_config.command
 @Args.config
 @Args.debug
-def forecast(config, debug):
+@click.option('--html', type=click.Path(), help="Generate HTML report in the specified directory")
+def forecast(config, debug, html):
     """Forecast builds and tests for each tree/branch combination"""
     if debug:
         os.environ['KCI_DEBUG'] = '1'
@@ -252,4 +284,10 @@ def forecast(config, debug):
     if not config_paths:
         return
     data = kernelci.config.load_yaml(config_paths)
-    do_forecast(data)
+
+    checkouts = get_forecast_data(data)
+
+    if html:
+        generate_html_report(checkouts, html)
+    else:
+        print_forecast(checkouts)

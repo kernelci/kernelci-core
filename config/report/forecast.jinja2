@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KernelCI Forecast</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .checkout { border: 1px solid #ccc; margin-bottom: 10px; padding: 10px; border-radius: 5px; }
+        .checkout h2 { margin-top: 0; cursor: pointer; background-color: #f0f0f0; padding: 5px; }
+        .builds { display: none; margin-left: 20px; }
+        .build { margin-bottom: 5px; }
+        .tests { margin-left: 20px; display: none; }
+        .toggle::before { content: '▶ '; }
+        .expanded .toggle::before { content: '▼ '; }
+        .active { display: block; }
+        .identical { color: #666; font-style: italic; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>KernelCI Forecast</h1>
+    <input type="text" id="search" placeholder="Search tree/branch..." onkeyup="filterCheckouts()">
+    <div id="report"></div>
+
+    <script>
+        const data = {{ checkouts_json }};
+
+        function render() {
+            const container = document.getElementById('report');
+            data.forEach((checkout, idx) => {
+                const div = document.createElement('div');
+                div.className = 'checkout';
+                div.dataset.tree = checkout.tree;
+                div.dataset.branch = checkout.branch;
+                
+                let identicalHtml = '';
+                if (checkout.kbuilds_identical) {
+                    identicalHtml = `<div class="identical">Identical builds: ${checkout.kbuilds_identical}</div>`;
+                }
+
+                let buildsHtml = '';
+                if (checkout.kbuilds && checkout.kbuilds.length > 0) {
+                    checkout.kbuilds.forEach(build => {
+                        let testsHtml = '';
+                        if (build.tests && build.tests.length > 0) {
+                            testsHtml = `<div class="tests"><ul>${build.tests.map(t => `<li>${t}</li>`).join('')}</ul></div>`;
+                        }
+                        
+                        buildsHtml += `
+                            <div class="build">
+                                <div onclick="toggle(this)" class="toggle"><strong>${build.name}</strong> (${build.tests.length} tests)</div>
+                                ${testsHtml}
+                            </div>`;
+                    });
+                } else {
+                    buildsHtml = '<div>No builds found</div>';
+                }
+
+                div.innerHTML = `
+                    <h2 onclick="toggle(this)" class="toggle">${checkout.tree}:${checkout.branch} (${checkout.kbuilds.length} builds)</h2>
+                    <div class="builds">
+                        ${identicalHtml}
+                        ${buildsHtml}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggle(element) {
+            element.parentElement.classList.toggle('expanded');
+            const content = element.nextElementSibling;
+            if (content) {
+                content.classList.toggle('active');
+            }
+        }
+
+        function filterCheckouts() {
+            const input = document.getElementById('search');
+            const filter = input.value.toUpperCase();
+            const checkouts = document.getElementsByClassName('checkout');
+
+            for (let i = 0; i < checkouts.length; i++) {
+                const tree = checkouts[i].dataset.tree;
+                const branch = checkouts[i].dataset.branch;
+                if (tree.toUpperCase().indexOf(filter) > -1 || branch.toUpperCase().indexOf(filter) > -1) {
+                    checkouts[i].style.display = "";
+                } else {
+                    checkouts[i].style.display = "none";
+                }
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
