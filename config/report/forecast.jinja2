@@ -23,7 +23,7 @@
     <div id="report"></div>
 
     <script>
-        const data = {{ checkouts_json }};
+        const data = {{ checkouts | tojson }};
 
         function render() {
             const container = document.getElementById('report');
