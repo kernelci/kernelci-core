@@ -48,7 +48,7 @@
                         
                         buildsHtml += `
                             <div class="build">
-                                <div onclick="toggle(this)" class="toggle"><strong>${build.name}</strong> (${build.tests.length} tests)</div>
+                                <div onclick="toggle(this)" class="toggle"><strong>${build.name}</strong> (${build.tests?.length || 0} tests)</div>
                                 ${testsHtml}
                             </div>`;
                     });
