@@ -57,7 +57,7 @@
                 }
 
                 div.innerHTML = `
-                    <h2 onclick="toggle(this)" class="toggle">${checkout.tree}:${checkout.branch} (${checkout.kbuilds.length} builds)</h2>
+                    <h2 onclick="toggle(this)" class="toggle">${checkout.tree}:${checkout.branch} (${checkout.kbuilds?.length || 0} builds)</h2>
                     <div class="builds">
                         ${identicalHtml}
                         ${buildsHtml}
