@@ -263,8 +263,7 @@ def generate_html_report(checkouts, output_dir):
     jinja2_env = Environment(loader=FileSystemLoader(REPORT_TEMPLATE_PATHS))
     template = jinja2_env.get_template("forecast.jinja2")
 
-    json_data = json.dumps(checkouts)
-    final_html = template.render(checkouts_json=json_data)
+    final_html = template.render(checkouts=checkouts)
 
     with open(os.path.join(output_dir, "index.html"), "w", encoding="utf-8") as outfile:
         outfile.write(final_html)
