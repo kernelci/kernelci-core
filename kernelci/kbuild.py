@@ -166,6 +166,9 @@ class KBuild():
             if isinstance(self._defconfig, str) and '+' in self._defconfig:
                 self._defconfig = self._defconfig.split('+')
             self._backend = params.get('backend', 'make')
+            # Support USE_TUXMAKE environment variable for backward compatibility
+            if os.environ.get('USE_TUXMAKE') == '1':
+                self._backend = 'tuxmake'
             self._fragments = params['fragments']
             self._fragment_configs = fragment_configs or {}
             if 'coverage' in self._fragments:
@@ -567,12 +570,19 @@ trap - ERR
         return self.extract_config(frag)
 
     def _parse_fragments(self, firmware=False):
-        """ Parse fragments kbuild config and create config fragments """
-        num = 0
-        for fragment in self._fragments:
+        """ Parse fragments kbuild config and create config fragments
+
+        Returns:
+            list: List of fragment file paths
+        """
+        fragment_files = []
+
+        for idx, fragment in enumerate(self._fragments):
             content = ''
+            fragment_name = fragment
+
             if fragment.startswith("cros://"):
-                (content, fragment) = self._getcrosfragment(fragment)
+                (content, fragment_name) = self._getcrosfragment(fragment)
             elif fragment.startswith("cip://"):
                 content = self._getcipfragment(fragment)
             elif fragment.startswith("CONFIG_"):
@@ -581,27 +591,37 @@ trap - ERR
                 # Use fragment configs passed from scheduler
                 content = self.add_fragment(fragment)
 
-            fragfile = os.path.join(self._fragments_dir, f"{num}.config")
+            fragfile = os.path.join(self._fragments_dir, f"{idx}.config")
             with open(fragfile, 'w') as f:
                 f.write(content)
+
+            fragment_files.append(fragfile)
+
             # add fragment to artifacts but relative to artifacts dir
             frag_rel = os.path.relpath(fragfile, self._af_dir)
-            self._config_full += '+' + fragment
+            self._config_full += '+' + fragment_name
             self._artifacts.append(frag_rel)
-            num += 1
+
         if firmware:
             content = 'CONFIG_EXTRA_FIRMWARE_DIR="'+self._firmware_dir+'"\n'
-            fragfile = os.path.join(self._fragments_dir, f"{num}.config")
+            fragfile = os.path.join(self._fragments_dir, f"{len(self._fragments)}.config")
             with open(fragfile, 'w') as f:
                 f.write(content)
+
+            fragment_files.append(fragfile)
+
             # add fragment to artifacts but relative to artifacts dir
             frag_rel = os.path.relpath(fragfile, self._af_dir)
             self._artifacts.append(frag_rel)
-            num += 1
-        return num
 
-    def _merge_frags(self, fragnum):
-        """ Merge config fragments to .config """
+        return fragment_files
+
+    def _merge_frags(self, fragment_files):
+        """ Merge config fragments to .config
+
+        Args:
+            fragment_files: List of fragment file paths to merge
+        """
         self.startjob("config_defconfig")
         self.addcmd("cd " + self._srcdir)
         if isinstance(self._defconfig, str) and self._defconfig.startswith('cros://'):
@@ -625,9 +645,8 @@ trap - ERR
                 self._config_full = defconfigs + self._config_full
         # fragments
         self.startjob("config_fragments")
-        for i in range(0, fragnum):
-            self.addcmd("./scripts/kconfig/merge_config.sh" +
-                        f" -m .config {self._fragments_dir}/{i}.config")
+        for fragfile in fragment_files:
+            self.addcmd(f"./scripts/kconfig/merge_config.sh -m .config {fragfile}")
         # TODO: olddefconfig should be optional/configurable
         # TODO: log all warnings/errors of olddefconfig to separate file
         self.addcmd("make olddefconfig")
@@ -638,9 +657,14 @@ trap - ERR
     def _generate_script(self):
         """ Generate shell script for complete build """
         print("Generating shell script")
-        fragnum = self._parse_fragments(firmware=True)
-        self._merge_frags(fragnum)
-        self._build_with_make()
+        self._fragment_files = self._parse_fragments(firmware=True)
+
+        if self._backend == 'tuxmake':
+            self._build_with_tuxmake()
+        else:
+            self._merge_frags(self._fragment_files)
+            self._build_with_make()
+
         self._write_metadata()
         # terminate all active jobs
         self.startjob(None)
@@ -699,6 +723,22 @@ trap 'case $stage in
                 self._package_dtbs()
         else:
             self._build_dtbs_check()
+
+    def _build_with_tuxmake(self):
+        """ Build kernel using tuxmake """
+        self.startjob("build_tuxmake")
+        self.addcmd("cd " + self._srcdir)
+
+        tuxmake_cmd = (
+            f"tuxmake --runtime=null "
+            f"--target-arch={self._arch} "
+            f"--toolchain={self._compiler} "
+            f"kernel modules"
+        )
+
+        print(f"Building with tuxmake: {tuxmake_cmd}")
+        self.addcmd(tuxmake_cmd)
+        self.addcmd("cd ..")
 
     def _build_kernel(self):
         """ Add kernel build steps """
