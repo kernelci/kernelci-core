@@ -591,9 +591,20 @@ trap - ERR
                 # Use fragment configs passed from scheduler
                 content = self.add_fragment(fragment)
 
+            if not content:
+                print(f"[_parse_fragments] WARNING: Fragment {fragment} has no content")
+                continue
+
             fragfile = os.path.join(self._fragments_dir, f"{idx}.config")
             with open(fragfile, 'w') as f:
                 f.write(content)
+
+            if not os.path.exists(fragfile):
+                print(f"[_parse_fragments] ERROR: Failed to create fragment file: {fragfile}")
+                continue
+
+            config_count = len([line for line in content.split('\n') if line.strip()])
+            print(f"[_parse_fragments] Created {fragfile} ({config_count} configs)")
 
             fragment_files.append(fragfile)
 
@@ -608,12 +619,14 @@ trap - ERR
             with open(fragfile, 'w') as f:
                 f.write(content)
 
-            fragment_files.append(fragfile)
+            if os.path.exists(fragfile):
+                fragment_files.append(fragfile)
+                frag_rel = os.path.relpath(fragfile, self._af_dir)
+                self._artifacts.append(frag_rel)
+            else:
+                print("[_parse_fragments] ERROR: Failed to create firmware fragment")
 
-            # add fragment to artifacts but relative to artifacts dir
-            frag_rel = os.path.relpath(fragfile, self._af_dir)
-            self._artifacts.append(frag_rel)
-
+        print(f"[_parse_fragments] Created {len(fragment_files)} fragment files")
         return fragment_files
 
     def _merge_frags(self, fragment_files):
@@ -725,19 +738,80 @@ trap 'case $stage in
             self._build_dtbs_check()
 
     def _build_with_tuxmake(self):
-        """ Build kernel using tuxmake """
+        """ Build kernel using tuxmake with native fragment support """
+        print("[_build_with_tuxmake] Starting tuxmake build")
+
+        if not hasattr(self, '_fragment_files'):
+            print("[_build_with_tuxmake] ERROR: No fragment files available")
+            self._fragment_files = []
+
+        print(f"[_build_with_tuxmake] Using {len(self._fragment_files)} fragment files")
+
+        # Handle multiple defconfigs - tuxmake only supports one
+        if isinstance(self._defconfig, list):
+            if len(self._defconfig) > 1:
+                raise ValueError(
+                    f"TuxMake backend does not support multiple defconfigs: "
+                    f"{self._defconfig}. Use backend=make or specify a single defconfig."
+                )
+            defconfig = self._defconfig[0]
+            self._config_full = self._defconfig[0] + self._config_full
+        elif isinstance(self._defconfig, str):
+            defconfig = self._defconfig
+            self._config_full = self._defconfig + self._config_full
+        else:
+            defconfig = 'defconfig'
+            print("[_build_with_tuxmake] WARNING: No defconfig specified, using 'defconfig'")
+
+        # Fetch firmware for builds that need it
+        self._fetch_firmware()
+
         self.startjob("build_tuxmake")
         self.addcmd("cd " + self._srcdir)
 
-        tuxmake_cmd = (
-            f"tuxmake --runtime=null "
-            f"--target-arch={self._arch} "
-            f"--toolchain={self._compiler} "
-            f"kernel modules"
-        )
+        use_kconfig_flag = True
 
-        print(f"Building with tuxmake: {tuxmake_cmd}")
+        # Handle ChromeOS defconfig
+        if defconfig.startswith('cros://'):
+            print(f"[_build_with_tuxmake] Handling ChromeOS defconfig: {defconfig}")
+            dotconfig = os.path.join(self._srcdir, ".config")
+            content, defconfig_name = self._getcrosfragment(defconfig)
+            with open(dotconfig, 'w') as f:
+                f.write(content)
+            self.addcmd("make olddefconfig")
+            use_kconfig_flag = False
+
+        cmd_parts = [
+            "tuxmake --runtime=null",
+            f"--target-arch={self._arch}",
+            f"--toolchain={self._compiler}",
+            f"--output-dir={self._af_dir}",
+        ]
+
+        if use_kconfig_flag:
+            cmd_parts.append(f"--kconfig={defconfig}")
+
+        for fragfile in self._fragment_files:
+            if os.path.exists(fragfile):
+                cmd_parts.append(f"--kconfig-add={fragfile}")
+                print(f"[_build_with_tuxmake] Adding fragment: {os.path.basename(fragfile)}")
+            else:
+                print(f"[_build_with_tuxmake] WARNING: Fragment file not found: {fragfile}")
+
+        # Build targets: kernel modules, plus dtbs if arch supports it
+        targets = ["kernel", "modules"]
+        if self._arch not in DTBS_DISABLED:
+            targets.append("dtbs")
+            if self._kfselftest:
+                targets.append("kselftest")
+        cmd_parts.append(" ".join(targets))
+        print(f"[_build_with_tuxmake] Building targets: {' '.join(targets)}")
+
+        tuxmake_cmd = " ".join(cmd_parts)
+        print(f"[_build_with_tuxmake] Command: {tuxmake_cmd}")
+        print(f"[_build_with_tuxmake] Output directory: {self._af_dir}")
         self.addcmd(tuxmake_cmd)
+
         self.addcmd("cd ..")
 
     def _build_kernel(self):
@@ -987,9 +1061,19 @@ trap 'case $stage in
 
         # Prepare all artifacts for upload
         upload_tasks = []
-        for artifact in self._artifacts:
-            artifact_path = os.path.join(self._af_dir, artifact)
-            upload_tasks.append((artifact, artifact_path))
+        if self._backend == 'tuxmake':
+            # For TuxMake, upload everything in artifacts directory
+            print("[_upload_artifacts] TuxMake backend: discovering files in artifacts dir")
+            for root, dirs, files in os.walk(self._af_dir):
+                for file in files:
+                    file_rel = os.path.relpath(os.path.join(root, file), self._af_dir)
+                    artifact_path = os.path.join(self._af_dir, file_rel)
+                    upload_tasks.append((file_rel, artifact_path))
+        else:
+            # For make backend, upload only listed artifacts
+            for artifact in self._artifacts:
+                artifact_path = os.path.join(self._af_dir, artifact)
+                upload_tasks.append((artifact, artifact_path))
 
         # Function to handle a single artifact upload
         # args: (artifact, artifact_path)
