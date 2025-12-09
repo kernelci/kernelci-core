@@ -165,6 +165,7 @@ class KBuild():
             # if defconfig contains '+', it means it is a list
             if isinstance(self._defconfig, str) and '+' in self._defconfig:
                 self._defconfig = self._defconfig.split('+')
+            self._backend = params.get('backend', 'make')
             self._fragments = params['fragments']
             self._fragment_configs = fragment_configs or {}
             if 'coverage' in self._fragments:
@@ -220,6 +221,7 @@ class KBuild():
             self._defconfig = jsonobj['defconfig']
             self._fragments = jsonobj['fragments']
             self._fragment_configs = jsonobj.get('fragment_configs', {})
+            self._backend = jsonobj.get('backend', 'make')
             self._cross_compile = jsonobj['cross_compile']
             self._cross_compile_compat = jsonobj['cross_compile_compat']
             self._steps = jsonobj['steps']
@@ -635,30 +637,10 @@ trap - ERR
 
     def _generate_script(self):
         """ Generate shell script for complete build """
-        # TODO(nuclearcat): Fetch firmware only if needed
         print("Generating shell script")
         fragnum = self._parse_fragments(firmware=True)
         self._merge_frags(fragnum)
-        if not self._dtbs_check:
-            # TODO: verify if CONFIG_EXTRA_FIRMWARE have any files
-            # We can check that if fragments have CONFIG_EXTRA_FIRMWARE
-            self._fetch_firmware()
-            self._build_kernel()
-            self._build_modules()
-            if self._kfselftest:
-                self._build_kselftest()
-            if self._arch not in DTBS_DISABLED:
-                self._build_dtbs()
-            self._package_kimage()
-            self._package_modules()
-            if self._coverage:
-                self._package_coverage()
-            if self._kfselftest:
-                self._package_kselftest()
-            if self._arch not in DTBS_DISABLED:
-                self._package_dtbs()
-        else:
-            self._build_dtbs_check()
+        self._build_with_make()
         self._write_metadata()
         # terminate all active jobs
         self.startjob(None)
@@ -696,6 +678,27 @@ trap 'case $stage in
         print(f"Script written to {filename}")
         # copy to artifacts dir
         os.system(f"cp {filename} {self._af_dir}/build.sh")
+
+    def _build_with_make(self):
+        """ Build kernel using make """
+        if not self._dtbs_check:
+            self._fetch_firmware()
+            self._build_kernel()
+            self._build_modules()
+            if self._kfselftest:
+                self._build_kselftest()
+            if self._arch not in DTBS_DISABLED:
+                self._build_dtbs()
+            self._package_kimage()
+            self._package_modules()
+            if self._coverage:
+                self._package_coverage()
+            if self._kfselftest:
+                self._package_kselftest()
+            if self._arch not in DTBS_DISABLED:
+                self._package_dtbs()
+        else:
+            self._build_dtbs_check()
 
     def _build_kernel(self):
         """ Add kernel build steps """
@@ -859,13 +862,18 @@ trap 'case $stage in
         metadata['build']['fragments'] = self._fragments
         metadata['build']['srcdir'] = self._srcdir
         metadata['build']['config_full'] = self._config_full
+        metadata['build']['backend'] = self._backend
 
         with open(os.path.join(self._af_dir, "metadata.json"), 'w') as f:
             json.dump(metadata, f, indent=4)
 
     def serialize(self, filename):
-        """ Serialize class to json """
-        # TODO(nuclearcat): Implement to_json method?
+        """ Serialize class to json
+
+        Note: Uses __dict__ to serialize all instance attributes (including
+        _backend, _arch, etc). The from_json() method strips underscore
+        prefixes when loading, so _backend becomes 'backend' in jsonobj.
+        """
         data = json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
         with open(filename, 'w') as f:
