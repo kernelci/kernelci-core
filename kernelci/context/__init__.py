@@ -37,6 +37,7 @@ class KContext:
         config_paths: List of paths to configuration files/directories
         secrets_path: Path to the secrets TOML file
         runtimes: List of runtimes from CLI arguments
+        runtime_types: List of runtime types from CLI arguments
         cli_args: Parsed CLI arguments if parse_cli=True was used
     """
 
@@ -61,8 +62,9 @@ class KContext:
         if parse_cli:
             args = self._parse_cli_args()
 
-        # Initialize runtime list
+        # Initialize runtime list and runtime types
         self.runtimes = []
+        self.runtime_types = []
         self.cli_args = args if parse_cli else None
 
         # Extract values from CLI arguments if provided
@@ -77,6 +79,8 @@ class KContext:
             program_name = getattr(args, "name", None) or program_name
             # Handle --runtimes parameter
             self.runtimes = getattr(args, "runtimes", [])
+            # Handle --runtime-type parameter
+            self.runtime_types = getattr(args, "runtime_type", []) or []
 
         # Set default paths if not provided
         if not config_paths:
@@ -117,29 +121,53 @@ class KContext:
         # Create a copy of sys.argv to avoid modifying the original
         argv = sys.argv[1:].copy()  # Skip program name and make a copy
         runtimes = []
+        runtime_types = []
 
         # Find --runtimes and collect its values without modifying argv
         i = 0
+        # Known commands that might appear after --runtimes in pipeline services
+        # These are extracted from cmd_* class names found via:
+        #   grep "^class cmd_" kernelci-pipeline/src/*.py
+        # Currently used: cmd_loop (scheduler.py), cmd_run (other services)
+        # Keep this in sync if new command classes are added
+        known_commands = {'loop', 'run'}
         while i < len(argv):
             if argv[i] == "--runtimes":
-                runtime_idx = i
                 i += 1
                 # Collect values until we hit another option or end
                 while i < len(argv):
-                    # Stop at next option (starts with --) or certain known commands
+                    # Stop at next option (starts with --)
                     if argv[i].startswith("--"):
                         break
-                    # Also check if this looks like a command rather than a runtime
-                    # Common commands: loop, run, start, stop, etc.
-                    # For now, we'll just check if it contains common runtime patterns
-                    if "." in argv[i] or "-" in argv[i] or argv[i].startswith("k8s"):
-                        runtimes.append(argv[i])
-                        i += 1
-                    else:
-                        # This looks like a command, stop here
+                    # Stop if we encounter a known command
+                    if argv[i] in known_commands:
                         break
+                    # Otherwise it's a runtime name, add it
+                    runtimes.append(argv[i])
+                    i += 1
                 break
             i += 1
+
+        # Find --runtime-type and collect its values
+        i = 0
+        while i < len(argv):
+            if argv[i] == "--runtime-type":
+                i += 1
+                # Collect values until we hit another option or end
+                while i < len(argv):
+                    if argv[i].startswith("--"):
+                        break
+                    if argv[i] in known_commands:
+                        break
+                    # Valid runtime types: lava, kubernetes, docker, shell, pull_labs
+                    runtime_types.append(argv[i])
+                    i += 1
+                break
+            elif argv[i].startswith("--runtime-type="):
+                runtime_types.append(argv[i].split("=", 1)[1])
+                i += 1
+            else:
+                i += 1
 
         # Create a custom namespace to store our values without consuming arguments
         args = argparse.Namespace()
@@ -151,6 +179,7 @@ class KContext:
         args.config = None
         args.name = None
         args.runtimes = runtimes
+        args.runtime_type = runtime_types
 
         # Look for our specific arguments in argv
         i = 0
@@ -416,6 +445,14 @@ class KContext:
             List of runtime names
         """
         return self.runtimes
+
+    def get_runtime_types(self) -> List[str]:
+        """Get list of runtime types from CLI arguments
+
+        Returns:
+            List of runtime types (e.g., 'lava', 'kubernetes', 'docker', 'shell')
+        """
+        return self.runtime_types
 
     def get_cli_args(self) -> Optional[argparse.Namespace]:
         """Get parsed CLI arguments if parse_cli was used
