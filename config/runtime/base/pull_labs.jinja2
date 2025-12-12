@@ -13,7 +13,7 @@
     "kselftest": "{{ node.artifacts.kselftest }}"
 {%- endif %}
 {%- if nfsroot is defined and nfsroot %},
-    "nfsroot": "{{ nfsroot }}"
+    "nfsroot": "{{ nfsroot }}/full.rootfs.tar.xz"
 {%- endif %}
 {%- if ramdisk is defined and ramdisk %},
     "ramdisk": "{{ ramdisk }}"
