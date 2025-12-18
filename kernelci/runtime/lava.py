@@ -66,6 +66,10 @@ class LogParser:
                 output += msg + '\n'
         return output
 
+    def get_data(self):
+        """Get the raw log data as a list of dicts in LAVA output.yaml format"""
+        return [{'dt': dt, 'lvl': lvl, 'msg': msg} for dt, lvl, msg in self._raw_log]
+
 
 class Callback:
     """LAVA callback handler"""
