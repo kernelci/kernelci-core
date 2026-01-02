@@ -14,7 +14,7 @@ class Job(YAMLConfigObject):  # pylint: disable=too-many-instance-attributes
     yaml_tag = '!Job'
 
     # pylint: disable=too-many-arguments
-    def __init__(self, name, template, kind="node", image=None, params=None, rules=None,
+    def __init__(self, name, template, *, kind="node", image=None, params=None, rules=None,
                  kcidb_test_suite=None, priority=None):
         self._name = name
         self._template = template

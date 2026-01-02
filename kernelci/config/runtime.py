@@ -87,6 +87,7 @@ class RuntimeLAVA(Runtime):
     # pylint: disable=too-many-arguments
     def __init__(
         self,
+        *,
         url=None,
         priority=None,
         priority_min=None,

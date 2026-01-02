@@ -50,7 +50,7 @@ def get(node_id, config, api, indent):
 @Args.page_number
 @catch_error
 # pylint: disable=too-many-arguments
-def find(attributes, config, api, indent, page_length, page_number):
+def find(attributes, *, config, api, indent, page_length, page_number):
     """Find nodes with arbitrary attributes"""
     api = get_api(config, api)
     offset, limit = get_pagination(page_length, page_number)

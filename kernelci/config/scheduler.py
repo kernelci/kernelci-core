@@ -14,7 +14,7 @@ class SchedulerEntry(YAMLConfigObject):
     yaml_tag = '!SchedulerEntry'
 
     # pylint: disable=too-many-arguments
-    def __init__(self, job, runtime, event, platforms=None, rules=None):
+    def __init__(self, job, runtime, event, *, platforms=None, rules=None):
         self._job = job
         self._runtime = runtime
         self._event = event

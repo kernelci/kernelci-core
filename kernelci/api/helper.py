@@ -465,7 +465,7 @@ class APIHelper:
         return False
 
     # pylint: disable=too-many-arguments
-    def create_job_node(self, job_config, input_node,
+    def create_job_node(self, job_config, input_node, *,
                         runtime=None, platform=None, retry_counter=0):
         """Create a new job node based on input and configuration"""
         jobfilter = input_node.get('jobfilter')

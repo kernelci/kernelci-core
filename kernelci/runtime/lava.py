@@ -345,9 +345,7 @@ class LAVA(Runtime):
             node = job.node
             submitter = node.get('submitter')
             if submitter and submitter != 'service:pipeline':
-                priority = priority + 1
-                if priority > self.config.priority_max:
-                    priority = self.config.priority_max
+                priority = min(priority + 1, self.config.priority_max)
         return priority
 
     def get_params(self, job, api_config=None):

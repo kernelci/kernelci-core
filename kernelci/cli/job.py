@@ -37,7 +37,7 @@ def kci_job():
 @Args.api
 @Args.indent
 @catch_error
-def new(name, input_node_id, platform,  # pylint: disable=too-many-arguments
+def new(name, input_node_id, *, platform,  # pylint: disable=too-many-arguments
         runtime, config, api, indent, secrets):
     """Create a new job node"""
     configs = kernelci.config.load(config)
@@ -78,7 +78,7 @@ def new(name, input_node_id, platform,  # pylint: disable=too-many-arguments
 @Args.config
 @Args.api
 @catch_error
-def generate(node_id,  # pylint: disable=too-many-arguments, too-many-locals
+def generate(node_id, *,  # pylint: disable=too-many-arguments, too-many-locals
              runtime, storage, platform, output, config, api, secrets):
     """Generate a job definition in a file"""
     configs = kernelci.config.load(config)
@@ -152,7 +152,7 @@ def _get_runtime(runtime, config, secrets):
 @Args.runtime
 @Args.config
 @catch_error
-def submit(runtime, job_path, wait,  # pylint: disable=too-many-arguments
+def submit(job_path, *, runtime, wait,  # pylint: disable=too-many-arguments
            config, secrets, api):  # pylint: disable=unused-argument
     """Submit a job definition to its designated runtime"""
     configs = kernelci.config.load(config)
