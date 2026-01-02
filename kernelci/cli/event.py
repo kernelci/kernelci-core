@@ -57,7 +57,7 @@ def unsubscribe(config, api, sub_id, secrets):
 @Args.api
 @catch_error
 # pylint: disable=too-many-arguments
-def send(input_file, channel, is_json, config, api, secrets):
+def send(input_file, channel, *, is_json, config, api, secrets):
     """Read some data and send it as an event on a channel"""
     api = get_api(config, api, secrets)
     data = json.load(input_file) if is_json else input_file.read()
@@ -90,7 +90,7 @@ def receive(sub_id, config, api, indent, secrets):
 @Args.api
 @catch_error
 # pylint: disable=too-many-arguments
-def push(input_file, list_name, is_json, config, api, secrets):
+def push(input_file, list_name, *, is_json, config, api, secrets):
     """Read some data and push it as an event on a list"""
     api = get_api(config, api, secrets)
     data = json.load(input_file) if is_json else input_file.read()

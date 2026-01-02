@@ -15,7 +15,7 @@ class Platform(YAMLConfigObject):
     yaml_tag = '!Platform'
 
     # pylint: disable=too-many-arguments
-    def __init__(self, name, arch="x86_64", base_name=None,
+    def __init__(self, name, *, arch="x86_64", base_name=None,
                  boot_method="grub", context=None, compatible=None,
                  dtb=None, mach="x86", params=None, rules=None):
         self._name = name

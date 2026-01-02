@@ -49,6 +49,7 @@ class Scheduler:
         for config in self.get_configs(event, channel):
             runtime_name = config.runtime.get('name')
             runtime_type = config.runtime.get('type')
+            runtime = None
             if runtime_name:
                 runtime = self._runtimes.get(runtime_name)
             elif runtime_type:

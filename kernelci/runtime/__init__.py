@@ -76,7 +76,8 @@ class Runtime(abc.ABC):
     TEMPLATES = ['config/runtime', '/etc/kernelci/runtime']
 
     # pylint: disable=unused-argument,too-many-arguments
-    def __init__(self, config, user=None, token=None, custom_template_dir=None, kcictx=None):
+    def __init__(self, config, *, user=None, token=None,
+                 custom_template_dir=None, kcictx=None):
         """A Runtime object can be used to run jobs in a runtime environment
 
         *config* is a kernelci.config.runtime.Runtime object
