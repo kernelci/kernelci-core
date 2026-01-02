@@ -1,8 +1,8 @@
 -r requirements.txt
-mypy==1.4.1
-pycodestyle==2.10.0
-pylint==2.17.2
-pytest-mock==3.11.1
-types-PyYAML==6.0.12.10
-types-requests==2.31.0.1
-types-urllib3==1.26.25.13
+mypy==1.19.1
+pycodestyle==2.14.0
+pylint==4.0.4
+pytest-mock==3.15.1
+types-PyYAML==6.0.12.20250915
+types-requests==2.32.4.20250913
+types-urllib3==1.26.25.14
