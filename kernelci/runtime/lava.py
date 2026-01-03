@@ -403,6 +403,86 @@ class LAVA(Runtime):
         }
         return rest_api
 
+    def _get_response(self, url, params=None):
+        resp = self._server.session.get(url, params=params, timeout=30)
+        resp.raise_for_status()
+        return resp.json()
+
+    def _get_all(self, url, params=None):
+        resp = self._get_response(url, params=params)
+        results = resp.get('results', [])
+        next_url = resp.get('next')
+        while next_url:
+            resp = self._get_response(next_url)
+            results.extend(resp.get('results', []))
+            next_url = resp.get('next')
+        return results
+
+    def get_queued_job_counts(self, devices, states=None):
+        """Get queued job counts per device.
+
+        *devices* can be a device name or list of device names.
+        *states* optionally overrides queued LAVA states.
+        This can be combined with get_device_names_by_type() to avoid
+        submitting jobs when all devices of a type are overloaded.
+        """
+        if self._server.url is None:
+            raise ValueError("LAVA server URL is not configured")
+
+        if isinstance(devices, str):
+            devices = [devices]
+        if not devices:
+            return {}
+
+        if states is None:
+            states = ['Submitted', 'Scheduling']
+
+        jobs_url = urljoin(self._server.url, 'jobs/')
+        counts = {}
+        for device in devices:
+            params = {'device': device, 'state': states}
+            jobs = self._get_all(jobs_url, params=params)
+            counts[device] = len(jobs)
+        return counts
+
+    def get_device_names_by_type(self, device_type, online_only=False):
+        """Get device names for a given LAVA device type.
+
+        *device_type* can be a string or list of device type names.
+        *online_only* filters devices with health == 'Good' when available.
+        Use this with get_queued_job_counts() to gate submissions when the
+        queue per device type exceeds a threshold.
+        """
+        if self._server.url is None:
+            raise ValueError("LAVA server URL is not configured")
+
+        single_type = isinstance(device_type, str)
+        if single_type:
+            device_types = [device_type]
+        else:
+            device_types = list(device_type or [])
+        if not device_types:
+            return [] if single_type else {}
+
+        devices_url = urljoin(self._server.url, 'devices/')
+        result = {}
+        for dev_type in device_types:
+            params = {'device_type': dev_type}
+            devices = self._get_all(devices_url, params=params)
+            names = []
+            for device in devices:
+                if device.get('device_type') != dev_type:
+                    continue
+                if online_only and device.get('health') not in (None, 'Good'):
+                    continue
+                hostname = device.get('hostname') or device.get('name')
+                if hostname:
+                    names.append(hostname)
+            result[dev_type] = names
+        if single_type:
+            return result.get(device_types[0], [])
+        return result
+
     def _submit(self, job):
         if self._server.url is None:
             return self._store_job_in_external_storage(job)
