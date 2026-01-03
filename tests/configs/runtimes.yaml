@@ -24,6 +24,7 @@ runtimes:
     priority_max: 100
     queue_timeout:
       days: 1
+    max_queue_depth: 50
     notify: {}
     filters:
       - blocklist:
@@ -46,6 +47,7 @@ runtimes:
     priority_max: 45
     queue_timeout:
       hours: 1
+    max_queue_depth: 50
     notify:
       callback:
         token: some-token-name

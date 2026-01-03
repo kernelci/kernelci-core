@@ -94,6 +94,7 @@ class RuntimeLAVA(Runtime):
         priority_max=None,
         queue_timeout=None,
         notify=None,
+        max_queue_depth=None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -107,6 +108,7 @@ class RuntimeLAVA(Runtime):
         self._priority_max = _set_priority_value(priority_max, self._priority)
         self._notify = notify or {}
         self._queue_timeout = queue_timeout
+        self._max_queue_depth = max_queue_depth if max_queue_depth is not None else 50
 
     @property
     def url(self):
@@ -142,6 +144,11 @@ class RuntimeLAVA(Runtime):
         """Callback parameters for the `notify` part of the jobs"""
         return self._notify.copy()
 
+    @property
+    def max_queue_depth(self):
+        """Maximum queue depth per device type before skipping job submissions"""
+        return self._max_queue_depth
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
@@ -153,6 +160,7 @@ class RuntimeLAVA(Runtime):
                 "queue_timeout",
                 "url",
                 "notify",
+                "max_queue_depth",
             }
         )
         return attrs

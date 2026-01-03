@@ -403,6 +403,91 @@ class LAVA(Runtime):
         }
         return rest_api
 
+    def _get_response(self, url, params=None):
+        resp = self._server.session.get(url, params=params, timeout=30)
+        resp.raise_for_status()
+        return resp.json()
+
+    def _get_all(self, url, params=None):
+        resp = self._get_response(url, params=params)
+        results = resp.get('results', [])
+        next_url = resp.get('next')
+        while next_url:
+            resp = self._get_response(next_url)
+            results.extend(resp.get('results', []))
+            next_url = resp.get('next')
+        return results
+
+    def get_devicetype_job_count(self, device_types):
+        """Get queued job counts per requested device type.
+
+        *device_types* can be a device type name or list of device type names.
+        This queries /jobs/?state=Submitted&requested_device_type=<type> and
+        reads the 'count' field from the paginated DRF response.
+        """
+        if self._server.url is None:
+            raise ValueError("LAVA server URL is not configured")
+
+        single_type = isinstance(device_types, str)
+        if single_type:
+            requested_types = [device_types]
+        else:
+            requested_types = list(device_types or [])
+        if not requested_types:
+            return 0 if single_type else {}
+
+        jobs_url = urljoin(self._server.url, 'jobs/')
+        counts = {}
+        for dev_type in requested_types:
+            params = {
+                'state': 'Submitted',
+                'requested_device_type': dev_type,
+            }
+            resp = self._get_response(jobs_url, params=params)
+            counts[dev_type] = resp.get('count', 0)
+
+        if single_type:
+            return counts.get(requested_types[0], 0)
+        return counts
+
+    def get_device_names_by_type(self, device_type, online_only=False):
+        """Get device names for a given LAVA device type.
+
+        *device_type* can be a string or list of device type names.
+        *online_only* filters devices with health == 'Good' when available.
+        Use this with get_devicetype_job_count() to gate submissions when the
+        queue per device type exceeds a threshold.
+        """
+        if self._server.url is None:
+            raise ValueError("LAVA server URL is not configured")
+
+        single_type = isinstance(device_type, str)
+        if single_type:
+            device_types = [device_type]
+        else:
+            device_types = list(device_type or [])
+        if not device_types:
+            return [] if single_type else {}
+
+        devices_url = urljoin(self._server.url, 'devices/')
+        result = {}
+        for dev_type in device_types:
+            params = {'device_type': dev_type}
+            devices = self._get_all(devices_url, params=params)
+            names = []
+            for device in devices:
+                if device.get('device_type') != dev_type:
+                    continue
+                if online_only and device.get('health') not in (None, 'Good'):
+                    continue
+                hostname = device.get('hostname') or device.get('name')
+                if hostname:
+                    names.append(hostname)
+            result[dev_type] = names
+        if single_type:
+            return result.get(device_types[0], [])
+        return result
+
     def _submit(self, job):
         if self._server.url is None:
             return self._store_job_in_external_storage(job)
