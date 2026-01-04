@@ -12,8 +12,51 @@
 # implementation.
 # pylint: disable=protected-access
 
+import types
+
 import kernelci.config
 import kernelci.runtime
+
+
+class _FakeResponse:
+    def __init__(self, payload, status_code=200, text=""):
+        """Initialize a fake response with payload and status."""
+        self._payload = payload
+        self.status_code = status_code
+        self.text = text
+
+    def raise_for_status(self):
+        """Raise an error when the response indicates failure."""
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}")
+
+    def json(self):
+        """Return the preloaded JSON payload."""
+        return self._payload
+
+
+class _FakeSession:
+    def __init__(self, get_handler=None, post_handler=None):
+        """Initialize a fake session with optional handlers."""
+        self._get_handler = get_handler
+        self._post_handler = post_handler
+        self.calls = []
+
+    def get(self, url, params=None, timeout=30):  # pylint: disable=unused-argument
+        """Invoke the GET handler and return a fake response."""
+        if not self._get_handler:
+            raise AssertionError("GET handler not set")
+        self.calls.append((url, params))
+        return _FakeResponse(self._get_handler(url, params))
+
+    def post(  # pylint: disable=unused-argument
+        self, url, json=None, allow_redirects=False, timeout=30
+    ):
+        """Invoke the POST handler and return its response."""
+        if not self._post_handler:
+            raise AssertionError("POST handler not set")
+        self.calls.append((url, json))
+        return self._post_handler(url, json)
 
 
 def test_runtimes_init():
@@ -66,3 +109,95 @@ def test_lava_priority_scale():
             spec_priority = int(priority)
             print(f"* {plan_name:12s} {lab_priority:3d} {spec_priority:3d}")
             assert lab_priority == spec_priority
+
+
+def test_lava_get_queued_job_counts():
+    """Test queued job count aggregation over paginated LAVA API calls."""
+    config = kernelci.config.load('tests/configs/lava-runtimes.yaml')
+    runtime_config = config['runtimes']['lab-min-12-max-40-new-runtime']
+    lab = kernelci.runtime.get_runtime(runtime_config)
+
+    def handler(url, params):
+        if url.endswith('jobs/'):
+            device = params.get('device')
+            assert params.get('state') == ['Submitted', 'Scheduling']
+            if device == 'dev-a':
+                return {'results': [{'id': 1}, {'id': 2}], 'next': None}
+            if device == 'dev-b':
+                return {
+                    'results': [{'id': 3}],
+                    'next': 'http://lava/api/v0.2/jobs/?page=2',
+                }
+        if url == 'http://lava/api/v0.2/jobs/?page=2':
+            return {'results': [{'id': 4}, {'id': 5}, {'id': 6}], 'next': None}
+        raise AssertionError(f"Unexpected request: {url} {params}")
+
+    lab._server = types.SimpleNamespace(
+        url='http://lava/api/v0.2/',
+        session=_FakeSession(get_handler=handler),
+    )
+
+    counts = lab.get_queued_job_counts(['dev-a', 'dev-b'])
+    assert counts == {'dev-a': 2, 'dev-b': 4}
+
+
+def test_lava_get_device_names_by_type():
+    """Test device name lookups with type filtering and health checks."""
+    config = kernelci.config.load('tests/configs/lava-runtimes.yaml')
+    runtime_config = config['runtimes']['lab-min-12-max-40-new-runtime']
+    lab = kernelci.runtime.get_runtime(runtime_config)
+
+    def handler(url, params):
+        if url.endswith('devices/'):
+            dev_type = params.get('device_type')
+            if dev_type == 'type-a':
+                return {
+                    'results': [
+                        {'device_type': 'type-a', 'hostname': 'dev-1', 'health': 'Good'},
+                        {'device_type': 'type-a', 'hostname': 'dev-2', 'health': 'Bad'},
+                        {'device_type': 'type-b', 'hostname': 'dev-x', 'health': 'Good'},
+                    ],
+                    'next': None,
+                }
+            if dev_type == 'type-b':
+                return {
+                    'results': [
+                        {'device_type': 'type-b', 'hostname': 'dev-3', 'health': 'Good'},
+                    ],
+                    'next': None,
+                }
+        raise AssertionError(f"Unexpected request: {url} {params}")
+
+    lab._server = types.SimpleNamespace(
+        url='http://lava/api/v0.2/',
+        session=_FakeSession(get_handler=handler),
+    )
+
+    names = lab.get_device_names_by_type('type-a', online_only=True)
+    assert names == ['dev-1']
+
+    names_by_type = lab.get_device_names_by_type(['type-a', 'type-b'])
+    assert names_by_type == {'type-a': ['dev-1', 'dev-2'], 'type-b': ['dev-3']}
+
+
+def test_lava_submit_rest():
+    """Test LAVA REST submission builds a job with expected payload."""
+    config = kernelci.config.load('tests/configs/lava-runtimes.yaml')
+    runtime_config = config['runtimes']['lab-min-12-max-40-new-runtime']
+    lab = kernelci.runtime.get_runtime(runtime_config)
+
+    captured = {}
+
+    def post_handler(url, payload):
+        assert url.endswith('jobs/')
+        captured['json'] = payload
+        return _FakeResponse({'job_ids': [123]})
+
+    lab._server = types.SimpleNamespace(
+        url='http://lava/api/v0.2/',
+        session=_FakeSession(post_handler=post_handler),
+    )
+
+    job_id = lab._submit("jobdef")
+    assert job_id == 123
+    assert captured['json']['definition'] == "jobdef"
