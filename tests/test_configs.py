@@ -18,7 +18,7 @@
 import yaml
 
 import kernelci.config
-import kernelci.legacy.config.build
+import kernelci.config.build
 
 # -----------------------------------------------------------------------------
 # Legacy
@@ -28,7 +28,7 @@ import kernelci.legacy.config.build
 def test_build_configs_parsing_minimal():
     """Test that minimal build configs can be parsed from YAML"""
     data = kernelci.config.load_yaml("tests/configs/builds-minimal.yaml")
-    configs = kernelci.legacy.config.build.from_yaml(data, {})
+    configs = kernelci.config.build.from_yaml(data, {})
     assert 'agross' in configs['build_configs']
     assert 'agross' in configs['trees']
     assert 'gcc-7' in configs['build_environments']
@@ -38,13 +38,13 @@ def test_build_configs_parsing_minimal():
 def test_build_configs_parsing_empty_architecture():
     """Test that build configs with empty architectures can be parsed"""
     data = kernelci.config.load_yaml("tests/configs/builds-empty-arch.yaml")
-    configs = kernelci.legacy.config.build.from_yaml(data, {})
+    configs = kernelci.config.build.from_yaml(data, {})
     assert len(configs) == 4
 
 
 def test_architecture_init_name_only():
     """Test that build config objects can be created with just a name"""
-    architecture = kernelci.legacy.config.build.Architecture("arm")
+    architecture = kernelci.config.build.Architecture("arm")
     assert architecture.name == 'arm'
     assert architecture.base_defconfig == 'defconfig'
     assert len(architecture.extra_configs) == 0
