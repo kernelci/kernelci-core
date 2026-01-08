@@ -757,8 +757,9 @@ trap 'case $stage in
             defconfig = 'defconfig'
             print("[_build_with_tuxmake] WARNING: No defconfig specified, using 'defconfig'")
 
-        # Fetch firmware for builds that need it
-        self._fetch_firmware()
+        # Fetch firmware only for normal builds, not dtbs_check
+        if not self._dtbs_check:
+            self._fetch_firmware()
 
         self.startjob("build_tuxmake")
         self.addcmd("cd " + self._srcdir)
@@ -793,10 +794,14 @@ trap 'case $stage in
             else:
                 print(f"[_build_with_tuxmake] WARNING: Fragment file not found: {fragfile}")
 
-        # Build targets: kernel modules, plus dtbs if arch supports it
-        targets = ["kernel", "modules"]
-        if self._arch not in DTBS_DISABLED:
-            targets.append("dtbs")
+        # Build targets depend on mode
+        if self._dtbs_check:
+            targets = ["dtbs_check"]
+        else:
+            # Normal build: kernel, modules, plus dtbs if arch supports it
+            targets = ["kernel", "modules"]
+            if self._arch not in DTBS_DISABLED:
+                targets.append("dtbs")
             if self._kfselftest:
                 targets.append("kselftest")
         cmd_parts.append(" ".join(targets))
