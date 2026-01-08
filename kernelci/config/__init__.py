@@ -166,12 +166,13 @@ def load_data(data):
     filters = default_filters_from_yaml(data)
     for module in [
         'kernelci.config.api',
+        'kernelci.config.build',
         'kernelci.config.job',
         'kernelci.config.platform',
         'kernelci.config.runtime',
         'kernelci.config.scheduler',
         'kernelci.config.storage',
-        'kernelci.legacy.config',
+        'kernelci.legacy.config',  # For db, rootfs, test configs
     ]:
         mod = importlib.import_module(module)
         config.update(mod.from_yaml(data, filters))
