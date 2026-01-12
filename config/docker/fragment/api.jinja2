@@ -20,6 +20,8 @@ WORKDIR /tmp/kernelci-api
 RUN git fetch origin $api_rev
 RUN git checkout FETCH_HEAD
 RUN python3 -m pip install '.[dev]' --break-system-packages --ignore-installed
+# Copy static directory to installed package (workaround for missing build-system config)
+RUN cp -R api/static "$(python3 -c "import site; print(site.getsitepackages()[0])")/api/"
 WORKDIR /home/kernelci
 RUN rm -rf /tmp/kernelci-api
 
