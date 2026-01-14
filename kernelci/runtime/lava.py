@@ -325,15 +325,54 @@ class LAVA(Runtime):
     API_VERSION = 'v0.2'
     RestAPIServer = namedtuple('RestAPIServer', ['url', 'session'])
 
+    # LAVA supports 'high'/'medium'/'low' (100/50/0), but we define our own
+    # values to allow scaling across labs with different priority ranges.
+    PRIORITY_HIGHEST = 80
+    PRIORITY_HIGH = 60
+    PRIORITY_MEDIUM = 40
+    PRIORITY_LOW = 20
+
+    SERVICE_PIPELINE = 'service:pipeline'
+
     def __init__(self, configs, kcictx=None, **kwargs):
         super().__init__(configs, **kwargs)
         self._context = kcictx
         self._server = self._connect()
 
     def _get_priority(self, job):
-        # Scale the job priority (from 0-100) within the available levels
-        # for the lab, or use the lowest by default.
-        priority = job.config.priority if job.config.priority else 20
+        node = job.node
+        submitter = node.get('submitter')
+
+        priority_map = {
+            'high': self.PRIORITY_HIGH,
+            'medium': self.PRIORITY_MEDIUM,
+            'low': self.PRIORITY_LOW,
+        }
+
+        if submitter and submitter != self.SERVICE_PIPELINE:
+            # Human submission - check for user-specified priority
+            user_priority = node.get('data', {}).get('priority')
+            if user_priority:
+                if isinstance(user_priority, str):
+                    priority = priority_map.get(user_priority.lower(), self.PRIORITY_HIGHEST)
+                elif isinstance(user_priority, (int, float)):
+                    priority = max(0, min(100, user_priority))
+                else:
+                    priority = self.PRIORITY_HIGHEST
+            else:
+                priority = self.PRIORITY_HIGHEST
+        else:
+            # Pipeline submission - use tree priority
+            tree_priority = node.get('data', {}).get('tree_priority')
+
+            if tree_priority and isinstance(tree_priority, str):
+                priority = priority_map.get(tree_priority.lower(), self.PRIORITY_LOW)
+            elif tree_priority and isinstance(tree_priority, (int, float)):
+                priority = max(0, min(100, tree_priority))
+            else:
+                job_priority = job.config.priority
+                priority = job_priority if job_priority is not None else self.PRIORITY_LOW
+
         if self.config.priority:
             priority = int(priority * self.config.priority / 100)
         elif (self.config.priority_max is not None and
@@ -341,11 +380,6 @@ class LAVA(Runtime):
             prio_range = self.config.priority_max - self.config.priority_min
             prio_min = self.config.priority_min
             priority = int((priority * prio_range / 100) + prio_min)
-            # Increase the priority for jobs submitted by humans
-            node = job.node
-            submitter = node.get('submitter')
-            if submitter and submitter != 'service:pipeline':
-                priority = min(priority + 1, self.config.priority_max)
         return priority
 
     def get_params(self, job, api_config=None):
