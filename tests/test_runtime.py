@@ -68,6 +68,67 @@ def test_runtimes_init():
         kernelci.runtime.get_runtime(runtime_config)
 
 
+def test_lava_priority_hierarchy():
+    """Test LAVA priority: human=highest, tree=high/medium/low"""
+    config = kernelci.config.load('tests/configs/lava-runtimes.yaml')
+    runtimes = config['runtimes']
+    runtime_config = runtimes['lab-min-12-max-40-new-runtime']
+    lab = kernelci.runtime.get_runtime(runtime_config)
+
+    job_config_no_priority = type('JobConfig', (), {'priority': None})()
+
+    job_human_high_tree = type('Job', (), {
+        'node': {'data': {'tree_priority': 'high'}, 'submitter': 'user@example.com'},
+        'config': job_config_no_priority
+    })()
+    expected_priority = int(12 + (40 - 12) * 80 / 100)
+    assert lab._get_priority(job_human_high_tree) == expected_priority
+
+    job_pipeline_high_tree = type('Job', (), {
+        'node': {'data': {'tree_priority': 'high'}, 'submitter': 'service:pipeline'},
+        'config': job_config_no_priority
+    })()
+    expected_priority = int(12 + (40 - 12) * 60 / 100)
+    assert lab._get_priority(job_pipeline_high_tree) == expected_priority
+
+    job_medium_tree = type('Job', (), {
+        'node': {'data': {'tree_priority': 'medium'}, 'submitter': 'service:pipeline'},
+        'config': job_config_no_priority
+    })()
+    expected_priority = int(12 + (40 - 12) * 40 / 100)
+    assert lab._get_priority(job_medium_tree) == expected_priority
+
+    job_low_tree = type('Job', (), {
+        'node': {'data': {'tree_priority': 'low'}, 'submitter': 'service:pipeline'},
+        'config': job_config_no_priority
+    })()
+    expected_priority = int(12 + (40 - 12) * 20 / 100)
+    assert lab._get_priority(job_low_tree) == expected_priority
+
+    job_default = type('Job', (), {
+        'node': {'data': {}, 'submitter': 'service:pipeline'},
+        'config': job_config_no_priority
+    })()
+    expected_priority = int(12 + (40 - 12) * 20 / 100)
+    assert lab._get_priority(job_default) == expected_priority
+
+    # Human submission with user-specified string priority
+    job_human_set_high = type('Job', (), {
+        'node': {'data': {'priority': 'high'}, 'submitter': 'user@example.com'},
+        'config': job_config_no_priority
+    })()
+    expected_priority = int(12 + (40 - 12) * 60 / 100)
+    assert lab._get_priority(job_human_set_high) == expected_priority
+
+    # Human submission with user-specified numeric priority
+    job_human_set_numeric = type('Job', (), {
+        'node': {'data': {'priority': 50}, 'submitter': 'user@example.com'},
+        'config': job_config_no_priority
+    })()
+    expected_priority = int(12 + (40 - 12) * 50 / 100)
+    assert lab._get_priority(job_human_set_numeric) == expected_priority
+
+
 def test_lava_priority_scale():
     """Test the logic for determining the priority of LAVA jobs"""
     config = kernelci.config.load('tests/configs/lava-runtimes.yaml')

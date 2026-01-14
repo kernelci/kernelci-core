@@ -363,14 +363,14 @@ class BuildVariant(YAMLConfigObject):
         )
 
 
-class BuildConfig(YAMLConfigObject):
+class BuildConfig(YAMLConfigObject):  # pylint: disable=too-many-instance-attributes
     """Build configuration model."""
 
     yaml_tag = '!BuildConfig'
 
     def __init__(  # pylint: disable=too-many-arguments
         self, name, tree, branch, variants, *, reference=None,
-        architectures=None, frequency=None
+        architectures=None, frequency=None, priority=None
     ):
         """A build configuration defines the actual kernels to be built.
 
@@ -388,6 +388,8 @@ class BuildConfig(YAMLConfigObject):
 
         *frequency* is an optional string that limits how often a checkout node
                     can be created. Format: [Nd][Nh][Nm]
+
+        *priority* is an optional string (high/medium/low) for tree priority.
         """
         self._name = name
         self._tree = tree
@@ -396,6 +398,7 @@ class BuildConfig(YAMLConfigObject):
         self._reference = reference
         self._architectures = architectures
         self._frequency = frequency
+        self._priority = priority
 
     @classmethod
     # pylint: disable=arguments-differ,too-many-arguments,too-many-positional-arguments
@@ -419,6 +422,7 @@ class BuildConfig(YAMLConfigObject):
 
         kw['architectures'] = config.get('architectures')
         kw['frequency'] = config.get('frequency')
+        kw['priority'] = config.get('priority')
         return cls(**kw)
 
     @property
@@ -459,6 +463,11 @@ class BuildConfig(YAMLConfigObject):
     def frequency(self):
         """Return the checkout frequency."""
         return self._frequency
+
+    @property
+    def priority(self):
+        """Return the tree priority."""
+        return self._priority
 
     @classmethod
     def to_yaml(cls, dumper, data):
