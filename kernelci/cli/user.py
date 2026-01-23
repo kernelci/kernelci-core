@@ -2,29 +2,23 @@
 #
 # Copyright (C) 2023 Collabora Limited
 #
-# NOTE: Deprecated as of move to kernelci-api usermanager.
-# Final removal date: 2026-02-02.
+"""User management commands"""
 
-"""Deprecated user management commands (moved to kernelci-api usermanager)"""
-
-import click
-
-from . import kci
+from . import Args, catch_error, echo_json, get_api, kci
 
 
-@kci.group(name='user', invoke_without_command=True)
-@click.pass_context
-def kci_user(ctx):
-    """Deprecated user management group"""
-    if ctx.invoked_subcommand is None:
-        click.echo(
-            "kci user has been deprecated; use kernelci-api usermanager instead."
-        )
+@kci.group(name='user')
+def kci_user():
+    """Interact with user accounts"""
 
 
-@kci_user.command
-def deprecated():
-    """Deprecated: use kernelci-api usermanager instead"""
-    click.echo(
-        "kci user has been deprecated; use kernelci-api usermanager instead."
-    )
+@kci_user.command(secrets=True)
+@Args.config
+@Args.api
+@Args.indent
+@catch_error
+def whoami(config, api, indent, secrets):
+    """Show the current user"""
+    api = get_api(config, api, secrets)
+    user = api.user.whoami()
+    echo_json(user, indent)
