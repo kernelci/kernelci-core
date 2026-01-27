@@ -140,7 +140,7 @@ class Base:
                     url, data, headers=self.data.headers,
                     params=params, timeout=self.data.timeout
                 )
-            resp.raise_for_status()
+        resp.raise_for_status()
         return resp
 
     def _put(self, path, data=None, params=None):
