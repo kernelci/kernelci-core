@@ -12,7 +12,7 @@ on:
 
 jobs:
   unit-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     strategy:
       matrix:
         python-version: ['3.10', '3.11']
@@ -39,7 +39,7 @@ jobs:
           make unit-tests
 
   pycodestyle:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     steps:
       - name: Check out source code
         uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
           make pycodestyle
 
   pylint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     steps:
       - name: Check out source code
         uses: actions/checkout@v4
@@ -81,7 +81,7 @@ jobs:
           make pylint
 
   mypy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     steps:
       - name: Check out source code
         uses: actions/checkout@v4
@@ -110,7 +110,7 @@ jobs:
           make mypy
 
   validate-yaml:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     steps:
       - name: Check out source code
         uses: actions/checkout@v4
@@ -131,7 +131,7 @@ jobs:
           make validate-yaml
 
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     name: Lint
     steps:
       - name: Check out source code
