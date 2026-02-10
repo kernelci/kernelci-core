@@ -1,7 +1,23 @@
 rootfs_configs:
-  bookworm:
+  buildroot-baseline:
+    rootfs_type: buildroot
+    git_url: https://github.com/kernelci/buildroot
+    git_branch: main
+    arch_list:
+      - arc
+      - arm64
+      - arm64be
+      - armeb
+      - armel
+      - mipsel
+      - riscv
+      - x86
+    frags:
+      - baseline
+
+  trixie:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
       - amd64
       - arm64
@@ -12,7 +28,7 @@ rootfs_configs:
       - mipsel
     extra_packages:
       - isc-dhcp-client
-    extra_packages_remove: &extra_packages_remove_bookworm
+    extra_packages_remove: &extra_packages_remove_trixie
       - bash
       - e2fslibs
       - e2fsprogs
@@ -24,7 +40,7 @@ rootfs_configs:
       - libp11-kit0
       - libunistring2
       - sensible-utils
-    extra_files_remove: &extra_files_remove_bookworm
+    extra_files_remove: &extra_files_remove_trixie
       - '*networkd*'
       - '*resolved*'
       - nosuspend.conf
@@ -36,9 +52,9 @@ rootfs_configs:
     script: "scripts/install-bootrr.sh"
     test_overlay: "overlays/baseline"
 
-  bookworm-blktest:
+  trixie-blktest:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     imagesize: 4GB
     debos_memory: 8G
     arch_list:
@@ -78,7 +94,7 @@ rootfs_configs:
       - zutils
       - wget
       - curl
-    script: "scripts/bookworm-blktest.sh"
+    script: "scripts/trixie-blktest.sh"
     crush_image_options:
       - filesystem
       - hostname_tool
@@ -89,9 +105,9 @@ rootfs_configs:
     test_overlay: "overlays/blktests"
 
 
-  bookworm-cros-ec:
+  trixie-cros-ec:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
       - amd64
       - arm64
@@ -112,12 +128,12 @@ rootfs_configs:
       - rtl_nic/rtl8153b-2.fw
       - rockchip/dptx.bin
     linux_fw_version: d526e044bddaa2c2ad855c7296147e49be0ab03c
-    script: "scripts/bookworm-cros-ec-tests.sh"
+    script: "scripts/trixie-cros-ec-tests.sh"
     test_overlay: ""
 
-  bookworm-deqp-runner:
+  trixie-deqp-runner:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
       - amd64
       - arm64
@@ -137,23 +153,23 @@ rootfs_configs:
       - python3-minimal
       - sntp
       - zstd
-    script: "scripts/bookworm-deqp-runner.sh"
+    script: "scripts/trixie-deqp-runner.sh"
     imagesize: 4GB
     debos_memory: 8G
     debos_scratchsize: 16G
 
-  bookworm-fault-injection:
+  trixie-fault-injection:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
       - amd64
       - arm64
       - armhf
-    script: "scripts/bookworm-fault-injection.sh"
+    script: "scripts/trixie-fault-injection.sh"
 
-  bookworm-gst-fluster:
+  trixie-gst-fluster:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
       - amd64
       - arm64
@@ -185,14 +201,14 @@ rootfs_configs:
       - python3-yaml
       - unzip
       - wget
-    script: "scripts/bookworm-gst-fluster.sh"
+    script: "scripts/trixie-gst-fluster.sh"
     test_overlay: "overlays/fluster"
     imagesize: 2GB
     debos_memory: 8G
 
-  bookworm-gst-h26forge:
+  trixie-gst-h26forge:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
       - amd64
       - arm64
@@ -215,15 +231,15 @@ rootfs_configs:
       - python3-yaml
       - unzip
       - wget
-    script: "scripts/bookworm-gst-h26forge.sh"
+    script: "scripts/trixie-gst-h26forge.sh"
     test_overlay: "overlays/h26forge"
     imagesize: 4GB
     debos_memory: 8G
     debos_scratchsize: 16G
 
-  bookworm-igt:
+  trixie-igt:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
         - amd64
         - arm64
@@ -282,9 +298,9 @@ rootfs_configs:
     debos_scratchsize: 16G
 
 
-  bookworm-kselftest:
+  trixie-kselftest:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
       - amd64
       - arm64
@@ -338,11 +354,11 @@ rootfs_configs:
       - tpm2-tools
       - wget
       - xz-utils
-    script: "scripts/bookworm-kselftest.sh"
+    script: "scripts/trixie-kselftest.sh"
 
-  bookworm-kvm-unit-tests:
+  trixie-kvm-unit-tests:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     imagesize: 2GB
     arch_list:
       - amd64
@@ -352,11 +368,11 @@ rootfs_configs:
       - python3-unittest2
       - python3-yaml
       - qemu-system
-    script: "scripts/bookworm-kvm-unit-tests.sh"
+    script: "scripts/trixie-kvm-unit-tests.sh"
 
-  bookworm-libcamera:
+  trixie-libcamera:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
       - amd64
       - arm64
@@ -367,12 +383,12 @@ rootfs_configs:
       - bash
       - e2fslibs
       - e2fsprogs
-    script: "scripts/bookworm-libcamera.sh"
+    script: "scripts/trixie-libcamera.sh"
     test_overlay: "overlays/libcamera"
 
-  bookworm-libhugetlbfs:
+  trixie-libhugetlbfs:
     rootfs_type: debos
-    debian_release: bookworm
+    debian_release: trixie
     arch_list:
       - amd64
       - arm64
@@ -381,123 +397,7 @@ rootfs_configs:
       - bash
       - e2fslibs
       - e2fsprogs
-    script: "scripts/bookworm-libhugetlbfs.sh"
-
-  bookworm-rt:
-    rootfs_type: debos
-    debian_release: bookworm
-    arch_list:
-      - amd64
-      - arm64
-      - armhf
-    extra_packages:
-      - libnuma1
-      - procps
-      - python3
-      - rtla
-    script: "scripts/bookworm-rt.sh"
-
-  bookworm-tast:
-    rootfs_type: debos
-    debian_release: bookworm
-    arch_list:
-      - amd64
-      - arm64
-    extra_packages_remove:
-      - e2fslibs
-      - e2fsprogs
-      - klibc-utils
-      - libext2fs2
-      - libgnutls30
-      - libklibc
-      - libncursesw6
-      - libp11-kit0
-      - libunistring2
-      - sensible-utils
-    extra_packages:
-      - ca-certificates
-      - libgbm1
-      - libdrm2
-      - libva2
-      - libva-drm2
-      - unzip
-      - wget
-    script: "scripts/bookworm-tast.sh"
-    test_overlay: "overlays/tast"
-    imagesize: 14GB
-    debos_memory: 8G
-
-  bookworm-v4l2:
-    rootfs_type: debos
-    debian_release: bookworm
-    arch_list:
-      - amd64
-      - arm64
-      - armhf
-    extra_packages:
-      - libasound2
-      - libelf1
-      - libjpeg62-turbo
-      - libudev1
-      - rdfind
-    extra_packages_remove:
-      - bash
-      - e2fslibs
-      - e2fsprogs
-    extra_firmware:
-        - mediatek/mt8173/vpu_d.bin
-        - mediatek/mt8173/vpu_p.bin
-        - mediatek/mt8183/scp.img
-        - mediatek/mt8186/scp.img
-        - mediatek/mt8192/scp.img
-        - mediatek/mt8195/scp.img
-    script: "scripts/bookworm-v4l2.sh"
-    test_overlay: "overlays/v4l2"
-    imagesize: 2GB
-    debos_memory: 8G
-
-  bookworm-vdso:
-    rootfs_type: debos
-    debian_release: bookworm
-    arch_list:
-      - amd64
-      - arm64
-      - armel
-      - armhf
-    extra_packages_remove:
-      - bash
-      - e2fslibs
-      - e2fsprogs
-    script: "scripts/bookworm-vdso.sh"
-
-  bookworm-wifi:
-    rootfs_type: debos
-    debian_release: bookworm
-    arch_list:
-      - amd64
-      - arm64
-      - armhf
-    extra_packages:
-      - rfkill
-      - iw
-      - iproute2
-    test_overlay: "overlays/wifi"
-
-  buildroot-baseline:
-    rootfs_type: buildroot
-    git_url: https://github.com/kernelci/buildroot
-    git_branch: main
-    arch_list:
-      - arc
-      - arm64
-      - arm64be
-      - armeb
-      - armel
-      - mipsel
-      - riscv
-      - x86
-    frags:
-      - baseline
+    script: "scripts/trixie-libhugetlbfs.sh"
 
   trixie-ltp:
     rootfs_type: debos
@@ -527,3 +427,102 @@ rootfs_configs:
     imagesize: 2GB
     debos_memory: 8G
 
+  trixie-rt:
+    rootfs_type: debos
+    debian_release: trixie
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - libnuma1
+      - procps
+      - python3
+      - rtla
+    script: "scripts/trixie-rt.sh"
+
+  trixie-tast:
+    rootfs_type: debos
+    debian_release: trixie
+    arch_list:
+      - amd64
+      - arm64
+    extra_packages_remove:
+      - e2fslibs
+      - e2fsprogs
+      - klibc-utils
+      - libext2fs2
+      - libgnutls30
+      - libklibc
+      - libncursesw6
+      - libp11-kit0
+      - libunistring2
+      - sensible-utils
+    extra_packages:
+      - ca-certificates
+      - libgbm1
+      - libdrm2
+      - libva2
+      - libva-drm2
+      - unzip
+      - wget
+    script: "scripts/trixie-tast.sh"
+    test_overlay: "overlays/tast"
+    imagesize: 14GB
+    debos_memory: 8G
+
+  trixie-v4l2:
+    rootfs_type: debos
+    debian_release: trixie
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - libasound2
+      - libelf1
+      - libjpeg62-turbo
+      - libudev1
+      - rdfind
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+    extra_firmware:
+        - mediatek/mt8173/vpu_d.bin
+        - mediatek/mt8173/vpu_p.bin
+        - mediatek/mt8183/scp.img
+        - mediatek/mt8186/scp.img
+        - mediatek/mt8192/scp.img
+        - mediatek/mt8195/scp.img
+    script: "scripts/trixie-v4l2.sh"
+    test_overlay: "overlays/v4l2"
+    imagesize: 2GB
+    debos_memory: 8G
+
+  trixie-vdso:
+    rootfs_type: debos
+    debian_release: trixie
+    arch_list:
+      - amd64
+      - arm64
+      - armel
+      - armhf
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+    script: "scripts/trixie-vdso.sh"
+
+  trixie-wifi:
+    rootfs_type: debos
+    debian_release: trixie
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - rfkill
+      - iw
+      - iproute2
+    test_overlay: "overlays/wifi"
