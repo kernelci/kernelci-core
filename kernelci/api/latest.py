@@ -152,6 +152,26 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             }
             return self._put('batch/nodeset', data=param)
 
+    class Telemetry(API.Telemetry):
+        """Telemetry bindings for the latest API version"""
+
+        def add(self, events: list) -> dict:
+            """Bulk insert telemetry events"""
+            return self._post('telemetry', events).json()
+
+        def find(
+            self, attributes: Dict[str, str],
+            offset: Optional[int] = None, limit: Optional[int] = None
+        ) -> Sequence[dict]:
+            """Find telemetry events matching the provided attributes"""
+            params = attributes.copy() if attributes else {}
+            return self._get_paginated(params, 'telemetry', offset, limit)
+
+        def stats(self, attributes: Dict[str, str]) -> list:
+            """Get aggregated telemetry statistics"""
+            params = attributes.copy() if attributes else {}
+            return self._get('telemetry/stats', params=params).json()
+
     def subscribe(self, channel: str, promisc: Optional[bool] = None) -> int:
         params = {'promisc': promisc} if promisc else None
         resp = self._post(f'subscribe/{channel}', params=params)

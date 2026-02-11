@@ -902,7 +902,7 @@ class TelemetryEvent(DatabaseModel):
     """Telemetry event for tracking pipeline statistics.
 
     Captures scheduler submissions, runtime errors, job skips,
-    and test results across all runtimes (LAVA, Kubernetes, Docker, shell).
+    and test results across all runtimes.
     """
     ts: datetime = Field(
         description='Timestamp of the event',
