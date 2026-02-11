@@ -39,6 +39,11 @@ from .models_base import (
 any_url_adapter = TypeAdapter(AnyUrl)
 any_http_url_adapter = TypeAdapter(AnyHttpUrl)
 
+# TTL configuration for time-limited collections
+# Set environment variables to override defaults
+EVENT_HISTORY_TTL_SECONDS = int(os.getenv('EVENT_HISTORY_TTL_SECONDS', '604800'))
+TELEMETRY_TTL_SECONDS = int(os.getenv('TELEMETRY_TTL_SECONDS', '1209600'))
+
 
 class StateValues(str, enum.Enum):
     """Enumeration to declare values to be used for Node.state"""
@@ -855,12 +860,6 @@ def parse_node_obj(node: Node):
     raise ValueError(f"Unsupported node kind: {node.kind}")
 
 
-# eventhistory model
-# Environment variable to configure TTL (default 7 days = 604800 seconds)
-# Set EVENT_HISTORY_TTL_SECONDS to override
-EVENT_HISTORY_TTL_SECONDS = int(os.getenv('EVENT_HISTORY_TTL_SECONDS', '604800'))
-
-
 class EventHistory(DatabaseModel):
     """Event history object model"""
     timestamp: datetime = Field(
@@ -896,4 +895,100 @@ class EventHistory(DatabaseModel):
         return [
             cls.Index('timestamp', {'expireAfterSeconds': EVENT_HISTORY_TTL_SECONDS}),
             cls.Index([('channel', 1), ('sequence_id', 1)], {}),
+        ]
+
+
+class TelemetryEvent(DatabaseModel):
+    """Telemetry event for tracking pipeline statistics.
+
+    Captures scheduler submissions, runtime errors, job skips,
+    and test results across all runtimes (LAVA, Kubernetes, Docker, shell).
+    """
+    ts: datetime = Field(
+        description='Timestamp of the event',
+        default_factory=datetime.utcnow
+    )
+    kind: str = Field(
+        description='Event type: runtime_error, job_submission, '
+                    'job_skip, job_result, test_result'
+    )
+    runtime: str = Field(
+        description='Runtime environment name (e.g. lava-collabora, '
+                    'k8s-gke-eu-west4)'
+    )
+    device_type: Optional[str] = Field(
+        default=None,
+        description='Device type (e.g. rk3588, qemu)'
+    )
+    device_id: Optional[str] = Field(
+        default=None,
+        description='Actual device identifier (LAVA only)'
+    )
+    job_name: Optional[str] = Field(
+        default=None,
+        description='Job configuration name'
+    )
+    test_name: Optional[str] = Field(
+        default=None,
+        description='Individual test case name'
+    )
+    job_id: Optional[str] = Field(
+        default=None,
+        description='Runtime job identifier (e.g. LAVA job ID)'
+    )
+    node_id: Optional[str] = Field(
+        default=None,
+        description='API node identifier'
+    )
+    tree: Optional[str] = Field(
+        default=None,
+        description='Kernel tree name'
+    )
+    branch: Optional[str] = Field(
+        default=None,
+        description='Kernel branch name'
+    )
+    arch: Optional[str] = Field(
+        default=None,
+        description='CPU architecture'
+    )
+    result: Optional[str] = Field(
+        default=None,
+        description='Result: pass, fail, skip, incomplete'
+    )
+    is_infra_error: bool = Field(
+        default=False,
+        description='Whether the failure is an infrastructure error'
+    )
+    error_type: Optional[str] = Field(
+        default=None,
+        description='Error category: online_check, submission, '
+                    'queue_depth, etc.'
+    )
+    error_msg: Optional[str] = Field(
+        default=None,
+        description='Error message details'
+    )
+    retry: int = Field(
+        default=0,
+        description='Retry attempt counter'
+    )
+    extra: Dict[str, Any] = Field(
+        default={},
+        description='Additional fields for future extensibility'
+    )
+
+    @classmethod
+    def get_indexes(cls):
+        """Create indexes for telemetry queries with TTL auto-cleanup.
+
+        Default TTL is 1209600 seconds (14 days), configurable via
+        TELEMETRY_TTL_SECONDS environment variable.
+        """
+        return [
+            cls.Index('ts', {'expireAfterSeconds': TELEMETRY_TTL_SECONDS}),
+            cls.Index([('kind', 1), ('ts', -1)], {}),
+            cls.Index([('runtime', 1), ('device_type', 1), ('ts', -1)], {}),
+            cls.Index([('job_name', 1), ('ts', -1)], {}),
+            cls.Index([('result', 1), ('is_infra_error', 1), ('ts', -1)], {}),
         ]
