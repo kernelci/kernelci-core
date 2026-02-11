@@ -244,6 +244,7 @@ class API(abc.ABC, Base):
         Base.__init__(self, data)
         self._node = self.Node(self.data)  # type: ignore[abstract]
         self._user = self.User(self.data)  # type: ignore[abstract]
+        self._telemetry = self.Telemetry(self.data)  # type: ignore[abstract]
 
     @property
     def config(self) -> kernelci.config.api.API:
@@ -360,6 +361,33 @@ class API(abc.ABC, Base):
     def node(self) -> Node:
         """API.Node part of the interface"""
         return self._node
+
+    # ---------
+    # Telemetry
+    # ---------
+
+    class Telemetry(abc.ABC, Base):
+        """Interface to manage telemetry events"""
+
+        @abc.abstractmethod
+        def add(self, events: list) -> dict:
+            """Bulk insert telemetry events"""
+
+        @abc.abstractmethod
+        def find(
+            self, attributes: Dict[str, str],
+            offset: Optional[int] = None, limit: Optional[int] = None
+        ) -> Sequence[dict]:
+            """Find telemetry events matching the provided attributes"""
+
+        @abc.abstractmethod
+        def stats(self, attributes: Dict[str, str]) -> list:
+            """Get aggregated telemetry statistics"""
+
+    @property
+    def telemetry(self) -> Telemetry:
+        """API.Telemetry part of the interface"""
+        return self._telemetry
 
     # -------
     # Pub/Sub
