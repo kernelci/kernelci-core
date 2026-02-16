@@ -11,6 +11,7 @@
 import time
 from urllib.parse import urljoin
 import requests
+from requests.adapters import HTTPAdapter
 from . import Storage
 
 
@@ -20,12 +21,18 @@ class StorageBackend(Storage):
     This class implements the Storage interface for the kernelci-backend API.
     It requires an API token as credentials.
     """
+    _HTTP_TIMEOUT = 300
+    _HTTP_POOL_SIZE = 20
 
     def _close_files(self, files):
         """Helper to close all file handles in the files dictionary."""
         for file_tuple in files.values():
             if hasattr(file_tuple[1], 'close'):
                 file_tuple[1].close()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._session = None
 
     def _handle_http_error(self, exc, attempt, max_retries, retry_delay):
         """Handle HTTP errors during upload with retry logic."""
@@ -57,7 +64,17 @@ class StorageBackend(Storage):
             print(f"Upload failed after {max_retries} attempts")
         return exc
 
+    def _connect(self):
+        if self._session is not None:
+            return
+        self._session = requests.Session()
+        adapter = HTTPAdapter(pool_connections=self._HTTP_POOL_SIZE,
+                             pool_maxsize=self._HTTP_POOL_SIZE)
+        self._session.mount('https://', adapter)
+        self._session.mount('http://', adapter)
+
     def _upload(self, file_paths, dest_path):
+        self._connect()
         headers = {
             'Authorization': self.credentials,
         }
@@ -78,8 +95,9 @@ class StorageBackend(Storage):
                 }
 
                 url = urljoin(self.config.api_url, 'upload')
-                resp = requests.post(
-                    url, headers=headers, data=data, files=files, timeout=300
+                resp = self._session.post(
+                    url, headers=headers, data=data, files=files,
+                    timeout=self._HTTP_TIMEOUT
                 )
                 resp.raise_for_status()
 

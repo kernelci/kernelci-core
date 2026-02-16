@@ -168,7 +168,11 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
             return self._get_paginated(params, 'telemetry', offset, limit)
 
         def stats(self, attributes: Dict[str, str]) -> list:
-            """Get aggregated telemetry statistics"""
+            """Return aggregated telemetry statistics for matched events.
+
+            This endpoint only performs grouped aggregation of telemetry counters
+            and does not perform anomaly detection.
+            """
             params = attributes.copy() if attributes else {}
             return self._get('telemetry/stats', params=params).json()
 

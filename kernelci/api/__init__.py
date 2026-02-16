@@ -382,7 +382,11 @@ class API(abc.ABC, Base):
 
         @abc.abstractmethod
         def stats(self, attributes: Dict[str, str]) -> list:
-            """Get aggregated telemetry statistics"""
+            """Return aggregated telemetry statistics for matched events.
+
+            The result contains grouped counters only; it does not run any
+            anomaly detection.
+            """
 
     @property
     def telemetry(self) -> Telemetry:

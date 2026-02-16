@@ -903,6 +903,9 @@ trap 'case $stage in
         '''
         Get storage object
         '''
+        if hasattr(self, '_storage') and self._storage is not None:
+            return self._storage
+
         storage_config = kernelci.config.storage.StorageFactory.from_yaml(
             name='storage', config=yaml.safe_load(self._storage_config)
         )
@@ -911,7 +914,8 @@ trap 'case $stage in
         storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
         if not storage_cred:
             raise ValueError("KCI_STORAGE_CREDENTIALS not set")
-        return kernelci.storage.get_storage(storage_config, storage_cred)
+        self._storage = kernelci.storage.get_storage(storage_config, storage_cred)
+        return self._storage
 
     def map_artifact_name(self, artifact):
         '''
