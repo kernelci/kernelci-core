@@ -14,7 +14,6 @@ BUILD_DEPS="\
 	  jq \
 	  wget \
 	  unzip \
-	  software-properties-common \
 	  libclang-dev
 "
 
@@ -30,7 +29,6 @@ echo 'deb http://deb.debian.org/debian bookworm-backports main' >>/etc/apt/sourc
 apt-get update
 apt-get install --no-install-recommends -y ${BUILD_DEPS} ${GST_DEPS} curl
 apt-mark manual python3 libpython3-stdlib python3 libglib2.0-0 libgudev-1.0
-apt-get remove -y libgstreamer1.0-0
 
 # Get latest meson from pip
 pip3 install meson --break-system-packages
@@ -83,6 +81,14 @@ meson setup build \
 
 ninja -C build
 ninja -C build install
+ldconfig
+
+# Ensure the SONAME required by gst-launch is resolvable at runtime.
+if ! ldconfig -p | grep -q "libgstreamer-1.0.so.0"; then
+  echo "libgstreamer runtime missing; installing from Debian packages"
+  apt-get install --no-install-recommends -y libgstreamer1.0-0
+  ldconfig
+fi
 
 mkdir -p /opt/h26forge && cd /opt/h26forge
 
@@ -97,6 +103,17 @@ if [ ! -f $H26FORGE ]; then
 fi
 
 mkdir -p $output_dir
+# Ensure parsebin is available: required for this test pipeline
+if ! gst-inspect-1.0 parsebin >/dev/null 2>&1; then
+  echo "parsebin not found; installing distro plugin packages"
+  apt-get install --no-install-recommends -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-tools
+  ldconfig
+  if ! gst-inspect-1.0 parsebin >/dev/null 2>&1; then
+    echo "parsebin still not available after plugin install"
+    exit 1
+  fi
+fi
+
 for i in $(seq -f "%04g" 0 99); do
   $H26FORGE $tool_args generate $generation_args -o $output_dir/video$i.264
   gst-launch-1.0 filesrc location=$output_dir/video$i.264.mp4 ! parsebin ! fakesink
