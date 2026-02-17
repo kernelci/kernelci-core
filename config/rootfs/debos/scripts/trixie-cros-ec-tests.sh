@@ -40,7 +40,6 @@ echo '  ]}' >> $BUILDFILE
 
 rm -fr /src/cros-ec-tests
 
-apt-get remove --purge -y ${BUILD_DEPS} perl-modules-5.36
+apt-get remove --purge -y ${BUILD_DEPS} perl-modules-5.40
 apt-get autoremove --purge -y
 apt-get clean
-

@@ -66,7 +66,7 @@ cd /tmp
 rm -rf /tmp/tests
 
 apt-get remove --purge -y ${BUILD_DEPS}
-apt-get remove --purge -y perl-modules-5.36
+apt-get remove --purge -y perl-modules-5.40
 apt-get autoremove --purge -y
 apt-get clean
 
