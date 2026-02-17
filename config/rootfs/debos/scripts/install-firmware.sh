@@ -36,13 +36,15 @@ fi
 DEST=${ROOTDIR}/lib/firmware
 mkdir -p $DEST
 
+TMP_ROOT=${TMPDIR:-/tmp}
+
 # Because the linux-firmware repo is very big, we use the following
 # git init hack to fetch a single shallow commit to minimize time,
 # space and network bandwidth
-TMP_REPO=/tmp/linux-firmware
+TMP_REPO=${TMP_ROOT}/linux-firmware
 # As we cannot use git "as-is" we need to "process" git to
 # intermediate directory by using copy-firmware.sh script
-TMP_FW=/tmp/linux-firmware-parsed
+TMP_FW=${TMP_ROOT}/linux-firmware-parsed
 mkdir -p $TMP_FW
 mkdir -p $TMP_REPO && cd $TMP_REPO
 

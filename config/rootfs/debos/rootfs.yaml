@@ -44,9 +44,14 @@ actions:
 
 {{ if $extra_firmware }}
   - action: run
+    description: Check free space before firmware install
+    chroot: false
+    command: df -h / /tmp ${ROOTDIR} ${ROOTDIR}/lib
+
+  - action: run
     description: add firmware files
     chroot: false
-    script: scripts/install-firmware.sh --ignore-duplicates -f {{ $extra_firmware }} {{ if $linux_fw_version }} -v {{ $linux_fw_version }} {{ end }}
+    command: TMPDIR=/scratch ${RECIPEDIR}/scripts/install-firmware.sh --ignore-duplicates -f {{ $extra_firmware }} {{ if $linux_fw_version }} -v {{ $linux_fw_version }} {{ end }}
 {{ end }}
 
   - action: run
