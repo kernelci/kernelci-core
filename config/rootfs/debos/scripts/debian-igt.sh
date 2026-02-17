@@ -64,8 +64,10 @@ IGT_URL=https://gitlab.freedesktop.org/drm/igt-gpu-tools.git
 IGT_VERSION=e7e14eff66bc42329903ee579f019094cf1fdfce
 
 mkdir -p /tmp/tests/igt-gpu-tools && cd /tmp/tests/igt-gpu-tools
-git clone --depth=1 $IGT_URL .
-git checkout "$IGT_VERSION"
+git init
+git remote add origin $IGT_URL
+git fetch --depth=1 origin ${IGT_VERSION}
+git checkout FETCH_HEAD
 
 echo '    {"name": "igt-gpu-tools", "git_url": "'$IGT_URL'", "git_commit": "'$IGT_VERSION'"}' >> $BUILDFILE
 
