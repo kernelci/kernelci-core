@@ -17,7 +17,7 @@ BUILD_DEPS="\
 	  jq \
 	  wget \
 	  unzip \
-	  software-properties-common
+	  
 "
 
 GST_DEPS="\
@@ -40,7 +40,13 @@ pip3 install meson --break-system-packages
 
 if [ "$(uname -m)" == "x86_64" ]; then
   # Install non-free intel media-driver
-  apt-add-repository -y non-free
+  if command -v apt-add-repository >/dev/null 2>&1; then
+    apt-add-repository -y non-free
+  else
+    codename=$(. /etc/os-release && echo "${VERSION_CODENAME:-trixie}")
+    printf "deb http://deb.debian.org/debian %s non-free\n" "${codename}" \
+      >> /etc/apt/sources.list.d/non-free.list
+  fi
   apt-get update
   apt-get install -y intel-media-va-driver-non-free
 fi
