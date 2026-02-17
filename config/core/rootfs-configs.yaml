@@ -293,9 +293,9 @@ rootfs_configs:
 #    linux_fw_version: d526e044bddaa2c2ad855c7296147e49be0ab03c
     script: "scripts/debian-igt.sh"
     test_overlay: "overlays/igt"
-    imagesize: 4GB
+    imagesize: 12GB
     debos_memory: 8G
-    debos_scratchsize: 16G
+    debos_scratchsize: 48G
 
 
   trixie-kselftest:
