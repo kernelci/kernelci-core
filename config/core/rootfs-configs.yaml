@@ -114,7 +114,7 @@ rootfs_configs:
       - armhf
     extra_packages:
       - python3-minimal
-      - python3-unittest2
+      - python3-nose2
       - tzdata
     extra_packages_remove:
       - bash
@@ -330,7 +330,6 @@ rootfs_configs:
       - libnuma1
       - libpam-cap
       - libpcre2-8-0
-      - libperl5.36
       - libpsl5
       - liburing2
       - libxtables12
@@ -339,12 +338,13 @@ rootfs_configs:
       - net-tools
       - openssl
       - perl
-      - perl-modules-5.36
+      - libperl5.40
+      - perl-modules-5.40
       - procps
       - psmisc
       - publicsuffix
       - python3-minimal
-      - python3-unittest2
+      - python3-nose2
       - python3-yaml
       - socat
       - tappy
@@ -365,7 +365,7 @@ rootfs_configs:
       - arm64
     extra_packages:
       - python3-minimal
-      - python3-unittest2
+      - python3-nose2
       - python3-yaml
       - qemu-system
     script: "scripts/trixie-kvm-unit-tests.sh"
