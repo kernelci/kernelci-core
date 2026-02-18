@@ -339,39 +339,38 @@ class LAVA(Runtime):
         self._context = kcictx
         self._server = self._connect()
 
+    def _resolve_priority(self, value, default):
+        """Resolve a priority value (string, number, or None) to an integer."""
+        if value is None:
+            return default
+        if isinstance(value, str):
+            priority_map = {
+                'high': self.PRIORITY_HIGH,
+                'medium': self.PRIORITY_MEDIUM,
+                'low': self.PRIORITY_LOW,
+            }
+            return priority_map.get(value.lower(), default)
+        return max(0, min(100, int(value)))
+
     def _get_priority(self, job):
         node = job.node
         submitter = node.get('submitter')
 
-        priority_map = {
-            'high': self.PRIORITY_HIGH,
-            'medium': self.PRIORITY_MEDIUM,
-            'low': self.PRIORITY_LOW,
-        }
-
         if submitter and submitter != self.SERVICE_PIPELINE:
-            # Human submission - check for user-specified priority
             user_priority = node.get('data', {}).get('priority')
-            if user_priority:
-                if isinstance(user_priority, str):
-                    priority = priority_map.get(user_priority.lower(), self.PRIORITY_HIGHEST)
-                elif isinstance(user_priority, (int, float)):
-                    priority = max(0, min(100, user_priority))
-                else:
-                    priority = self.PRIORITY_HIGHEST
-            else:
-                priority = self.PRIORITY_HIGHEST
+            priority = self._resolve_priority(
+                user_priority, self.PRIORITY_HIGHEST
+            )
         else:
-            # Pipeline submission - use tree priority
             tree_priority = node.get('data', {}).get('tree_priority')
-
-            if tree_priority and isinstance(tree_priority, str):
-                priority = priority_map.get(tree_priority.lower(), self.PRIORITY_LOW)
-            elif tree_priority and isinstance(tree_priority, (int, float)):
-                priority = max(0, min(100, tree_priority))
+            if tree_priority is not None:
+                priority = self._resolve_priority(
+                    tree_priority, self.PRIORITY_LOW
+                )
             else:
-                job_priority = job.config.priority
-                priority = job_priority if job_priority is not None else self.PRIORITY_LOW
+                priority = self._resolve_priority(
+                    job.config.priority, self.PRIORITY_LOW
+                )
 
         if self.config.priority:
             priority = int(priority * self.config.priority / 100)

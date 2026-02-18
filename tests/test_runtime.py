@@ -129,6 +129,30 @@ def test_lava_priority_hierarchy():
     assert lab._get_priority(job_human_set_numeric) == expected_priority
 
 
+def test_lava_priority_job_config_fallback():
+    """Test priority fallback to job.config.priority with string values"""
+    config = kernelci.config.load('tests/configs/lava-runtimes.yaml')
+    runtimes = config['runtimes']
+    runtime_config = runtimes['lab-min-12-max-40-new-runtime']
+    lab = kernelci.runtime.get_runtime(runtime_config)
+
+    job_config_medium = type('JobConfig', (), {'priority': 'medium'})()
+    job_fallback_str = type('Job', (), {
+        'node': {'data': {}, 'submitter': 'service:pipeline'},
+        'config': job_config_medium
+    })()
+    expected_priority = int(12 + (40 - 12) * 40 / 100)
+    assert lab._get_priority(job_fallback_str) == expected_priority
+
+    job_config_high = type('JobConfig', (), {'priority': 'high'})()
+    job_fallback_high = type('Job', (), {
+        'node': {'data': {}, 'submitter': 'service:pipeline'},
+        'config': job_config_high
+    })()
+    expected_priority = int(12 + (40 - 12) * 60 / 100)
+    assert lab._get_priority(job_fallback_high) == expected_priority
+
+
 def test_lava_priority_scale():
     """Test the logic for determining the priority of LAVA jobs"""
     config = kernelci.config.load('tests/configs/lava-runtimes.yaml')
