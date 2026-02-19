@@ -51,7 +51,7 @@ actions:
   - action: run
     description: add firmware files
     chroot: false
-    command: TMPDIR=/scratch ${RECIPEDIR}/scripts/install-firmware.sh --ignore-duplicates -f {{ $extra_firmware }} {{ if $linux_fw_version }} -v {{ $linux_fw_version }} {{ end }}
+    command: TMPDIR=/scratch ${RECIPEDIR}/scripts/install-firmware.sh -f {{ $extra_firmware }} {{ if $linux_fw_version }} -v {{ $linux_fw_version }} {{ end }}
 {{ end }}
 
   - action: run
