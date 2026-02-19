@@ -53,7 +53,7 @@ git remote add origin $FIRMWARE_SITE
 git fetch --depth 1 origin $version
 git checkout FETCH_HEAD
 
-./copy-firmware.sh ${TMP_FW} --ignore-duplicates
+./copy-firmware.sh ${TMP_FW}
 cd ${TMP_FW}
 
 for fw_file in "${files[@]}"
