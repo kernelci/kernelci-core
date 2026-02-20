@@ -2,14 +2,13 @@
 
 {% block packages %}
 {{ super() }}
-# Temporary workaround for LLVM SHA1 deprecation in APT
-# TODO: Remove when LLVM repo switches to stronger hash algorithms
-RUN if [ -f /usr/share/apt/default-sequoia.config ]; then \
-    sed -i 's/\(sha1\.second_preimage_resistance =\).*/\1 9999-01-01/' /usr/share/apt/default-sequoia.config; \
-  fi
-RUN wget -q -O - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-archive-keyring.gpg
-RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/trixie/ llvm-toolchain-trixie-21 main' \
+
+# adding llvm key is convoluted process due SHA1 signature and other problems
+RUN wget -qO /usr/share/keyrings/llvm-archive-keyring.asc https://apt.llvm.org/llvm-snapshot.gpg.key
+RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.asc] http://apt.llvm.org/trixie/ llvm-toolchain-trixie-21 main' \
    >> /etc/apt/sources.list.d/clang.list
+RUN mkdir -p /etc/apt/apt.conf.d && \
+    echo 'Acquire::gpgv::Options { "--gnupg-main-keyring=/usr/share/keyrings/llvm-archive-keyring.gpg" };' > /etc/apt/apt.conf.d/99llvm
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     clang-21 lld-21 llvm-21
