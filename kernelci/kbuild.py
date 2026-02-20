@@ -187,6 +187,10 @@ class KBuild():
                 self._kfselftest = False
             else:
                 self._kfselftest = True
+            if node['jobfilter'] and self._kfselftest is True:
+                kselftest_name = node['name'] + "-kselftest"
+                if kselftest_name not in node['jobfilter']:
+                    self._kfselftest = False
             self._apijobname = jobname
             self._steps = []
             self._artifacts = []
