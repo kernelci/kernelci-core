@@ -29,6 +29,14 @@ class StorageBackend(Storage):
 
     def _handle_http_error(self, exc, attempt, max_retries, retry_delay):
         """Handle HTTP errors during upload with retry logic."""
+        # Log response body for all HTTP errors to aid debugging
+        body = ''
+        if exc.response is not None:
+            try:
+                body = exc.response.text
+            except Exception:  # pylint: disable=broad-except
+                body = '<unable to read response body>'
+
         # Only retry on server errors (5xx status codes)
         if exc.response is not None and 500 <= exc.response.status_code < 600:
             if attempt < max_retries - 1:
@@ -36,13 +44,17 @@ class StorageBackend(Storage):
                 reason = exc.response.reason
                 print(f"Upload attempt {attempt + 1} failed with "
                       f"{status} {reason}: {exc}")
+                print(f"Response body: {body}")
                 print(f"Retrying in {retry_delay} seconds... "
                       f"({max_retries - attempt - 1} retries remaining)")
                 time.sleep(retry_delay)
                 return exc  # Return exception to be saved as last_exception
-            print(f"Upload failed after {max_retries} attempts")
+            print(f"Upload failed after {max_retries} attempts. "
+                  f"Response body: {body}")
             return exc
         # For non-5xx errors (like 4xx client errors), don't retry
+        print(f"Upload failed with HTTP error: {exc}")
+        print(f"Response body: {body}")
         raise exc
 
     def _handle_network_error(self, exc, attempt, max_retries, retry_delay):

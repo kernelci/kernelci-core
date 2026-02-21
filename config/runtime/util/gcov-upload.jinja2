@@ -33,8 +33,8 @@
             lava-test-case "artifact-upload:coverage_data:${STORAGE_BASE_URL}/${UPLOAD_PATH}/${UPLOAD_NAME}"
             --shell curl -X POST ${STORAGE_BASE_URL}/upload
             -H "Authorization: Bearer ${UPLOAD_TOKEN}"
-            -F "file0=@${UPLOAD_NAME}"
             -F "path=${UPLOAD_PATH}"
+            -F "file0=@${UPLOAD_NAME}"
 
 secrets:
   UPLOAD_TOKEN: {{ storage_config.name }}-token
