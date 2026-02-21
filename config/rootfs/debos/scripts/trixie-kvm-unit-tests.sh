@@ -4,7 +4,7 @@
 
 set -e
 
-RELEASE=v2025-06-05
+RELEASE=v2025-07-31
 
 BUILD_DEPS="\
       gcc \
