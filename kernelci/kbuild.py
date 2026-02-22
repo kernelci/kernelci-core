@@ -77,7 +77,7 @@ MAKE_TARGETS = {
 # Hard-coded binary kernel image names for each CPU architecture
 KERNEL_IMAGE_NAMES = {
     'arm': {'zImage', 'xipImage'},
-    'arm64': {'Image'},
+    'arm64': {'Image', 'Image.gz'},
     'arc': {'uImage'},
     'i386': {'bzImage'},
     'mips': {'uImage.gz', 'vmlinux.gz.itb', 'vmlinuz'},
@@ -165,6 +165,10 @@ class KBuild():
             # if defconfig contains '+', it means it is a list
             if isinstance(self._defconfig, str) and '+' in self._defconfig:
                 self._defconfig = self._defconfig.split('+')
+            self._backend = params.get('backend', 'make')
+            # Support USE_TUXMAKE environment variable for backward compatibility
+            if os.environ.get('USE_TUXMAKE') == '1':
+                self._backend = 'tuxmake'
             self._fragments = params['fragments']
             self._fragment_configs = fragment_configs or {}
             if 'coverage' in self._fragments:
@@ -220,6 +224,7 @@ class KBuild():
             self._defconfig = jsonobj['defconfig']
             self._fragments = jsonobj['fragments']
             self._fragment_configs = jsonobj.get('fragment_configs', {})
+            self._backend = jsonobj.get('backend', 'make')
             self._cross_compile = jsonobj['cross_compile']
             self._cross_compile_compat = jsonobj['cross_compile_compat']
             self._steps = jsonobj['steps']
@@ -311,20 +316,21 @@ class KBuild():
         # set environment variables
         self.addcomment("Set environment variables")
         self.addcmd("export ARCH=" + self._arch)
-        if self._cross_compile:
-            self.addcmd("export CROSS_COMPILE=" + self._cross_compile)
-        if self._cross_compile_compat:
-            self.addcmd("export CROSS_COMPILE_COMPAT=" +
-                        self._cross_compile_compat)
-        self.addcmd("export INSTALL_MOD_PATH=_modules_")
-        self.addcmd("export INSTALL_MOD_STRIP=1")
-        self.addcmd("export INSTALL_DTBS_PATH=_dtbs_")
-        self.addcmd("export CC=" + self._compiler)
-        self.addcmd("export HOSTCC=" + self._compiler)
-        # if self._compiler start with clang- we need to set env vars
-        if self._compiler.startswith("clang-"):
-            # LLVM=1, can be suffix with version in future, like -14
-            self.addcmd("export LLVM=1")
+        if self._backend != 'tuxmake':
+            if self._cross_compile:
+                self.addcmd("export CROSS_COMPILE=" + self._cross_compile)
+            if self._cross_compile_compat:
+                self.addcmd("export CROSS_COMPILE_COMPAT=" +
+                            self._cross_compile_compat)
+            self.addcmd("export INSTALL_MOD_PATH=_modules_")
+            self.addcmd("export INSTALL_MOD_STRIP=1")
+            self.addcmd("export INSTALL_DTBS_PATH=_dtbs_")
+            self.addcmd("export CC=" + self._compiler)
+            self.addcmd("export HOSTCC=" + self._compiler)
+            # if self._compiler start with clang- we need to set env vars
+            if self._compiler.startswith("clang-"):
+                # LLVM=1, can be suffix with version in future, like -14
+                self.addcmd("export LLVM=1")
         # set -x for echo
         self._steps.append("set -x")
         # touch build.log
@@ -337,21 +343,22 @@ class KBuild():
         # but keep pid, so i can kill it later
         self._artifacts.append("build.log")
         self._artifacts.append("build.sh")
-        if not self._dtbs_check:
-            self._artifacts.append("build_kimage.log")
-            self._artifacts.append("build_kimage_stderr.log")
-            self._artifacts.append("build_modules.log")
-            self._artifacts.append("build_modules_stderr.log")
-            if self._kfselftest:
-                self._artifacts.append("build_kselftest.log")
-                self._artifacts.append("build_kselftest_stderr.log")
-            # disable DTBS for some archs
-            if self._arch not in DTBS_DISABLED:
-                self._artifacts.append("build_dtbs.log")
-                self._artifacts.append("build_dtbs_stderr.log")
-        else:
-            self._artifacts.append("build_dtbs_check.log")
-            self._artifacts.append("build_dtbs_check_stderr.log")
+        if self._backend != 'tuxmake':
+            if not self._dtbs_check:
+                self._artifacts.append("build_kimage.log")
+                self._artifacts.append("build_kimage_stderr.log")
+                self._artifacts.append("build_modules.log")
+                self._artifacts.append("build_modules_stderr.log")
+                if self._kfselftest:
+                    self._artifacts.append("build_kselftest.log")
+                    self._artifacts.append("build_kselftest_stderr.log")
+                # disable DTBS for some archs
+                if self._arch not in DTBS_DISABLED:
+                    self._artifacts.append("build_dtbs.log")
+                    self._artifacts.append("build_dtbs_stderr.log")
+            else:
+                self._artifacts.append("build_dtbs_check.log")
+                self._artifacts.append("build_dtbs_check_stderr.log")
         self._artifacts.append("metadata.json")
         # download tarball
         self.addcomment("Download tarball")
@@ -565,12 +572,19 @@ trap - ERR
         return self.extract_config(frag)
 
     def _parse_fragments(self, firmware=False):
-        """ Parse fragments kbuild config and create config fragments """
-        num = 0
-        for fragment in self._fragments:
+        """ Parse fragments kbuild config and create config fragments
+
+        Returns:
+            list: List of fragment file paths
+        """
+        fragment_files = []
+
+        for idx, fragment in enumerate(self._fragments):
             content = ''
+            fragment_name = fragment
+
             if fragment.startswith("cros://"):
-                (content, fragment) = self._getcrosfragment(fragment)
+                (content, fragment_name) = self._getcrosfragment(fragment)
             elif fragment.startswith("cip://"):
                 content = self._getcipfragment(fragment)
             elif fragment.startswith("CONFIG_"):
@@ -579,27 +593,45 @@ trap - ERR
                 # Use fragment configs passed from scheduler
                 content = self.add_fragment(fragment)
 
-            fragfile = os.path.join(self._fragments_dir, f"{num}.config")
+            if not content:
+                print(f"[_parse_fragments] WARNING: Fragment {fragment} has no content")
+                continue
+
+            fragfile = os.path.join(self._fragments_dir, f"{idx}.config")
             with open(fragfile, 'w') as f:
                 f.write(content)
+
+            config_count = len([line for line in content.split('\n') if line.strip()])
+            print(f"[_parse_fragments] Created {fragfile} ({config_count} configs)")
+
+            fragment_files.append(fragfile)
+
             # add fragment to artifacts but relative to artifacts dir
             frag_rel = os.path.relpath(fragfile, self._af_dir)
-            self._config_full += '+' + fragment
+            self._config_full += '+' + fragment_name
             self._artifacts.append(frag_rel)
-            num += 1
+
         if firmware:
             content = 'CONFIG_EXTRA_FIRMWARE_DIR="'+self._firmware_dir+'"\n'
-            fragfile = os.path.join(self._fragments_dir, f"{num}.config")
+            fragfile = os.path.join(self._fragments_dir, f"{len(self._fragments)}.config")
             with open(fragfile, 'w') as f:
                 f.write(content)
+
+            fragment_files.append(fragfile)
+
             # add fragment to artifacts but relative to artifacts dir
             frag_rel = os.path.relpath(fragfile, self._af_dir)
             self._artifacts.append(frag_rel)
-            num += 1
-        return num
 
-    def _merge_frags(self, fragnum):
-        """ Merge config fragments to .config """
+        print(f"[_parse_fragments] Created {len(fragment_files)} fragment files")
+        return fragment_files
+
+    def _merge_frags(self, fragment_files):
+        """ Merge config fragments to .config
+
+        Args:
+            fragment_files: List of fragment file paths to merge
+        """
         self.startjob("config_defconfig")
         self.addcmd("cd " + self._srcdir)
         if isinstance(self._defconfig, str) and self._defconfig.startswith('cros://'):
@@ -623,9 +655,8 @@ trap - ERR
                 self._config_full = defconfigs + self._config_full
         # fragments
         self.startjob("config_fragments")
-        for i in range(0, fragnum):
-            self.addcmd("./scripts/kconfig/merge_config.sh" +
-                        f" -m .config {self._fragments_dir}/{i}.config")
+        for fragfile in fragment_files:
+            self.addcmd(f"./scripts/kconfig/merge_config.sh -m .config {fragfile}")
         # TODO: olddefconfig should be optional/configurable
         # TODO: log all warnings/errors of olddefconfig to separate file
         self.addcmd("make olddefconfig")
@@ -635,30 +666,15 @@ trap - ERR
 
     def _generate_script(self):
         """ Generate shell script for complete build """
-        # TODO(nuclearcat): Fetch firmware only if needed
         print("Generating shell script")
-        fragnum = self._parse_fragments(firmware=True)
-        self._merge_frags(fragnum)
-        if not self._dtbs_check:
-            # TODO: verify if CONFIG_EXTRA_FIRMWARE have any files
-            # We can check that if fragments have CONFIG_EXTRA_FIRMWARE
-            self._fetch_firmware()
-            self._build_kernel()
-            self._build_modules()
-            if self._kfselftest:
-                self._build_kselftest()
-            if self._arch not in DTBS_DISABLED:
-                self._build_dtbs()
-            self._package_kimage()
-            self._package_modules()
-            if self._coverage:
-                self._package_coverage()
-            if self._kfselftest:
-                self._package_kselftest()
-            if self._arch not in DTBS_DISABLED:
-                self._package_dtbs()
+        self._fragment_files = self._parse_fragments(firmware=True)
+
+        if self._backend == 'tuxmake':
+            self._build_with_tuxmake()
         else:
-            self._build_dtbs_check()
+            self._merge_frags(self._fragment_files)
+            self._build_with_make()
+
         self._write_metadata()
         # terminate all active jobs
         self.startjob(None)
@@ -696,6 +712,113 @@ trap 'case $stage in
         print(f"Script written to {filename}")
         # copy to artifacts dir
         os.system(f"cp {filename} {self._af_dir}/build.sh")
+
+    def _build_with_make(self):
+        """ Build kernel using make """
+        if not self._dtbs_check:
+            self._fetch_firmware()
+            self._build_kernel()
+            self._build_modules()
+            if self._kfselftest:
+                self._build_kselftest()
+            if self._arch not in DTBS_DISABLED:
+                self._build_dtbs()
+            self._package_kimage()
+            self._package_modules()
+            if self._coverage:
+                self._package_coverage()
+            if self._kfselftest:
+                self._package_kselftest()
+            if self._arch not in DTBS_DISABLED:
+                self._package_dtbs()
+        else:
+            self._build_dtbs_check()
+
+    def _build_with_tuxmake(self):
+        """ Build kernel using tuxmake with native fragment support """
+        print("[_build_with_tuxmake] Starting tuxmake build")
+
+        if not hasattr(self, '_fragment_files'):
+            print("[_build_with_tuxmake] ERROR: No fragment files available")
+            self._fragment_files = []
+
+        print(f"[_build_with_tuxmake] Using {len(self._fragment_files)} fragment files")
+
+        # Handle defconfigs - first goes to --kconfig, rest to --kconfig-add
+        extra_defconfigs = []
+        if isinstance(self._defconfig, list):
+            defconfig = self._defconfig[0]
+            extra_defconfigs = self._defconfig[1:]
+            self._config_full = '+'.join(self._defconfig) + self._config_full
+        elif isinstance(self._defconfig, str):
+            defconfig = self._defconfig
+            self._config_full = self._defconfig + self._config_full
+        else:
+            defconfig = 'defconfig'
+            print("[_build_with_tuxmake] WARNING: No defconfig specified, using 'defconfig'")
+
+        # Fetch firmware only for normal builds, not dtbs_check
+        if not self._dtbs_check:
+            self._fetch_firmware()
+
+        self.startjob("build_tuxmake")
+        self.addcmd("cd " + self._srcdir)
+
+        # Handle ChromeOS defconfig: write fragments to a file and pass
+        # as --kconfig-add on top of defconfig
+        if defconfig.startswith('cros://'):
+            print(f"[_build_with_tuxmake] Handling ChromeOS defconfig: {defconfig}")
+            content, _ = self._getcrosfragment(defconfig)
+            cros_config = os.path.join(self._af_dir, "chromeos.config")
+            with open(cros_config, 'w') as f:
+                f.write(content)
+            defconfig = 'defconfig'
+            extra_defconfigs.insert(0, cros_config)
+
+        cmd_parts = [
+            "tuxmake --runtime=null",
+            f"--target-arch={self._arch}",
+            f"--toolchain={self._compiler}",
+            f"--output-dir={self._af_dir}",
+        ]
+
+        cmd_parts.append(f"--kconfig={defconfig}")
+        for extra in extra_defconfigs:
+            cmd_parts.append(f"--kconfig-add={extra}")
+            print(f"[_build_with_tuxmake] Adding extra defconfig: {extra}")
+
+        for fragfile in self._fragment_files:
+            if os.path.exists(fragfile):
+                cmd_parts.append(f"--kconfig-add={fragfile}")
+                print(f"[_build_with_tuxmake] Adding fragment: {os.path.basename(fragfile)}")
+            else:
+                print(f"[_build_with_tuxmake] WARNING: Fragment file not found: {fragfile}")
+
+        # Build targets depend on mode
+        if self._dtbs_check:
+            targets = ["dtbs_check"]
+        else:
+            # Normal build: kernel, modules, plus dtbs if arch supports it
+            targets = ["kernel", "modules"]
+            if self._arch not in DTBS_DISABLED:
+                targets.append("dtbs")
+            if self._kfselftest:
+                targets.append("kselftest")
+        cmd_parts.append(" ".join(targets))
+        print(f"[_build_with_tuxmake] Building targets: {' '.join(targets)}")
+
+        tuxmake_cmd = " ".join(cmd_parts)
+        print(f"[_build_with_tuxmake] Command: {tuxmake_cmd}")
+        print(f"[_build_with_tuxmake] Output directory: {self._af_dir}")
+        self.addcmd(tuxmake_cmd)
+
+        # tuxmake outputs 'config' (no dot), rename to '.config' for consistency
+        self.addcmd(
+            f"[ -f {self._af_dir}/config ] && "
+            f"mv {self._af_dir}/config {self._af_dir}/.config"
+        )
+
+        self.addcmd("cd ..")
 
     def _build_kernel(self):
         """ Add kernel build steps """
@@ -859,13 +982,18 @@ trap 'case $stage in
         metadata['build']['fragments'] = self._fragments
         metadata['build']['srcdir'] = self._srcdir
         metadata['build']['config_full'] = self._config_full
+        metadata['build']['backend'] = self._backend
 
         with open(os.path.join(self._af_dir, "metadata.json"), 'w') as f:
             json.dump(metadata, f, indent=4)
 
     def serialize(self, filename):
-        """ Serialize class to json """
-        # TODO(nuclearcat): Implement to_json method?
+        """ Serialize class to json
+
+        Note: Uses __dict__ to serialize all instance attributes (including
+        _backend, _arch, etc). The from_json() method strips underscore
+        prefixes when loading, so _backend becomes 'backend' in jsonobj.
+        """
         data = json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
         with open(filename, 'w') as f:
@@ -939,9 +1067,19 @@ trap 'case $stage in
 
         # Prepare all artifacts for upload
         upload_tasks = []
-        for artifact in self._artifacts:
-            artifact_path = os.path.join(self._af_dir, artifact)
-            upload_tasks.append((artifact, artifact_path))
+        if self._backend == 'tuxmake':
+            # For TuxMake, upload everything in artifacts directory
+            print("[_upload_artifacts] TuxMake backend: discovering files in artifacts dir")
+            for root, dirs, files in os.walk(self._af_dir):
+                for file in files:
+                    file_rel = os.path.relpath(os.path.join(root, file), self._af_dir)
+                    artifact_path = os.path.join(self._af_dir, file_rel)
+                    upload_tasks.append((file_rel, artifact_path))
+        else:
+            # For make backend, upload only listed artifacts
+            for artifact in self._artifacts:
+                artifact_path = os.path.join(self._af_dir, artifact)
+                upload_tasks.append((artifact, artifact_path))
 
         # Function to handle a single artifact upload
         # args: (artifact, artifact_path)
