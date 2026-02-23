@@ -5,6 +5,7 @@
 
 """Kubernetes runtime implementation"""
 
+import logging
 import random
 import re
 import string
@@ -12,6 +13,8 @@ import os
 
 import kubernetes
 from . import Runtime
+
+logger = logging.getLogger(__name__)
 
 
 class Kubernetes(Runtime):
@@ -53,39 +56,57 @@ class Kubernetes(Runtime):
         return template.render(params)
 
     def _fetch_load(self, ctxname):
-        """
-        Fetch load with retry and workaround due repeating errors
-        """
+        """Fetch load with retry and workaround due repeating errors"""
         kubernetes.config.load_kube_config(context=ctxname)
         core_v1 = kubernetes.client.CoreV1Api()
         pods = None
-        for _ in range(3):
+        last_error = None
+        for attempt in range(3):
             try:
-                # Add client-side timeout to prevent indefinite hangs on network issues
-                # _request_timeout is passed to urllib3 and controls socket timeout
+                # Add client-side timeout to prevent indefinite hangs
+                # _request_timeout is passed to urllib3 and controls
+                # socket timeout
                 pods = core_v1.list_namespaced_pod(
                     namespace='default',
                     timeout_seconds=60,  # Server-side timeout
-                    _request_timeout=self.api_timeout  # Client-side timeout
+                    _request_timeout=self.api_timeout  # Client-side
                 )
                 break
             except kubernetes.client.rest.ApiException as error:
-                print(f'Error listing pods in {ctxname}: {error}')
+                last_error = error
+                logger.warning(
+                    "k8s cluster %s: API error listing pods "
+                    "(attempt %d/3): %s",
+                    ctxname, attempt + 1, error
+                )
                 continue
             except Exception as error:  # pylint: disable=broad-except
-                # Catch timeout and other exceptions (e.g., urllib3.exceptions.ReadTimeoutError)
-                print(f'Exception listing pods in {ctxname}: {error}')
+                last_error = error
+                logger.warning(
+                    "k8s cluster %s: %s listing pods "
+                    "(attempt %d/3): %s",
+                    ctxname, type(error).__name__,
+                    attempt + 1, error
+                )
                 continue
 
         if not pods:
-            print(f'No pods found in {ctxname}, returning 1000')
+            logger.error(
+                "k8s cluster %s: failed to list pods after 3 "
+                "attempts, last error: %s",
+                ctxname, last_error
+            )
             return 1000
 
-        load = len([pod for pod in pods.items if pod.status.phase == 'Pending'])
+        load = len([
+            pod for pod in pods.items
+            if pod.status.phase == 'Pending'
+        ])
         return load
 
     def _get_clusters_load(self):
-        """Get the load of all clusters (number of pods in Pending state)"""
+        """Get the load of all clusters (number of pods in Pending
+        state)"""
         load = {}
         for ctxname in self.config.context:
             load[ctxname] = self._fetch_load(ctxname)
@@ -101,6 +122,11 @@ class Kubernetes(Runtime):
             # get the cluster with the least load
             load = self._get_clusters_load()
             self.kcontext = min(load, key=load.get)
+            if load[self.kcontext] >= 1000:
+                logger.error(
+                    "All k8s clusters unreachable, loads: %s",
+                    load
+                )
         else:
             self.kcontext = self.config.context
         kubernetes.config.load_kube_config(context=self.kcontext)
@@ -122,7 +148,7 @@ class Kubernetes(Runtime):
                 func=core_v1.list_namespaced_pod,
                 namespace='default',
                 timeout_seconds=3600,  # Server-side timeout (1 hour)
-                _request_timeout=self.api_timeout):  # Client-side timeout
+                _request_timeout=self.api_timeout):  # Client-side
             if event['type'] != 'MODIFIED':
                 continue
             if job_name not in event['object'].metadata.name:
