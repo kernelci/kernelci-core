@@ -187,22 +187,29 @@ class Runtime(abc.ABC):
         if job.platform_config.dtb and len(job.platform_config.dtb) > 0:
             # verify if we have metadata at all
             if 'metadata' not in job.node['artifacts']:
-                print(f"metadata.json not found for dtb file {job.platform_config.dtb}")
-                return None
+                raise ValueError(
+                    f"metadata.json not found for dtb file "
+                    f"{job.platform_config.dtb}"
+                )
             # Fetch metadata.json and add platform dtb to artifacts list
             metadata_url = job.node['artifacts']['metadata']
             req = requests.get(metadata_url, timeout=60)
-            if req.status_code == 200:
-                metadata = req.json()
-                for dtb in job.platform_config.dtb:
-                    if dtb in metadata['artifacts']:
-                        dtb_url = metadata['artifacts'][dtb]
-                        job.node['artifacts']['dtb'] = dtb_url
-                        device_dtb = dtb
-                        break
-                if not device_dtb:
-                    print(f"dtb file {job.platform_config.dtb} not found!")
-                    return None
+            if req.status_code != 200:
+                raise ValueError(
+                    f"Failed to fetch metadata.json from "
+                    f"{metadata_url}: HTTP {req.status_code}"
+                )
+            metadata = req.json()
+            for dtb in job.platform_config.dtb:
+                if dtb in metadata['artifacts']:
+                    dtb_url = metadata['artifacts'][dtb]
+                    job.node['artifacts']['dtb'] = dtb_url
+                    device_dtb = dtb
+                    break
+            if not device_dtb:
+                raise ValueError(
+                    f"dtb file {job.platform_config.dtb} not found!"
+                )
 
         params = {
             'api_config': api_config or {},

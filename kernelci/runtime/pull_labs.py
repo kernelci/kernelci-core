@@ -286,9 +286,8 @@ class PullLabs(Runtime):
     def get_params(self, job, api_config=None):
         """Get job template parameters with PULL_LABS-specific additions"""
         params = super().get_params(job, api_config)
-        if params:
-            params["timeout"] = self.config.timeout
-            params["poll_interval"] = self.config.poll_interval
+        params["timeout"] = self.config.timeout
+        params["poll_interval"] = self.config.poll_interval
         return params
 
     def generate(self, job, params):

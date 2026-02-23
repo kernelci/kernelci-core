@@ -109,9 +109,12 @@ def generate(node_id, *,  # pylint: disable=too-many-arguments, too-many-locals
         if storage else None
     )
     runtime = _get_runtime(runtime, config, secrets)
-    params = runtime.get_params(job, api.config)
-    if not params:
-        raise click.ClickException("Invalid job parameters, aborting...")
+    try:
+        params = runtime.get_params(job, api.config)
+    except ValueError as exc:
+        raise click.ClickException(
+            f"Invalid job parameters: {exc}"
+        ) from exc
     # Process potential f-strings in `params` with configured job params
     # and platform attributes
     kernel_revision = job_node['data']['kernel_revision']['version']

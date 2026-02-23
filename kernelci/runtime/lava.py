@@ -383,9 +383,8 @@ class LAVA(Runtime):
 
     def get_params(self, job, api_config=None):
         params = super().get_params(job, api_config)
-        if params:
-            params['notify'] = self.config.notify
-            params['priority'] = self._get_priority(job)
+        params['notify'] = self.config.notify
+        params['priority'] = self._get_priority(job)
         return params
 
     def generate(self, job, params):
@@ -394,10 +393,9 @@ class LAVA(Runtime):
             rendered = template.render(params)
         # jinja2.exceptions.UndefinedError
         except Exception as exc:  # pylint: disable=broad-except
-            platform_params = params['platform_config'].params
-            print(f"Error rendering job template: {exc}, {params}" +
-                  f"{exc}, {params} {platform_params}")
-            return None
+            raise ValueError(
+                f"Error rendering job template: {exc}"
+            ) from exc
 
         # yaml round-trip to process e.g. multi-line commands
         return yaml.dump(yaml.load(rendered, Loader=yaml.CLoader))
