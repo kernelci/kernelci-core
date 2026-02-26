@@ -18,6 +18,9 @@ RUN cp -R config /etc/kernelci/
 WORKDIR /root
 RUN rm -rf /tmp/kernelci-core
 
+# Install tuxmake kernel build tool
+RUN pip3 install --break-system-packages --no-cache-dir tuxmake==1.35.0
+
 # Set up kernelci user
 RUN useradd kernelci -u 1000 -d /home/kernelci -s /bin/bash
 RUN mkdir -p /home/kernelci
