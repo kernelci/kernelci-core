@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2023-2024 Collabora Limited
+# Copyright (C) 2023-2026 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Denys Fedoryshchenko <denys.f@collabora.com>
 
@@ -19,6 +19,79 @@ from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
 import kernelci.config.api
+
+HTTP_ERROR_BODY_SNIPPET = 512
+
+
+def _http_error_body_snippet(response, max_length: int = HTTP_ERROR_BODY_SNIPPET):
+    """Return a truncated response body useful for HTTP error logging.
+    Also try to extract a more specific error message from the body if it's a JSON
+    with a "detail", "error" or "message" field.
+    """
+    if response is None or response.content in (None, b''):
+        return None
+
+    content_type = response.headers.get('content-type', '')
+    snippet = None
+
+    if content_type.startswith('application/json'):
+        try:
+            payload = response.json()
+            if isinstance(payload, dict):
+                snippet = (
+                    payload.get('detail') or
+                    payload.get('error') or
+                    payload.get('message')
+                )
+            if snippet is None:
+                snippet = payload
+        except (TypeError, ValueError):
+            pass
+
+    if snippet is None:
+        try:
+            snippet = response.text
+        except (AttributeError, LookupError, RuntimeError, UnicodeError):
+            snippet = None
+
+    if not snippet:
+        return None
+
+    if not isinstance(snippet, str):
+        snippet = json.dumps(snippet)
+    if not snippet:
+        return None
+
+    snippet = snippet.strip()
+    if not snippet:
+        return None
+
+    if len(snippet) > max_length:
+        snippet = snippet[:max_length] + "..."
+    return snippet
+
+
+def _enrich_http_error(error, max_length: int = HTTP_ERROR_BODY_SNIPPET):
+    """Append a small response-body snippet to request exceptions."""
+    status_code = None
+    url = None
+    if hasattr(error, 'response') and error.response is not None:
+        status_code = getattr(error.response, 'status_code', None)
+        url = getattr(error.response, 'url', None)
+        if url is None:
+            request = getattr(error, 'request', None)
+            url = getattr(request, 'url', None)
+
+    message_parts = ['HTTP Error']
+    if status_code:
+        message_parts.append(str(status_code))
+    message_parts.append(f"url={url}" if url else 'url=<unknown>')
+
+    body = _http_error_body_snippet(error.response, max_length=max_length)
+    if body:
+        message_parts.append(f"body={body}")
+
+    error.args = (': '.join(message_parts),)
 
 
 class Data:
@@ -81,7 +154,11 @@ class Base:
             url, params=params, headers=self.data.headers,
             timeout=self.data.timeout
         )
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            _enrich_http_error(err)
+            raise
         return resp
 
     def _post(self, path, data=None, params=None, json_data=True):
@@ -140,7 +217,11 @@ class Base:
                     url, data, headers=self.data.headers,
                     params=params, timeout=self.data.timeout
                 )
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            _enrich_http_error(err)
+            raise
         return resp
 
     def _put(self, path, data=None, params=None):
@@ -160,7 +241,11 @@ class Base:
             url, json=data, headers=self.data.headers,
             params=params, timeout=self.data.timeout
         )
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            _enrich_http_error(err)
+            raise
         return resp
 
     def _patch(self, path, data=None, params=None):
@@ -180,7 +265,11 @@ class Base:
             url, json=data, headers=self.data.headers,
             params=params, timeout=self.data.timeout
         )
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            _enrich_http_error(err)
+            raise
         return resp
 
     def _get_paginated(self, input_params, path, offset=None, limit=None):
@@ -231,7 +320,11 @@ class Base:
             url, headers=self.data.headers,
             timeout=self.data.timeout
         )
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            _enrich_http_error(err)
+            raise
         return resp
 
 
