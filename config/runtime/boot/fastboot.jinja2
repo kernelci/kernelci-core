@@ -8,7 +8,7 @@
         {% if boot_commands == "ramdisk" %}
         url: '{{ ramdiskroot }}/rootfs.cpio.gz'
         {% else %}
-        url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{{ brarch }}/rootfs.cpio.gz'
+        url: '{{ ramdisk }}'
         {% endif %}
         compression: gz
         format: cpio.newc
