@@ -176,7 +176,43 @@ def load_data(data):
     ]:
         mod = importlib.import_module(module)
         config.update(mod.from_yaml(data, filters))
+    # Pass through rootfs definitions for rootfs_ref resolution
+    if 'rootfs' in data:
+        config['rootfs'] = data['rootfs']
     return config
+
+
+def resolve_rootfs_params(params, rootfs_defs):
+    """Resolve rootfs_ref in params to actual URL parameters.
+
+    If *params* contains a 'rootfs_ref' key, look it up in *rootfs_defs*
+    and merge the resulting URL parameters (e.g. nfsroot, ramdisk) into
+    *params*.  The rootfs_ref key is removed.  Existing keys in *params*
+    are not overwritten, so job-level overrides still work.
+
+    This must be called **before** format_params() so that injected URLs
+    containing {brarch}/{debarch} placeholders are resolved in the same
+    pass.
+
+    *params* is the job parameter dictionary (modified in place)
+    *rootfs_defs* is the 'rootfs' section from the YAML config
+    """
+    rootfs_ref = params.pop('rootfs_ref', None)
+    if not rootfs_ref:
+        return
+    if not rootfs_defs:
+        raise ValueError(
+            f"rootfs_ref '{rootfs_ref}' used but no rootfs "
+            f"definitions found in config"
+        )
+    if rootfs_ref not in rootfs_defs:
+        raise ValueError(
+            f"rootfs_ref '{rootfs_ref}' not found in "
+            f"rootfs config"
+        )
+    for key, value in rootfs_defs[rootfs_ref].items():
+        if key not in params:
+            params[key] = value
 
 
 def load(config_paths):

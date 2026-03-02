@@ -115,6 +115,11 @@ def generate(node_id, *,  # pylint: disable=too-many-arguments, too-many-locals
         raise click.ClickException(
             f"Invalid job parameters: {exc}"
         ) from exc
+    # Resolve rootfs_ref before format_params so {brarch}/{debarch}
+    # placeholders in injected URLs get resolved
+    kernelci.config.resolve_rootfs_params(
+        params, configs.get('rootfs', {})
+    )
     # Process potential f-strings in `params` with configured job params
     # and platform attributes
     kernel_revision = job_node['data']['kernel_revision']['version']

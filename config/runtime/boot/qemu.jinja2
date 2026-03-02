@@ -7,7 +7,7 @@
         url: '{{ node.artifacts.kernel }}'
       ramdisk:
         image_arg: -initrd {ramdisk}
-        url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/{{ brarch }}/rootfs.cpio.gz'
+        url: '{{ ramdisk }}'
 {%- if device_dtb %}
       dtb:
         url: '{{ node.artifacts.dtb }}'

@@ -13,7 +13,7 @@
     os: debian
 {%- else %}
     ramdisk:
-      url: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{{ brarch }}/rootfs.cpio.gz'
+      url: '{{ ramdisk }}'
       compression: gz
     os: oe
 {%- endif %}
