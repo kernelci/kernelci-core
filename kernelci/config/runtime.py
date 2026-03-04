@@ -72,7 +72,7 @@ class Runtime(YAMLConfigObject):
         return all(f.match(**data) for f in self._filters)
 
 
-class RuntimeLAVA(Runtime):
+class RuntimeLAVA(Runtime):  # pylint: disable=too-many-instance-attributes
     """Configuration for LAVA runtime environments"""
 
     yaml_tag = "!RuntimeLAVA"
@@ -95,6 +95,7 @@ class RuntimeLAVA(Runtime):
         queue_timeout=None,
         notify=None,
         max_queue_depth=None,
+        disable_queue_limit=None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -109,6 +110,7 @@ class RuntimeLAVA(Runtime):
         self._notify = notify or {}
         self._queue_timeout = queue_timeout
         self._max_queue_depth = max_queue_depth if max_queue_depth is not None else 50
+        self._disable_queue_limit = bool(disable_queue_limit)
 
     @property
     def url(self):
@@ -149,6 +151,16 @@ class RuntimeLAVA(Runtime):
         """Maximum queue depth per device type before skipping job submissions"""
         return self._max_queue_depth
 
+    @property
+    def disable_queue_limit(self):
+        """Disable queue depth checking for this runtime.
+
+        Some LAVA labs return HTTP 403 when the scheduler queries their
+        /api/v0.2/jobs/ endpoint to check queue depth, blocking all job
+        submissions. Set this to True to skip queue depth checks entirely.
+        """
+        return self._disable_queue_limit
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
@@ -161,6 +173,7 @@ class RuntimeLAVA(Runtime):
                 "url",
                 "notify",
                 "max_queue_depth",
+                "disable_queue_limit",
             }
         )
         return attrs
