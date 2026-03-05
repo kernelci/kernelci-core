@@ -1,3 +1,12 @@
+{# TODO: Add NFS boot support for fastboot devices.
+   Fastboot bakes the kernel cmdline into boot.img via mkbootimg, so there is
+   no way to dynamically inject nfsroot=<ip>:<path> at boot time the way
+   u-boot/grub/depthcharge do.  Possible approaches:
+   - LAVA dispatcher DHCP providing root-path (option 17)
+   - A custom initrd that discovers the NFS export automatically
+   - LAVA postprocessing gaining access to the NFS path before mkbootimg
+   Until one of these is confirmed to work, fastboot platforms must be
+   excluded from NFS jobs in the scheduler configuration.  #}
 - deploy:
     images:
       image:
