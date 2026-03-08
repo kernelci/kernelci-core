@@ -25,6 +25,7 @@ runtimes:
     queue_timeout:
       days: 1
     max_queue_depth: 50
+    disable_queue_limit: false
     notify: {}
     filters:
       - blocklist:
@@ -48,6 +49,7 @@ runtimes:
     queue_timeout:
       hours: 1
     max_queue_depth: 50
+    disable_queue_limit: false
     notify:
       callback:
         token: some-token-name
