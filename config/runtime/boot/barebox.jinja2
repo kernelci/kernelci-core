@@ -1,6 +1,9 @@
 - deploy:
     kernel:
-      type: {{ node.data.kernel_type }}
+      type: {{ node.data.kernel_type | replace('.gz', '') }}
+{%- if node.data.kernel_type.endswith('.gz') %}
+      compression: gz
+{%- endif %}
       url: '{{ node.artifacts.kernel }}'
     modules:
       compression: xz
