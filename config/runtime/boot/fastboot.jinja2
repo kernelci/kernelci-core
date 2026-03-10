@@ -45,6 +45,9 @@
       docker:
         image: ghcr.io/mwasilew/docker-mkbootimage:master
         steps:
+{%- if node.data.kernel_type.endswith('.gz') %}
+        - gunzip Image.gz
+{%- endif %}
         - mkbootimg --header_version 2 --kernel Image --dtb {{ dtb }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk {{ ramdisk_name }} --output boot.img
     to: downloads
 
