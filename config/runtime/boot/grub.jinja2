@@ -2,7 +2,10 @@
     kernel:
       url: '{{ node.artifacts.kernel }}'
       image_arg: -kernel {kernel} -serial stdio --append "console=ttyS0"
-      type: {{ node.data.kernel_type }}
+      type: {{ node.data.kernel_type | replace('.gz', '') }}
+{%- if node.data.kernel_type.endswith('.gz') %}
+      compression: gz
+{%- endif %}
 {%- if boot_commands == 'nfs' %}
     nfsrootfs:
       url: '{{ nfsroot }}/full.rootfs.tar.xz'
