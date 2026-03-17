@@ -36,7 +36,7 @@ jobs:
           - kciarch: 'arc'
             kcicmd: 'clang-21 kselftest kernelci'
     # only selected people can trigger this job
-    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor) && !inputs.SKIP_COMPILER_IMAGES
+    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","bhcopeland"]', github.actor) && !inputs.SKIP_COMPILER_IMAGES
     runs-on: ubuntu-22.04
     environment: deploydocker
     steps:
@@ -119,7 +119,7 @@ jobs:
           - kcicmd: 'rustc-1.74 kselftest kernelci --arch x86'
           - kcicmd: 'rustc-1.75 kselftest kernelci --arch x86'
     # only selected people can trigger this job
-    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao"]', github.actor)
+    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","bhcopeland"]', github.actor)
     runs-on: ubuntu-22.04
     environment: deploydocker
     steps:
