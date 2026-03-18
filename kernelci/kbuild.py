@@ -188,9 +188,9 @@ class KBuild():
             else:
                 self._dtbs_check = False
             if params.get('kselftest') == 'disable':
-                self._kfselftest = False
+                self._kselftest = False
             else:
-                self._kfselftest = True
+                self._kselftest = True
             self._apijobname = jobname
             self._steps = []
             self._artifacts = []
@@ -246,7 +246,8 @@ class KBuild():
             )
             self._full_artifacts = jsonobj['full_artifacts']
             self._dtbs_check = jsonobj['dtbs_check']
-            self._kfselftest = jsonobj['kfselftest']
+            self._kselftest = jsonobj.get('kselftest',
+                                            jsonobj.get('kfselftest'))
             self._coverage = jsonobj.get('coverage', False)
             return
         raise ValueError("No valid arguments provided")
@@ -349,7 +350,7 @@ class KBuild():
                 self._artifacts.append("build_kimage_stderr.log")
                 self._artifacts.append("build_modules.log")
                 self._artifacts.append("build_modules_stderr.log")
-                if self._kfselftest:
+                if self._kselftest:
                     self._artifacts.append("build_kselftest.log")
                     self._artifacts.append("build_kselftest_stderr.log")
                 # disable DTBS for some archs
@@ -719,7 +720,7 @@ trap 'case $stage in
             self._fetch_firmware()
             self._build_kernel()
             self._build_modules()
-            if self._kfselftest:
+            if self._kselftest:
                 self._build_kselftest()
             if self._arch not in DTBS_DISABLED:
                 self._build_dtbs()
@@ -727,7 +728,7 @@ trap 'case $stage in
             self._package_modules()
             if self._coverage:
                 self._package_coverage()
-            if self._kfselftest:
+            if self._kselftest:
                 self._package_kselftest()
             if self._arch not in DTBS_DISABLED:
                 self._package_dtbs()
@@ -802,7 +803,7 @@ trap 'case $stage in
             targets = ["kernel", "modules"]
             if self._arch not in DTBS_DISABLED:
                 targets.append("dtbs")
-            if self._kfselftest:
+            if self._kselftest:
                 targets.append("kselftest")
         cmd_parts.append(" ".join(targets))
         print(f"[_build_with_tuxmake] Building targets: {' '.join(targets)}")
@@ -1307,7 +1308,7 @@ trap 'case $stage in
         # Add child_nodes for each sub-step
 
         # do we have kselftest archive in artifact keys? then node is ok
-        if self._kfselftest:
+        if self._kselftest:
             kselftest_result = 'fail'
             for artifact in af_uri:
                 if artifact in ('kselftest_tar_xz', 'kselftest_tar_gz'):
@@ -1355,7 +1356,7 @@ trap 'case $stage in
 
         # if we have kselftest, we need to add child node
         # but only if build was successful
-        if self._kfselftest and job_result == 'pass':
+        if self._kselftest and job_result == 'pass':
             kselftest_node = self._node.copy()
             # remove id to not have same as parent
             kselftest_node.pop('id')
