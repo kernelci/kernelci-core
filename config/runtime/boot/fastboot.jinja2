@@ -30,10 +30,10 @@
             path: /
           {% if boot_commands == "ramdisk" %}
           kselftest:
-            compression: gz
+            compression: xz
             format: tar
             path: /opt/kselftests/mainline/
-            url: {{ node.artifacts.kselftest_tar_gz }}
+            url: {{ node.artifacts.kselftest_tar_xz }}
           {% endif %}
 {% set dtb = device_dtb.split('/')[-1] %}
 {% if boot_commands == "ramdisk" %}
