@@ -1306,11 +1306,11 @@ trap 'case $stage in
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
 
-        # do we have kselftest_tar_gz in artifact keys? then node is ok
+        # do we have kselftest archive in artifact keys? then node is ok
         if self._kfselftest:
             kselftest_result = 'fail'
             for artifact in af_uri:
-                if artifact == 'kselftest_tar_gz':
+                if artifact in ('kselftest_tar_xz', 'kselftest_tar_gz'):
                     kselftest_result = 'pass'
                     break
 

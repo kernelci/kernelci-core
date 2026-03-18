@@ -22,7 +22,7 @@
       path: automated/linux/kselftest/kselftest.yaml
       name: '{{ node.name }}'
       parameters:
-        TESTPROG_URL: '{{ node.artifacts.kselftest_tar_gz }}'
+        TESTPROG_URL: '{{ node.artifacts.kselftest_tar_xz | default(node.artifacts.kselftest_tar_gz, true) }}'
         SKIPFILE: {{ skipfile if skipfile else '/dev/null' }}
         TST_CMDFILES: '{{ collections }}'
         TST_CASENAME: '{{ tests }}'
