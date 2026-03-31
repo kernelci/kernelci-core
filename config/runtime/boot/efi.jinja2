@@ -6,6 +6,12 @@
 - deploy:
     images:
       image:
+{% if flash_image_headers %}
+        headers:
+{% for key, value in flash_image_headers.items() %}
+          {{ key }}: '{{ value }}'
+{% endfor %}
+{% endif %}
         url: '{{ flash_image_url }}'
       dtb:
         url: '{{ node.artifacts.dtb }}'
