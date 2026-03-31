@@ -23,6 +23,7 @@ class Platform(YAMLConfigObject):
         context=None,
         compatible=None,
         dtb=None,
+        flash_image=None,
         mach="x86",
         params=None,
         rules=None,
@@ -39,6 +40,7 @@ class Platform(YAMLConfigObject):
                 self._dtb = dtb
             else:
                 self._dtb = [dtb]
+        self._flash_image = flash_image
         self._mach = mach
         self._params = (
             self.format_params(params.copy(), params) if params else None
@@ -81,6 +83,11 @@ class Platform(YAMLConfigObject):
         return self._dtb
 
     @property
+    def flash_image(self):
+        """Platform flash image path"""
+        return self._flash_image
+
+    @property
     def mach(self):
         """Platform sub-architecture"""
         return self._mach
@@ -106,6 +113,7 @@ class Platform(YAMLConfigObject):
                 "context",
                 "compatible",
                 "dtb",
+                "flash_image",
                 "mach",
                 "params",
                 "rules",
