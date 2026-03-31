@@ -1,0 +1,87 @@
+{%- set flash_image_url = flash_image_url | default(platform_config.flash_image, true) -%}
+{%- if flash_image_name is not defined and flash_image_url -%}
+{%-   set flash_image_name = flash_image_url.split('/')[-1] -%}
+{%- endif -%}
+
+- deploy:
+    images:
+      image:
+        url: '{{ flash_image_url }}'
+      dtb:
+        url: '{{ node.artifacts.dtb }}'
+      kernel:
+        url: '{{ node.artifacts.kernel }}'
+      ramdisk:
+        {% if boot_commands == "ramdisk" %}
+        url: '{{ ramdiskroot }}/rootfs.cpio.gz'
+        {% else %}
+        url: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{{ brarch }}/initrd.cpio.gz'
+        {% endif %}
+        compression: gz
+        format: cpio.newc
+        overlays:
+          lava: true
+          modules:
+            url: '{{ node.artifacts.modules }}'
+            compression: xz
+            format: tar
+            path: /
+          {% if boot_commands == "ramdisk" %}
+          kselftest:
+            compression: xz
+            format: tar
+            path: /opt/kselftests/mainline/
+            url: {{ node.artifacts.kselftest_tar_xz }}
+          {% endif %}
+{% set dtb = device_dtb.split('/')[-1] %}
+{% if boot_commands == "ramdisk" %}
+  {% set ramdisk_name = "rootfs.cpio.gz" %}
+{% else %}
+  {% set ramdisk_name = "initrd.cpio.gz" %}
+{% endif %}
+    postprocess:
+      docker:
+        image: artifacts.codelinaro.org/clo-420-qli-registry/kmake-image-ci:ver.1.0
+        steps:
+{%- if node.data.kernel_type.endswith('.gz') %}
+        - gunzip Image.gz
+{%- endif %}
+        - generate_boot_bins.sh efi --ramdisk {{ ramdisk_name }} --systemd-boot /artifacts/systemd/usr/lib/systemd/boot/efi/systemd-bootaa64.efi --stub /artifacts/systemd/usr/lib/systemd/boot/efi/linuxaa64.efi.stub --linux Image --cmdline "console=ttyMSM0,115200n8 copy-modules rootdelay=10 root=PARTLABEL=rootfs rw rootwait qcom_geni_serial.con_enabled=1" --output images
+        - generate_boot_bins.sh dtb --input {{ dtb }} --output images
+        - export IMAGE_PATH=$PWD
+        - cp overlay*.tar.gz overlay.tar.gz
+        - echo "OVERLAY=overlay.tar.gz" >> $IMAGE_PATH/flash.settings
+        - echo "OVERLAY_PATH=/" >> $IMAGE_PATH/flash.settings
+        - echo "ROOTFS_IMAGE=rootfs.img" >> $IMAGE_PATH/flash.settings
+        - echo "EFI=images/efi.bin" >> $IMAGE_PATH/flash.settings
+        - echo "DTB=images/dtb.bin" >> $IMAGE_PATH/flash.settings
+        - echo "DEVICE_TYPE={{ platform_config.name }}" >> $IMAGE_PATH/flash.settings
+        - echo "PORT={{ flash_port | default('0', true) }}" >> $IMAGE_PATH/flash.settings
+        - cat $IMAGE_PATH/flash.settings
+    timeout:
+      minutes: 30
+    to: downloads
+
+- deploy:
+    to: flasher
+    images:
+      image:
+        url: 'downloads://{{ flash_image_name }}'
+      settings:
+        url: 'downloads://flash.settings'
+      overlay:
+        url: 'downloads://overlay.tar.gz'
+    timeout:
+      minutes: 15
+- boot:
+    prompts:
+    - '/ #'
+    failure_retry: 3
+    timeout:
+      minutes: 10
+    timeouts:
+      bootloader-commands:
+        minutes: 5
+      auto-login-action:
+        minutes: 5
+    method: minimal
