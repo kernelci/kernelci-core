@@ -16,6 +16,18 @@ sys.path.append(str(Path(__file__).parent))
 
 from kernelci.cli import kci  # noqa: E402
 
+# Import subcommand modules for their Click registration side effects.
+from kernelci.cli import (  # pylint: disable=unused-import  # noqa: F401,E402
+    api as kci_api,
+    config as kci_config,
+    docker as kci_docker,
+    event as kci_event,
+    job as kci_job,
+    node as kci_node,
+    storage as kci_storage,
+    user as kci_user,
+)
+
 
 def main():
     kci()  # pylint: disable=no-value-for-parameter
