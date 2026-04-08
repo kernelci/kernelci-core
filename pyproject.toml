@@ -16,7 +16,7 @@ requires-python = ">=3.9"
 license = {text = "LGPL-2.1-or-later"}
 dependencies = [
   "azure-storage-blob==12.28.0",
-  "azure-storage-file-share==12.23.1",
+  "azure-storage-file-share==12.24.0",
   "bson==0.5.10",
   "click==8.3.1",
   "cloudevents==1.12.1",
