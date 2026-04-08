@@ -5,12 +5,15 @@
 
 """Unit test for the KernelCI command line tools"""
 
+import importlib
+
 import pytest
 
 import click
 import requests
 
 import kernelci.cli
+import kernelci.scripts.kci
 import kernelci.settings
 
 
@@ -81,6 +84,14 @@ def test_kci_command_with_secrets():
     except SystemExit as exc:
         if exc.code != 0:
             raise exc
+
+
+def test_kci_builtin_subcommands_registered():
+    """Built-in kci subcommands are registered by the entrypoint imports"""
+    importlib.reload(kernelci.scripts.kci)
+
+    expected = {"api", "config", "docker", "event", "job", "node", "storage", "user"}
+    assert expected.issubset(set(kernelci.cli.kci.commands))
 
 
 def test_split_valid_attributes():

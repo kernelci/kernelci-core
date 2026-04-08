@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.5
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
