@@ -19,7 +19,7 @@ dependencies = [
   "azure-storage-file-share==12.23.1",
   "bson==0.5.10",
   "click==8.3.1",
-  "cloudevents==1.12.0",
+  "cloudevents==1.12.1",
   "docker==7.1.0",
   "jinja2==3.1.6",
   "kubernetes==35.0.0",
