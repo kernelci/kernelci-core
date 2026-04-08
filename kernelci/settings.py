@@ -36,9 +36,9 @@ class Settings:
                 raise FileNotFoundError(path)
         else:
             default_paths = [
-                'kernelci.toml',
-                os.path.expanduser('~/.config/kernelci/kernelci.toml'),
-                '/etc/kernelci/kernelci.toml',
+                "kernelci.toml",
+                os.path.expanduser("~/.config/kernelci/kernelci.toml"),
+                "/etc/kernelci/kernelci.toml",
             ]
             for default_path in default_paths:
                 if os.path.exists(default_path):
@@ -119,14 +119,16 @@ class Secrets:
 
     class Group:  # pylint: disable=too-few-public-methods
         """Helper class to find a key within a group"""
+
         def __init__(self, group: dict = None):
             self._group = group or {}
 
         def __getattr__(self, key: str):
             return self._group.get(key)
 
-    def __init__(self, settings: Settings, config_args: dict = None,
-                 root: tuple = None):
+    def __init__(
+        self, settings: Settings, config_args: dict = None, root: tuple = None
+    ):
         self._settings = settings
         self._config_args = config_args or {}
         self._root = root or ()

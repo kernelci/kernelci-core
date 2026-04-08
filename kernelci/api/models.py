@@ -41,26 +41,26 @@ any_http_url_adapter = TypeAdapter(AnyHttpUrl)
 
 # TTL configuration for time-limited collections
 # Set environment variables to override defaults
-EVENT_HISTORY_TTL_SECONDS = int(os.getenv('EVENT_HISTORY_TTL_SECONDS', '604800'))
-TELEMETRY_TTL_SECONDS = int(os.getenv('TELEMETRY_TTL_SECONDS', '1209600'))
+EVENT_HISTORY_TTL_SECONDS = int(os.getenv("EVENT_HISTORY_TTL_SECONDS", "604800"))
+TELEMETRY_TTL_SECONDS = int(os.getenv("TELEMETRY_TTL_SECONDS", "1209600"))
 
 
 class StateValues(str, enum.Enum):
     """Enumeration to declare values to be used for Node.state"""
 
-    RUNNING = 'running'
-    AVAILABLE = 'available'
-    CLOSING = 'closing'
-    DONE = 'done'
+    RUNNING = "running"
+    AVAILABLE = "available"
+    CLOSING = "closing"
+    DONE = "done"
 
 
 class ResultValues(str, enum.Enum):
     """Enumeration to declare values to be used for Node.result"""
 
-    PASS = 'pass'
-    FAIL = 'fail'
-    SKIP = 'skip'
-    INCOMPLETE = 'incomplete'
+    PASS = "pass"
+    FAIL = "fail"
+    SKIP = "skip"
+    INCOMPLETE = "incomplete"
 
 
 class ErrorCodes(str, enum.Enum):
@@ -71,47 +71,44 @@ class ErrorCodes(str, enum.Enum):
     example, to retry scheduling the job if runtime was temporary unavailable.
     """
 
-    INVALID_JOB_PARAMS = 'invalid_job_params'
-    SUBMIT_ERROR = 'submit_error'
+    INVALID_JOB_PARAMS = "invalid_job_params"
+    SUBMIT_ERROR = "submit_error"
     # Node reached timeout and timeout service forced it to be done
-    NODE_TIMEOUT = 'node_timeout'
+    NODE_TIMEOUT = "node_timeout"
     # Lava job error codes copied from source: lava/lava_common/exceptions.py
-    INFRASTRUCTURE = 'Infrastructure'
-    CANCELED = 'Canceled'
-    JOB = 'Job'
-    BUG = 'Bug'
-    TEST = 'Test'
-    CONFIGURATION = 'Configuration'
-    LAVA_TIMEOUT = 'LAVATimeout'
-    MULTI_NODE_TIMEOUT = 'MultinodeTimeout'
-    OBJECT_NOT_PERSISTED = 'ObjectNotPersisted'
-    UNEXISTING_PERMISSION_CODENAME = 'Unexisting permission codename.'
-    JOB_GENERATION_ERROR = 'job_generation_error'
-    KBUILD_INTERNAL_ERROR = 'kbuild_internal_error'
+    INFRASTRUCTURE = "Infrastructure"
+    CANCELED = "Canceled"
+    JOB = "Job"
+    BUG = "Bug"
+    TEST = "Test"
+    CONFIGURATION = "Configuration"
+    LAVA_TIMEOUT = "LAVATimeout"
+    MULTI_NODE_TIMEOUT = "MultinodeTimeout"
+    OBJECT_NOT_PERSISTED = "ObjectNotPersisted"
+    UNEXISTING_PERMISSION_CODENAME = "Unexisting permission codename."
+    JOB_GENERATION_ERROR = "job_generation_error"
+    KBUILD_INTERNAL_ERROR = "kbuild_internal_error"
 
 
 class KernelVersion(BaseModel):
     """Linux kernel version model"""
-    version: StrictInt = Field(
-        description="Major version number e.g. 4 in 'v4.19'"
-    )
+
+    version: StrictInt = Field(description="Major version number e.g. 4 in 'v4.19'")
     patchlevel: StrictInt = Field(
         description="Minor version number or 'patch level' e.g. 19 in 'v4.19'"
     )
     sublevel: Optional[StrictInt] = Field(
         description="Stable version or 'sub-level' e.g. 123 in 'v4.19.123'",
-        default=None
+        default=None,
     )
     extra: Optional[str] = Field(
-        description="Extra version string e.g. -rc2 in 'v4.19-rc2'",
-        default=None
+        description="Extra version string e.g. -rc2 in 'v4.19-rc2'", default=None
     )
     name: Optional[str] = Field(
-        description="Version name e.g. People's Front for v4.19",
-        default=None
+        description="Version name e.g. People's Front for v4.19", default=None
     )
 
-    STRICT_INT_FIELDS: ClassVar[list] = ['version', 'patchlevel', 'sublevel']
+    STRICT_INT_FIELDS: ClassVar[list] = ["version", "patchlevel", "sublevel"]
 
     @classmethod
     def translate_version_fields(cls, params):
@@ -124,44 +121,29 @@ class KernelVersion(BaseModel):
 
 class Revision(BaseModel):
     """Linux kernel Git revision model"""
-    tree: str = Field(
-        description="git tree of the revision"
-    )
-    url: Annotated[str, BeforeValidator(
-        lambda value: str(any_url_adapter.validate_python(value)))] = Field(
-        description="git URL of the revision"
-    )
-    branch: str = Field(
-        description="git branch of the revision"
-    )
-    commit: str = Field(
-        description="git commit SHA of the revision"
-    )
+
+    tree: str = Field(description="git tree of the revision")
+    url: Annotated[
+        str, BeforeValidator(lambda value: str(any_url_adapter.validate_python(value)))
+    ] = Field(description="git URL of the revision")
+    branch: str = Field(description="git branch of the revision")
+    commit: str = Field(description="git commit SHA of the revision")
     describe: Optional[str] = Field(
-        default=None,
-        description="git describe of the revision"
+        default=None, description="git describe of the revision"
     )
-    version: Optional[KernelVersion] = Field(
-        default=None,
-        description="Kernel version"
-    )
-    patchset: Optional[str] = Field(
-        default=None,
-        description="Patchset hash"
-    )
-    commit_tags: List[str] = Field(
-        description="List of git commit tags",
-        default=[]
-    )
+    version: Optional[KernelVersion] = Field(default=None, description="Kernel version")
+    patchset: Optional[str] = Field(default=None, description="Patchset hash")
+    commit_tags: List[str] = Field(description="List of git commit tags", default=[])
     commit_message: Optional[str] = Field(
-        default=None,
-        description="git commit message"
+        default=None, description="git commit message"
     )
     tip_of_branch: Optional[bool] = Field(
         default=None,
-        description=("Set to `True`, when the commit being checked out is at "
-                     "the tip of the branch at the moment of the checkout, "
-                     "otherwise `False`")
+        description=(
+            "Set to `True`, when the commit being checked out is at "
+            "the tip of the branch at the moment of the checkout, "
+            "otherwise `False`"
+        ),
     )
 
 
@@ -189,105 +171,91 @@ class DefaultTimeout:
 
 class Node(DatabaseModel):
     """KernelCI primitive object to model a node in a hierarchy"""
-    class_kind: ClassVar[str] = 'node'
-    kind: str = Field(
-        default='node',
-        description="Type of the object"
-    )
-    name: str = Field(
-        description="Name of the node object"
-    )
+
+    class_kind: ClassVar[str] = "node"
+    kind: str = Field(default="node", description="Type of the object")
+    name: str = Field(description="Name of the node object")
     path: List[str] = Field(
         description="Full path with node names from the top-level node"
     )
     group: Optional[str] = Field(
-        description="Name of a group this node belongs to",
-        default=None
+        description="Name of a group this node belongs to", default=None
     )
-    parent: Optional[PyObjectId] = Field(
-        description="Parent commit SHA",
-        default=None
-    )
+    parent: Optional[PyObjectId] = Field(description="Parent commit SHA", default=None)
     state: StateValues = Field(
-        default=StateValues.RUNNING.value,
-        description="State of the node"
+        default=StateValues.RUNNING.value, description="State of the node"
     )
     result: Optional[ResultValues] = Field(
         default=None,
         description="Result of node",
     )
-    artifacts: Optional[Dict[str, Annotated[str, BeforeValidator(
-        lambda value: str(any_http_url_adapter.validate_python(value)))]]] = Field(
-        description="Artifacts associated with the node (binaries, logs...)",
-        default={}
+    artifacts: Optional[
+        Dict[
+            str,
+            Annotated[
+                str,
+                BeforeValidator(
+                    lambda value: str(any_http_url_adapter.validate_python(value))
+                ),
+            ],
+        ]
+    ] = Field(
+        description="Artifacts associated with the node (binaries, logs...)", default={}
     )
     data: Optional[Dict[str, Any]] = Field(
-        description="Arbitrary data stored in the node",
-        default={}
+        description="Arbitrary data stored in the node", default={}
     )
     debug: Optional[Dict[str, Any]] = Field(
-        description="Debug info fields (for development purposes)",
-        default={}
+        description="Debug info fields (for development purposes)", default={}
     )
     jobfilter: Optional[List[str]] = Field(
-        description="Restrict jobs that can be scheduled by this node",
-        default=None
+        description="Restrict jobs that can be scheduled by this node", default=None
     )
     platform_filter: Optional[List[str]] = Field(
         default=[],
         description="Restrict test jobs to be scheduled on specific platforms",
     )
     created: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="Timestamp of node creation"
+        default_factory=datetime.utcnow, description="Timestamp of node creation"
     )
     updated: datetime = Field(
         default_factory=datetime.utcnow,
-        description="Timestamp when node was last updated"
+        description="Timestamp when node was last updated",
     )
     timeout: datetime = Field(
         default_factory=DefaultTimeout(hours=6).get_timeout,
-        description="Node expiry timestamp"
+        description="Node expiry timestamp",
     )
     holdoff: Optional[datetime] = Field(
-        description="Node expiry timestamp while in Available state",
-        default=None
+        description="Node expiry timestamp while in Available state", default=None
     )
-    owner: Optional[str] = Field(
-        description="Username of node owner",
-        default=None
-    )
+    owner: Optional[str] = Field(description="Username of node owner", default=None)
     submitter: Optional[str] = Field(
         description="Token md5 hash to identify node origin(submitter token)",
-        default=None
+        default=None,
     )
-    treeid: Optional[str] = Field(
-        description="Tree unique identifier",
-        default=None
-    )
+    treeid: Optional[str] = Field(description="Tree unique identifier", default=None)
     user_groups: List[str] = Field(
-        default=[],
-        description="User groups that are permitted to update node"
+        default=[], description="User groups that are permitted to update node"
     )
     # This flag should be reset on each update in API code, unless
     # we are changing it's state intentionally
     processed_by_kcidb_bridge: bool = Field(
         description="Flag to indicate if the node was processed by KCIDB-Bridge",
-        default=False
+        default=False,
     )
     retry_counter: StrictInt = Field(
-        default=0,
-        description="Number of times the job has retried"
+        default=0, description="Number of times the job has retried"
     )
 
-    OBJECT_ID_FIELDS: ClassVar[list] = ['parent']
-    TIMESTAMP_FIELDS: ClassVar[list] = ['created', 'updated', 'timeout', 'holdoff']
+    OBJECT_ID_FIELDS: ClassVar[list] = ["parent"]
+    TIMESTAMP_FIELDS: ClassVar[list] = ["created", "updated", "timeout", "holdoff"]
 
     def update(self):
         self.updated = datetime.utcnow()
 
-    @field_validator('user_groups')
-    def validate_groups(cls, groups):   # pylint: disable=no-self-argument
+    @field_validator("user_groups")
+    def validate_groups(cls, groups):  # pylint: disable=no-self-argument
         """Unique group constraint"""
         unique_names = set(groups)
         if len(unique_names) != len(groups):
@@ -310,7 +278,7 @@ class Node(DatabaseModel):
         """
         translated_params = {}
         for key, value in params.items():
-            field = key.split('__')
+            field = key.split("__")
             if len(field) == 2:
                 param, op_name = field
                 if translated_params.get(param):
@@ -352,10 +320,13 @@ class Node(DatabaseModel):
                 if isinstance(value, dict):
                     for op_key, op_value in value.items():
                         if translated_params.get(key):
-                            translated_params[key].update({
-                                op_key: datetime.fromisoformat(op_value)})
+                            translated_params[key].update(
+                                {op_key: datetime.fromisoformat(op_value)}
+                            )
                         else:
-                            translated_params[key] = {op_key: datetime.fromisoformat(op_value)}
+                            translated_params[key] = {
+                                op_key: datetime.fromisoformat(op_value)
+                            }
                 else:
                     translated_params[key] = datetime.fromisoformat(value)
         return translated_params
@@ -386,13 +357,16 @@ class Node(DatabaseModel):
     def validate_node_state_transition(self, new_state):
         """Validate Node.state transitions"""
         if new_state == self.state:
-            return True, f"Transition to the same state: {new_state}. \
-                No validation is required."
+            return (
+                True,
+                f"Transition to the same state: {new_state}. \
+                No validation is required.",
+            )
         state_transition_map = {
-            'running': ['available', 'closing', 'done'],
-            'available': ['closing', 'done'],
-            'closing': ['done'],
-            'done': []
+            "running": ["available", "closing", "done"],
+            "available": ["closing", "done"],
+            "closing": ["done"],
+            "done": [],
         }
         valid_states = state_transition_map[self.state]
         if new_state not in valid_states:
@@ -402,349 +376,289 @@ class Node(DatabaseModel):
 
 class Hierarchy(BaseModel):
     """Hierarchy of nodes with child nodes"""
+
     node: Node
-    child_nodes: List['Hierarchy']
+    child_nodes: List["Hierarchy"]
 
 
 Hierarchy.model_rebuild()
 
 
 class CheckoutErrorCodes(str, enum.Enum):
-    """Enumeration to declare error codes for Checkout node """
+    """Enumeration to declare error codes for Checkout node"""
 
     # Node reached timeout and timeout service forced it to be done
-    NODE_TIMEOUT = 'node_timeout'
+    NODE_TIMEOUT = "node_timeout"
     # Init/update source git repo failure
-    GIT_CHECKOUT_FAILURE = 'git_checkout_failure'
+    GIT_CHECKOUT_FAILURE = "git_checkout_failure"
 
 
 class CheckoutData(BaseModel):
     """Model for the data field of a Checkout node"""
+
     kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data",
-        default=None
+        description="Kernel repo revision data", default=None
     )
     error_code: Optional[CheckoutErrorCodes] = Field(
-        description="Details of the failure state",
-        default=None
+        description="Details of the failure state", default=None
     )
-    error_msg: Optional[str] = Field(
-        description="Error message",
-        default=None
-    )
+    error_msg: Optional[str] = Field(description="Error message", default=None)
     architecture_filter: Optional[List[str]] = Field(
-        description="Architecture filter",
-        default=None
+        description="Architecture filter", default=None
     )
 
 
 class Checkout(Node):
     """API model for checkout nodes"""
-    class_kind: ClassVar[str] = 'checkout'
-    kind: Literal['checkout'] = Field(
-        default='checkout',
-        description='Type of the object',
+
+    class_kind: ClassVar[str] = "checkout"
+    kind: Literal["checkout"] = Field(
+        default="checkout",
+        description="Type of the object",
     )
-    data: CheckoutData = Field(
-        description="Checkout details",
-        default=None
-    )
+    data: CheckoutData = Field(description="Checkout details", default=None)
 
 
 class KbuildData(BaseModel):
     """Model for the data field of a Kbuild node"""
+
     # [TODO] Can be fetched from parent checkout node
     kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data",
-        default=None
+        description="Kernel repo revision data", default=None
     )
-    arch: Optional[str] = Field(
-        description="CPU architecture family",
-        default=None
-    )
+    arch: Optional[str] = Field(description="CPU architecture family", default=None)
     defconfig: Optional[str] = Field(
-        description="Kernel defconfig identifier",
-        default=None
+        description="Kernel defconfig identifier", default=None
     )
     compiler: Optional[str] = Field(
-        description="Compiler used for the build",
-        default=None
+        description="Compiler used for the build", default=None
     )
     error_code: Optional[ErrorCodes] = Field(
-        description="Details of the failure state",
-        default=None
+        description="Details of the failure state", default=None
     )
-    error_msg: Optional[str] = Field(
-        description="Error message",
-        default=None
-    )
+    error_msg: Optional[str] = Field(description="Error message", default=None)
     fragments: Optional[List[str]] = Field(
-        description="List of additional configuration fragments used",
-        default=None
+        description="List of additional configuration fragments used", default=None
     )
     config_full: Optional[str] = Field(
-        description=("Single-string specification of the kernel "
-                     "configuration including defconfig and fragments"),
-        default=None
+        description=(
+            "Single-string specification of the kernel "
+            "configuration including defconfig and fragments"
+        ),
+        default=None,
     )
-    platform: Optional[str] = Field(
-        description="Build platform",
-        default=None
-    )
+    platform: Optional[str] = Field(description="Build platform", default=None)
     runtime: Optional[str] = Field(
-        description="Runtime that runs the build",
-        default=None
+        description="Runtime that runs the build", default=None
     )
-    job_id: Optional[str] = Field(
-        description="Runtime job ID",
-        default=None
-    )
+    job_id: Optional[str] = Field(description="Runtime job ID", default=None)
     job_context: Optional[str] = Field(
-        description="Kubernetes cluster name the job submitted to",
-        default=None
+        description="Kubernetes cluster name the job submitted to", default=None
     )
     kernel_type: Optional[str] = Field(
-        description="Kernel image type (zimage, bzimage...)",
-        default=None
+        description="Kernel image type (zimage, bzimage...)", default=None
     )
     regression: Optional[PyObjectId] = Field(
-        description="Regression node related to this build instance",
-        default=None
+        description="Regression node related to this build instance", default=None
     )
 
 
 class Kbuild(Node):
     """API model for kbuild (kernel builds) nodes"""
-    class_kind: ClassVar[str] = 'kbuild'
-    kind: Literal['kbuild'] = Field(
-        default='kbuild',
-        description='Type of the object',
+
+    class_kind: ClassVar[str] = "kbuild"
+    kind: Literal["kbuild"] = Field(
+        default="kbuild",
+        description="Type of the object",
     )
-    data: KbuildData = Field(
-        description="Kbuild details",
-        default=None
-    )
+    data: KbuildData = Field(description="Kbuild details", default=None)
 
     OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
-        'data.regression',
+        "data.regression",
     ]
 
 
 class TestData(BaseModel):
     """Model for the data field of a Test node"""
+
     error_code: Optional[ErrorCodes] = Field(
-        description="Details of the failure state",
-        default=None
+        description="Details of the failure state", default=None
     )
-    error_msg: Optional[str] = Field(
-        description="Error message",
-        default=None
-    )
+    error_msg: Optional[str] = Field(description="Error message", default=None)
     # [TODO] Specify the source code file/function too?
-    test_source: Optional[Annotated[str, BeforeValidator(
-        lambda value: str(any_url_adapter.validate_python(value)))]] = Field(
-        description="Repository containing the test source code",
-        default=None
-    )
+    test_source: Optional[
+        Annotated[
+            str,
+            BeforeValidator(lambda value: str(any_url_adapter.validate_python(value))),
+        ]
+    ] = Field(description="Repository containing the test source code", default=None)
     test_revision: Optional[Revision] = Field(
-        description="Test repo revision data",
-        default=None
+        description="Test repo revision data", default=None
     )
-    platform: Optional[str] = Field(
-        description="Test platform",
-        default=None
-    )
-    device: Optional[str] = Field(
-        description="Test device",
-        default=None
-    )
+    platform: Optional[str] = Field(description="Test platform", default=None)
+    device: Optional[str] = Field(description="Test device", default=None)
     runtime: Optional[str] = Field(
-        description="Runtime that runs the test",
-        default=None
+        description="Runtime that runs the test", default=None
     )
-    job_id: Optional[str] = Field(
-        description="Runtime job ID",
-        default=None
-    )
+    job_id: Optional[str] = Field(description="Runtime job ID", default=None)
     job_context: Optional[str] = Field(
-        description="Kubernetes cluster name the job submitted to",
-        default=None
+        description="Kubernetes cluster name the job submitted to", default=None
     )
     regression: Optional[PyObjectId] = Field(
-        description="Regression node related to this test run",
-        default=None
+        description="Regression node related to this test run", default=None
     )
 
     # Fields inherited from the parent kbuild or test case node
 
     kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data",
-        default=None
+        description="Kernel repo revision data", default=None
     )
-    arch: Optional[str] = Field(
-        description="CPU architecture family",
-        default=None
-    )
+    arch: Optional[str] = Field(description="CPU architecture family", default=None)
     defconfig: Optional[str] = Field(
-        description="Kernel defconfig identifier",
-        default=None
+        description="Kernel defconfig identifier", default=None
     )
     config_full: Optional[str] = Field(
-        description=("Single-string specification of the kernel "
-                     "configuration including defconfig and fragments"),
-        default=None
+        description=(
+            "Single-string specification of the kernel "
+            "configuration including defconfig and fragments"
+        ),
+        default=None,
     )
     compiler: Optional[str] = Field(
-        description="Compiler used for the build",
-        default=None
+        description="Compiler used for the build", default=None
     )
     kernel_type: Optional[str] = Field(
-        description="Kernel image type (zimage, bzimage...)",
-        default=None
+        description="Kernel image type (zimage, bzimage...)", default=None
     )
     misc: Optional[dict] = Field(
         description="Miscellaneous fields (e.g. chromeos version for tast tests)",
-        default={}
+        default={},
     )
 
 
 class Test(Node):
     """API model for test nodes"""
-    class_kind: ClassVar[str] = 'test'
-    kind: Literal['test'] = Field(
-        default='test',
-        description='Type of the object',
+
+    class_kind: ClassVar[str] = "test"
+    kind: Literal["test"] = Field(
+        default="test",
+        description="Type of the object",
     )
-    data: TestData = Field(
-        description="Test details",
-        default=None
-    )
+    data: TestData = Field(description="Test details", default=None)
 
     OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
-        'data.regression',
+        "data.regression",
     ]
 
 
 class Job(Node):
     """API model for job (test suite) nodes"""
-    class_kind: ClassVar[str] = 'job'
-    kind: Literal['job'] = Field(
-        default='job',
-        description='Type of the object',
+
+    class_kind: ClassVar[str] = "job"
+    kind: Literal["job"] = Field(
+        default="job",
+        description="Type of the object",
     )
-    data: TestData = Field(
-        description="Test suite details",
-        default=None
-    )
+    data: TestData = Field(description="Test suite details", default=None)
 
     OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
-        'data.regression',
+        "data.regression",
     ]
 
 
 class Process(Node):
     """API model for post-processing job nodes"""
-    class_kind: ClassVar[str] = 'process'
-    kind: Literal['process'] = Field(
-        default='process',
-        description='Type of the object',
+
+    class_kind: ClassVar[str] = "process"
+    kind: Literal["process"] = Field(
+        default="process",
+        description="Type of the object",
     )
 
     OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
-        'data.regression',
+        "data.regression",
     ]
 
 
 class RegressionData(BaseModel):
     """Model for the data field of a Regression node"""
+
     fail_node: Optional[PyObjectId] = Field(
-        description="Node where the regression was introduced",
-        default=None
+        description="Node where the regression was introduced", default=None
     )
     pass_node: Optional[PyObjectId] = Field(
-        description="Previous passing Node",
-        default=None
+        description="Previous passing Node", default=None
     )
     node_sequence: Optional[List[PyObjectId]] = Field(
         default=[],
-        description=("Instances of this same job ran after the initial "
-                     "failure. The last run in the sequence may be a "
-                     "passed run, which means the regression is no longer"
-                     "active. If the sequence is empty or if all the runs "
-                     "in the sequence failed, that means the job is still "
-                     "failing and the regression is active")
+        description=(
+            "Instances of this same job ran after the initial "
+            "failure. The last run in the sequence may be a "
+            "passed run, which means the regression is no longer"
+            "active. If the sequence is empty or if all the runs "
+            "in the sequence failed, that means the job is still "
+            "failing and the regression is active"
+        ),
     )
     error_code: Optional[ErrorCodes] = Field(
-        description="Error code of the failed job",
-        default=None
+        description="Error code of the failed job", default=None
     )
     error_msg: Optional[str] = Field(
-        description="Error message of the failed job",
-        default=None
+        description="Error message of the failed job", default=None
     )
     failed_kernel_revision: Optional[Revision] = Field(
-        description="Kernel repo revision data of the failed job",
-        default=None
+        description="Kernel repo revision data of the failed job", default=None
     )
-    arch: Optional[str] = Field(
-        description="CPU architecture family",
-        default=None
-    )
+    arch: Optional[str] = Field(description="CPU architecture family", default=None)
     defconfig: Optional[str] = Field(
-        description="Kernel defconfig identifier",
-        default=None
+        description="Kernel defconfig identifier", default=None
     )
     config_full: Optional[str] = Field(
-        description=("Single-string specification of the kernel "
-                     "configuration including defconfig and fragments"),
-        default=None
+        description=(
+            "Single-string specification of the kernel "
+            "configuration including defconfig and fragments"
+        ),
+        default=None,
     )
     compiler: Optional[str] = Field(
-        description="Compiler used for the build",
-        default=None
+        description="Compiler used for the build", default=None
     )
-    platform: Optional[str] = Field(
-        description="Test platform",
-        default=None
-    )
-    device: Optional[str] = Field(
-        description="Test device",
-        default=None
-    )
+    platform: Optional[str] = Field(description="Test platform", default=None)
+    device: Optional[str] = Field(description="Test device", default=None)
 
 
 class Regression(Node):
     """API model for regression tracking"""
-    class_kind: ClassVar[str] = 'regression'
-    kind: Literal['regression'] = Field(
-        default='regression',
-        description='Type of the object',
+
+    class_kind: ClassVar[str] = "regression"
+    kind: Literal["regression"] = Field(
+        default="regression",
+        description="Type of the object",
     )
     result: Optional[ResultValues] = Field(
         default=ResultValues.FAIL.value,
-        description=("PASS if the regression is 'inactive', that is, if the "
-                     "test has ever passed after the regression was created. "
-                     "FAIL if the regression is still 'active', ie. the test "
-                     "is still failing"),
+        description=(
+            "PASS if the regression is 'inactive', that is, if the "
+            "test has ever passed after the regression was created. "
+            "FAIL if the regression is still 'active', ie. the test "
+            "is still failing"
+        ),
     )
-    data: RegressionData = Field(
-        description="Regression details",
-        default=None
-    )
+    data: RegressionData = Field(description="Regression details", default=None)
 
     OBJECT_ID_FIELDS = Node.OBJECT_ID_FIELDS + [
-        'data.fail_node',
-        'data.pass_node',
+        "data.fail_node",
+        "data.pass_node",
     ]
     TIMESTAMP_FIELDS = Node.TIMESTAMP_FIELDS + [
-        'data.fail_node.created',
-        'data.fail_node.updated',
-        'data.fail_node.timeout',
-        'data.fail_node.holdoff',
-        'data.pass_node.created',
-        'data.pass_node.updated',
-        'data.pass_node.timeout',
-        'data.pass_node.holdoff',
+        "data.fail_node.created",
+        "data.fail_node.updated",
+        "data.fail_node.timeout",
+        "data.fail_node.holdoff",
+        "data.pass_node.created",
+        "data.pass_node.updated",
+        "data.pass_node.timeout",
+        "data.pass_node.holdoff",
     ]
 
     @classmethod
@@ -770,50 +684,60 @@ class Regression(Node):
         # - fail node must have run after pass_node
         # - pass and fail nodes must have correct results (pass and
         #   fail, respectively)
-        error_msg = ("Error creating regression for nodes "
-                     f"{pass_node.id} (last passed) and "
-                     f"{fail_node.id} (first failed). ")
-        cmp_fields = ['name',
-                      'group',
-                      'path',
-                      'data.kernel_revision',
-                      'data.arch',
-                      'data.defconfig',
-                      'data.config_full',
-                      'data.compiler',
-                      'data.platform',]
+        error_msg = (
+            "Error creating regression for nodes "
+            f"{pass_node.id} (last passed) and "
+            f"{fail_node.id} (first failed). "
+        )
+        cmp_fields = [
+            "name",
+            "group",
+            "path",
+            "data.kernel_revision",
+            "data.arch",
+            "data.defconfig",
+            "data.config_full",
+            "data.compiler",
+            "data.platform",
+        ]
         for field in cmp_fields:
             getter = attrgetter(field)
             if getter(fail_node) != getter(pass_node):
-                raise RuntimeError(error_msg +
-                                   f"{field} is different in the fail node "
-                                   f"({getter(fail_node)} than in the pass "
-                                   f"node ({getter(pass_node)})")
+                raise RuntimeError(
+                    error_msg + f"{field} is different in the fail node "
+                    f"({getter(fail_node)} than in the pass "
+                    f"node ({getter(pass_node)})"
+                )
         if pass_node.created > fail_node.created:
-            raise RuntimeError(error_msg + "The fail node was created before "
-                               "the pass node")
-        if pass_node.result != 'pass':
-            raise RuntimeError(error_msg + "The pass node has a wrong result: "
-                               f"{pass_node.result}")
-        if fail_node.result != 'fail':
-            raise RuntimeError(error_msg + "The fail node has a wrong result: "
-                               f"{fail_node.result}")
+            raise RuntimeError(
+                error_msg + "The fail node was created before the pass node"
+            )
+        if pass_node.result != "pass":
+            raise RuntimeError(
+                error_msg + f"The pass node has a wrong result: {pass_node.result}"
+            )
+        if fail_node.result != "fail":
+            raise RuntimeError(
+                error_msg + f"The fail node has a wrong result: {fail_node.result}"
+            )
         # End of sanity checks
         data_field = {
-            'arch': fail_node.data.arch,
-            'defconfig': fail_node.data.defconfig,
-            'config_full': fail_node.data.config_full,
-            'compiler': fail_node.data.compiler,
-            'platform': fail_node.data.platform,
-            'failed_kernel_revision': fail_node.data.kernel_revision,
-            'fail_node': fail_node.id,
-            'pass_node': pass_node.id,
+            "arch": fail_node.data.arch,
+            "defconfig": fail_node.data.defconfig,
+            "config_full": fail_node.data.config_full,
+            "compiler": fail_node.data.compiler,
+            "platform": fail_node.data.platform,
+            "failed_kernel_revision": fail_node.data.kernel_revision,
+            "fail_node": fail_node.id,
+            "pass_node": pass_node.id,
         }
-        regression_obj = cls(name=fail_node.name,
-                             path=fail_node.path,
-                             group=fail_node.group,
-                             data=data_field,
-                             state=StateValues.DONE.value)
+        regression_obj = cls(
+            name=fail_node.name,
+            path=fail_node.path,
+            group=fail_node.group,
+            data=data_field,
+            state=StateValues.DONE.value,
+        )
         if as_dict:
             regression_json = regression_obj.json(exclude_none=True)
             return json.loads(regression_json)
@@ -822,30 +746,23 @@ class Regression(Node):
 
 class PublishEvent(BaseModel):
     """API model for the data of a <publish> event"""
-    data: Any = Field(
-        description="Event payload",
-        default=None
-    )
-    type: Optional[str] = Field(
-        description="Type of the <publish> event",
-        default=None
-    )
+
+    data: Any = Field(description="Event payload", default=None)
+    type: Optional[str] = Field(description="Type of the <publish> event", default=None)
     source: Optional[str] = Field(
-        description="Source of the <publish> event",
-        default=None
+        description="Source of the <publish> event", default=None
     )
     attributes: Optional[Dict] = Field(
-        description="Extra Cloudevents Extension Context Attributes",
-        default={}
+        description="Extra Cloudevents Extension Context Attributes", default={}
     )
 
     # suppress pylint error below
     # It's a known issue: https://github.com/pylint-dev/pylint/issues/6900
-    @field_validator('data')
+    @field_validator("data")
     def validate_data(cls, val):  # pylint: disable=no-self-argument
         """Do not allow 'None' as event payload data"""
         if not val:
-            raise ValueError('None is not allowed as event payload')
+            raise ValueError("None is not allowed as event payload")
         return val
 
 
@@ -862,26 +779,18 @@ def parse_node_obj(node: Node):
 
 class EventHistory(DatabaseModel):
     """Event history object model"""
+
     timestamp: datetime = Field(
-        description='Timestamp of event creation',
-        default_factory=datetime.now
+        description="Timestamp of event creation", default_factory=datetime.now
     )
     sequence_id: Optional[int] = Field(
-        default=None,
-        description='Sequential ID for pub/sub ordering (auto-generated)'
+        default=None, description="Sequential ID for pub/sub ordering (auto-generated)"
     )
-    channel: Optional[str] = Field(
-        default='node',
-        description='Pub/Sub channel name'
-    )
+    channel: Optional[str] = Field(default="node", description="Pub/Sub channel name")
     owner: Optional[str] = Field(
-        default=None,
-        description='Username of event publisher'
+        default=None, description="Username of event publisher"
     )
-    data: Dict[str, Any] = Field(
-        description='Event data',
-        default={}
-    )
+    data: Dict[str, Any] = Field(description="Event data", default={})
 
     @classmethod
     def get_indexes(cls):
@@ -893,8 +802,8 @@ class EventHistory(DatabaseModel):
         Also creates compound index for efficient pub/sub catch-up queries.
         """
         return [
-            cls.Index('timestamp', {'expireAfterSeconds': EVENT_HISTORY_TTL_SECONDS}),
-            cls.Index([('channel', 1), ('sequence_id', 1)], {}),
+            cls.Index("timestamp", {"expireAfterSeconds": EVENT_HISTORY_TTL_SECONDS}),
+            cls.Index([("channel", 1), ("sequence_id", 1)], {}),
         ]
 
 
@@ -904,78 +813,48 @@ class TelemetryEvent(DatabaseModel):
     Captures scheduler submissions, runtime errors, job skips,
     and test results across all runtimes.
     """
+
     ts: datetime = Field(
-        description='Timestamp of the event',
-        default_factory=datetime.utcnow
+        description="Timestamp of the event", default_factory=datetime.utcnow
     )
     kind: str = Field(
-        description='Event type: runtime_error, job_submission, '
-                    'job_skip, job_result, test_result'
+        description="Event type: runtime_error, job_submission, "
+        "job_skip, job_result, test_result"
     )
     runtime: str = Field(
-        description='Runtime environment name (e.g. lava-collabora, '
-                    'k8s-gke-eu-west4)'
+        description="Runtime environment name (e.g. lava-collabora, k8s-gke-eu-west4)"
     )
     device_type: Optional[str] = Field(
-        default=None,
-        description='Device type (e.g. rk3588, qemu)'
+        default=None, description="Device type (e.g. rk3588, qemu)"
     )
     device_id: Optional[str] = Field(
-        default=None,
-        description='Actual device identifier (LAVA only)'
+        default=None, description="Actual device identifier (LAVA only)"
     )
-    job_name: Optional[str] = Field(
-        default=None,
-        description='Job configuration name'
-    )
+    job_name: Optional[str] = Field(default=None, description="Job configuration name")
     test_name: Optional[str] = Field(
-        default=None,
-        description='Individual test case name'
+        default=None, description="Individual test case name"
     )
     job_id: Optional[str] = Field(
-        default=None,
-        description='Runtime job identifier (e.g. LAVA job ID)'
+        default=None, description="Runtime job identifier (e.g. LAVA job ID)"
     )
-    node_id: Optional[str] = Field(
-        default=None,
-        description='API node identifier'
-    )
-    tree: Optional[str] = Field(
-        default=None,
-        description='Kernel tree name'
-    )
-    branch: Optional[str] = Field(
-        default=None,
-        description='Kernel branch name'
-    )
-    arch: Optional[str] = Field(
-        default=None,
-        description='CPU architecture'
-    )
+    node_id: Optional[str] = Field(default=None, description="API node identifier")
+    tree: Optional[str] = Field(default=None, description="Kernel tree name")
+    branch: Optional[str] = Field(default=None, description="Kernel branch name")
+    arch: Optional[str] = Field(default=None, description="CPU architecture")
     result: Optional[str] = Field(
-        default=None,
-        description='Result: pass, fail, skip, incomplete'
+        default=None, description="Result: pass, fail, skip, incomplete"
     )
     is_infra_error: bool = Field(
-        default=False,
-        description='Whether the failure is an infrastructure error'
+        default=False, description="Whether the failure is an infrastructure error"
     )
     error_type: Optional[str] = Field(
         default=None,
-        description='Error category: online_check, submission, '
-                    'queue_depth, etc.'
+        description="Error category: online_check, submission, queue_depth, etc.",
     )
-    error_msg: Optional[str] = Field(
-        default=None,
-        description='Error message details'
-    )
-    retry: int = Field(
-        default=0,
-        description='Retry attempt counter'
-    )
+    error_msg: Optional[str] = Field(default=None, description="Error message details")
+    retry: int = Field(default=0, description="Retry attempt counter")
     extra: Dict[str, Any] = Field(
-        default={},
-        description='Additional fields for future extensibility'
+        default={}, description="Additional fields for future extensibility"
     )
 
     @classmethod
@@ -986,9 +865,9 @@ class TelemetryEvent(DatabaseModel):
         TELEMETRY_TTL_SECONDS environment variable.
         """
         return [
-            cls.Index('ts', {'expireAfterSeconds': TELEMETRY_TTL_SECONDS}),
-            cls.Index([('kind', 1), ('ts', -1)], {}),
-            cls.Index([('runtime', 1), ('device_type', 1), ('ts', -1)], {}),
-            cls.Index([('job_name', 1), ('ts', -1)], {}),
-            cls.Index([('result', 1), ('is_infra_error', 1), ('ts', -1)], {}),
+            cls.Index("ts", {"expireAfterSeconds": TELEMETRY_TTL_SECONDS}),
+            cls.Index([("kind", 1), ("ts", -1)], {}),
+            cls.Index([("runtime", 1), ("device_type", 1), ("ts", -1)], {}),
+            cls.Index([("job_name", 1), ("ts", -1)], {}),
+            cls.Index([("result", 1), ("is_infra_error", 1), ("ts", -1)], {}),
         ]

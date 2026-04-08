@@ -7,7 +7,6 @@
 """KernelCI API"""
 
 import abc
-import enum
 import importlib
 import json
 import urllib
@@ -28,20 +27,20 @@ def _http_error_body_snippet(response, max_length: int = HTTP_ERROR_BODY_SNIPPET
     Also try to extract a more specific error message from the body if it's a JSON
     with a "detail", "error" or "message" field.
     """
-    if response is None or response.content in (None, b''):
+    if response is None or response.content in (None, b""):
         return None
 
-    content_type = response.headers.get('content-type', '')
+    content_type = response.headers.get("content-type", "")
     snippet = None
 
-    if content_type.startswith('application/json'):
+    if content_type.startswith("application/json"):
         try:
             payload = response.json()
             if isinstance(payload, dict):
                 snippet = (
-                    payload.get('detail') or
-                    payload.get('error') or
-                    payload.get('message')
+                    payload.get("detail")
+                    or payload.get("error")
+                    or payload.get("message")
                 )
             if snippet is None:
                 snippet = payload
@@ -75,23 +74,23 @@ def _enrich_http_error(error, max_length: int = HTTP_ERROR_BODY_SNIPPET):
     """Append a small response-body snippet to request exceptions."""
     status_code = None
     url = None
-    if hasattr(error, 'response') and error.response is not None:
-        status_code = getattr(error.response, 'status_code', None)
-        url = getattr(error.response, 'url', None)
+    if hasattr(error, "response") and error.response is not None:
+        status_code = getattr(error.response, "status_code", None)
+        url = getattr(error.response, "url", None)
         if url is None:
-            request = getattr(error, 'request', None)
-            url = getattr(request, 'url', None)
+            request = getattr(error, "request", None)
+            url = getattr(request, "url", None)
 
-    message_parts = ['HTTP Error']
+    message_parts = ["HTTP Error"]
     if status_code:
         message_parts.append(str(status_code))
-    message_parts.append(f"url={url}" if url else 'url=<unknown>')
+    message_parts.append(f"url={url}" if url else "url=<unknown>")
 
     body = _http_error_body_snippet(error.response, max_length=max_length)
     if body:
         message_parts.append(f"body={body}")
 
-    error.args = (': '.join(message_parts),)
+    error.args = (": ".join(message_parts),)
 
 
 class Data:
@@ -102,7 +101,7 @@ class Data:
         self._token = token
         self._headers = {}
         if self._token:
-            self._headers['Authorization'] = f'Bearer {self._token}'
+            self._headers["Authorization"] = f"Bearer {self._token}"
         self._timeout = float(config.timeout)
 
     @property
@@ -134,7 +133,7 @@ class Base:
 
     def make_url(self, path: str) -> str:
         """Make a full URL for a given API endpoint path"""
-        version_path = '/'.join((self.data.config.version, path))
+        version_path = "/".join((self.data.config.version, path))
         return urllib.parse.urljoin(self.data.config.url, version_path)
 
     def _get(self, path, params=None):
@@ -147,12 +146,11 @@ class Base:
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         session = requests.Session()
-        session.mount('http://', adapter)
-        session.mount('https://', adapter)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
 
         resp = session.get(
-            url, params=params, headers=self.data.headers,
-            timeout=self.data.timeout
+            url, params=params, headers=self.data.headers, timeout=self.data.timeout
         )
         try:
             resp.raise_for_status()
@@ -184,24 +182,21 @@ class Base:
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         session = requests.Session()
-        session.mount('http://', adapter)
-        session.mount('https://', adapter)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
 
         if isinstance(data, str):
             # If the payload is a string we pass it as it is to
             # requests.post, but in this case we have to explicitly
             # specify the Content-Type header
             if json_data:
-                headers = self.data.headers | {
-                    'Content-Type': 'application/json'
-                }
+                headers = self.data.headers | {"Content-Type": "application/json"}
             else:
                 headers = self.data.headers | {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    "Content-Type": "application/x-www-form-urlencoded"
                 }
             resp = session.post(
-                url, data, headers=headers,
-                params=params, timeout=self.data.timeout
+                url, data, headers=headers, params=params, timeout=self.data.timeout
             )
         else:
             # When passing a dict to requests.post, it will
@@ -209,13 +204,19 @@ class Base:
             # the Content-Type header
             if json_data:
                 resp = session.post(
-                    url, json=data, headers=self.data.headers,
-                    params=params, timeout=self.data.timeout
+                    url,
+                    json=data,
+                    headers=self.data.headers,
+                    params=params,
+                    timeout=self.data.timeout,
                 )
             else:
                 resp = session.post(
-                    url, data, headers=self.data.headers,
-                    params=params, timeout=self.data.timeout
+                    url,
+                    data,
+                    headers=self.data.headers,
+                    params=params,
+                    timeout=self.data.timeout,
                 )
         try:
             resp.raise_for_status()
@@ -234,12 +235,15 @@ class Base:
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         session = requests.Session()
-        session.mount('http://', adapter)
-        session.mount('https://', adapter)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
 
         resp = session.put(
-            url, json=data, headers=self.data.headers,
-            params=params, timeout=self.data.timeout
+            url,
+            json=data,
+            headers=self.data.headers,
+            params=params,
+            timeout=self.data.timeout,
         )
         try:
             resp.raise_for_status()
@@ -258,12 +262,15 @@ class Base:
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         session = requests.Session()
-        session.mount('http://', adapter)
-        session.mount('https://', adapter)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
 
         resp = session.patch(
-            url, json=data, headers=self.data.headers,
-            params=params, timeout=self.data.timeout
+            url,
+            json=data,
+            headers=self.data.headers,
+            params=params,
+            timeout=self.data.timeout,
         )
         try:
             resp.raise_for_status()
@@ -276,22 +283,24 @@ class Base:
         params = input_params.copy()
 
         if any((offset, limit)):
-            params.update({
-                'offset': offset or None,
-                'limit': limit or None,
-            })
+            params.update(
+                {
+                    "offset": offset or None,
+                    "limit": limit or None,
+                }
+            )
             resp = self._get(path, params=params)
-            items = resp.json()['items']
+            items = resp.json()["items"]
             return items
 
         objs = []
         offset = 0
         limit = 100
-        params['limit'] = limit
+        params["limit"] = limit
         while True:
-            params['offset'] = offset
+            params["offset"] = offset
             resp = self._get(path, params=params)
-            items = resp.json()['items']
+            items = resp.json()["items"]
             objs.extend(items)
             if len(items) < limit:
                 break
@@ -313,13 +322,10 @@ class Base:
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         session = requests.Session()
-        session.mount('http://', adapter)
-        session.mount('https://', adapter)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
 
-        resp = session.delete(
-            url, headers=self.data.headers,
-            timeout=self.data.timeout
-        )
+        resp = session.delete(url, headers=self.data.headers, timeout=self.data.timeout)
         try:
             resp.raise_for_status()
         except requests.exceptions.HTTPError as err:
@@ -374,8 +380,10 @@ class API(abc.ABC, Base):
 
         @abc.abstractmethod
         def find(
-            self, attributes: Dict[str, str],
-            offset: Optional[int] = None, limit: Optional[int] = None
+            self,
+            attributes: Dict[str, str],
+            offset: Optional[int] = None,
+            limit: Optional[int] = None,
         ) -> Sequence[dict]:
             """Find user accounts that match the provided attributes"""
 
@@ -410,8 +418,9 @@ class API(abc.ABC, Base):
             """Reset password"""
 
         @abc.abstractmethod
-        def update_password(self, username: str, current_password: str,
-                            new_password: str):
+        def update_password(
+            self, username: str, current_password: str, new_password: str
+        ):
             """Update a user's password"""
 
     @property
@@ -433,8 +442,10 @@ class API(abc.ABC, Base):
 
         @abc.abstractmethod
         def find(
-            self, attributes: Dict[str, str],
-            offset: Optional[int] = None, limit: Optional[int] = None
+            self,
+            attributes: Dict[str, str],
+            offset: Optional[int] = None,
+            limit: Optional[int] = None,
         ) -> Sequence[dict]:
             """Find nodes that match the provided attributes"""
 
@@ -468,8 +479,10 @@ class API(abc.ABC, Base):
 
         @abc.abstractmethod
         def find(
-            self, attributes: Dict[str, str],
-            offset: Optional[int] = None, limit: Optional[int] = None
+            self,
+            attributes: Dict[str, str],
+            offset: Optional[int] = None,
+            limit: Optional[int] = None,
         ) -> Sequence[dict]:
             """Find telemetry events matching the provided attributes"""
 
@@ -527,8 +540,10 @@ class API(abc.ABC, Base):
 
     @abc.abstractmethod
     def get_groups(
-        self, attributes: dict,
-        offset: Optional[int] = None, limit: Optional[int] = None
+        self,
+        attributes: dict,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
     ) -> Sequence[dict]:
         """Get user groups that match the provided attributes"""
 
@@ -544,6 +559,6 @@ class API(abc.ABC, Base):
 def get_api(config, token=None):
     """Get a KernelCI API object matching the provided configuration"""
     version = config.version
-    mod = importlib.import_module('.'.join(['kernelci', 'api', version]))
+    mod = importlib.import_module(".".join(["kernelci", "api", version]))
     api = mod.get_api(config, token)
     return api

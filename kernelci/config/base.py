@@ -14,24 +14,24 @@ import yaml
 
 
 BUILDROOT_ARCH = {
-    'arm': 'armel',
-    'x86_64': 'x86',
-    'riscv64': 'riscv',
+    "arm": "armel",
+    "x86_64": "x86",
+    "riscv64": "riscv",
 }
 
 CROS_ARCH = {
-    'arm': 'armel',
+    "arm": "armel",
 }
 
 DEB_ARCH = {
-    'arm': 'armhf',
-    'riscv': 'riscv64',
-    'x86_64': 'amd64',
+    "arm": "armhf",
+    "riscv": "riscv64",
+    "x86_64": "amd64",
 }
 
 KERNEL_ARCH = {
-    'armel': 'arm',
-    'x86_64': 'x86',
+    "armel": "arm",
+    "x86_64": "x86",
 }
 
 
@@ -49,13 +49,13 @@ def get_system_arch(system: str, arch: str):
       * `debarch`(Debian)
       * `karch`(Linux)
     """
-    if system == 'brarch':
+    if system == "brarch":
         return BUILDROOT_ARCH.get(arch) or arch
-    if system == 'crosarch':
+    if system == "crosarch":
         return CROS_ARCH.get(arch) or arch
-    if system == 'debarch':
+    if system == "debarch":
         return DEB_ARCH.get(arch) or arch
-    if system == 'karch':
+    if system == "karch":
         return KERNEL_ARCH.get(arch) or arch
     print(f"Unknown system-specific architecture field '{arch}'")
     return arch
@@ -120,10 +120,11 @@ class YAMLConfigObject(yaml.YAMLObject):
         constructors.
 
         """
-        return {
-            k: v for k, v in ((k, data.get(k))for k in attributes)
-            if v is not None
-        } if data else {}
+        return (
+            {k: v for k, v in ((k, data.get(k)) for k in attributes) if v is not None}
+            if data
+            else {}
+        )
 
     @classmethod
     def _get_yaml_attributes(cls):
@@ -139,10 +140,8 @@ class YAMLConfigObject(yaml.YAMLObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            'tag:yaml.org,2002:map', {
-                key: getattr(data, key)
-                for key in cls._get_yaml_attributes()
-            }
+            "tag:yaml.org,2002:map",
+            {key: getattr(data, key) for key in cls._get_yaml_attributes()},
         )
 
     def _get_format_map(self):
@@ -155,7 +154,8 @@ class YAMLConfigObject(yaml.YAMLObject):
         """
         return {
             k: getattr(self, k)
-            for k in self._get_yaml_attributes() if k not in ('params', 'rules')
+            for k in self._get_yaml_attributes()
+            if k not in ("params", "rules")
         }
 
     def format_params(self, param, fmap=None):
@@ -168,9 +168,9 @@ class YAMLConfigObject(yaml.YAMLObject):
         args = self._get_format_map()
         if fmap:
             args.update(fmap)
-        arch = args.get('arch')
+        arch = args.get("arch")
         if arch:
-            for system in ('brarch', 'crosarch', 'debarch', 'karch'):
+            for system in ("brarch", "crosarch", "debarch", "karch"):
                 args.update({system: get_system_arch(system, arch)})
         return _format_dict_strings(param, args)
 
@@ -202,10 +202,11 @@ class _YAMLObject:
         constructors.
 
         """
-        return {
-            k: v for k, v in ((k, data.get(k))for k in attributes)
-            if v is not None
-        } if data else {}
+        return (
+            {k: v for k, v in ((k, data.get(k)) for k in attributes) if v is not None}
+            if data
+            else {}
+        )
 
     @classmethod
     def _get_yaml_attributes(cls):
@@ -226,10 +227,11 @@ class _YAMLObject:
         non-serialisable objects such as Filters.
         """
         return {
-            attr: value for attr, value in (
-                (attr, getattr(self, attr))
-                for attr in self._get_yaml_attributes()
-            ) if value is not None
+            attr: value
+            for attr, value in (
+                (attr, getattr(self, attr)) for attr in self._get_yaml_attributes()
+            )
+            if value is not None
         }
 
     def to_yaml(self):
@@ -258,7 +260,7 @@ class Filter(YAMLConfigObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            'tag:yaml.org,2002:map', dict(data.items.items())
+            "tag:yaml.org,2002:map", dict(data.items.items())
         )
 
     def match(self, **kw):
@@ -299,8 +301,8 @@ class Blocklist(Filter):
     rejected.
     """
 
-    yaml_tag = '!BlockList'
-    name = 'blocklist'
+    yaml_tag = "!BlockList"
+    name = "blocklist"
 
     def match(self, **kwargs):
         for key, value in kwargs.items():
@@ -325,8 +327,8 @@ class Passlist(Filter):
     these lists.
     """
 
-    yaml_tag = '!PassList'
-    name = 'passlist'
+    yaml_tag = "!PassList"
+    name = "passlist"
 
     def match(self, **kwargs):
         for key, passlist in self._items.items():
@@ -352,8 +354,8 @@ class Regex(Filter):
     for each key specified in the filter items.
     """
 
-    yaml_tag = '!Regex'
-    name = 'regex'
+    yaml_tag = "!Regex"
+    name = "regex"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -375,24 +377,24 @@ class Combination(Filter):
     the order of the keys.
     """
 
-    yaml_tag = '!Combination'
-    name = 'combination'
+    yaml_tag = "!Combination"
+    name = "combination"
 
     def __init__(self, items):
         super().__init__(items)
-        self._keys = tuple(items['keys'])
-        self._values = list(tuple(values) for values in items['values'])
+        self._keys = tuple(items["keys"])
+        self._values = list(tuple(values) for values in items["values"])
 
     def match(self, **kwargs):
         filter_values = tuple(kwargs.get(k) for k in self._keys)
         return filter_values in self._values
 
     def combine(self, items):
-        keys = tuple(items['keys'])
+        keys = tuple(items["keys"])
         if keys != self._keys:
             return False
 
-        self._values.extend([tuple(values) for values in items['values']])
+        self._values.extend([tuple(values) for values in items["values"]])
         return True
 
 
@@ -400,7 +402,8 @@ class FilterFactory:
     """Factory to create filters from YAML data."""
 
     _classes = {
-        cls.name: cls for cls in [
+        cls.name: cls
+        for cls in [
             Blocklist,
             Passlist,
             Regex,
@@ -428,8 +431,7 @@ class FilterFactory:
                     # filter terms start being applied in other places
                     # unexpectedly.
                     filter_instance = filter_cls(copy.deepcopy(items))
-                    filters.setdefault(filter_type, []).append(
-                        filter_instance)
+                    filters.setdefault(filter_type, []).append(filter_instance)
                     filter_list.append(filter_instance)
 
         return filter_list
@@ -442,7 +444,7 @@ class FilterFactory:
         is one, iterate over each item to return a list of Filter objects.
         Otherwise, return *default_filters*.
         """
-        params = data.get('filters')
+        params = data.get("filters")
         return cls.load_from_yaml(params) if params else default_filters
 
 
@@ -450,5 +452,5 @@ def default_filters_from_yaml(data):
     """Load the default YAML filters"""
     return {
         entry_type: FilterFactory.load_from_yaml(filters_data)
-        for entry_type, filters_data in data.get('default_filters', {}).items()
+        for entry_type, filters_data in data.get("default_filters", {}).items()
     }

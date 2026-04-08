@@ -31,72 +31,68 @@ import kernelci.settings
 
 class Args:  # pylint: disable=too-few-public-methods
     """Common command line arguments"""
-    api = click.option(
-        '--api',
-        help="Name of the API config entry"
-    )
+
+    api = click.option("--api", help="Name of the API config entry")
     config = click.option(
-        '-c', '--yaml-config', 'config', multiple=True,
-        help="Path to the YAML pipeline configuration"
+        "-c",
+        "--yaml-config",
+        "config",
+        multiple=True,
+        help="Path to the YAML pipeline configuration",
     )
     indent = click.option(
-        '--indent', type=int,
-        help="Intentation level for structured data output"
+        "--indent", type=int, help="Intentation level for structured data output"
     )
     page_length = click.option(
-        '-l', '--page-length', type=int,
-        help="Page length in paginated data"
+        "-l", "--page-length", type=int, help="Page length in paginated data"
     )
     page_number = click.option(
-        '-n', '--page-number', type=int,
-        help="Page number in paginated data"
+        "-n", "--page-number", type=int, help="Page number in paginated data"
     )
-    runtime = click.option(
-        '--runtime',
-        help="Name of the runtime config entry"
-    )
+    runtime = click.option("--runtime", help="Name of the runtime config entry")
     settings = click.option(
-        '-s', '--toml-settings', 'settings',
-        help="Path to the TOML user settings"
+        "-s", "--toml-settings", "settings", help="Path to the TOML user settings"
     )
-    storage = click.option(
-        '--storage',
-        help="Name of the storage config entry"
-    )
+    storage = click.option("--storage", help="Name of the storage config entry")
     verbose = click.option(
-        '-v', '--verbose/--no-verbose', default=None,
-        help="Print more details output"
+        "-v", "--verbose/--no-verbose", default=None, help="Print more details output"
     )
     debug = click.option(
-        '-d', '--debug', is_flag=True, default=False,
-        help="Enable debug output (sets KCI_DEBUG=1)"
+        "-d",
+        "--debug",
+        is_flag=True,
+        default=False,
+        help="Enable debug output (sets KCI_DEBUG=1)",
     )
 
 
 def catch_error(func):
     """Decorator to catch HTTPError and KeyError exceptions and raise
     a ClickException"""
+
     @functools.wraps(func)
     def call(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except requests.exceptions.HTTPError as ex:
-            raw_content_type = ex.response.headers.get('content-type')
+            raw_content_type = ex.response.headers.get("content-type")
             header = email.policy.EmailPolicy.header_factory(
-                'content-type', raw_content_type
+                "content-type", raw_content_type
             )
             detail = (
-                ex.response.json().get('detail')
-                if header.content_type == 'application/json'
+                ex.response.json().get("detail")
+                if header.content_type == "application/json"
                 else None
             )
             raise click.ClickException(
-                '\n'.join((str(ex), str(detail))) if detail else ex
+                "\n".join((str(ex), str(detail))) if detail else ex
             ) from ex
         except KeyError as ex:
             traceback.print_exc()
             raise click.ClickException(
-                f"KeyError: Value not found for {str(ex)}") from ex
+                f"KeyError: Value not found for {str(ex)}"
+            ) from ex
+
     return call
 
 
@@ -148,8 +144,8 @@ class Kci(click.Command):
                 value = settings.get(*path, key)
             params[key] = value
         if self._kci_secrets:
-            root = (path[0], 'secrets')
-            params['secrets'] = settings.get_secrets(params, root)
+            root = (path[0], "secrets")
+            params["secrets"] = settings.get_secrets(params, root)
         ctx.params = params
         super().invoke(ctx)
 
@@ -171,13 +167,13 @@ class KciGroup(click.core.Group):
         If secrets is set to True, the class used for the command is always
         KciS.  Otherwise, Kci is used by default.
         """
-        kwargs['cls'] = KciS if secrets is True else cls
+        kwargs["cls"] = KciS if secrets is True else cls
         decorator = super().command(**kwargs)
         return decorator if not args else decorator(args[0])
 
     def group(self, *args, cls=None, **kwargs):
         """Wrapper to use KciGroup for sub-groups"""
-        kwargs['cls'] = cls or self.__class__
+        kwargs["cls"] = cls or self.__class__
         decorator = super().group(**kwargs)
         return decorator if not args else decorator(args[0])
 
@@ -209,15 +205,15 @@ def split_attributes(attributes: typing.List[str]):
 
     """
     operators = {
-        '>': '__gt',
-        '<': '__lt',
-        '>=': '__gte',
-        '<=': '__lte',
-        '!=': '__ne',
-        '=~': '__re',
-        '=': '',
+        ">": "__gt",
+        "<": "__lt",
+        ">=": "__gte",
+        "<=": "__lte",
+        "!=": "__ne",
+        "=~": "__re",
+        "=": "",
     }
-    pattern = re.compile(r'^([.a-zA-Z0-9_-]+) *([<>!~=]+) *(.*)')
+    pattern = re.compile(r"^([.a-zA-Z0-9_-]+) *([<>!~=]+) *(.*)")
 
     attributes = attributes or []
     parsed = {}
@@ -229,11 +225,10 @@ def split_attributes(attributes: typing.List[str]):
         opstr = operators.get(operator)
         if opstr is None:
             raise click.ClickException(f"Invalid operator: {operator}")
-        parsed.setdefault(''.join((name, opstr)), []).append(value)
+        parsed.setdefault("".join((name, opstr)), []).append(value)
 
     return {
-        name: value[0] if len(value) == 1 else value
-        for name, value in parsed.items()
+        name: value[0] if len(value) == 1 else value for name, value in parsed.items()
     }
 
 
@@ -248,20 +243,15 @@ def get_pagination(page_length: int, page_number: int):
     if page_length is None:
         page_length = 10
     elif page_length < 1:
-        raise click.UsageError(
-            f"Page length must be at least 1, got {page_length}"
-        )
+        raise click.UsageError(f"Page length must be at least 1, got {page_length}")
     if page_number is None:
         page_number = 0
     elif page_number < 0:
-        raise click.UsageError(
-            f"Page number must be at least 0, got {page_number}"
-        )
+        raise click.UsageError(f"Page number must be at least 0, got {page_number}")
     return page_number * page_length, page_length
 
 
-def get_api(config, api,
-            secrets: typing.Optional[kernelci.settings.Secrets] = None):
+def get_api(config, api, secrets: typing.Optional[kernelci.settings.Secrets] = None):
     """Get an API object instance
 
     Return an API object based on the given `api` config name loaded from the
@@ -270,7 +260,7 @@ def get_api(config, api,
     """
     if not isinstance(config, dict):
         config = kernelci.config.load(config)
-    api_section = config.get('api', None)
+    api_section = config.get("api", None)
     if api_section is None:
         raise click.ClickException("No API section found in the toml config")
     api_config = api_section.get(api, None)

@@ -38,38 +38,41 @@ def fetch_dut():
 
 
 def report_lava_test_case(test_name, result, measurement=None):
-    opts = ['lava-test-case', test_name, '--result', result]
+    opts = ["lava-test-case", test_name, "--result", result]
     if measurement:
-        opts.extend(['--measurement', str(measurement['value']),
-                     '--units', str(measurement['units'])])
+        opts.extend(
+            [
+                "--measurement",
+                str(measurement["value"]),
+                "--units",
+                str(measurement["units"]),
+            ]
+        )
     subprocess.run(opts, check=False)
 
 
 def report_lava_test_set(action, name):
-    opts = ['lava-test-set', action, name]
+    opts = ["lava-test-set", action, name]
     subprocess.run(opts, check=False)
 
 
 def report_lava_critical(message):
-    opts = ['lava-test-raise', message]
+    opts = ["lava-test-raise", message]
     subprocess.run(opts, check=False)
 
 
-lava_test_set_start = partial(report_lava_test_set, 'start')
-lava_test_set_stop = partial(report_lava_test_set, 'stop')
+lava_test_set_start = partial(report_lava_test_set, "start")
+lava_test_set_stop = partial(report_lava_test_set, "stop")
 
 
 def report_lava(test_data):
-    if 'measurements' in test_data:
-        lava_test_set_start(test_data['name'])
-        for measurement in test_data['measurements']:
-            report_lava_test_case(measurement['name'],
-                                  test_data['result'],
-                                  measurement)
-        lava_test_set_stop(test_data['name'])
+    if "measurements" in test_data:
+        lava_test_set_start(test_data["name"])
+        for measurement in test_data["measurements"]:
+            report_lava_test_case(measurement["name"], test_data["result"], measurement)
+        lava_test_set_stop(test_data["name"])
     else:
-        report_lava_test_case(test_data['name'],
-                              test_data['result'])
+        report_lava_test_case(test_data["name"], test_data["result"])
 
 
 def run_tests(args):
@@ -79,17 +82,17 @@ def run_tests(args):
     os.chown(RESULTS_DIR, uid, 0)
     remote_ip = fetch_dut()
     tast_cmd = [
-        'sudo',
-        '-u',
-        'cros',
-        '--login',
+        "sudo",
+        "-u",
+        "cros",
+        "--login",
         TAST_PATH,
-        'run',
-        f'-resultsdir={RESULTS_DIR}',
-        '-sysinfo=false',
-        '-checktestdeps=false',
-        '-build=false',
-        remote_ip
+        "run",
+        f"-resultsdir={RESULTS_DIR}",
+        "-sysinfo=false",
+        "-checktestdeps=false",
+        "-build=false",
+        remote_ip,
     ]
     tast_cmd.extend(args)
     try:
@@ -120,7 +123,7 @@ def parse_results(json_data):
         test_data = {
             "name": element["name"],
             "result": _get_result(element),
-            "outDir": element["outDir"]
+            "outDir": element["outDir"],
         }
         yield test_data
 
@@ -130,14 +133,16 @@ def parse_measurements(results_chart):
     for name, cases in results_chart.items():
         for sub_name, data in cases.items():
             if data["type"] == "list_of_scalar_values":
-                print(f"Unsupported data type \
+                print(
+                    f"Unsupported data type \
                     'list_of_scalar_values', skipping \
-                        {'.'.join([name, sub_name])}")
+                        {'.'.join([name, sub_name])}"
+                )
                 continue
             measurement = {
                 "name": ".".join([name, sub_name]),
                 "units": data["units"],
-                "value": data["value"]
+                "value": data["value"],
             }
             measurements.append(measurement)
     return measurements
@@ -153,7 +158,10 @@ def parse_test_results():
                 print("### BEGIN STDERR DUMP ###")
                 print(stderr)
                 print("### END STDERR DUMP ###")
-                if "'/usr/local/bin/local_test_runner': No such file or directory" in stderr:
+                if (
+                    "'/usr/local/bin/local_test_runner': No such file or directory"
+                    in stderr
+                ):
                     report_lava_critical("cros-partition-corrupt")
                     sys.exit(1)
         else:
@@ -192,7 +200,7 @@ def main(tests):
     parse_test_results()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     opt = sys.argv[1]
     argc = len(sys.argv)
     if (opt == "--run" and argc > 2) or argc > 1:

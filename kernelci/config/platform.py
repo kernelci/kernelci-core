@@ -12,12 +12,23 @@ from .base import YAMLConfigObject
 class Platform(YAMLConfigObject):
     """Platform configuration definition"""
 
-    yaml_tag = '!Platform'
+    yaml_tag = "!Platform"
 
     # pylint: disable=too-many-arguments
-    def __init__(self, name, *, arch="x86_64", base_name=None,
-                 boot_method="grub", context=None, compatible=None,
-                 dtb=None, mach="x86", params=None, rules=None):
+    def __init__(
+        self,
+        name,
+        *,
+        arch="x86_64",
+        base_name=None,
+        boot_method="grub",
+        context=None,
+        compatible=None,
+        dtb=None,
+        mach="x86",
+        params=None,
+        rules=None,
+    ):
         self._name = name
         self._arch = arch
         self._base_name = base_name
@@ -87,17 +98,19 @@ class Platform(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({
-            'arch',
-            'base_name',
-            'boot_method',
-            'context',
-            'compatible',
-            'dtb',
-            'mach',
-            'params',
-            'rules',
-        })
+        attrs.update(
+            {
+                "arch",
+                "base_name",
+                "boot_method",
+                "context",
+                "compatible",
+                "dtb",
+                "mach",
+                "params",
+                "rules",
+            }
+        )
         return attrs
 
 
@@ -105,9 +118,9 @@ def from_yaml(data, _):
     """Create the platforms configurations using data loaded from YAML"""
     platforms = {
         name: Platform.load_from_yaml(config, name=name)
-        for name, config in data.get('platforms', {}).items()
+        for name, config in data.get("platforms", {}).items()
     }
 
     return {
-        'platforms': platforms,
+        "platforms": platforms,
     }

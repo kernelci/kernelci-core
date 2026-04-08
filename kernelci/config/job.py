@@ -11,11 +11,21 @@ from .base import YAMLConfigObject
 class Job(YAMLConfigObject):  # pylint: disable=too-many-instance-attributes
     """Pipeline job definition"""
 
-    yaml_tag = '!Job'
+    yaml_tag = "!Job"
 
     # pylint: disable=too-many-arguments
-    def __init__(self, name, template, *, kind="node", image=None, params=None, rules=None,
-                 kcidb_test_suite=None, priority=None):
+    def __init__(
+        self,
+        name,
+        template,
+        *,
+        kind="node",
+        image=None,
+        params=None,
+        rules=None,
+        kcidb_test_suite=None,
+        priority=None,
+    ):
         self._name = name
         self._template = template
         self._kind = kind
@@ -73,8 +83,17 @@ class Job(YAMLConfigObject):  # pylint: disable=too-many-instance-attributes
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'template', 'kind', 'image', 'params', 'rules', 'kcidb_test_suite',
-                      'priority'})
+        attrs.update(
+            {
+                "template",
+                "kind",
+                "image",
+                "params",
+                "rules",
+                "kcidb_test_suite",
+                "priority",
+            }
+        )
         return attrs
 
 
@@ -82,9 +101,9 @@ def from_yaml(data, _):
     """Create the pipeline job definitions using data loaded from YAML"""
     jobs = {
         name: Job.load_from_yaml(config, name=name)
-        for name, config in data.get('jobs', {}).items()
+        for name, config in data.get("jobs", {}).items()
     }
 
     return {
-        'jobs': jobs,
+        "jobs": jobs,
     }

@@ -3,4 +3,8 @@
 # Copyright (C) 2022-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-from kernelci.config.base import FilterFactory, _YAMLObject, YAMLConfigObject
+from kernelci.config.base import (
+    FilterFactory as FilterFactory,
+    YAMLConfigObject as YAMLConfigObject,
+    _YAMLObject as _YAMLObject,
+)

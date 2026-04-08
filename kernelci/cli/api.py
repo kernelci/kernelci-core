@@ -14,7 +14,7 @@ from . import (
 )
 
 
-@kci.group(name='api')
+@kci.group(name="api")
 def kci_api():
     """Run generic queries with API instances"""
 

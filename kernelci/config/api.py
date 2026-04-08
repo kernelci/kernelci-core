@@ -11,9 +11,9 @@ from .base import YAMLConfigObject
 class API(YAMLConfigObject):
     """Base KernelCI API configuration object"""
 
-    yaml_tag = '!API'
+    yaml_tag = "!API"
 
-    def __init__(self, name, url, version='latest', timeout=60):
+    def __init__(self, name, url, version="latest", timeout=60):
         self._name = name
         self._url = url
         self._version = version
@@ -42,7 +42,7 @@ class API(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'url', 'version', 'timeout'})
+        attrs.update({"url", "version", "timeout"})
         return attrs
 
 
@@ -50,9 +50,9 @@ def from_yaml(data, _):
     """Create the API configs using data loaded from YAML"""
     api_configs = {
         name: API.load_from_yaml(config, name=name)
-        for name, config in data.get('api', {}).items()
+        for name, config in data.get("api", {}).items()
     }
 
     return {
-        'api': api_configs,
+        "api": api_configs,
     }

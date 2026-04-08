@@ -13,7 +13,7 @@ from .base import FilterFactory, YAMLConfigObject
 class Tree(YAMLConfigObject):
     """Kernel git tree model."""
 
-    yaml_tag = '!Tree'
+    yaml_tag = "!Tree"
 
     def __init__(self, name, url):
         """A kernel git tree is essentially a repository with kernel branches.
@@ -37,14 +37,14 @@ class Tree(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'url'})
+        attrs.update({"url"})
         return attrs
 
 
 class Fragment(YAMLConfigObject):
     """Kernel config fragment model."""
 
-    yaml_tag = '!Fragment'
+    yaml_tag = "!Fragment"
 
     def __init__(self, name, path, *, configs=None, defconfig=None):
         """A kernel config fragment is a list of config options in file.
@@ -89,14 +89,14 @@ class Fragment(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'path', 'configs', 'defconfig'})
+        attrs.update({"path", "configs", "defconfig"})
         return attrs
 
 
 class BuildEnvironment(YAMLConfigObject):
     """Kernel build environment model."""
 
-    yaml_tag = '!BuildEnvironment'
+    yaml_tag = "!BuildEnvironment"
 
     def __init__(self, name, cc, cc_version, *, arch_params=None):
         """A build environment is a compiler and tools to build a kernel.
@@ -138,17 +138,18 @@ class BuildEnvironment(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'cc', 'cc_version', 'arch_params'})
+        attrs.update({"cc", "cc_version", "arch_params"})
         return attrs
 
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            'tag:yaml.org,2002:map', {
-                'cc': data.cc,
-                'cc_version': data.cc_version,
-                'arch_params': data.arch_params,
-            }
+            "tag:yaml.org,2002:map",
+            {
+                "cc": data.cc,
+                "cc_version": data.cc_version,
+                "arch_params": data.arch_params,
+            },
         )
 
     def get_arch_param(self, arch, param):
@@ -163,11 +164,16 @@ class BuildEnvironment(YAMLConfigObject):
 class Architecture(YAMLConfigObject):
     """CPU architecture attributes."""
 
-    yaml_tag = '!Architecture'
+    yaml_tag = "!Architecture"
 
     def __init__(  # pylint: disable=too-many-arguments
-        self, name, *, base_defconfig='defconfig', extra_configs=None,
-        fragments=None, filters=None
+        self,
+        name,
+        *,
+        base_defconfig="defconfig",
+        extra_configs=None,
+        fragments=None,
+        filters=None,
     ):
         """Particularities to build kernels for each CPU architecture.
 
@@ -191,13 +197,19 @@ class Architecture(YAMLConfigObject):
     @classmethod
     def load_from_yaml(cls, config, name, fragments):  # pylint: disable=arguments-differ
         """Load Architecture from YAML with fragment references."""
-        kw = {'name': name}
-        kw.update(cls._kw_from_yaml(config, [
-            'base_defconfig', 'extra_configs',
-        ]))
-        frag_names = config.get('fragments') if config else None
-        kw['fragments'] = [fragments[n] for n in frag_names] if frag_names else None
-        kw['filters'] = FilterFactory.from_data(config or {})
+        kw = {"name": name}
+        kw.update(
+            cls._kw_from_yaml(
+                config,
+                [
+                    "base_defconfig",
+                    "extra_configs",
+                ],
+            )
+        )
+        frag_names = config.get("fragments") if config else None
+        kw["fragments"] = [fragments[n] for n in frag_names] if frag_names else None
+        kw["filters"] = FilterFactory.from_data(config or {})
         return cls(**kw)
 
     @property
@@ -228,12 +240,13 @@ class Architecture(YAMLConfigObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            'tag:yaml.org,2002:map', {
-                'base_defconfig': data.base_defconfig,
-                'extra_configs': data.extra_configs,
-                'fragments': [frag.name for frag in data.fragments],
-                'filters': [{fil.name: fil} for fil in data.filters],
-            }
+            "tag:yaml.org,2002:map",
+            {
+                "base_defconfig": data.base_defconfig,
+                "extra_configs": data.extra_configs,
+                "fragments": [frag.name for frag in data.fragments],
+                "filters": [{fil.name: fil} for fil in data.filters],
+            },
         )
 
     def match(self, params):
@@ -244,7 +257,7 @@ class Architecture(YAMLConfigObject):
 class Reference(YAMLConfigObject):
     """Kernel reference tree and branch model."""
 
-    yaml_tag = '!Reference'
+    yaml_tag = "!Reference"
 
     def __init__(self, tree, branch):
         """Reference is a tree and branch used for bisections.
@@ -258,8 +271,8 @@ class Reference(YAMLConfigObject):
     @classmethod
     def load_from_yaml(cls, reference, trees):  # pylint: disable=arguments-differ
         """Load Reference from YAML with tree reference."""
-        kw = cls._kw_from_yaml(reference, ['tree', 'branch'])
-        kw['tree'] = trees[kw['tree']]
+        kw = cls._kw_from_yaml(reference, ["tree", "branch"])
+        kw["tree"] = trees[kw["tree"]]
         return cls(**kw)
 
     @property
@@ -275,17 +288,18 @@ class Reference(YAMLConfigObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            'tag:yaml.org,2002:map', {
-                'tree': data.tree.name,
-                'branch': data.branch,
-            }
+            "tag:yaml.org,2002:map",
+            {
+                "tree": data.tree.name,
+                "branch": data.branch,
+            },
         )
 
 
 class BuildVariant(YAMLConfigObject):
     """A variant of a given build configuration."""
 
-    yaml_tag = '!BuildVariant'
+    yaml_tag = "!BuildVariant"
 
     def __init__(self, name, architectures, build_environment, *, fragments=None):
         """A build variant is a sub-section of a build configuration.
@@ -308,19 +322,19 @@ class BuildVariant(YAMLConfigObject):
         cls, config, name, fragments, build_environments
     ):
         """Load BuildVariant from YAML with references."""
-        kw = {'name': name}
-        kw.update(cls._kw_from_yaml(config, ['build_environment']))
-        kw['build_environment'] = build_environments[kw['build_environment']]
-        kw['architectures'] = [
+        kw = {"name": name}
+        kw.update(cls._kw_from_yaml(config, ["build_environment"]))
+        kw["build_environment"] = build_environments[kw["build_environment"]]
+        kw["architectures"] = [
             Architecture.load_from_yaml(data or {}, arch_name, fragments)
-            for arch_name, data in config['architectures'].items()
+            for arch_name, data in config["architectures"].items()
         ]
-        frag_names = kw.get('fragments')
+        frag_names = kw.get("fragments")
         if frag_names:
-            kw['fragments'] = [fragments[n] for n in frag_names]
+            kw["fragments"] = [fragments[n] for n in frag_names]
         else:
-            frag_names = config.get('fragments')
-            kw['fragments'] = [fragments[n] for n in frag_names] if frag_names else None
+            frag_names = config.get("fragments")
+            kw["fragments"] = [fragments[n] for n in frag_names] if frag_names else None
         return cls(**kw)
 
     @property
@@ -355,22 +369,31 @@ class BuildVariant(YAMLConfigObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            'tag:yaml.org,2002:map', {
-                'build_environment': data.build_environment.name,
-                'fragments': [frag.name for frag in data.fragments],
-                'architectures': {arc.name: arc for arc in data.architectures},
-            }
+            "tag:yaml.org,2002:map",
+            {
+                "build_environment": data.build_environment.name,
+                "fragments": [frag.name for frag in data.fragments],
+                "architectures": {arc.name: arc for arc in data.architectures},
+            },
         )
 
 
 class BuildConfig(YAMLConfigObject):  # pylint: disable=too-many-instance-attributes
     """Build configuration model."""
 
-    yaml_tag = '!BuildConfig'
+    yaml_tag = "!BuildConfig"
 
     def __init__(  # pylint: disable=too-many-arguments
-        self, name, tree, branch, variants, *, reference=None,
-        architectures=None, frequency=None, priority=None
+        self,
+        name,
+        tree,
+        branch,
+        variants,
+        *,
+        reference=None,
+        architectures=None,
+        frequency=None,
+        priority=None,
     ):
         """A build configuration defines the actual kernels to be built.
 
@@ -404,25 +427,25 @@ class BuildConfig(YAMLConfigObject):  # pylint: disable=too-many-instance-attrib
     # pylint: disable=arguments-differ,too-many-arguments,too-many-positional-arguments
     def load_from_yaml(cls, config, name, trees, fragments, b_envs, defaults):
         """Load BuildConfig from YAML with all references."""
-        kw = {'name': name}
-        kw.update(cls._kw_from_yaml(config, ['tree', 'branch']))
-        kw['tree'] = trees[kw['tree']]
+        kw = {"name": name}
+        kw.update(cls._kw_from_yaml(config, ["tree", "branch"]))
+        kw["tree"] = trees[kw["tree"]]
 
-        default_variants = defaults.get('variants', {})
-        config_variants = config.get('variants', default_variants)
+        default_variants = defaults.get("variants", {})
+        config_variants = config.get("variants", default_variants)
         variants = [
             BuildVariant.load_from_yaml(variant, var_name, fragments, b_envs)
             for var_name, variant in config_variants.items()
         ]
-        kw['variants'] = {v.name: v for v in variants}
+        kw["variants"] = {v.name: v for v in variants}
 
-        reference = config.get('reference', defaults.get('reference'))
+        reference = config.get("reference", defaults.get("reference"))
         if reference:
-            kw['reference'] = Reference.load_from_yaml(reference, trees)
+            kw["reference"] = Reference.load_from_yaml(reference, trees)
 
-        kw['architectures'] = config.get('architectures')
-        kw['frequency'] = config.get('frequency')
-        kw['priority'] = config.get('priority')
+        kw["architectures"] = config.get("architectures")
+        kw["frequency"] = config.get("frequency")
+        kw["priority"] = config.get("priority")
         return cls(**kw)
 
     @property
@@ -472,14 +495,14 @@ class BuildConfig(YAMLConfigObject):  # pylint: disable=too-many-instance-attrib
     @classmethod
     def to_yaml(cls, dumper, data):
         result = {
-            'tree': data.tree.name,
-            'branch': data.branch,
-            'variants': {var.name: var for var in data.variants},
-            'reference': data.reference,
+            "tree": data.tree.name,
+            "branch": data.branch,
+            "variants": {var.name: var for var in data.variants},
+            "reference": data.reference,
         }
         if data.frequency:
-            result['frequency'] = data.frequency
-        return dumper.represent_mapping('tag:yaml.org,2002:map', result)
+            result["frequency"] = data.frequency
+        return dumper.represent_mapping("tag:yaml.org,2002:map", result)
 
 
 def from_yaml(data, _):
@@ -493,31 +516,31 @@ def from_yaml(data, _):
     """
     trees = {
         name: Tree.load_from_yaml(config, name=name)
-        for name, config in data.get('trees', {}).items()
+        for name, config in data.get("trees", {}).items()
     }
 
     fragments = {
         name: Fragment.load_from_yaml(config, name=name)
-        for name, config in data.get('fragments', {}).items()
+        for name, config in data.get("fragments", {}).items()
     }
 
     build_environments = {
         name: BuildEnvironment.load_from_yaml(config, name=name)
-        for name, config in data.get('build_environments', {}).items()
+        for name, config in data.get("build_environments", {}).items()
     }
 
-    defaults = data.get('build_configs_defaults', {})
+    defaults = data.get("build_configs_defaults", {})
 
     build_configs = {
         name: BuildConfig.load_from_yaml(
             config, name, trees, fragments, build_environments, defaults
         )
-        for name, config in data.get('build_configs', {}).items()
+        for name, config in data.get("build_configs", {}).items()
     }
 
     return {
-        'trees': trees,
-        'fragments': fragments,
-        'build_environments': build_environments,
-        'build_configs': build_configs,
+        "trees": trees,
+        "fragments": fragments,
+        "build_environments": build_environments,
+        "build_configs": build_configs,
     }

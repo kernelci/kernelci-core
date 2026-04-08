@@ -5,7 +5,7 @@
 
 # pylint: disable=C0301
 
-""" Test the APIHelper class """
+"""Test the APIHelper class"""
 
 from kernelci.api.helper import APIHelper
 import kernelci.api
