@@ -8,7 +8,6 @@
 
 import abc
 import importlib
-import json
 import os
 import requests
 import yaml
@@ -73,11 +72,12 @@ class Job:
 class Runtime(abc.ABC):
     """Runtime environment"""
 
-    TEMPLATES = ['config/runtime', '/etc/kernelci/runtime']
+    TEMPLATES = ["config/runtime", "/etc/kernelci/runtime"]
 
     # pylint: disable=unused-argument,too-many-arguments
-    def __init__(self, config, *, user=None, token=None,
-                 custom_template_dir=None, kcictx=None):
+    def __init__(
+        self, config, *, user=None, token=None, custom_template_dir=None, kcictx=None
+    ):
         """A Runtime object can be used to run jobs in a runtime environment
 
         *config* is a kernelci.config.runtime.Runtime object
@@ -115,8 +115,7 @@ class Runtime(abc.ABC):
     def _get_template(self, job_config):
         loaders = [FileSystemLoader(path) for path in self.templates]
         jinja2_env = Environment(
-            loader=ChoiceLoader(loaders),
-            extensions=["jinja2.ext.do"]
+            loader=ChoiceLoader(loaders), extensions=["jinja2.ext.do"]
         )
         jinja2_env.globals.update(self._get_jinja2_functions())
         return jinja2_env.get_template(job_config.template)
@@ -124,6 +123,7 @@ class Runtime(abc.ABC):
     @classmethod
     def _get_jinja2_functions(cls):
         """Add custom functions to use in Jinja2 templates"""
+
         def kci_raise(msg):
             """Raise an exception"""
             raise Exception(msg)  # pylint: disable=broad-exception-raised
@@ -133,8 +133,8 @@ class Runtime(abc.ABC):
             return yaml.dump(data, indent=2)
 
         return {
-            'kci_raise': kci_raise,
-            'kci_yaml_dump': kci_yaml_dump,
+            "kci_raise": kci_raise,
+            "kci_yaml_dump": kci_yaml_dump,
         }
 
     def match(self, filter_data):
@@ -178,21 +178,20 @@ class Runtime(abc.ABC):
 
     def get_params(self, job, api_config=None):
         """Get job template parameters"""
-        instanceid = os.environ.get('KCI_INSTANCE')
-        instance_callback = os.environ.get('KCI_INSTANCE_CALLBACK')
+        instanceid = os.environ.get("KCI_INSTANCE")
+        instance_callback = os.environ.get("KCI_INSTANCE_CALLBACK")
         device_dtb = None
         device_type = job.platform_config.name
         if job.platform_config.base_name and len(job.platform_config.base_name) > 0:
             device_type = job.platform_config.base_name
         if job.platform_config.dtb and len(job.platform_config.dtb) > 0:
             # verify if we have metadata at all
-            if 'metadata' not in job.node['artifacts']:
+            if "metadata" not in job.node["artifacts"]:
                 raise ValueError(
-                    f"metadata.json not found for dtb file "
-                    f"{job.platform_config.dtb}"
+                    f"metadata.json not found for dtb file {job.platform_config.dtb}"
                 )
             # Fetch metadata.json and add platform dtb to artifacts list
-            metadata_url = job.node['artifacts']['metadata']
+            metadata_url = job.node["artifacts"]["metadata"]
             req = requests.get(metadata_url, timeout=60)
             if req.status_code != 200:
                 raise ValueError(
@@ -201,44 +200,42 @@ class Runtime(abc.ABC):
                 )
             metadata = req.json()
             for dtb in job.platform_config.dtb:
-                if dtb in metadata['artifacts']:
-                    dtb_url = metadata['artifacts'][dtb]
-                    job.node['artifacts']['dtb'] = dtb_url
+                if dtb in metadata["artifacts"]:
+                    dtb_url = metadata["artifacts"][dtb]
+                    job.node["artifacts"]["dtb"] = dtb_url
                     device_dtb = dtb
                     break
             if not device_dtb:
-                raise ValueError(
-                    f"dtb file {job.platform_config.dtb} not found!"
-                )
+                raise ValueError(f"dtb file {job.platform_config.dtb} not found!")
 
         params = {
-            'api_config': api_config or {},
-            'storage_config': job.storage_config or {},
-            'platform_config': job.platform_config or {},
-            'instanceid': instanceid,
-            'instance_callback': instance_callback,
-            'name': job.name,
-            'node': job.node,
-            'runtime': self.config.lab_type,
-            'runtime_image': job.config.image,
-            'device_type': device_type,
+            "api_config": api_config or {},
+            "storage_config": job.storage_config or {},
+            "platform_config": job.platform_config or {},
+            "instanceid": instanceid,
+            "instance_callback": instance_callback,
+            "name": job.name,
+            "node": job.node,
+            "runtime": self.config.lab_type,
+            "runtime_image": job.config.image,
+            "device_type": device_type,
         }
         if job.platform_config.params:
             params.update(job.platform_config.params)
         if device_dtb:
-            params['device_dtb'] = device_dtb
+            params["device_dtb"] = device_dtb
         params.update(job.config.params)
-        arch = params.get('arch') or job.platform_config.arch
-        for system in ('brarch', 'crosarch', 'debarch', 'karch'):
+        arch = params.get("arch") or job.platform_config.arch
+        for system in ("brarch", "crosarch", "debarch", "karch"):
             params.update({system: get_system_arch(system, arch)})
         return params
 
     @classmethod
     def _get_job_file_name(cls, params):
         """Get the file name where to store the generated job definition."""
-        return params['name']
+        return params["name"]
 
-    def save_file(self, job, output_path, params, encoding='utf-8'):
+    def save_file(self, job, output_path, params, encoding="utf-8"):
         """Save a test job definition in a file.
 
         *job* is the job definition data
@@ -249,7 +246,7 @@ class Runtime(abc.ABC):
         """
         file_name = self._get_job_file_name(params)
         output_file = os.path.join(output_path, file_name)
-        with open(output_file, 'w', encoding=encoding) as output:
+        with open(output_file, "w", encoding=encoding) as output:
             output.write(job)
         return output_file
 
@@ -284,11 +281,15 @@ def get_runtime(config, user=None, token=None, custom_template_dir=None, kcictx=
     *custom_template_dir* is an optional custom directory for Jinja2 templates
     *kcictx* is an optional KernelCI context object for passing program context
     """
-    module_name = '.'.join(['kernelci', 'runtime', config.lab_type])
+    module_name = ".".join(["kernelci", "runtime", config.lab_type])
     runtime_module = importlib.import_module(module_name)
-    return runtime_module.get_runtime(config, user=user, token=token,
-                                      custom_template_dir=custom_template_dir,
-                                      kcictx=kcictx)
+    return runtime_module.get_runtime(
+        config,
+        user=user,
+        token=token,
+        custom_template_dir=custom_template_dir,
+        kcictx=kcictx,
+    )
 
 
 def get_all_runtimes(runtime_configs, opts, custom_template_dir=None, kcictx=None):
@@ -304,19 +305,22 @@ def get_all_runtimes(runtime_configs, opts, custom_template_dir=None, kcictx=Non
     *kcictx* is an optional KernelCI context object for passing program context
     """
     for config_name, config in runtime_configs.items():
-        section = ('runtime', config_name)
+        section = ("runtime", config_name)
         user, token = (
-            opts.get_from_section(section, opt)
-            for opt in ('user', 'runtime_token')
+            opts.get_from_section(section, opt) for opt in ("user", "runtime_token")
         )
-        runtime = get_runtime(config, user=user, token=token,
-                              custom_template_dir=custom_template_dir,
-                              kcictx=kcictx)
+        runtime = get_runtime(
+            config,
+            user=user,
+            token=token,
+            custom_template_dir=custom_template_dir,
+            kcictx=kcictx,
+        )
         yield config_name, runtime
 
 
 def evaluate_test_suite_result(child_nodes):
-    """ Evaluate test suite result
+    """Evaluate test suite result
     Argument: List of child nodes with the below format:
     [
         {
@@ -338,11 +342,11 @@ def evaluate_test_suite_result(child_nodes):
     suite will be marked as `skip`
     """
     result = None
-    result_list = [child['node']['result'] for child in child_nodes]
-    if 'fail' in result_list:
-        result = 'fail'
-    elif all(result == 'pass' for result in result_list) or 'pass' in result_list:
-        result = 'pass'
-    elif all(result == 'skip' for result in result_list) or 'skip' in result_list:
-        result = 'skip'
+    result_list = [child["node"]["result"] for child in child_nodes]
+    if "fail" in result_list:
+        result = "fail"
+    elif all(result == "pass" for result in result_list) or "pass" in result_list:
+        result = "pass"
+    elif all(result == "skip" for result in result_list) or "skip" in result_list:
+        result = "skip"
     return result

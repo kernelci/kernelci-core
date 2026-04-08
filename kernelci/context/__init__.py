@@ -13,7 +13,6 @@ secrets files, and provides methods to access them in a structured way.
 import argparse
 import os
 import sys
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 import toml
 import yaml
@@ -103,7 +102,9 @@ class KContext:
         self.config_paths = (
             config_paths
             if isinstance(config_paths, list)
-            else [config_paths] if config_paths else []
+            else [config_paths]
+            if config_paths
+            else []
         )
         self.secrets_path = secrets_path
         self.program_name = program_name
@@ -130,7 +131,7 @@ class KContext:
         #   grep "^class cmd_" kernelci-pipeline/src/*.py
         # Currently used: cmd_loop (scheduler.py), cmd_run (other services)
         # Keep this in sync if new command classes are added
-        known_commands = {'loop', 'run'}
+        known_commands = {"loop", "run"}
         while i < len(argv):
             if argv[i] == "--runtimes":
                 i += 1
@@ -368,7 +369,7 @@ class KContext:
         if cred:
             result["storage_cred"] = cred
 
-        result['name'] = name  # Include the name in the config for reference
+        result["name"] = name  # Include the name in the config for reference
 
         return result
 

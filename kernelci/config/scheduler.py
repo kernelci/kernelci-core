@@ -11,7 +11,7 @@ from .base import YAMLConfigObject
 class SchedulerEntry(YAMLConfigObject):
     """Scheduler entry definition"""
 
-    yaml_tag = '!SchedulerEntry'
+    yaml_tag = "!SchedulerEntry"
 
     # pylint: disable=too-many-arguments
     def __init__(self, job, runtime, event, *, platforms=None, rules=None):
@@ -49,17 +49,16 @@ class SchedulerEntry(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'job', 'runtime', 'event', 'platforms', 'rules'})
+        attrs.update({"job", "runtime", "event", "platforms", "rules"})
         return attrs
 
 
 def from_yaml(data, _):
     """Create the pipeline scheduler definitions using data loaded from YAML"""
     scheduler = [
-        SchedulerEntry.load_from_yaml(config)
-        for config in data.get('scheduler', {})
+        SchedulerEntry.load_from_yaml(config) for config in data.get("scheduler", {})
     ]
 
     return {
-        'scheduler': scheduler,
+        "scheduler": scheduler,
     }

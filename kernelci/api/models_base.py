@@ -29,20 +29,26 @@ class PyObjectId(ObjectId):
 
     @classmethod
     def __get_pydantic_core_schema__(
-            cls, _source_type: Any, _handler: Any
+        cls, _source_type: Any, _handler: Any
     ) -> core_schema.CoreSchema:
         return core_schema.json_or_python_schema(
-            json_schema=core_schema.chain_schema([
-                core_schema.str_schema(),
-                core_schema.no_info_plain_validator_function(cls.validate),
-            ]),
-            python_schema=core_schema.union_schema([
-                core_schema.is_instance_schema(ObjectId),
-                core_schema.chain_schema([
+            json_schema=core_schema.chain_schema(
+                [
                     core_schema.str_schema(),
                     core_schema.no_info_plain_validator_function(cls.validate),
-                ])
-            ])
+                ]
+            ),
+            python_schema=core_schema.union_schema(
+                [
+                    core_schema.is_instance_schema(ObjectId),
+                    core_schema.chain_schema(
+                        [
+                            core_schema.str_schema(),
+                            core_schema.no_info_plain_validator_function(cls.validate),
+                        ]
+                    ),
+                ]
+            ),
         )
 
     @classmethod
@@ -61,7 +67,7 @@ class ModelId(BaseModel):
     attribute in Mongo DB documents using the `PyObjectId` class.
     """
 
-    id: Optional[PyObjectId] = Field(None, alias='_id')
+    id: Optional[PyObjectId] = Field(None, alias="_id")
 
     model_config = {
         "arbitrary_types_allowed": True,
@@ -72,8 +78,9 @@ class ModelId(BaseModel):
 
 class DatabaseModel(ModelId):
     """Database model"""
+
     @dataclass
-    class Index():
+    class Index:
         """Index class
 
         field: Either a single field name (str) for simple indexes,
@@ -81,6 +88,7 @@ class DatabaseModel(ModelId):
                Direction is typically 1 (ascending) or -1 (descending).
         attributes: MongoDB index options (e.g., {'expireAfterSeconds': 3600})
         """
+
         field: Union[str, List[Tuple[str, int]]]
         attributes: dict[str, Any]
 
@@ -109,7 +117,7 @@ class DatabaseModel(ModelId):
 
         for field_name, value in values.items():
             if isinstance(value, ObjectId):
-                if info.mode == 'json':
+                if info.mode == "json":
                     values[field_name] = str(value)
                 else:
                     values[field_name] = value

@@ -21,15 +21,17 @@ def iterate_yaml_files(config_path: str):
     directory path where to find multiple YAML files recursively.  Then iterate
     over the file(s) as (path, data) 2-tuples.
     """
-    if config_path.endswith('.yaml'):
+    if config_path.endswith(".yaml"):
         yaml_files = iter([config_path])
     else:
-        yaml_files = glob.iglob(os.path.join(config_path, "**", "*.yaml"), recursive=True)
+        yaml_files = glob.iglob(
+            os.path.join(config_path, "**", "*.yaml"), recursive=True
+        )
     for yaml_path in yaml_files:
         # Skip debos template files which contain Go template syntax
-        if '/debos/' in yaml_path:
+        if "/debos/" in yaml_path:
             continue
-        with open(yaml_path, encoding='utf8') as yaml_file:
+        with open(yaml_path, encoding="utf8") as yaml_file:
             data = yaml.safe_load(yaml_file)
             yield yaml_path, data
 
@@ -38,7 +40,7 @@ def get_config_paths(config_paths):
     """Get the list of all YAML files to be loaded"""
     if not config_paths:
         config_paths = []
-        for config_path in ['config/core', '/etc/kernelci/core']:
+        for config_path in ["config/core", "/etc/kernelci/core"]:
             if os.path.isdir(config_path):
                 config_paths.append(config_path)
                 break
@@ -53,22 +55,21 @@ def validate_yaml(config_paths, entries):
     try:
         for path in get_config_paths(config_paths):
             for yaml_path, data in iterate_yaml_files(path):
-                for name, value in (
-                        (k, v) for k, v in data.items() if k in entries):
+                for name, value in ((k, v) for k, v in data.items() if k in entries):
                     if isinstance(value, dict):
                         keys = value.keys()
                     elif isinstance(value, list):
                         keys = (
-                            [] if len(value) and isinstance(value[0], dict)
-                            else value
+                            [] if len(value) and isinstance(value[0], dict) else value
                         )
                     else:
                         keys = []
                     err = kernelci.sort_check(keys)
                     if err:
-                        error = \
-                            f"Broken order in {yaml_path} {name}: "\
+                        error = (
+                            f"Broken order in {yaml_path} {name}: "
                             f"'{err[0]}' is before '{err[1]}'"
+                        )
                         break
     except yaml.scanner.ScannerError as exc:
         error = str(exc)
@@ -89,9 +90,9 @@ def load_single_yaml(config_path):
     for _, data in iterate_yaml_files(config_path):
         for name, value in data.items():
             config_value = config.setdefault(name, value.__class__())
-            if hasattr(config_value, 'update'):
+            if hasattr(config_value, "update"):
                 config_value.update(value)
-            elif hasattr(config_value, 'extend'):
+            elif hasattr(config_value, "extend"):
                 config_value.extend(value)
             else:
                 config[name] = value
@@ -119,7 +120,7 @@ def merge_trees(old, update):
     """
     if isinstance(old, dict) and isinstance(update, dict):
         merged = {}
-        for k in (set(old) | set(update)):
+        for k in set(old) | set(update):
             if (k in old) and (k in update):
                 merged[k] = merge_trees(old[k], update[k])
             elif k in old:
@@ -165,20 +166,20 @@ def load_data(data):
     config = {}
     filters = default_filters_from_yaml(data)
     for module in [
-        'kernelci.config.api',
-        'kernelci.config.build',
-        'kernelci.config.job',
-        'kernelci.config.platform',
-        'kernelci.config.runtime',
-        'kernelci.config.scheduler',
-        'kernelci.config.storage',
-        'kernelci.legacy.config',  # For db, rootfs, test configs
+        "kernelci.config.api",
+        "kernelci.config.build",
+        "kernelci.config.job",
+        "kernelci.config.platform",
+        "kernelci.config.runtime",
+        "kernelci.config.scheduler",
+        "kernelci.config.storage",
+        "kernelci.legacy.config",  # For db, rootfs, test configs
     ]:
         mod = importlib.import_module(module)
         config.update(mod.from_yaml(data, filters))
     # Pass through rootfs definitions for rootfs_ref resolution
-    if 'rootfs' in data:
-        config['rootfs'] = data['rootfs']
+    if "rootfs" in data:
+        config["rootfs"] = data["rootfs"]
     return config
 
 
@@ -197,19 +198,15 @@ def resolve_rootfs_params(params, rootfs_defs):
     *params* is the job parameter dictionary (modified in place)
     *rootfs_defs* is the 'rootfs' section from the YAML config
     """
-    rootfs_ref = params.pop('rootfs_ref', None)
+    rootfs_ref = params.pop("rootfs_ref", None)
     if not rootfs_ref:
         return
     if not rootfs_defs:
         raise ValueError(
-            f"rootfs_ref '{rootfs_ref}' used but no rootfs "
-            f"definitions found in config"
+            f"rootfs_ref '{rootfs_ref}' used but no rootfs definitions found in config"
         )
     if rootfs_ref not in rootfs_defs:
-        raise ValueError(
-            f"rootfs_ref '{rootfs_ref}' not found in "
-            f"rootfs config"
-        )
+        raise ValueError(f"rootfs_ref '{rootfs_ref}' not found in rootfs config")
     for key, value in rootfs_defs[rootfs_ref].items():
         if key not in params:
             params[key] = value

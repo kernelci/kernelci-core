@@ -28,10 +28,7 @@ import os
 
 # Default section names and their build document keys to look in the ELF file.
 # These are supposed to always be available.
-DEFAULT_ELF_SECTIONS = [
-    (".bss", "vmlinux_bss_size"),
-    (".text", "vmlinux_text_size")
-]
+DEFAULT_ELF_SECTIONS = [(".bss", "vmlinux_bss_size"), (".text", "vmlinux_text_size")]
 
 # Write/Alloc & Alloc constant we need to check for in the ELF sections.
 ELF_WA_FLAG = elfconst.SH_FLAGS.SHF_WRITE | elfconst.SH_FLAGS.SHF_ALLOC
@@ -51,8 +48,12 @@ def calculate_data_size(elf_file):
 
     for section in elf_file.iter_sections():
         elf_flags = section["sh_flags"]
-        if all([section["sh_type"] == "SHT_PROGBITS",
-                any([elf_flags == ELF_WA_FLAG, elf_flags == ELF_A_FLAG])]):
+        if all(
+            [
+                section["sh_type"] == "SHT_PROGBITS",
+                any([elf_flags == ELF_WA_FLAG, elf_flags == ELF_A_FLAG]),
+            ]
+        ):
             data_size += section["sh_size"]
 
     return data_size
@@ -87,7 +88,6 @@ def read(path):
             if data_sect:
                 extracted["vmlinux_data_size"] = data_sect["sh_size"]
             else:
-                extracted["vmlinux_data_size"] = \
-                    calculate_data_size(elf_file)
+                extracted["vmlinux_data_size"] = calculate_data_size(elf_file)
 
     return extracted

@@ -373,8 +373,10 @@ class PullLabs(Runtime):
         Returns a unique job ID
         """
         # Get storage configuration
-        config_storage_name = getattr(self.config, 'storage_name', None)
-        storage, storage_name = self._get_storage_config(self._context, config_storage_name)
+        config_storage_name = getattr(self.config, "storage_name", None)
+        storage, storage_name = self._get_storage_config(
+            self._context, config_storage_name
+        )
 
         # Generate unique ID and path
         date_str = time.strftime("%Y%m%d")

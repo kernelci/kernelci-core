@@ -20,6 +20,7 @@ class StorageAzureFiles(Storage):
     download URLs while also relying on a separate token with appropriate
     permissions for uploading files passed as the storage credentials.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._service = None
@@ -28,8 +29,7 @@ class StorageAzureFiles(Storage):
         if self._service is not None:
             return
         self._service = ShareServiceClient(
-            account_url=self.config.base_url,
-            credential=self.credentials
+            account_url=self.config.base_url, credential=self.credentials
         )
 
     def _get_directory(self, share, path):
@@ -38,10 +38,10 @@ class StorageAzureFiles(Storage):
             # split directory path into components
             # and create each one in turn
             # As we might have newdirectory/newdirectory2/newdir3
-            components = path.split('/')
+            components = path.split("/")
             for i in range(1, len(components)):
                 directory2 = share.get_directory_client(
-                    directory_path='/'.join(components[:i])
+                    directory_path="/".join(components[:i])
                 )
                 if not directory2.exists():
                     directory2.create_directory()
@@ -51,7 +51,7 @@ class StorageAzureFiles(Storage):
 
     def _upload(self, file_paths, dest_path):
         share = self._service.get_share_client(share=self.config.share)
-        root = self._get_directory(share, dest_path or '.')
+        root = self._get_directory(share, dest_path or ".")
         urls = {}
         dirs = []
         # if dst include a path, we need to call ._get_directory
@@ -68,16 +68,19 @@ class StorageAzureFiles(Storage):
             self._get_directory(share, dstdir)
         for src, dst in file_paths:
             file_client = root.get_file_client(file_name=dst)
-            with open(src, 'rb') as src_file:
-                c_type = 'application/octet-stream'
-                if src.endswith('.gz'):
-                    c_type = 'application/gzip'
+            with open(src, "rb") as src_file:
+                c_type = "application/octet-stream"
+                if src.endswith(".gz"):
+                    c_type = "application/gzip"
                 c_settings = ContentSettings(content_type=c_type)
                 file_client.upload_file(src_file, content_settings=c_settings)
-            urls[dst] = urljoin(
-                self.config.base_url,
-                '/'.join([self.config.share, dest_path, dst]),
-            ) + self.config.sas_public_token
+            urls[dst] = (
+                urljoin(
+                    self.config.base_url,
+                    "/".join([self.config.share, dest_path, dst]),
+                )
+                + self.config.sas_public_token
+            )
         return urls
 
 

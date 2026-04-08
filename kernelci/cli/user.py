@@ -14,7 +14,7 @@ import click
 from . import Args, catch_error, echo_json, get_api, kci
 
 
-@kci.group(name='user')
+@kci.group(name="user")
 def kci_user():
     """Interact with user accounts"""
 
@@ -33,26 +33,26 @@ def whoami(config, api, indent, secrets):
 
 def _b64url_decode(data: str) -> bytes:
     """Decode base64url data with padding."""
-    padding = '=' * (-len(data) % 4)
+    padding = "=" * (-len(data) % 4)
     return base64.urlsafe_b64decode(data + padding)
 
 
 def _decode_jwt(token: str) -> dict:
     """Decode a JWT without verifying signature."""
-    parts = token.split('.')
+    parts = token.split(".")
     if len(parts) != 3:
         raise click.ClickException("Invalid JWT format; expected 3 parts")
     try:
-        header = json.loads(_b64url_decode(parts[0]).decode('utf-8'))
-        payload = json.loads(_b64url_decode(parts[1]).decode('utf-8'))
+        header = json.loads(_b64url_decode(parts[0]).decode("utf-8"))
+        payload = json.loads(_b64url_decode(parts[1]).decode("utf-8"))
     except (ValueError, json.JSONDecodeError) as exc:
         raise click.ClickException("Invalid JWT encoding") from exc
     return {"header": header, "payload": payload}
 
 
-@kci_user.command(secrets=True, name='token-info')
-@click.option('--token', help="JWT token to decode (defaults to API token)")
-@click.option('--raw', is_flag=True, help="Print raw JSON data")
+@kci_user.command(secrets=True, name="token-info")
+@click.option("--token", help="JWT token to decode (defaults to API token)")
+@click.option("--raw", is_flag=True, help="Print raw JSON data")
 @Args.api
 @Args.indent
 @catch_error

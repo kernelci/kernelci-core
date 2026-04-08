@@ -17,14 +17,13 @@ import kernelci.config
 
 class APIHelperTestData:
     """Sample test data for APIHelper unit tests"""
+
     def __init__(self):
         self._checkout_node = {
             "id": "6332d8f51a45d41c279e7a01",
             "kind": "checkout",
             "name": "checkout",
-            "path": [
-                "checkout"
-            ],
+            "path": ["checkout"],
             "group": None,
             "data": {
                 "kernel_revision": {
@@ -38,8 +37,8 @@ class APIHelperTestData:
                         "patchlevel": 0,
                         "sublevel": None,
                         "extra": "-rc7-36-g7f036eb8d7a5",
-                        "name": None
-                    }
+                        "name": None,
+                    },
                 }
             },
             "parent": None,
@@ -52,19 +51,16 @@ class APIHelperTestData:
             "created": "2022-09-27T11:05:25.814000",
             "updated": "2022-09-27T11:15:28.566000",
             "timeout": "2022-09-28T11:05:25.814000",
-            "holdoff": None
+            "holdoff": None,
         }
         self._regression_node = {
             "kind": "regression",
             "name": "kver",
-            "path": [
-                "checkout",
-                "kver"
-            ],
+            "path": ["checkout", "kver"],
             "group": "kver",
             "data": {
                 "fail_node": "636143c38f94e20c6826b0b6",
-                "pass_node": "636143c38f94e20c6826b0b5"
+                "pass_node": "636143c38f94e20c6826b0b5",
             },
             "parent": "6361440f8f94e20c6826b0b7",
             "state": "done",
@@ -76,16 +72,13 @@ class APIHelperTestData:
             "created": "2022-11-01T16:07:09.770000",
             "updated": "2022-11-01T16:07:09.770000",
             "timeout": "2022-11-02T16:07:09.770000",
-            "holdoff": None
+            "holdoff": None,
         }
         self._kunit_node = {
             "id": "6332d92f1a45d41c279e7a06",
             "kind": "node",
             "name": "kunit",
-            "path": [
-                "checkout",
-                "kunit"
-            ],
+            "path": ["checkout", "kunit"],
             "group": "kunit",
             "data": {
                 "kernel_revision": {
@@ -99,8 +92,8 @@ class APIHelperTestData:
                         "patchlevel": 0,
                         "sublevel": None,
                         "extra": "-rc7-36-g7f036eb8d7a5",
-                        "name": None
-                    }
+                        "name": None,
+                    },
                 }
             },
             "parent": "6332d8f51a45d41c279e7a01",
@@ -109,7 +102,7 @@ class APIHelperTestData:
             "artifacts": {
                 "tarball": "http://staging.kernelci.org:9080/linux-kernelci-\
     staging-mainline-staging-mainline-20220927.0.tar.gz"
-            }
+            },
         }
         self._kunit_child_node = {
             "name": "time_test_cases",
@@ -120,7 +113,7 @@ class APIHelperTestData:
             "artifacts": {
                 "tarball": "http://staging.kernelci.org:9080/linux-kernelci-\
         staging-mainline-staging-mainline-20220927.0.tar.gz"
-            }
+            },
         }
 
     @property
@@ -145,40 +138,42 @@ class APIHelperTestData:
 
     def get_regression_node_with_id(self):
         """Get regression node with node ID"""
-        self._regression_node.update({
-            "id": "6361442d8f94e20c6826b0b9"
-        })
+        self._regression_node.update({"id": "6361442d8f94e20c6826b0b9"})
         return self._regression_node
 
     def update_kunit_node(self):
         """Update kunit node with timestamp fields"""
-        self._kunit_node.update({
-            "created": "2022-11-01T16:06:39.509000",
-            "updated": "2022-11-01T16:07:09.633000",
-            "timeout": "2022-11-02T16:06:39.509000",
-            "holdoff": None,
-        })
+        self._kunit_node.update(
+            {
+                "created": "2022-11-01T16:06:39.509000",
+                "updated": "2022-11-01T16:07:09.633000",
+                "timeout": "2022-11-02T16:06:39.509000",
+                "holdoff": None,
+            }
+        )
         return self._kunit_node
 
     def update_kunit_child_node(self):
         """Update kunit child node with timestamp fields and other fields set
         from parent kunit"""
-        self._kunit_child_node.update({
-            "id": "6332d9741a45d41c279e7a07",
-            "created": "2022-11-01T16:06:39.509000",
-            "group": self._kunit_node["group"],
-            "holdoff": None,
-            "kind": self._kunit_node["kind"],
-            "path": (
-                self._kunit_node["path"] + [self._kunit_child_node["name"]]
-            ),
-            "state": self._kunit_node["state"],
-            "timeout": "2022-11-02T16:06:39.509000",
-            "updated": "2022-11-01T16:07:09.633000",
-        })
-        self._kunit_child_node["data"].update({
-            "kernel_revision": self._kunit_node["data"]["kernel_revision"],
-        })
+        self._kunit_child_node.update(
+            {
+                "id": "6332d9741a45d41c279e7a07",
+                "created": "2022-11-01T16:06:39.509000",
+                "group": self._kunit_node["group"],
+                "holdoff": None,
+                "kind": self._kunit_node["kind"],
+                "path": (self._kunit_node["path"] + [self._kunit_child_node["name"]]),
+                "state": self._kunit_node["state"],
+                "timeout": "2022-11-02T16:06:39.509000",
+                "updated": "2022-11-01T16:07:09.633000",
+            }
+        )
+        self._kunit_child_node["data"].update(
+            {
+                "kernel_revision": self._kunit_node["data"]["kernel_revision"],
+            }
+        )
         return self._kunit_child_node
 
     def get_test_cloud_event(self):
@@ -197,31 +192,28 @@ class APIHelperTestData:
 @pytest.fixture
 def get_api_config():
     """Fixture to get API configurations"""
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api']
+    config = kernelci.config.load("tests/configs/api-configs.yaml")
+    api_configs = config["api"]
     return api_configs
 
 
 @pytest.fixture
 def mock_api_subscribe(mocker):
     """Mocks call to LatestAPI class method used to subscribe"""
-    mocker.patch(
-        'kernelci.api.latest.LatestAPI.subscribe',
-        return_value=1
-    )
+    mocker.patch("kernelci.api.latest.LatestAPI.subscribe", return_value=1)
 
 
 @pytest.fixture
 def mock_api_unsubscribe(mocker):
     """Mocks call to LatestAPI class method used to unsubscribe"""
-    mocker.patch('kernelci.api.latest.LatestAPI.unsubscribe')
+    mocker.patch("kernelci.api.latest.LatestAPI.unsubscribe")
 
 
 @pytest.fixture
 def mock_api_get_node_from_id(mocker):
     """Mocks call to LatestAPI class method used to get node from node ID"""
     mocker.patch(
-        'kernelci.api.latest.LatestAPI.Node.get',
+        "kernelci.api.latest.LatestAPI.Node.get",
         return_value=APIHelperTestData().checkout_node,
     )
 
@@ -232,10 +224,11 @@ def mock_api_post_regression(mocker):
     resp = Response()
     resp.status_code = 200
     resp._content = json.dumps(  # pylint: disable=protected-access
-        APIHelperTestData().get_regression_node_with_id()).encode('utf-8')
+        APIHelperTestData().get_regression_node_with_id()
+    ).encode("utf-8")
 
     mocker.patch(
-        'kernelci.api.API._post',
+        "kernelci.api.API._post",
         return_value=resp,
     )
 
@@ -250,12 +243,13 @@ def mock_api_put_nodes(mocker):
     resp.status_code = 200
     resp_data = [
         APIHelperTestData().update_kunit_node(),
-        APIHelperTestData().update_kunit_child_node()
+        APIHelperTestData().update_kunit_child_node(),
     ]
     resp._content = json.dumps(  # pylint: disable=protected-access
-        resp_data).encode('utf-8')
+        resp_data
+    ).encode("utf-8")
     mocker.patch(
-        'kernelci.api.API._put',
+        "kernelci.api.API._put",
         return_value=resp,
     )
 
@@ -270,6 +264,6 @@ def mock_receive_event(mocker):
     event = APIHelperTestData().get_test_cloud_event()
     resp._content = to_json(event)  # pylint: disable=protected-access
     mocker.patch(
-        'kernelci.api.latest.LatestAPI.receive_event',
+        "kernelci.api.latest.LatestAPI.receive_event",
         return_value=event,
     )

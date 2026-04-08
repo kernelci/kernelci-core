@@ -23,13 +23,13 @@ from . import (
 )
 
 
-@kci.group(name='node')
+@kci.group(name="node")
 def kci_node():
     """Interact with Node objects"""
 
 
 @kci_node.command
-@click.argument('node_id')
+@click.argument("node_id")
 @Args.config
 @Args.api
 @Args.indent
@@ -42,7 +42,7 @@ def get(node_id, config, api, indent):
 
 
 @kci_node.command
-@click.argument('attributes', nargs=-1)
+@click.argument("attributes", nargs=-1)
 @Args.config
 @Args.api
 @Args.indent
@@ -62,7 +62,7 @@ def find(attributes, *, config, api, indent, page_length, page_number):
 
 
 @kci_node.command
-@click.argument('attributes', nargs=-1)
+@click.argument("attributes", nargs=-1)
 @Args.config
 @Args.api
 @Args.indent
@@ -78,7 +78,7 @@ def findfast(attributes, config, api, indent):
 
 
 @kci_node.command
-@click.argument('attributes', nargs=-1)
+@click.argument("attributes", nargs=-1)
 @Args.config
 @Args.api
 @catch_error
@@ -91,7 +91,7 @@ def count(attributes, config, api):
 
 
 @kci_node.command(secrets=True)
-@click.argument('input_file', type=click.File('r'))
+@click.argument("input_file", type=click.File("r"))
 @Args.config
 @Args.api
 @Args.indent
@@ -100,14 +100,14 @@ def submit(input_file, config, api, indent, secrets):
     """Submit a new node or update an existing one"""
     api = get_api(config, api, secrets)
     data = json.load(input_file)
-    func = api.node.update if 'id' in data else api.node.add
+    func = api.node.update if "id" in data else api.node.add
     node = func(data)
     echo_json(node, indent)
 
 
 @kci_node.command(secrets=True)
-@click.argument('node_id')
-@click.argument('results_file', type=click.File('r'))
+@click.argument("node_id")
+@click.argument("results_file", type=click.File("r"))
 @Args.config
 @Args.api
 @catch_error

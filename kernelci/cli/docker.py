@@ -15,27 +15,20 @@ from . import Args, kci
 
 def kci_docker_args(func):
     """Decorator to add common arguments to a `kci docker` command"""
-    @click.argument('image')
-    @click.argument('fragments', nargs=-1)
-    @click.option(
-        '--arch',
-        help="CPU architecture, e.g. x86"
-    )
-    @click.option(
-        '--prefix',
-        help="Prefix used in Docker image names and tags"
-    )
-    @click.option(
-        '--version',
-        help="Image version tag, e.g. 20221011.0"
-    )
+
+    @click.argument("image")
+    @click.argument("fragments", nargs=-1)
+    @click.option("--arch", help="CPU architecture, e.g. x86")
+    @click.option("--prefix", help="Prefix used in Docker image names and tags")
+    @click.option("--version", help="Image version tag, e.g. 20221011.0")
     @functools.wraps(func)
     def new_func(*args, **kwargs):
         return func(*args, **kwargs)
+
     return new_func
 
 
-@kci.group(name='docker')
+@kci.group(name="docker")
 def kci_docker():
     """Build and manage Docker images
 
@@ -66,9 +59,7 @@ def name(image, fragments, arch, prefix, version):
 
 def _get_docker_args(build_arg):
     try:
-        docker_args = dict(
-            barg.split('=') for barg in build_arg
-        ) if build_arg else {}
+        docker_args = dict(barg.split("=") for barg in build_arg) if build_arg else {}
         return docker_args
     except ValueError as exc:
         raise click.UsageError(f"Invalid --build-arg value: {exc}")
@@ -80,33 +71,33 @@ def _do_push(helper, base_name, tag_name, verbose):
         for line in helper.iterate_push_log(push_log):
             click.echo(line)
         for line in push_log:
-            error = line.get('errorDetail')
+            error = line.get("errorDetail")
             if error:
-                raise click.ClickException(error['message'])
+                raise click.ClickException(error["message"])
 
 
 @kci_docker.command
 @kci_docker_args
 @Args.verbose
-@click.option('--build-arg', multiple=True, help="Docker build arguments")
-@click.option('--cache/--no-cache', default=True, help="Use docker cache")
-@click.option('--push/--no-push', help="Push the image to Docker Hub")
+@click.option("--build-arg", multiple=True, help="Docker build arguments")
+@click.option("--cache/--no-cache", default=True, help="Use docker cache")
+@click.option("--push/--no-push", help="Push the image to Docker Hub")
 def build(image, fragments, arch, prefix, **kwargs):
     """Build a Docker image"""
-    helper = Docker(image, fragments, arch, prefix, kwargs.get('version'))
+    helper = Docker(image, fragments, arch, prefix, kwargs.get("version"))
     base_name, tag_name, img_name = helper.get_image_name()
     click.echo(f"Building {img_name}")
-    verbose = kwargs.get('verbose')
+    verbose = kwargs.get("verbose")
     if verbose:
         click.echo(helper.get_dockerfile())
-    docker_args = _get_docker_args(kwargs.get('build_arg'))
-    nocache = not kwargs.get('cache')
+    docker_args = _get_docker_args(kwargs.get("build_arg"))
+    nocache = not kwargs.get("cache")
     build_log, build_err = helper.build_image(img_name, docker_args, nocache)
     if verbose:
         for line in helper.iterate_build_log(build_log):
             click.echo(line)
     if build_err:
         raise click.ClickException(build_err)
-    if kwargs.get('push'):
+    if kwargs.get("push"):
         click.echo(f"Pushing {img_name} to Docker Hub")
         _do_push(helper, base_name, tag_name, verbose)

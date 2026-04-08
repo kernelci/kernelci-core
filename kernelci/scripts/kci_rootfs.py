@@ -33,6 +33,7 @@ import kernelci.storage  # noqa: E402
 # Commands
 #
 
+
 class cmd_validate(Command):
     help = "Validate the YAML configuration"
     opt_args = [Args.verbose]
@@ -41,7 +42,7 @@ class cmd_validate(Command):
         # ToDo: Use jsonschema
 
         entries = [
-            'rootfs_configs',
+            "rootfs_configs",
         ]
         err = kernelci.config.validate_yaml(args.yaml_config, entries)
         if err:
@@ -56,13 +57,15 @@ class cmd_list_configs(Command):
     opt_args = [Args.rootfs_type]
 
     def __call__(self, config_data, args, **kwargs):
-        rootfs_configs = config_data['rootfs_configs']
+        rootfs_configs = config_data["rootfs_configs"]
         if args.rootfs_type is None:
             config_names = rootfs_configs
         else:
-            config_names = (name
-                            for name, config_data in rootfs_configs.items()
-                            if config_data.rootfs_type == args.rootfs_type)
+            config_names = (
+                name
+                for name, config_data in rootfs_configs.items()
+                if config_data.rootfs_type == args.rootfs_type
+            )
         for config_name in config_names:
             print(config_name)
         return True
@@ -70,9 +73,7 @@ class cmd_list_configs(Command):
 
 class cmd_list_variants(Command):
     help = "List all rootfs variants"
-    append_action = {
-        'action': 'append'
-    }
+    append_action = {"action": "append"}
     arch_arg = Args.arch.copy()
     arch_arg.update(append_action)
     rootfs_type_arg = Args.rootfs_type.copy()
@@ -80,7 +81,7 @@ class cmd_list_variants(Command):
     opt_args = [Args.rootfs_config, arch_arg, rootfs_type_arg]
 
     def __call__(self, configs, args, **kwargs):
-        rootfs_configs = configs['rootfs_configs']
+        rootfs_configs = configs["rootfs_configs"]
         arch_requested = set(args.arch) if args.arch else set()
 
         if args.rootfs_config and args.rootfs_type:
@@ -103,11 +104,11 @@ class cmd_list_variants(Command):
             build_configs = list(rootfs_configs.values())
         for config in build_configs:
             arch_available = set(config.arch_list)
-            arch_set = (arch_requested & arch_available
-                        if arch_requested
-                        else arch_available)
+            arch_set = (
+                arch_requested & arch_available if arch_requested else arch_available
+            )
             for arch in arch_set:
-                print(' '.join([config.name, arch, config.rootfs_type]))
+                print(" ".join([config.name, arch, config.rootfs_type]))
 
         return True
 
@@ -119,16 +120,17 @@ class cmd_build(Command):
 
     def __call__(self, config_data, args, **kwargs):
         config_name = args.rootfs_config
-        config = config_data['rootfs_configs'].get(config_name)
+        config = config_data["rootfs_configs"].get(config_name)
         if not config:
-            print("{} invalid. Check 'kci_rootfs list_configs' for valid \
-                    entries".format(config_name))
+            print(
+                "{} invalid. Check 'kci_rootfs list_configs' for valid \
+                    entries".format(config_name)
+            )
             return False
-        data_path = (
-            args.data_path or 'config/rootfs/{}'.format(config.rootfs_type)
+        data_path = args.data_path or "config/rootfs/{}".format(config.rootfs_type)
+        return kernelci.rootfs.build(
+            config_name, config, data_path, args.arch, args.output
         )
-        return kernelci.rootfs.build(config_name, config, data_path,
-                                     args.arch, args.output)
 
 
 class cmd_upload(Command):
@@ -137,7 +139,7 @@ class cmd_upload(Command):
     opt_args = [Args.storage_cred]
 
     def __call__(self, configs, args):
-        storage_conf = configs['storage_configs'][args.storage_config]
+        storage_conf = configs["storage_configs"][args.storage_config]
         storage = kernelci.storage.get_storage(storage_conf, args.storage_cred)
         kernelci.rootfs.upload(storage, args.upload_path, args.rootfs_dir)
         return True
@@ -147,6 +149,7 @@ class cmd_upload(Command):
 # Main
 #
 
+
 def main():
     opts = parse_opts("kci_rootfs", globals())
     configs = kernelci.config.load(opts.get_yaml_configs())
@@ -154,5 +157,5 @@ def main():
     sys.exit(0 if status is True else 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

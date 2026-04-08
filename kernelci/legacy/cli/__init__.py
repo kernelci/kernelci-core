@@ -8,7 +8,12 @@
 
 import sys
 
-from .base import Args, Command, parse_opts, sub_main
+from .base import (
+    Args as Args,
+    Command as Command,
+    parse_opts as parse_opts,
+    sub_main as sub_main,
+)
 from . import (
     api,
     job,
@@ -18,11 +23,11 @@ from . import (
 )
 
 _COMMANDS = {
-    'api': api.main,
-    'job': job.main,
-    'sched': sched.main,
-    'show': show.main,
-    'storage': storage.main,
+    "api": api.main,
+    "job": job.main,
+    "sched": sched.main,
+    "show": show.main,
+    "storage": storage.main,
 }
 
 

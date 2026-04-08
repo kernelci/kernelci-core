@@ -19,10 +19,7 @@ from urllib.parse import urljoin
 import requests
 import yaml
 
-from kernelci.runtime import (
-    Runtime,
-    evaluate_test_suite_result
-)
+from kernelci.runtime import Runtime, evaluate_test_suite_result
 
 
 # This will go away when adding get_html_log()
@@ -43,10 +40,10 @@ class LogParser:
         log = yaml.safe_load(log_data_yaml)
         raw_log = []
         for line in log:
-            dtime, level, msg = (line.get(key) for key in ['dt', 'lvl', 'msg'])
+            dtime, level, msg = (line.get(key) for key in ["dt", "lvl", "msg"])
             if not isinstance(msg, str):
                 continue
-            msg = msg.strip().replace('\x1b', '^[')
+            msg = msg.strip().replace("\x1b", "^[")
             if msg:
                 raw_log.append((dtime, level, msg))
         return raw_log
@@ -54,21 +51,21 @@ class LogParser:
     def get_text_log(self, output):
         """Get the plain text serial console output log from the plaform"""
         for _, level, msg in self._raw_log:
-            if level == 'target':
+            if level == "target":
                 output.write(msg)
-                output.write('\n')
+                output.write("\n")
 
     def get_text(self):
         """Get the plain text serial console output as a string"""
         output = ""
         for _, level, msg in self._raw_log:
-            if level == 'target':
-                output += msg + '\n'
+            if level == "target":
+                output += msg + "\n"
         return output
 
     def get_data(self):
         """Get the raw log data as a list of dicts in LAVA output.yaml format"""
-        return [{'dt': dt, 'lvl': lvl, 'msg': msg} for dt, lvl, msg in self._raw_log]
+        return [{"dt": dt, "lvl": lvl, "msg": msg} for dt, lvl, msg in self._raw_log]
 
 
 class Callback:
@@ -101,36 +98,36 @@ class Callback:
 
     def get_device_id(self):
         """Get the ID of the tested device"""
-        return self._data.get('actual_device_id')
+        return self._data.get("actual_device_id")
 
     def get_meta(self, key):
         """Get a metadata value from the job definition"""
         if self._meta is None:
-            self._meta = yaml.safe_load(self._data['definition'])['metadata']
+            self._meta = yaml.safe_load(self._data["definition"])["metadata"]
         return self._meta.get(key)
 
     def get_job_status(self):
         """Get the job status"""
         # map over LAVA_JOB_RESULT_NAMES
-        return self.LAVA_JOB_RESULT_NAMES.get(self._data['status'])
+        return self.LAVA_JOB_RESULT_NAMES.get(self._data["status"])
 
     def is_infra_error(self):
         """Determine wether the job has hit an infrastructure error"""
-        lava_yaml = self._data['results']['lava']
+        lava_yaml = self._data["results"]["lava"]
         lava = yaml.safe_load(lava_yaml)
-        stages = {stage['name']: stage for stage in lava}
-        job_meta = stages['job']['metadata']
-        return job_meta.get('error_type') == "Infrastructure"
+        stages = {stage["name"]: stage for stage in lava}
+        job_meta = stages["job"]["metadata"]
+        return job_meta.get("error_type") == "Infrastructure"
 
     def _get_job_failure_metadata(self):
         """Get failed lava job metadata fields such as error type and
         error message"""
-        lava_yaml = self._data['results'].get('lava')
+        lava_yaml = self._data["results"].get("lava")
         if not lava_yaml:
             return None
         lava = yaml.safe_load(lava_yaml)
-        stages = {stage['name']: stage for stage in lava}
-        job_meta = stages.get('job', {}).get('metadata')
+        stages = {stage["name"]: stage for stage in lava}
+        job_meta = stages.get("job", {}).get("metadata")
         return job_meta
 
     @classmethod
@@ -138,110 +135,112 @@ class Callback:
         # When boot has failure_retry set, there may be multiple login attempts
         # We should return 'pass' if ANY attempt passed, 'fail' only if ALL failed
         login_tests = [
-            test for test in tests
-            if test['name'] in ('auto-login-action', 'login-action')
+            test
+            for test in tests
+            if test["name"] in ("auto-login-action", "login-action")
         ]
         if not login_tests:
             return None
 
         # Check if any login attempt passed
-        any_passed = any(test['result'] == 'pass' for test in login_tests)
-        return 'pass' if any_passed else 'fail'
+        any_passed = any(test["result"] == "pass" for test in login_tests)
+        return "pass" if any_passed else "fail"
 
     @classmethod
     def _get_kernelmsg_case(cls, tests):
         # When boot has failure_retry set, there may be multiple kernel-messages checks
         # Unlike login, we return 'fail' if ANY attempt failed, because kernel-messages
         # failure means we caught kernel panic, oops, or other critical errors
-        kernelmsg_tests = [
-            test for test in tests
-            if test['name'] == 'kernel-messages'
-        ]
+        kernelmsg_tests = [test for test in tests if test["name"] == "kernel-messages"]
         if not kernelmsg_tests:
             return None
 
         # Check if any kernel-messages check failed (caught panic/oops/etc)
-        any_failed = any(test['result'] == 'fail' for test in kernelmsg_tests)
-        return 'fail' if any_failed else 'pass'
+        any_failed = any(test["result"] == "fail" for test in kernelmsg_tests)
+        return "fail" if any_failed else "pass"
 
     def _get_os_release_measurement(self):
-        for suite_name, suite_results in self._data['results'].items():
-            if suite_name != '0_tast':
+        for suite_name, suite_results in self._data["results"].items():
+            if suite_name != "0_tast":
                 continue
             tests = yaml.safe_load(suite_results)
-            tests_map = {test['name']: test for test in tests}
-            os_release = tests_map.get('os-release')
+            tests_map = {test["name"]: test for test in tests}
+            os_release = tests_map.get("os-release")
             if os_release:
-                return os_release.get('measurement')
+                return os_release.get("measurement")
         return None
 
     @classmethod
     def _get_suite_results(cls, tests):
         suite_results = {}
         for test in reversed(tests):
-            test_set_name = test['metadata'].get('set')
+            test_set_name = test["metadata"].get("set")
             if test_set_name:
                 test_cases = suite_results.setdefault(test_set_name, {})
             else:
                 test_cases = suite_results
-            test_cases[test['name']] = test['result']
+            test_cases[test["name"]] = test["result"]
         return suite_results
 
     def get_results(self):
         """Parse the results and return them as a plain dictionary"""
         results = {}
-        for suite_name, suite_results in self._data['results'].items():
+        for suite_name, suite_results in self._data["results"].items():
             tests = yaml.safe_load(suite_results)
-            if suite_name == 'lava':
+            if suite_name == "lava":
                 setup = {
-                    key: result for key, result in {
-                        'login': self._get_login_case(tests),
-                        'kernelmsg': self._get_kernelmsg_case(tests)
-                    }.items() if result
+                    key: result
+                    for key, result in {
+                        "login": self._get_login_case(tests),
+                        "kernelmsg": self._get_kernelmsg_case(tests),
+                    }.items()
+                    if result
                 }
                 if setup:
-                    results['setup'] = setup
+                    results["setup"] = setup
             else:
                 suite_name = suite_name.partition("_")[2]
                 results[suite_name] = self._get_suite_results(tests)
         return results
 
     def _get_stage_result(self, suite_name):
-        lava_yaml = self._data['results']['lava']
+        lava_yaml = self._data["results"]["lava"]
         lava = yaml.safe_load(lava_yaml)
-        stages = {stage['name']: stage for stage in lava}
+        stages = {stage["name"]: stage for stage in lava}
         result = None
         for stage_name, stage_results in stages.items():
             stage_name = stage_name.partition("_")[2]
             if stage_name == suite_name:
-                result = stage_results['result']
+                result = stage_results["result"]
         return result
 
     def _get_results_hierarchy(self, results):
         hierarchy = []
         for name, value in results.items():
-            node = {'name': name, 'state': 'done'}
+            node = {"name": name, "state": "done"}
             child_nodes = []
-            item = {'node': node, 'child_nodes': child_nodes}
+            item = {"node": node, "child_nodes": child_nodes}
             if isinstance(value, dict):
-                item['child_nodes'] = self._get_results_hierarchy(value)
-                node['result'] = self._get_stage_result(node['name'])
-                if not node['result'] or node['result'] == 'pass':
+                item["child_nodes"] = self._get_results_hierarchy(value)
+                node["result"] = self._get_stage_result(node["name"])
+                if not node["result"] or node["result"] == "pass":
                     # Sometimes LAVA reports stage result as `pass` even if sub-tests
                     # failed
-                    node['result'] = evaluate_test_suite_result(item['child_nodes'])
-                node['kind'] = 'job'
+                    node["result"] = evaluate_test_suite_result(item["child_nodes"])
+                node["kind"] = "job"
             elif isinstance(value, str):
-                node['result'] = value
-                node['kind'] = 'test'
-                if node['name'] == 'os-release':
-                    node['data'] = {"misc": {}}
-                    node['data']['misc']['measurement'] = self._get_os_release_measurement()
+                node["result"] = value
+                node["kind"] = "test"
+                if node["name"] == "os-release":
+                    node["data"] = {"misc": {}}
+                    node["data"]["misc"]["measurement"] = (
+                        self._get_os_release_measurement()
+                    )
             hierarchy.append(item)
         return hierarchy
 
     def _get_job_node_result(self, suite_nodes, job_result):
-        """ Calculate job node result
+        """Calculate job node result
         If all child test suites pass, the job will be marked as `pass`
         If one of the test suites fails, the job will be marked as `fail`
         If `setup` test suite fails, it means that the main test suite
@@ -249,64 +248,71 @@ class Callback:
         """
         result = job_result
         for suite in suite_nodes:
-            suite = suite['node']
-            if suite['result'] == 'fail':
-                if suite['name'] == 'setup':
-                    result = 'incomplete'
+            suite = suite["node"]
+            if suite["result"] == "fail":
+                if suite["name"] == "setup":
+                    result = "incomplete"
                     break
-                result = 'fail'
+                result = "fail"
         return result
 
     def get_hierarchy(self, results, job_node):
         """Convert the plain results dictionary to a hierarchy for the API"""
-        job_result = job_node['result']
+        job_result = job_node["result"]
         if job_result == "incomplete":
             job_meta = self._get_job_failure_metadata()
             if job_meta:
-                job_node['data']['error_code'] = job_meta.get('error_type')
-                job_node['data']['error_msg'] = job_meta.get('error_msg')
+                job_node["data"]["error_code"] = job_meta.get("error_type")
+                job_node["data"]["error_msg"] = job_meta.get("error_msg")
             else:
                 print(f"Job failure metadata not found for node: {job_node['id']}")
-                job_node['data']['error_code'] = "Infrastructure"
-                job_node['data']['error_msg'] = "Unknown infrastructure error"
+                job_node["data"]["error_code"] = "Infrastructure"
+                job_node["data"]["error_msg"] = "Unknown infrastructure error"
 
         child_nodes = self._get_results_hierarchy(results)
 
-        if job_result == 'incomplete' and 'baseline' in job_node['name']:
+        if job_result == "incomplete" and "baseline" in job_node["name"]:
             for child in child_nodes:
-                if child['node']['name'] == 'setup' and child['node']['result'] == 'fail':
-                    print(f"DEBUG: Setup failed for {job_node['id']}. Transitting job node \
-result: incomplete -> fail")
-                    job_result = 'fail'
+                if (
+                    child["node"]["name"] == "setup"
+                    and child["node"]["result"] == "fail"
+                ):
+                    print(
+                        f"DEBUG: Setup failed for {job_node['id']}. Transitting job node \
+result: incomplete -> fail"
+                    )
+                    job_result = "fail"
                     break
 
-        if job_result == 'pass':
+        if job_result == "pass":
             final_job_result = self._get_job_node_result(child_nodes, job_result)
             if final_job_result != job_result:
-                print(f"DEBUG: {job_node['id']} Transitting job node \
-result: {job_result} -> {final_job_result}")
+                print(
+                    f"DEBUG: {job_node['id']} Transitting job node \
+result: {job_result} -> {final_job_result}"
+                )
                 job_result = final_job_result
 
         return {
-            'node': {
-                'name': job_node['name'],
-                'result': job_result,
-                'artifacts': {},
-                'data': job_node['data'],
+            "node": {
+                "name": job_node["name"],
+                "result": job_result,
+                "artifacts": {},
+                "data": job_node["data"],
             },
-            'child_nodes': child_nodes,
+            "child_nodes": child_nodes,
         }
 
     def get_log_parser(self):
         """Get a LogParser object from the callback data"""
-        log = self._data.get('log')
+        log = self._data.get("log")
         if not log:
             return None
         return LogParser(log)
 
     def to_file(self, filename):
         """Write the callback data to a JSON file"""
-        with open(filename, 'w', encoding='utf-8') as file:
+        with open(filename, "w", encoding="utf-8") as file:
             file.write(self._data)
 
 
@@ -322,8 +328,9 @@ class LAVA(Runtime):
     parameters so results can't be sent to the API yet.  It requiers an API
     token to be provided to the constructor.  The user name is not used.
     """
-    API_VERSION = 'v0.2'
-    RestAPIServer = namedtuple('RestAPIServer', ['url', 'session'])
+
+    API_VERSION = "v0.2"
+    RestAPIServer = namedtuple("RestAPIServer", ["url", "session"])
 
     # LAVA supports 'high'/'medium'/'low' (100/50/0), but we define our own
     # values to allow scaling across labs with different priority ranges.
@@ -332,7 +339,7 @@ class LAVA(Runtime):
     PRIORITY_MEDIUM = 40
     PRIORITY_LOW = 20
 
-    SERVICE_PIPELINE = 'service:pipeline'
+    SERVICE_PIPELINE = "service:pipeline"
 
     def __init__(self, configs, kcictx=None, **kwargs):
         super().__init__(configs, **kwargs)
@@ -345,28 +352,24 @@ class LAVA(Runtime):
             return default
         if isinstance(value, str):
             priority_map = {
-                'high': self.PRIORITY_HIGH,
-                'medium': self.PRIORITY_MEDIUM,
-                'low': self.PRIORITY_LOW,
+                "high": self.PRIORITY_HIGH,
+                "medium": self.PRIORITY_MEDIUM,
+                "low": self.PRIORITY_LOW,
             }
             return priority_map.get(value.lower(), default)
         return max(0, min(100, int(value)))
 
     def _get_priority(self, job):
         node = job.node
-        submitter = node.get('submitter')
+        submitter = node.get("submitter")
 
         if submitter and submitter != self.SERVICE_PIPELINE:
-            user_priority = node.get('data', {}).get('priority')
-            priority = self._resolve_priority(
-                user_priority, self.PRIORITY_HIGHEST
-            )
+            user_priority = node.get("data", {}).get("priority")
+            priority = self._resolve_priority(user_priority, self.PRIORITY_HIGHEST)
         else:
-            tree_priority = node.get('data', {}).get('tree_priority')
+            tree_priority = node.get("data", {}).get("tree_priority")
             if tree_priority is not None:
-                priority = self._resolve_priority(
-                    tree_priority, self.PRIORITY_LOW
-                )
+                priority = self._resolve_priority(tree_priority, self.PRIORITY_LOW)
             else:
                 priority = self._resolve_priority(
                     job.config.priority, self.PRIORITY_LOW
@@ -374,8 +377,10 @@ class LAVA(Runtime):
 
         if self.config.priority:
             priority = int(priority * self.config.priority / 100)
-        elif (self.config.priority_max is not None and
-              self.config.priority_min is not None):
+        elif (
+            self.config.priority_max is not None
+            and self.config.priority_min is not None
+        ):
             prio_range = self.config.priority_max - self.config.priority_min
             prio_min = self.config.priority_min
             priority = int((priority * prio_range / 100) + prio_min)
@@ -383,8 +388,8 @@ class LAVA(Runtime):
 
     def get_params(self, job, api_config=None):
         params = super().get_params(job, api_config)
-        params['notify'] = self.config.notify
-        params['priority'] = self._get_priority(job)
+        params["notify"] = self.config.notify
+        params["priority"] = self._get_priority(job)
         return params
 
     def generate(self, job, params):
@@ -393,15 +398,13 @@ class LAVA(Runtime):
             rendered = template.render(params)
         # jinja2.exceptions.UndefinedError
         except Exception as exc:  # pylint: disable=broad-except
-            raise ValueError(
-                f"Error rendering job template: {exc}"
-            ) from exc
+            raise ValueError(f"Error rendering job template: {exc}") from exc
 
         # yaml round-trip to process e.g. multi-line commands
         return yaml.dump(yaml.load(rendered, Loader=yaml.CLoader))
 
     def submit(self, job_path):
-        with open(job_path, 'r', encoding='utf-8') as job_file:
+        with open(job_path, "r", encoding="utf-8") as job_file:
             job = job_file.read()
             job_id = self._submit(job)
             return job_id
@@ -412,25 +415,25 @@ class LAVA(Runtime):
 
     def wait(self, job_object):
         job_id = int(job_object)
-        job_url = urljoin(self._server.url, '/'.join(['jobs', str(job_id)]))
+        job_url = urljoin(self._server.url, "/".join(["jobs", str(job_id)]))
         while True:
             resp = self._server.session.get(job_url, timeout=30)
             resp.raise_for_status()
             data = resp.json()
-            if data['state'] == 'Finished':
-                health = data['health']
-                return 0 if health == 'Complete' else 1
+            if data["state"] == "Finished":
+                health = data["health"]
+                return 0 if health == "Complete" else 1
             time.sleep(3)
 
     def _connect(self):
-        if not hasattr(self.config, 'url') or not self.config.url:
+        if not hasattr(self.config, "url") or not self.config.url:
             return self.RestAPIServer(None, None)
-        rest_url = f'{self.config.url}/api/{self.API_VERSION}/'
+        rest_url = f"{self.config.url}/api/{self.API_VERSION}/"
         rest_api = self.RestAPIServer(rest_url, requests.Session())
-        rest_api.session.params = {'format': 'json', 'limit': '256'}
+        rest_api.session.params = {"format": "json", "limit": "256"}
         rest_api.session.headers = {
-            'authorization': f'Token {self._token}',
-            'content-type': 'application/json',
+            "authorization": f"Token {self._token}",
+            "content-type": "application/json",
         }
         return rest_api
 
@@ -441,12 +444,12 @@ class LAVA(Runtime):
 
     def _get_all(self, url, params=None):
         resp = self._get_response(url, params=params)
-        results = resp.get('results', [])
-        next_url = resp.get('next')
+        results = resp.get("results", [])
+        next_url = resp.get("next")
         while next_url:
             resp = self._get_response(next_url)
-            results.extend(resp.get('results', []))
-            next_url = resp.get('next')
+            results.extend(resp.get("results", []))
+            next_url = resp.get("next")
         return results
 
     def get_devicetype_job_count(self, device_types):
@@ -467,15 +470,15 @@ class LAVA(Runtime):
         if not requested_types:
             return 0 if single_type else {}
 
-        jobs_url = urljoin(self._server.url, 'jobs/')
+        jobs_url = urljoin(self._server.url, "jobs/")
         counts = {}
         for dev_type in requested_types:
             params = {
-                'state': 'Submitted',
-                'requested_device_type': dev_type,
+                "state": "Submitted",
+                "requested_device_type": dev_type,
             }
             resp = self._get_response(jobs_url, params=params)
-            counts[dev_type] = resp.get('count', 0)
+            counts[dev_type] = resp.get("count", 0)
 
         if single_type:
             return counts.get(requested_types[0], 0)
@@ -500,18 +503,18 @@ class LAVA(Runtime):
         if not device_types:
             return [] if single_type else {}
 
-        devices_url = urljoin(self._server.url, 'devices/')
+        devices_url = urljoin(self._server.url, "devices/")
         result = {}
         for dev_type in device_types:
-            params = {'device_type': dev_type}
+            params = {"device_type": dev_type}
             devices = self._get_all(devices_url, params=params)
             names = []
             for device in devices:
-                if device.get('device_type') != dev_type:
+                if device.get("device_type") != dev_type:
                     continue
-                if online_only and device.get('health') not in (None, 'Good'):
+                if online_only and device.get("health") not in (None, "Good"):
                     continue
-                hostname = device.get('hostname') or device.get('name')
+                hostname = device.get("hostname") or device.get("name")
                 if hostname:
                     names.append(hostname)
             result[dev_type] = names
@@ -523,18 +526,20 @@ class LAVA(Runtime):
         if self._server.url is None:
             return self._store_job_in_external_storage(job)
 
-        jobs_url = urljoin(self._server.url, 'jobs/')
+        jobs_url = urljoin(self._server.url, "jobs/")
         job_data = {
-            'definition': job,
+            "definition": job,
         }
         resp = self._server.session.post(
-            jobs_url, json=job_data, allow_redirects=False,
+            jobs_url,
+            json=job_data,
+            allow_redirects=False,
             timeout=30,
         )
         if resp.status_code >= 400:
             print(f"Error submitting job: {resp.status_code}, {resp.text}")
         resp.raise_for_status()
-        return resp.json()['job_ids'][0]
+        return resp.json()["job_ids"][0]
 
     def _store_job_in_external_storage(self, job):
         """Store job in external storage when LAVA server URL is not defined"""
@@ -543,18 +548,21 @@ class LAVA(Runtime):
         date_str = time.strftime("%Y%m%d")
         unique_id = uuid.uuid4().hex
         upload_path = f"/jobs/{date_str}/{unique_id}.yaml"
-        print(f"Storing def '{storage_name}' path: {upload_path} name: {unique_id}.yaml")
+        print(
+            f"Storing def '{storage_name}' path: {upload_path} name: {unique_id}.yaml"
+        )
         stored_url = None
         # Store the job definition in external storage
         try:
-            job_bytes = job.encode('utf-8')
+            job_bytes = job.encode("utf-8")
             with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
                 tmp_file.write(job_bytes)
                 tmp_file.flush()
                 local_file = tmp_file.name
                 artifact_name = f"{unique_id}.yaml"
                 stored_url = storage.upload_single(
-                    (local_file, artifact_name), upload_path,
+                    (local_file, artifact_name),
+                    upload_path,
                 )
                 self._stored_url = stored_url
 

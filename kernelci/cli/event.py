@@ -20,14 +20,14 @@ from . import (
 )
 
 
-@kci.group(name='event')
+@kci.group(name="event")
 def kci_event():
     """Interact with Pub/Sub and message queue events"""
 
 
 @kci_event.command(secrets=True)
-@click.argument('channel')
-@click.option('--promisc', help="Subscribe to all users", is_flag=True)
+@click.argument("channel")
+@click.option("--promisc", help="Subscribe to all users", is_flag=True)
 @Args.config
 @Args.api
 @catch_error
@@ -39,7 +39,7 @@ def subscribe(config, api, channel, secrets, promisc):
 
 
 @kci_event.command(secrets=True)
-@click.argument('sub_id')
+@click.argument("sub_id")
 @Args.config
 @Args.api
 @catch_error
@@ -50,9 +50,9 @@ def unsubscribe(config, api, sub_id, secrets):
 
 
 @kci_event.command(secrets=True)
-@click.argument('input_file', type=click.File('r'))
-@click.argument('channel')
-@click.option('--is-json', help="Parse input data as JSON", is_flag=True)
+@click.argument("input_file", type=click.File("r"))
+@click.argument("channel")
+@click.option("--is-json", help="Parse input data as JSON", is_flag=True)
 @Args.config
 @Args.api
 @catch_error
@@ -61,11 +61,11 @@ def send(input_file, channel, *, is_json, config, api, secrets):
     """Read some data and send it as an event on a channel"""
     api = get_api(config, api, secrets)
     data = json.load(input_file) if is_json else input_file.read()
-    api.send_event(channel, {'data': data})
+    api.send_event(channel, {"data": data})
 
 
 @kci_event.command(secrets=True)
-@click.argument('sub_id')
+@click.argument("sub_id")
 @Args.config
 @Args.api
 @Args.indent
@@ -83,9 +83,9 @@ def receive(sub_id, config, api, indent, secrets):
 
 
 @kci_event.command(secrets=True)
-@click.argument('input_file', type=click.File('r'))
-@click.argument('list_name')
-@click.option('--is-json', help="Parse input data as JSON", is_flag=True)
+@click.argument("input_file", type=click.File("r"))
+@click.argument("list_name")
+@click.option("--is-json", help="Parse input data as JSON", is_flag=True)
 @Args.config
 @Args.api
 @catch_error
@@ -94,11 +94,11 @@ def push(input_file, list_name, *, is_json, config, api, secrets):
     """Read some data and push it as an event on a list"""
     api = get_api(config, api, secrets)
     data = json.load(input_file) if is_json else input_file.read()
-    api.push_event(list_name, {'data': data})
+    api.push_event(list_name, {"data": data})
 
 
 @kci_event.command(secrets=True)
-@click.argument('list_name')
+@click.argument("list_name")
 @Args.config
 @Args.api
 @Args.indent

@@ -31,12 +31,12 @@ class Docker(Runtime):
 
     def _load_env(self):
         if self.config.env_file and os.path.isfile(self.config.env_file):
-            with open(self.config.env_file, encoding='utf-8') as env:
+            with open(self.config.env_file, encoding="utf-8") as env:
                 env_list = []
                 for line in env.readlines():
                     env_line = line.strip()
                     # Skip empty lines and comments
-                    if not env_line or env_line.startswith('#'):
+                    if not env_line or env_line.startswith("#"):
                         continue
                     env_list.append(env_line)
 
@@ -45,7 +45,7 @@ class Docker(Runtime):
 
     @classmethod
     def _meta_path(cls, script_file_path):
-        return '.'.join((script_file_path, 'meta'))
+        return ".".join((script_file_path, "meta"))
 
     @property
     def _client(self):
@@ -56,35 +56,35 @@ class Docker(Runtime):
     def generate(self, job, params):
         template = self._get_template(job.config)
         return {
-            'job': template.render(params),
-            'metadata': {
-                'runtime': self.config.name,
-                'image': job.config.image,
+            "job": template.render(params),
+            "metadata": {
+                "runtime": self.config.name,
+                "image": job.config.image,
             },
         }
 
     def save_file(self, job, *args, **kwargs):
-        script, meta = (job[key] for key in ('job', 'metadata'))
+        script, meta = (job[key] for key in ("job", "metadata"))
         script_file_path = super().save_file(script, *args, **kwargs)
         os.chmod(script_file_path, 0o775)
         meta_file_path = self._meta_path(script_file_path)
-        with open(meta_file_path, 'w', encoding='utf-8') as meta_file:
+        with open(meta_file_path, "w", encoding="utf-8") as meta_file:
             json.dump(meta, meta_file, indent=4)
         return script_file_path
 
     def submit(self, job_path):
         meta_file_path = self._meta_path(job_path)
-        with open(meta_file_path, encoding='utf-8') as meta_file:
+        with open(meta_file_path, encoding="utf-8") as meta_file:
             meta = json.load(meta_file)
-        image = meta['image']
+        image = meta["image"]
 
         # do we have OS environment variables NO_DOCKER_PULL?
-        if os.environ.get('NO_DOCKER_PULL', '0') == '1':
+        if os.environ.get("NO_DOCKER_PULL", "0") == "1":
             print("Skipping docker pull")
         else:
             print(f"Pulling image {image}")
             try:
-                self._client.images.pull(*image.split(':'))
+                self._client.images.pull(*image.split(":"))
             except docker.errors.ImageNotFound:
                 print(f"Image {image} not found on docker hub, using local")
             except docker.errors.APIError as err:
@@ -102,18 +102,16 @@ class Docker(Runtime):
         # add also hostname mapping as in docker-compose
         # extra_hosts:
         #   - "host.docker.internal:host-gateway"
-        docker_hosts = {
-            "host.docker.internal": "host-gateway"
-        }
+        docker_hosts = {"host.docker.internal": "host-gateway"}
         return self._client.containers.run(
-            meta['image'],
+            meta["image"],
             volumes=self.config.volumes,
             user=self.config.user,
-            command=os.path.join('/home/kernelci', job_path),
+            command=os.path.join("/home/kernelci", job_path),
             environment=self._env,
             extra_hosts=docker_hosts,
             detach=True,
-            remove=True
+            remove=True,
         )
 
     def get_job_id(self, job_object):
@@ -121,7 +119,7 @@ class Docker(Runtime):
 
     def wait(self, job_object):
         ret = job_object.wait()
-        return ret['StatusCode']
+        return ret["StatusCode"]
 
 
 def get_runtime(runtime_config, **kwargs):

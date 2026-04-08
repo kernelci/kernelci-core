@@ -5,4 +5,4 @@
 
 # pylint: disable=all
 
-from kernelci.legacy.lava.lava_rest import get_runtime
+from kernelci.legacy.lava.lava_rest import get_runtime as get_runtime
