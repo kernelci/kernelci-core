@@ -10,6 +10,7 @@ import click
 
 import kernelci.config
 import kernelci.runtime
+
 from . import (
     Args,
     catch_error,
@@ -75,7 +76,9 @@ def new(
 @kci_job.command(secrets=True)
 @click.argument("node-id")
 @click.option("--platform", help="Name of the platform to run the job")
-@click.option("--output", help="Path of the directory where to generate the job data")
+@click.option(
+    "--output", help="Path of the directory where to generate the job data"
+)
 @Args.runtime
 @Args.storage
 @Args.config
@@ -107,7 +110,9 @@ def generate(
         raise click.ClickException("No jobs section found in the config")
     job_config = jobs_section.get(job_node["name"], None)
     if job_config is None:
-        raise click.ClickException(f"Job {job_node['name']} not found in the config")
+        raise click.ClickException(
+            f"Job {job_node['name']} not found in the config"
+        )
     job = kernelci.runtime.Job(job_node, job_config)
     if platform is None:
         if "platform" not in job_node["data"]:

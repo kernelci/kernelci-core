@@ -12,13 +12,14 @@
 
 """Common KernelCI API model definitions"""
 
-from typing import Optional, Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 from bson import ObjectId
 from pydantic import (
     BaseModel,
     Field,
-    model_serializer,
     SerializationInfo,
+    model_serializer,
 )
 from pydantic.dataclasses import dataclass
 from pydantic_core import core_schema
@@ -44,7 +45,9 @@ class PyObjectId(ObjectId):
                     core_schema.chain_schema(
                         [
                             core_schema.str_schema(),
-                            core_schema.no_info_plain_validator_function(cls.validate),
+                            core_schema.no_info_plain_validator_function(
+                                cls.validate
+                            ),
                         ]
                     ),
                 ]

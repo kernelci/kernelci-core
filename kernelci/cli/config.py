@@ -5,18 +5,18 @@
 
 """Tool to manage the KernelCI YAML pipeline configuration"""
 
+import json
 import os
 import sys
-import json
 
 import click
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
-import kernelci.config
 import kernelci.api.helper
-from . import Args, kci
+import kernelci.config
 
+from . import Args, kci
 
 REPORT_TEMPLATE_PATHS = [
     "config/report",
@@ -71,7 +71,11 @@ def dump(section, config, indent, recursive):
     data = kernelci.config.load(config)
     if section:
         for step in section.split("."):
-            data = data.get(step, {}) if isinstance(data, dict) else getattr(data, step)
+            data = (
+                data.get(step, {})
+                if isinstance(data, dict)
+                else getattr(data, step)
+            )
     if not data:
         raise click.ClickException(f"Section not found: {section}")
     if isinstance(data, dict) and not recursive:
@@ -202,7 +206,9 @@ def get_forecast_data(merged_data):
             if job_kind == "kbuild":
                 # check "params" "arch"
                 job_params = (
-                    merged_data.get("jobs", {}).get(job_name, {}).get("params", {})
+                    merged_data.get("jobs", {})
+                    .get(job_name, {})
+                    .get("params", {})
                 )
                 arch = job_params.get("arch")
                 if checkout.get("architectures") and arch not in checkout.get(
@@ -271,17 +277,23 @@ def generate_html_report(checkouts, output_dir):
 
     final_html = template.render(checkouts=checkouts)
 
-    with open(os.path.join(output_dir, "index.html"), "w", encoding="utf-8") as outfile:
+    with open(
+        os.path.join(output_dir, "index.html"), "w", encoding="utf-8"
+    ) as outfile:
         outfile.write(final_html)
 
-    print(f"Forecast report generated at: {os.path.join(output_dir, 'index.html')}")
+    print(
+        f"Forecast report generated at: {os.path.join(output_dir, 'index.html')}"
+    )
 
 
 @kci_config.command
 @Args.config
 @Args.debug
 @click.option(
-    "--html", type=click.Path(), help="Generate HTML report in the specified directory"
+    "--html",
+    type=click.Path(),
+    help="Generate HTML report in the specified directory",
 )
 def forecast(config, debug, html):
     """Forecast builds and tests for each tree/branch combination"""

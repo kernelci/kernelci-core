@@ -24,24 +24,26 @@ Available kbuild parameters:
 - kselftest: false - do not build kselftest
 """
 
-from datetime import datetime, timedelta
-import os
-import sys
-import re
-import tarfile
-import json
-import requests
-import time
-import yaml
 import concurrent.futures
-import threading
+import json
+import os
+import re
 import subprocess
+import sys
+import tarfile
+import threading
+import time
+from datetime import datetime, timedelta
+from typing import Tuple
+
+import requests
+import yaml
+
 import kernelci.api
 import kernelci.api.helper
 import kernelci.config
 import kernelci.config.storage
 import kernelci.storage
-from typing import Tuple
 
 CIP_CONFIG_URL = "https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-/raw/master/{branch}/{config}"  # noqa
 CROS_CONFIG_URL = "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
@@ -252,7 +254,9 @@ class KBuild:
             )
             self._full_artifacts = jsonobj["full_artifacts"]
             self._dtbs_check = jsonobj["dtbs_check"]
-            self._kselftest = jsonobj.get("kselftest", jsonobj.get("kfselftest"))
+            self._kselftest = jsonobj.get(
+                "kselftest", jsonobj.get("kfselftest")
+            )
             self._coverage = jsonobj.get("coverage", False)
             return
         raise ValueError("No valid arguments provided")
@@ -316,7 +320,9 @@ class KBuild:
         if self._cross_compile:
             self.addcomment("  cross_compile: " + self._cross_compile)
         if self._cross_compile_compat:
-            self.addcomment("  cross_compile_compat: " + self._cross_compile_compat)
+            self.addcomment(
+                "  cross_compile_compat: " + self._cross_compile_compat
+            )
         self.addspacer()
         # set environment variables
         self.addcomment("Set environment variables")
@@ -325,7 +331,9 @@ class KBuild:
             if self._cross_compile:
                 self.addcmd("export CROSS_COMPILE=" + self._cross_compile)
             if self._cross_compile_compat:
-                self.addcmd("export CROSS_COMPILE_COMPAT=" + self._cross_compile_compat)
+                self.addcmd(
+                    "export CROSS_COMPILE_COMPAT=" + self._cross_compile_compat
+                )
             self.addcmd("export INSTALL_MOD_PATH=_modules_")
             self.addcmd("export INSTALL_MOD_STRIP=1")
             self.addcmd("export INSTALL_DTBS_PATH=_dtbs_")
@@ -372,7 +380,9 @@ class KBuild:
             + self._srctarball
             + '" -O linux.tgz'
         )
-        self.addcmd("tar -xzf linux.tgz -C " + self._srcdir + " --strip-components=1")
+        self.addcmd(
+            "tar -xzf linux.tgz -C " + self._srcdir + " --strip-components=1"
+        )
 
     def addspacer(self):
         """Add empty line, mostly for easier reading"""
@@ -579,7 +589,9 @@ trap - ERR
         """Get config fragment from passed fragment_configs"""
         if fragname not in self._fragment_configs:
             print(f"Fragment {fragname} not found in fragment_configs")
-            self.submit_failure(f"Fragment {fragname} not found in fragment_configs")
+            self.submit_failure(
+                f"Fragment {fragname} not found in fragment_configs"
+            )
             sys.exit(1)
 
         frag = self._fragment_configs[fragname]
@@ -609,15 +621,21 @@ trap - ERR
                 content = self.add_fragment(fragment)
 
             if not content:
-                print(f"[_parse_fragments] WARNING: Fragment {fragment} has no content")
+                print(
+                    f"[_parse_fragments] WARNING: Fragment {fragment} has no content"
+                )
                 continue
 
             fragfile = os.path.join(self._fragments_dir, f"{idx}.config")
             with open(fragfile, "w") as f:
                 f.write(content)
 
-            config_count = len([line for line in content.split("\n") if line.strip()])
-            print(f"[_parse_fragments] Created {fragfile} ({config_count} configs)")
+            config_count = len(
+                [line for line in content.split("\n") if line.strip()]
+            )
+            print(
+                f"[_parse_fragments] Created {fragfile} ({config_count} configs)"
+            )
 
             fragment_files.append(fragfile)
 
@@ -640,7 +658,9 @@ trap - ERR
             frag_rel = os.path.relpath(fragfile, self._af_dir)
             self._artifacts.append(frag_rel)
 
-        print(f"[_parse_fragments] Created {len(fragment_files)} fragment files")
+        print(
+            f"[_parse_fragments] Created {len(fragment_files)} fragment files"
+        )
         return fragment_files
 
     def _merge_frags(self, fragment_files):
@@ -651,10 +671,14 @@ trap - ERR
         """
         self.startjob("config_defconfig")
         self.addcmd("cd " + self._srcdir)
-        if isinstance(self._defconfig, str) and self._defconfig.startswith("cros://"):
+        if isinstance(self._defconfig, str) and self._defconfig.startswith(
+            "cros://"
+        ):
             dotconfig = os.path.join(self._srcdir, ".config")
             with open(dotconfig, "w") as f:
-                (content, self._defconfig) = self._getcrosfragment(self._defconfig)
+                (content, self._defconfig) = self._getcrosfragment(
+                    self._defconfig
+                )
                 f.write(content)
             self.addcmd("make olddefconfig")
             self._config_full = self._defconfig + self._config_full
@@ -672,7 +696,9 @@ trap - ERR
         # fragments
         self.startjob("config_fragments")
         for fragfile in fragment_files:
-            self.addcmd(f"./scripts/kconfig/merge_config.sh -m .config {fragfile}")
+            self.addcmd(
+                f"./scripts/kconfig/merge_config.sh -m .config {fragfile}"
+            )
         # TODO: olddefconfig should be optional/configurable
         # TODO: log all warnings/errors of olddefconfig to separate file
         self.addcmd("make olddefconfig")
@@ -758,7 +784,9 @@ trap 'case $stage in
             print("[_build_with_tuxmake] ERROR: No fragment files available")
             self._fragment_files = []
 
-        print(f"[_build_with_tuxmake] Using {len(self._fragment_files)} fragment files")
+        print(
+            f"[_build_with_tuxmake] Using {len(self._fragment_files)} fragment files"
+        )
 
         # Handle defconfigs - first goes to --kconfig, rest to --kconfig-add
         extra_defconfigs = []
@@ -785,7 +813,9 @@ trap 'case $stage in
         # Handle ChromeOS defconfig: write fragments to a file and pass
         # as --kconfig-add on top of defconfig
         if defconfig.startswith("cros://"):
-            print(f"[_build_with_tuxmake] Handling ChromeOS defconfig: {defconfig}")
+            print(
+                f"[_build_with_tuxmake] Handling ChromeOS defconfig: {defconfig}"
+            )
             content, _ = self._getcrosfragment(defconfig)
             cros_config = os.path.join(self._af_dir, "chromeos.config")
             with open(cros_config, "w") as f:
@@ -956,7 +986,8 @@ trap 'case $stage in
         # TODO(nuclearcat): Not all images might be present
         for img in KERNEL_IMAGE_NAMES[self._arch]:
             self.addcmd(
-                "cp arch/" + self._arch + "/boot/" + img + " ../artifacts", False
+                "cp arch/" + self._arch + "/boot/" + img + " ../artifacts",
+                False,
             )
             # add image to artifacts relative to artifacts dir
             self._artifacts.append(img)
@@ -1062,7 +1093,9 @@ trap 'case $stage in
         _backend, _arch, etc). The from_json() method strips underscore
         prefixes when loading, so _backend becomes 'backend' in jsonobj.
         """
-        data = json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        data = json.dumps(
+            self, default=lambda o: o.__dict__, sort_keys=True, indent=4
+        )
         with open(filename, "w") as f:
             f.write(data)
         print(f"Serialized to {filename}")
@@ -1087,7 +1120,9 @@ trap 'case $stage in
                 for file in files:
                     if file.endswith(".dtb"):
                         # we need to truncate abs path to relative to artifacts
-                        file = os.path.relpath(os.path.join(root, file), self._af_dir)
+                        file = os.path.relpath(
+                            os.path.join(root, file), self._af_dir
+                        )
                         self._artifacts.append(file)
         # Update manifest/metadata
         self._write_metadata()
@@ -1140,7 +1175,9 @@ trap 'case $stage in
             )
             for root, dirs, files in os.walk(self._af_dir):
                 for file in files:
-                    file_rel = os.path.relpath(os.path.join(root, file), self._af_dir)
+                    file_rel = os.path.relpath(
+                        os.path.join(root, file), self._af_dir
+                    )
                     artifact_path = os.path.join(self._af_dir, file_rel)
                     upload_tasks.append((file_rel, artifact_path))
         else:
@@ -1152,7 +1189,9 @@ trap 'case $stage in
         # Function to handle a single artifact upload
         # args: (artifact, artifact_path)
         # returns: (artifact, stored_url, error)
-        def process_and_upload_artifact(task: Tuple[str, str]) -> Tuple[str, str, str]:
+        def process_and_upload_artifact(
+            task: Tuple[str, str],
+        ) -> Tuple[str, str, str]:
             artifact, artifact_path = task
             compressed_file = False
             dst_filename = artifact
@@ -1185,7 +1224,9 @@ trap 'case $stage in
                 if compressed_file:
                     os.unlink(upload_path)
 
-                print(f"[_upload_artifacts] Uploaded {artifact} to {stored_url}")
+                print(
+                    f"[_upload_artifacts] Uploaded {artifact} to {stored_url}"
+                )
                 return artifact, stored_url, None
             except Exception as e:
                 print(f"[_upload_artifacts] Error uploading {artifact}: {e}")
@@ -1198,7 +1239,9 @@ trap 'case $stage in
         successful_uploads = 0
         failed_uploads = []
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=max_workers
+        ) as executor:
             # Submit all tasks
             future_to_task = {
                 executor.submit(process_and_upload_artifact, task): task
@@ -1247,7 +1290,9 @@ trap 'case $stage in
         storage = self._get_storage()
         root_path = "-".join([self._apijobname, self._node["id"]])
         metadata_path = os.path.join(self._af_dir, "metadata.json")
-        stored_url = storage.upload_single((metadata_path, "metadata.json"), root_path)
+        stored_url = storage.upload_single(
+            (metadata_path, "metadata.json"), root_path
+        )
         print(f"[_upload_metadata] Uploaded metadata.json to {stored_url}")
         print("[_upload_metadata] metadata.json uploaded to storage")
         return stored_url
@@ -1339,7 +1384,9 @@ trap 'case $stage in
                 break
 
         if dtb_present:
-            af_uri = {k: v for k, v in af_uri.items() if not k.startswith("dtbs/")}
+            af_uri = {
+                k: v for k, v in af_uri.items() if not k.startswith("dtbs/")
+            }
 
         # if this is dtbs_check and it ran ok, we need to change job_result
         # to actual result of dtbs_check
@@ -1421,7 +1468,9 @@ trap 'case $stage in
             kselftest_node["kind"] = "test"
             existing_path = kselftest_node.get("path")
             if existing_path and isinstance(existing_path, list):
-                kselftest_node["path"] = existing_path + [kselftest_node["name"]]
+                kselftest_node["path"] = existing_path + [
+                    kselftest_node["name"]
+                ]
             kselftest_node["parent"] = self._node["id"]
             kselftest_node["data"] = results["node"]["data"].copy()
             kselftest_node["artifacts"] = None

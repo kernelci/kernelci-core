@@ -5,6 +5,10 @@
 
 from kernelci.config.base import (
     FilterFactory as FilterFactory,
+)
+from kernelci.config.base import (
     YAMLConfigObject as YAMLConfigObject,
+)
+from kernelci.config.base import (
     _YAMLObject as _YAMLObject,
 )

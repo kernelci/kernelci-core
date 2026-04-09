@@ -12,7 +12,6 @@ import re
 
 import yaml
 
-
 BUILDROOT_ARCH = {
     "arm": "armel",
     "x86_64": "x86",
@@ -121,7 +120,11 @@ class YAMLConfigObject(yaml.YAMLObject):
 
         """
         return (
-            {k: v for k, v in ((k, data.get(k)) for k in attributes) if v is not None}
+            {
+                k: v
+                for k, v in ((k, data.get(k)) for k in attributes)
+                if v is not None
+            }
             if data
             else {}
         )
@@ -203,7 +206,11 @@ class _YAMLObject:
 
         """
         return (
-            {k: v for k, v in ((k, data.get(k)) for k in attributes) if v is not None}
+            {
+                k: v
+                for k, v in ((k, data.get(k)) for k in attributes)
+                if v is not None
+            }
             if data
             else {}
         )
@@ -229,7 +236,8 @@ class _YAMLObject:
         return {
             attr: value
             for attr, value in (
-                (attr, getattr(self, attr)) for attr in self._get_yaml_attributes()
+                (attr, getattr(self, attr))
+                for attr in self._get_yaml_attributes()
             )
             if value is not None
         }

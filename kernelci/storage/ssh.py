@@ -8,7 +8,7 @@
 
 import os
 
-from paramiko import client, SSHClient
+from paramiko import SSHClient, client
 from scp import SCPClient
 
 from . import Storage

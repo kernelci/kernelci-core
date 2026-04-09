@@ -15,7 +15,8 @@ import json
 import re
 
 import kernelci.api
-from .base import Command, Args, catch_http_error
+
+from .base import Args, Command, catch_http_error
 
 
 class APICommand(Command):  # pylint: disable=too-few-public-methods

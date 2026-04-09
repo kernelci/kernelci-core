@@ -7,8 +7,8 @@
 
 """Test the APIHelper class"""
 
-from kernelci.api.helper import APIHelper
 import kernelci.api
+from kernelci.api.helper import APIHelper
 
 
 def test_apihelper():

@@ -16,12 +16,11 @@ import argparse
 import configparser
 import os.path
 import sys
-import toml
 
+import toml
 from requests.exceptions import HTTPError
 
 import kernelci.config
-
 
 # -----------------------------------------------------------------------------
 # Standard arguments that can be used in sub-commands
@@ -650,7 +649,9 @@ instead.",
         else:
             value = None
             if isinstance(section, tuple):
-                section_data = self._settings.get(section[0], {}).get(section[1])
+                section_data = self._settings.get(section[0], {}).get(
+                    section[1]
+                )
             else:
                 section_data = self._settings.get(section)
             if section_data:

@@ -10,7 +10,9 @@
 
 import time
 from urllib.parse import urljoin
+
 import requests
+
 from . import Storage
 
 
@@ -52,7 +54,9 @@ class StorageBackend(Storage):
                 )
                 time.sleep(retry_delay)
                 return exc  # Return exception to be saved as last_exception
-            print(f"Upload failed after {max_retries} attempts. Response body: {body}")
+            print(
+                f"Upload failed after {max_retries} attempts. Response body: {body}"
+            )
             return exc
         # For non-5xx errors (like 4xx client errors), don't retry
         print(f"Upload failed with HTTP error: {exc}")

@@ -5,8 +5,9 @@
 # Guillaume Tucker <guillaume.tucker@collabora.com>
 
 from collections import namedtuple
-import requests
 from urllib.parse import urljoin
+
+import requests
 import yaml
 
 from . import LavaRuntime
@@ -44,7 +45,8 @@ class LavaRest(LavaRuntime):
         aliases_url = urljoin(self._server.url, "aliases")
         all_devices = self._get_all(devices_url)
         all_aliases = {
-            item["name"]: item["device_type"] for item in self._get_all(aliases_url)
+            item["name"]: item["device_type"]
+            for item in self._get_all(aliases_url)
         }
         device_types = {}
         for device in all_devices:
@@ -94,7 +96,9 @@ class LavaRest(LavaRuntime):
         job_data = {
             "definition": yaml.dump(yaml.load(job, Loader=yaml.CLoader)),
         }
-        resp = self._server.session.post(jobs_url, json=job_data, allow_redirects=False)
+        resp = self._server.session.post(
+            jobs_url, json=job_data, allow_redirects=False
+        )
         resp.raise_for_status()
         return resp.json()["job_ids"][0]
 

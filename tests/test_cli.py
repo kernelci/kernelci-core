@@ -7,9 +7,8 @@
 
 import importlib
 
-import pytest
-
 import click
+import pytest
 import requests
 
 import kernelci.cli
@@ -90,7 +89,16 @@ def test_kci_builtin_subcommands_registered():
     """Built-in kci subcommands are registered by the entrypoint imports"""
     importlib.reload(kernelci.scripts.kci)
 
-    expected = {"api", "config", "docker", "event", "job", "node", "storage", "user"}
+    expected = {
+        "api",
+        "config",
+        "docker",
+        "event",
+        "job",
+        "node",
+        "storage",
+        "user",
+    }
     assert expected.issubset(set(kernelci.cli.kci.commands))
 
 
@@ -110,7 +118,13 @@ def test_split_valid_attributes():
         (["name>= value"], {"name__gte": "value"}),
         (
             ["a=b", "c=123", "x3 = 1.2", "abc >= 4", "z != x[2]"],
-            {"a": "b", "c": "123", "x3": "1.2", "abc__gte": "4", "z__ne": "x[2]"},
+            {
+                "a": "b",
+                "c": "123",
+                "x3": "1.2",
+                "abc__gte": "4",
+                "z__ne": "x[2]",
+            },
         ),
         (["x>=1", "x<=3"], {"x__gte": "1", "x__lte": "3"}),
         (["foo=bar", "foo=baz", "foo=zap"], {"foo": ["bar", "baz", "zap"]}),

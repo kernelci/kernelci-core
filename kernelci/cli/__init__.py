@@ -17,8 +17,8 @@ import email.policy
 import functools
 import json
 import re
-import typing
 import traceback
+import typing
 
 import click
 import requests
@@ -41,7 +41,9 @@ class Args:  # pylint: disable=too-few-public-methods
         help="Path to the YAML pipeline configuration",
     )
     indent = click.option(
-        "--indent", type=int, help="Intentation level for structured data output"
+        "--indent",
+        type=int,
+        help="Intentation level for structured data output",
     )
     page_length = click.option(
         "-l", "--page-length", type=int, help="Page length in paginated data"
@@ -51,11 +53,17 @@ class Args:  # pylint: disable=too-few-public-methods
     )
     runtime = click.option("--runtime", help="Name of the runtime config entry")
     settings = click.option(
-        "-s", "--toml-settings", "settings", help="Path to the TOML user settings"
+        "-s",
+        "--toml-settings",
+        "settings",
+        help="Path to the TOML user settings",
     )
     storage = click.option("--storage", help="Name of the storage config entry")
     verbose = click.option(
-        "-v", "--verbose/--no-verbose", default=None, help="Print more details output"
+        "-v",
+        "--verbose/--no-verbose",
+        default=None,
+        help="Print more details output",
     )
     debug = click.option(
         "-d",
@@ -228,7 +236,8 @@ def split_attributes(attributes: typing.List[str]):
         parsed.setdefault("".join((name, opstr)), []).append(value)
 
     return {
-        name: value[0] if len(value) == 1 else value for name, value in parsed.items()
+        name: value[0] if len(value) == 1 else value
+        for name, value in parsed.items()
     }
 
 
@@ -243,15 +252,21 @@ def get_pagination(page_length: int, page_number: int):
     if page_length is None:
         page_length = 10
     elif page_length < 1:
-        raise click.UsageError(f"Page length must be at least 1, got {page_length}")
+        raise click.UsageError(
+            f"Page length must be at least 1, got {page_length}"
+        )
     if page_number is None:
         page_number = 0
     elif page_number < 0:
-        raise click.UsageError(f"Page number must be at least 0, got {page_number}")
+        raise click.UsageError(
+            f"Page number must be at least 0, got {page_number}"
+        )
     return page_number * page_length, page_length
 
 
-def get_api(config, api, secrets: typing.Optional[kernelci.settings.Secrets] = None):
+def get_api(
+    config, api, secrets: typing.Optional[kernelci.settings.Secrets] = None
+):
     """Get an API object instance
 
     Return an API object based on the given `api` config name loaded from the
@@ -265,7 +280,9 @@ def get_api(config, api, secrets: typing.Optional[kernelci.settings.Secrets] = N
         raise click.ClickException("No API section found in the toml config")
     api_config = api_section.get(api, None)
     if api_config is None:
-        raise click.ClickException(f"API config {api} not found in the toml config")
+        raise click.ClickException(
+            f"API config {api} not found in the toml config"
+        )
     token = secrets.api.token if secrets else None
     return kernelci.api.get_api(api_config, token)
 

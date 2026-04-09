@@ -9,10 +9,10 @@
 import abc
 import importlib
 import os
+
 import requests
 import yaml
-
-from jinja2 import Environment, FileSystemLoader, ChoiceLoader
+from jinja2 import ChoiceLoader, Environment, FileSystemLoader
 
 from kernelci.config.base import get_system_arch
 
@@ -76,7 +76,13 @@ class Runtime(abc.ABC):
 
     # pylint: disable=unused-argument,too-many-arguments
     def __init__(
-        self, config, *, user=None, token=None, custom_template_dir=None, kcictx=None
+        self,
+        config,
+        *,
+        user=None,
+        token=None,
+        custom_template_dir=None,
+        kcictx=None,
     ):
         """A Runtime object can be used to run jobs in a runtime environment
 
@@ -90,7 +96,12 @@ class Runtime(abc.ABC):
             # Add the main custom dir
             self._templates.append(custom_template_dir)
             # Add relevant subdirectories
-            for subdir in ["runtime", "runtime/base", "runtime/boot", "runtime/tests"]:
+            for subdir in [
+                "runtime",
+                "runtime/base",
+                "runtime/boot",
+                "runtime/tests",
+            ]:
                 sub_path = (
                     os.path.join(custom_template_dir, subdir)
                     if not custom_template_dir.endswith(subdir)
@@ -182,7 +193,10 @@ class Runtime(abc.ABC):
         instance_callback = os.environ.get("KCI_INSTANCE_CALLBACK")
         device_dtb = None
         device_type = job.platform_config.name
-        if job.platform_config.base_name and len(job.platform_config.base_name) > 0:
+        if (
+            job.platform_config.base_name
+            and len(job.platform_config.base_name) > 0
+        ):
             device_type = job.platform_config.base_name
         if job.platform_config.dtb and len(job.platform_config.dtb) > 0:
             # verify if we have metadata at all
@@ -206,7 +220,9 @@ class Runtime(abc.ABC):
                     device_dtb = dtb
                     break
             if not device_dtb:
-                raise ValueError(f"dtb file {job.platform_config.dtb} not found!")
+                raise ValueError(
+                    f"dtb file {job.platform_config.dtb} not found!"
+                )
 
         params = {
             "api_config": api_config or {},
@@ -272,7 +288,9 @@ class Runtime(abc.ABC):
         """Wait for a job to complete and get the exit status code"""
 
 
-def get_runtime(config, user=None, token=None, custom_template_dir=None, kcictx=None):
+def get_runtime(
+    config, user=None, token=None, custom_template_dir=None, kcictx=None
+):
     """Get the Runtime object for a given runtime config.
 
     *config* is a kernelci.config.runtime.Runtime object
@@ -292,7 +310,9 @@ def get_runtime(config, user=None, token=None, custom_template_dir=None, kcictx=
     )
 
 
-def get_all_runtimes(runtime_configs, opts, custom_template_dir=None, kcictx=None):
+def get_all_runtimes(
+    runtime_configs, opts, custom_template_dir=None, kcictx=None
+):
     """Get all the Runtime objects based on the runtime configs and options
 
     This will iterate over all the runtimes configs and yield a (name, runtime)
@@ -307,7 +327,8 @@ def get_all_runtimes(runtime_configs, opts, custom_template_dir=None, kcictx=Non
     for config_name, config in runtime_configs.items():
         section = ("runtime", config_name)
         user, token = (
-            opts.get_from_section(section, opt) for opt in ("user", "runtime_token")
+            opts.get_from_section(section, opt)
+            for opt in ("user", "runtime_token")
         )
         runtime = get_runtime(
             config,
@@ -345,8 +366,12 @@ def evaluate_test_suite_result(child_nodes):
     result_list = [child["node"]["result"] for child in child_nodes]
     if "fail" in result_list:
         result = "fail"
-    elif all(result == "pass" for result in result_list) or "pass" in result_list:
+    elif (
+        all(result == "pass" for result in result_list) or "pass" in result_list
+    ):
         result = "pass"
-    elif all(result == "skip" for result in result_list) or "skip" in result_list:
+    elif (
+        all(result == "skip" for result in result_list) or "skip" in result_list
+    ):
         result = "skip"
     return result

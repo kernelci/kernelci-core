@@ -9,6 +9,7 @@
 import json
 
 import click
+
 import kernelci.config
 
 from . import (

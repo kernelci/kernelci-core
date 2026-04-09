@@ -7,9 +7,10 @@
 
 """KernelCI API helpers"""
 
-from typing import Dict
 import json
 import os
+from typing import Dict
+
 import requests
 
 from . import API
@@ -36,7 +37,9 @@ def merge(primary: dict, secondary: dict):
     for key in primary:
         result[key] = primary[key]
         if key in secondary:
-            if isinstance(primary[key], dict) and isinstance(secondary[key], dict):
+            if isinstance(primary[key], dict) and isinstance(
+                secondary[key], dict
+            ):
                 result[key] = merge(primary[key], secondary[key])
             else:
                 result[key] = secondary[key]
@@ -62,7 +65,9 @@ class APIHelper:
         """API object"""
         return self._api
 
-    def subscribe_filters(self, filters=None, channel="node", promiscuous=False):
+    def subscribe_filters(
+        self, filters=None, channel="node", promiscuous=False
+    ):
         """Subscribe to a channel with some added filters"""
         sub_id = self.api.subscribe(channel, promiscuous)
         self._filters[sub_id] = filters
@@ -140,7 +145,9 @@ class APIHelper:
             # Crude (provisional) filtering of non-node events
             if not node:
                 continue
-            if all(self.pubsub_event_filter(sub_id, obj) for obj in [node, event]):
+            if all(
+                self.pubsub_event_filter(sub_id, obj) for obj in [node, event]
+            ):
                 return node, event.get("is_hierarchy")
 
     def _find_container(self, field, node):
@@ -188,7 +195,9 @@ class APIHelper:
         #   the node on the basis that its rules aren; t fulfilled
         if not base:
             if len(allow) > 0:
-                print(f"rules[{key}]: attribute '{key}' not found in node hierarchy")
+                print(
+                    f"rules[{key}]: attribute '{key}' not found in node hierarchy"
+                )
                 return False
             return True
 
@@ -217,7 +226,9 @@ class APIHelper:
                     found = True
 
             if not found:
-                print(f"rules[{key}]: {key.capitalize()} missing one of {allow}")
+                print(
+                    f"rules[{key}]: {key.capitalize()} missing one of {allow}"
+                )
                 return False
 
         else:
@@ -280,7 +291,10 @@ class APIHelper:
         """
         match = None
         for combo in combos:
-            if node["tree"] == combo["tree"] and node["branch"] == combo["branch"]:
+            if (
+                node["tree"] == combo["tree"]
+                and node["branch"] == combo["branch"]
+            ):
                 match = combo
                 break
         return match
@@ -415,7 +429,8 @@ class APIHelper:
                 rule_major = rules[key]["version"]
                 rule_minor = rules[key]["patchlevel"]
                 if key.startswith("min") and (
-                    (major < rule_major) or (major == rule_major and minor < rule_minor)
+                    (major < rule_major)
+                    or (major == rule_major and minor < rule_minor)
                 ):
                     print(
                         f"rules[{key}]: Version {major}.{minor} older than minimum version "
@@ -423,7 +438,8 @@ class APIHelper:
                     )
                     return False
                 if key.startswith("max") and (
-                    (major > rule_major) or (major == rule_major and minor > rule_minor)
+                    (major > rule_major)
+                    or (major == rule_major and minor > rule_minor)
                 ):
                     print(
                         f"rules[{key}]: Version {major}.{minor} newer than maximum version "
@@ -473,7 +489,9 @@ class APIHelper:
             #   * jobfilter contains the job name suffixed with '+'
             #   * at least one element of the node's 'path' appears in jobilfter
             #     with a '+' suffix
-            for filt in (item.rstrip("+") for item in jobfilter if item.endswith("+")):
+            for filt in (
+                item.rstrip("+") for item in jobfilter if item.endswith("+")
+            ):
                 if filt in node["path"] or filt == node["name"]:
                     return False
 
@@ -483,7 +501,13 @@ class APIHelper:
 
     # pylint: disable=too-many-arguments
     def create_job_node(
-        self, job_config, input_node, *, runtime=None, platform=None, retry_counter=0
+        self,
+        job_config,
+        input_node,
+        *,
+        runtime=None,
+        platform=None,
+        retry_counter=0,
     ):
         """Create a new job node based on input and configuration"""
         jobfilter = input_node.get("jobfilter")
@@ -525,10 +549,14 @@ class APIHelper:
         # Test-specific fields inherited from parent node (kbuild or
         # job) if available
         if job_config.kind == "job":
-            job_node["data"]["kernel_type"] = input_node["data"].get("kernel_type")
+            job_node["data"]["kernel_type"] = input_node["data"].get(
+                "kernel_type"
+            )
             job_node["data"]["arch"] = input_node["data"].get("arch")
             job_node["data"]["defconfig"] = input_node["data"].get("defconfig")
-            job_node["data"]["config_full"] = input_node["data"].get("config_full")
+            job_node["data"]["config_full"] = input_node["data"].get(
+                "config_full"
+            )
             job_node["data"]["compiler"] = input_node["data"].get("compiler")
         # This information is highly useful, as we might
         # extract from it the following, for example:
@@ -574,7 +602,9 @@ class APIHelper:
             job_node = self._fsanitize_node_fields(job_node, "commit_message")
 
             try:
-                job_node["data"] = platform.format_params(job_node["data"], extra_args)
+                job_node["data"] = platform.format_params(
+                    job_node["data"], extra_args
+                )
             except Exception as error:
                 print(f"Exception Error, node id: {input_node['id']}, {error}")
                 raise error

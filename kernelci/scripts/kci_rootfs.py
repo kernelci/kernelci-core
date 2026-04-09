@@ -23,11 +23,10 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 sys.path.append(str(Path(__file__).parent))
 
-from kernelci.legacy.cli import Args, Command, parse_opts  # noqa: E402
 import kernelci.config  # noqa: E402
 import kernelci.rootfs  # noqa: E402
 import kernelci.storage  # noqa: E402
-
+from kernelci.legacy.cli import Args, Command, parse_opts  # noqa: E402
 
 # -----------------------------------------------------------------------------
 # Commands
@@ -105,7 +104,9 @@ class cmd_list_variants(Command):
         for config in build_configs:
             arch_available = set(config.arch_list)
             arch_set = (
-                arch_requested & arch_available if arch_requested else arch_available
+                arch_requested & arch_available
+                if arch_requested
+                else arch_available
             )
             for arch in arch_set:
                 print(" ".join([config.name, arch, config.rootfs_type]))
@@ -127,7 +128,9 @@ class cmd_build(Command):
                     entries".format(config_name)
             )
             return False
-        data_path = args.data_path or "config/rootfs/{}".format(config.rootfs_type)
+        data_path = args.data_path or "config/rootfs/{}".format(
+            config.rootfs_type
+        )
         return kernelci.rootfs.build(
             config_name, config, data_path, args.arch, args.output
         )

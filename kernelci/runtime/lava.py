@@ -10,10 +10,10 @@
 
 """LAVA runtime implementation"""
 
-from collections import namedtuple
 import tempfile
 import time
 import uuid
+from collections import namedtuple
 from urllib.parse import urljoin
 
 import requests
@@ -65,7 +65,9 @@ class LogParser:
 
     def get_data(self):
         """Get the raw log data as a list of dicts in LAVA output.yaml format"""
-        return [{"dt": dt, "lvl": lvl, "msg": msg} for dt, lvl, msg in self._raw_log]
+        return [
+            {"dt": dt, "lvl": lvl, "msg": msg} for dt, lvl, msg in self._raw_log
+        ]
 
 
 class Callback:
@@ -151,7 +153,9 @@ class Callback:
         # When boot has failure_retry set, there may be multiple kernel-messages checks
         # Unlike login, we return 'fail' if ANY attempt failed, because kernel-messages
         # failure means we caught kernel panic, oops, or other critical errors
-        kernelmsg_tests = [test for test in tests if test["name"] == "kernel-messages"]
+        kernelmsg_tests = [
+            test for test in tests if test["name"] == "kernel-messages"
+        ]
         if not kernelmsg_tests:
             return None
 
@@ -226,7 +230,9 @@ class Callback:
                 if not node["result"] or node["result"] == "pass":
                     # Sometimes LAVA reports stage result as `pass` even if sub-tests
                     # failed
-                    node["result"] = evaluate_test_suite_result(item["child_nodes"])
+                    node["result"] = evaluate_test_suite_result(
+                        item["child_nodes"]
+                    )
                 node["kind"] = "job"
             elif isinstance(value, str):
                 node["result"] = value
@@ -265,7 +271,9 @@ class Callback:
                 job_node["data"]["error_code"] = job_meta.get("error_type")
                 job_node["data"]["error_msg"] = job_meta.get("error_msg")
             else:
-                print(f"Job failure metadata not found for node: {job_node['id']}")
+                print(
+                    f"Job failure metadata not found for node: {job_node['id']}"
+                )
                 job_node["data"]["error_code"] = "Infrastructure"
                 job_node["data"]["error_msg"] = "Unknown infrastructure error"
 
@@ -285,7 +293,9 @@ result: incomplete -> fail"
                     break
 
         if job_result == "pass":
-            final_job_result = self._get_job_node_result(child_nodes, job_result)
+            final_job_result = self._get_job_node_result(
+                child_nodes, job_result
+            )
             if final_job_result != job_result:
                 print(
                     f"DEBUG: {job_node['id']} Transitting job node \
@@ -365,11 +375,15 @@ class LAVA(Runtime):
 
         if submitter and submitter != self.SERVICE_PIPELINE:
             user_priority = node.get("data", {}).get("priority")
-            priority = self._resolve_priority(user_priority, self.PRIORITY_HIGHEST)
+            priority = self._resolve_priority(
+                user_priority, self.PRIORITY_HIGHEST
+            )
         else:
             tree_priority = node.get("data", {}).get("tree_priority")
             if tree_priority is not None:
-                priority = self._resolve_priority(tree_priority, self.PRIORITY_LOW)
+                priority = self._resolve_priority(
+                    tree_priority, self.PRIORITY_LOW
+                )
             else:
                 priority = self._resolve_priority(
                     job.config.priority, self.PRIORITY_LOW
@@ -570,7 +584,9 @@ class LAVA(Runtime):
                 raise ValueError("Upload returned no URL")
             print(f"Job stored at URL: {stored_url}")
         except Exception as exc:
-            raise ValueError(f"Failed to store job in external storage: {exc}") from exc
+            raise ValueError(
+                f"Failed to store job in external storage: {exc}"
+            ) from exc
 
 
 def get_runtime(runtime_config, **kwargs):

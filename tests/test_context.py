@@ -11,8 +11,9 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
-import yaml
+
 import toml
+import yaml
 
 from kernelci.context import KContext, create_context, create_context_from_args
 
@@ -117,7 +118,9 @@ class TestKContext(unittest.TestCase):
         self.assertEqual(token, "prod-token-123")
 
         # Test default value
-        missing = ctx.get_secret("api.nonexistent.token", default="default-token")
+        missing = ctx.get_secret(
+            "api.nonexistent.token", default="default-token"
+        )
         self.assertEqual(missing, "default-token")
 
     def test_get_api_config(self):
@@ -140,7 +143,9 @@ class TestKContext(unittest.TestCase):
 
         self.assertIsNotNone(storage_config)
         self.assertEqual(storage_config["storage_type"], "backend")
-        self.assertEqual(storage_config["base_url"], "https://storage.kernelci.org")
+        self.assertEqual(
+            storage_config["base_url"], "https://storage.kernelci.org"
+        )
         self.assertEqual(storage_config["storage_cred"], "storage-secret-789")
 
     def test_get_job_config(self):
@@ -188,7 +193,9 @@ class TestKContext(unittest.TestCase):
         """Test merging configuration and secrets"""
         ctx = KContext(config_paths=self.yaml_path, secrets_path=self.toml_path)
 
-        merged = ctx.merge_config_and_secrets("api.production", "api.production")
+        merged = ctx.merge_config_and_secrets(
+            "api.production", "api.production"
+        )
 
         self.assertIsNotNone(merged)
         self.assertEqual(merged["url"], "https://api.kernelci.org")
@@ -196,7 +203,9 @@ class TestKContext(unittest.TestCase):
 
     def test_missing_files(self):
         """Test handling of missing configuration files"""
-        ctx = KContext(config_paths="nonexistent.yaml", secrets_path="nonexistent.toml")
+        ctx = KContext(
+            config_paths="nonexistent.yaml", secrets_path="nonexistent.toml"
+        )
 
         self.assertEqual(ctx.config, {})
         self.assertEqual(ctx.secrets, {})
@@ -209,7 +218,9 @@ class TestKContext(unittest.TestCase):
 
         # Write multiple YAML files
         api_config = {"api": {"test": {"url": "https://test.com"}}}
-        storage_config = {"storage": {"test": {"base_url": "https://storage.test.com"}}}
+        storage_config = {
+            "storage": {"test": {"base_url": "https://storage.test.com"}}
+        }
 
         with open(
             os.path.join(config_dir, "api.yaml"), "w", encoding="utf-8"
@@ -282,7 +293,9 @@ class TestKContext(unittest.TestCase):
             # Check parsed values
             self.assertEqual(ctx.program_name, "scheduler_k8s")
             self.assertEqual(ctx.secrets_path, self.toml_path)
-            self.assertListEqual(ctx.get_runtimes(), ["k8s-gke-eu-west4", "k8s-all"])
+            self.assertListEqual(
+                ctx.get_runtimes(), ["k8s-gke-eu-west4", "k8s-all"]
+            )
             self.assertIsNotNone(ctx.get_cli_args())
 
             # Check that secrets were loaded

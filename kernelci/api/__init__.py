@@ -12,8 +12,8 @@ import json
 import urllib
 from typing import Dict, Optional, Sequence
 
-from cloudevents.http import CloudEvent
 import requests
+from cloudevents.http import CloudEvent
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
@@ -22,7 +22,9 @@ import kernelci.config.api
 HTTP_ERROR_BODY_SNIPPET = 512
 
 
-def _http_error_body_snippet(response, max_length: int = HTTP_ERROR_BODY_SNIPPET):
+def _http_error_body_snippet(
+    response, max_length: int = HTTP_ERROR_BODY_SNIPPET
+):
     """Return a truncated response body useful for HTTP error logging.
     Also try to extract a more specific error message from the body if it's a JSON
     with a "detail", "error" or "message" field.
@@ -150,7 +152,10 @@ class Base:
         session.mount("https://", adapter)
 
         resp = session.get(
-            url, params=params, headers=self.data.headers, timeout=self.data.timeout
+            url,
+            params=params,
+            headers=self.data.headers,
+            timeout=self.data.timeout,
         )
         try:
             resp.raise_for_status()
@@ -190,13 +195,19 @@ class Base:
             # requests.post, but in this case we have to explicitly
             # specify the Content-Type header
             if json_data:
-                headers = self.data.headers | {"Content-Type": "application/json"}
+                headers = self.data.headers | {
+                    "Content-Type": "application/json"
+                }
             else:
                 headers = self.data.headers | {
                     "Content-Type": "application/x-www-form-urlencoded"
                 }
             resp = session.post(
-                url, data, headers=headers, params=params, timeout=self.data.timeout
+                url,
+                data,
+                headers=headers,
+                params=params,
+                timeout=self.data.timeout,
             )
         else:
             # When passing a dict to requests.post, it will
@@ -325,7 +336,9 @@ class Base:
         session.mount("http://", adapter)
         session.mount("https://", adapter)
 
-        resp = session.delete(url, headers=self.data.headers, timeout=self.data.timeout)
+        resp = session.delete(
+            url, headers=self.data.headers, timeout=self.data.timeout
+        )
         try:
             resp.raise_for_status()
         except requests.exceptions.HTTPError as err:

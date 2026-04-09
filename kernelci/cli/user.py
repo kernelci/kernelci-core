@@ -5,8 +5,8 @@
 """User management commands"""
 
 import base64
-import json
 import datetime
+import json
 import time
 
 import click
