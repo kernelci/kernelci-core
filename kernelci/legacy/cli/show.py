@@ -11,7 +11,7 @@ from .base import Args, sub_main
 from .base_api import APICommand
 
 
-class cmd_results(APICommand):  # pylint: disable=invalid-name
+class cmd_results(APICommand):
     """Show all the results for a given node"""
 
     COLORS = {

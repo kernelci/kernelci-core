@@ -113,7 +113,9 @@ class SSHStorage(Storage):
 
     yaml_tag = "!SSHStorage"
 
-    def __init__(self, host, *args, port=22, user="kernelci", path="~/data", **kwargs):
+    def __init__(
+        self, host, *args, port=22, user="kernelci", path="~/data", **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self._host = host
         self._port = port
@@ -147,7 +149,7 @@ class SSHStorage(Storage):
         return attrs
 
 
-class StorageFactory:  # pylint: disable=too-few-public-methods
+class StorageFactory:
     """Factory to create storage objects from YAML data."""
 
     _storage_types = {

@@ -50,7 +50,7 @@ class LogParser:
                 except gzip.BadGzipFile:
                     # Not gzipped, just decode as UTF-8
                     return decoded_bytes.decode("utf-8", errors="replace")
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception as exc:
                 print(f"Warning: Failed to decode base64 log: {exc}")
                 return log_data
 
@@ -216,7 +216,7 @@ class Callback:
         """Parse the results and return them as a plain dictionary"""
         return self._data.get("tests", {})
 
-    def get_hierarchy(self, results, job_node):  # pylint: disable=unused-argument
+    def get_hierarchy(self, results, job_node):
         """Convert the plain results dictionary to a hierarchy for the API
 
         *results* is the tests dictionary from the callback
@@ -307,7 +307,7 @@ class PullLabs(Runtime):
         except json.JSONDecodeError as exc:
             print(f"Error: Generated template is not valid JSON: {exc}")
             return None
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:
             platform_params = (
                 params["platform_config"].params
                 if params.get("platform_config")

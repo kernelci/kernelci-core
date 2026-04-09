@@ -8,13 +8,6 @@
 
 """Unit test for KernelCI YAML config handling"""
 
-# This is normal practice for tests in order to cover parts of the
-# implementation.
-# pylint: disable=protected-access
-#
-# For the test classes with only one test case...
-# pylint: disable=too-few-public-methods
-
 import yaml
 
 import kernelci.config
@@ -52,7 +45,7 @@ def test_architecture_init_name_only():
     assert len(architecture._filters) == 0
 
 
-class ConfigTest:  # pylint: disable=too-few-public-methods
+class ConfigTest:
     """Base class with helpers for all YAML configuration tests"""
 
     @classmethod
@@ -98,7 +91,9 @@ class TestBuildConfigs(ConfigTest):
 
     def test_build_environments(self):
         """Test the build_environments configs"""
-        ref_data, config = self._load_config("tests/configs/build-environments.yaml")
+        ref_data, config = self._load_config(
+            "tests/configs/build-environments.yaml"
+        )
         be_config = self._reload(ref_data, config, "build_environments")
         be_names = ["gcc-10", "clang-11", "clang-12", "rustc-1.62"]
         assert all(name in ref_data["build_environments"] for name in be_names)
@@ -141,7 +136,9 @@ class TestTestConfigs(ConfigTest):
 
     def test_file_system_types(self):
         """Test the file_system_types configs"""
-        ref_data, config = self._load_config("tests/configs/file-system-types.yaml")
+        ref_data, config = self._load_config(
+            "tests/configs/file-system-types.yaml"
+        )
         fs_config = self._reload(ref_data, config, "file_system_types")
         fs_names = ["buildroot", "debian"]
         assert all(name in ref_data["file_system_types"] for name in fs_names)
@@ -228,7 +225,9 @@ class TestStorageConfigs(ConfigTest):
 
     def test_storage_configs(self):
         """Test the storage configs"""
-        ref_data, config = self._load_config("tests/configs/storage-configs.yaml")
+        ref_data, config = self._load_config(
+            "tests/configs/storage-configs.yaml"
+        )
         ref_configs = ref_data["storage"]
         storage_configs = self._reload(ref_data, config, "storage")
         config_names = ["local", "staging.kernelci.org", "staging-backend"]

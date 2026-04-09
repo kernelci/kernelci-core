@@ -133,7 +133,9 @@ class BuildEnvironment(YAMLConfigObject):
     @property
     def arch_params(self):
         """Return a copy of architecture parameters."""
-        return {arch: params.copy() for arch, params in self._arch_params.items()}
+        return {
+            arch: params.copy() for arch, params in self._arch_params.items()
+        }
 
     @classmethod
     def _get_yaml_attributes(cls):
@@ -166,7 +168,7 @@ class Architecture(YAMLConfigObject):
 
     yaml_tag = "!Architecture"
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         name,
         *,
@@ -195,7 +197,7 @@ class Architecture(YAMLConfigObject):
         self._filters = filters or []
 
     @classmethod
-    def load_from_yaml(cls, config, name, fragments):  # pylint: disable=arguments-differ
+    def load_from_yaml(cls, config, name, fragments):
         """Load Architecture from YAML with fragment references."""
         kw = {"name": name}
         kw.update(
@@ -208,7 +210,9 @@ class Architecture(YAMLConfigObject):
             )
         )
         frag_names = config.get("fragments") if config else None
-        kw["fragments"] = [fragments[n] for n in frag_names] if frag_names else None
+        kw["fragments"] = (
+            [fragments[n] for n in frag_names] if frag_names else None
+        )
         kw["filters"] = FilterFactory.from_data(config or {})
         return cls(**kw)
 
@@ -269,7 +273,7 @@ class Reference(YAMLConfigObject):
         self._branch = branch
 
     @classmethod
-    def load_from_yaml(cls, reference, trees):  # pylint: disable=arguments-differ
+    def load_from_yaml(cls, reference, trees):
         """Load Reference from YAML with tree reference."""
         kw = cls._kw_from_yaml(reference, ["tree", "branch"])
         kw["tree"] = trees[kw["tree"]]
@@ -301,7 +305,9 @@ class BuildVariant(YAMLConfigObject):
 
     yaml_tag = "!BuildVariant"
 
-    def __init__(self, name, architectures, build_environment, *, fragments=None):
+    def __init__(
+        self, name, architectures, build_environment, *, fragments=None
+    ):
         """A build variant is a sub-section of a build configuration.
 
         *name* is the name of the build variant.
@@ -318,9 +324,7 @@ class BuildVariant(YAMLConfigObject):
         self._fragments = fragments or []
 
     @classmethod
-    def load_from_yaml(  # pylint: disable=arguments-differ
-        cls, config, name, fragments, build_environments
-    ):
+    def load_from_yaml(cls, config, name, fragments, build_environments):
         """Load BuildVariant from YAML with references."""
         kw = {"name": name}
         kw.update(cls._kw_from_yaml(config, ["build_environment"]))
@@ -334,7 +338,9 @@ class BuildVariant(YAMLConfigObject):
             kw["fragments"] = [fragments[n] for n in frag_names]
         else:
             frag_names = config.get("fragments")
-            kw["fragments"] = [fragments[n] for n in frag_names] if frag_names else None
+            kw["fragments"] = (
+                [fragments[n] for n in frag_names] if frag_names else None
+            )
         return cls(**kw)
 
     @property
@@ -378,12 +384,12 @@ class BuildVariant(YAMLConfigObject):
         )
 
 
-class BuildConfig(YAMLConfigObject):  # pylint: disable=too-many-instance-attributes
+class BuildConfig(YAMLConfigObject):
     """Build configuration model."""
 
     yaml_tag = "!BuildConfig"
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         name,
         tree,
@@ -424,7 +430,6 @@ class BuildConfig(YAMLConfigObject):  # pylint: disable=too-many-instance-attrib
         self._priority = priority
 
     @classmethod
-    # pylint: disable=arguments-differ,too-many-arguments,too-many-positional-arguments
     def load_from_yaml(cls, config, name, trees, fragments, b_envs, defaults):
         """Load BuildConfig from YAML with all references."""
         kw = {"name": name}

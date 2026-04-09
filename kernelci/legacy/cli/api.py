@@ -9,7 +9,7 @@ from .base import Args, sub_main
 from .base_api import APICommand
 
 
-class cmd_hello(APICommand):  # pylint: disable=invalid-name
+class cmd_hello(APICommand):
     """Get the hello message"""
 
     opt_args = APICommand.opt_args + [Args.indent]
@@ -20,7 +20,7 @@ class cmd_hello(APICommand):  # pylint: disable=invalid-name
         return True
 
 
-class cmd_version(APICommand):  # pylint: disable=invalid-name
+class cmd_version(APICommand):
     """Get the API version"""
 
     def _api_call(self, api, configs, args):

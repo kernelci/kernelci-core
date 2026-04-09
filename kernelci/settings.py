@@ -117,7 +117,7 @@ class Secrets:
     so the `root` path to this is ('kci', 'secrets').
     """
 
-    class Group:  # pylint: disable=too-few-public-methods
+    class Group:
         """Helper class to find a key within a group"""
 
         def __init__(self, group: dict = None):

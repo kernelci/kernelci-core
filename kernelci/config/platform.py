@@ -8,13 +8,11 @@
 from .base import YAMLConfigObject
 
 
-# pylint: disable=too-many-instance-attributes
 class Platform(YAMLConfigObject):
     """Platform configuration definition"""
 
     yaml_tag = "!Platform"
 
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         name,
@@ -42,7 +40,9 @@ class Platform(YAMLConfigObject):
             else:
                 self._dtb = [dtb]
         self._mach = mach
-        self._params = self.format_params(params.copy(), params) if params else None
+        self._params = (
+            self.format_params(params.copy(), params) if params else None
+        )
         self._rules = rules
 
     @property

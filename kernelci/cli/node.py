@@ -50,7 +50,6 @@ def get(node_id, config, api, indent):
 @Args.page_length
 @Args.page_number
 @catch_error
-# pylint: disable=too-many-arguments
 def find(attributes, *, config, api, indent, page_length, page_number):
     """Find nodes with arbitrary attributes"""
     api = get_api(config, api)
@@ -68,7 +67,6 @@ def find(attributes, *, config, api, indent, page_length, page_number):
 @Args.api
 @Args.indent
 @catch_error
-# pylint: disable=too-many-arguments
 def findfast(attributes, config, api, indent):
     """Find nodes with arbitrary attributes"""
     api = get_api(config, api)

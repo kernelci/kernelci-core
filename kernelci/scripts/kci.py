@@ -15,7 +15,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 sys.path.append(str(Path(__file__).parent))
 
 # Import subcommand modules for their Click registration side effects.
-from kernelci.cli import (  # pylint: disable=unused-import  # noqa: F401,E402
+from kernelci.cli import (  # noqa: F401,E402
     api as kci_api,
 )
 from kernelci.cli import (
@@ -43,7 +43,7 @@ from kernelci.cli import (
 
 
 def main():
-    kci()  # pylint: disable=no-value-for-parameter
+    kci()
 
 
 if __name__ == "__main__":

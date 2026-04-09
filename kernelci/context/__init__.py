@@ -41,7 +41,7 @@ class KContext:
         cli_args: Parsed CLI arguments if parse_cli=True was used
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         args: Optional[argparse.Namespace] = None,
         config_paths: Optional[Union[str, List[str]]] = None,

@@ -29,7 +29,7 @@ import kernelci.config
 import kernelci.settings
 
 
-class Args:  # pylint: disable=too-few-public-methods
+class Args:
     """Common command line arguments"""
 
     api = click.option("--api", help="Name of the API config entry")
@@ -165,7 +165,6 @@ class KciS(Kci):
         super().__init__(*args, kci_secrets=True, **kwargs)
 
 
-# pylint: disable=not-callable
 class KciGroup(click.core.Group):
     """Click group to create commands with Kci or KciS classes"""
 

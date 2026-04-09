@@ -45,12 +45,8 @@ jobs:
           python-version: "3.10"
           cache: 'pip'
 
-      - name: Install ruff
-        run: |
-          pip install ruff
+      - name: Install pre-commit
+        run: pip install pre-commit
 
-      - name: Ruff lint
-        run: ruff check .
-
-      - name: Ruff format
-        run: ruff format --check --diff .
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files --show-diff-on-failure

@@ -52,10 +52,11 @@ class Runtime(YAMLConfigObject):
 
     @classmethod
     def _to_yaml_dict(cls, data):
-        yaml_dict = {key: getattr(data, key) for key in cls._get_yaml_attributes()}
+        yaml_dict = {
+            key: getattr(data, key) for key in cls._get_yaml_attributes()
+        }
         yaml_dict.update(
             {
-                # pylint: disable=protected-access
                 "filters": [{fil.name: fil} for fil in data._filters],
             }
         )
@@ -72,7 +73,7 @@ class Runtime(YAMLConfigObject):
         return all(f.match(**data) for f in self._filters)
 
 
-class RuntimeLAVA(Runtime):  # pylint: disable=too-many-instance-attributes
+class RuntimeLAVA(Runtime):
     """Configuration for LAVA runtime environments"""
 
     yaml_tag = "!RuntimeLAVA"
@@ -84,7 +85,6 @@ class RuntimeLAVA(Runtime):  # pylint: disable=too-many-instance-attributes
     }
 
     # This should be solved by dropping the "priority" attribute
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         *,
@@ -109,7 +109,9 @@ class RuntimeLAVA(Runtime):  # pylint: disable=too-many-instance-attributes
         self._priority_max = _set_priority_value(priority_max, self._priority)
         self._notify = notify or {}
         self._queue_timeout = queue_timeout
-        self._max_queue_depth = max_queue_depth if max_queue_depth is not None else 50
+        self._max_queue_depth = (
+            max_queue_depth if max_queue_depth is not None else 50
+        )
         self._disable_queue_limit = bool(disable_queue_limit)
 
     @property
@@ -184,7 +186,9 @@ class RuntimeDocker(Runtime):
 
     yaml_tag = "!RuntimeDocker"
 
-    def __init__(self, env_file=None, volumes=None, user=None, timeout=None, **kwargs):
+    def __init__(
+        self, env_file=None, volumes=None, user=None, timeout=None, **kwargs
+    ):
         super().__init__(**kwargs)
         self._env_file = env_file
         self._volumes = volumes or []
@@ -244,7 +248,9 @@ class RuntimePullLabs(Runtime):
 
     yaml_tag = "!RuntimePullLabs"
 
-    def __init__(self, poll_interval=None, timeout=None, storage_name=None, **kwargs):
+    def __init__(
+        self, poll_interval=None, timeout=None, storage_name=None, **kwargs
+    ):
         super().__init__(**kwargs)
         self._poll_interval = poll_interval or 30
         self._timeout = timeout or 3600
@@ -272,7 +278,7 @@ class RuntimePullLabs(Runtime):
         return attrs
 
 
-class RuntimeFactory:  # pylint: disable=too-few-public-methods
+class RuntimeFactory:
     """Factory to create lab objects from YAML data."""
 
     _lab_types = {

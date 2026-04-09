@@ -3,8 +3,6 @@
 # Copyright (C) 2025 Collabora Limited
 # Author: Denys Fedoryshchenko <denys.f@collabora.com>
 
-# pylint: disable=C0301
-
 """Test the APIHelper class"""
 
 import kernelci.api
@@ -76,7 +74,7 @@ def test_apihelper():
     api_config = configs["api"]["docker-host"]
     testcfg = kernelci.api.get_api(api_config)
     apihelper = APIHelper(testcfg)
-    node = apihelper._fsanitize_node_fields(node, "commit_message")  # pylint: disable=protected-access  # noqa: E501
+    node = apihelper._fsanitize_node_fields(node, "commit_message")  # noqa: E501
     # Test that the _fsanitize_fsanitize_node_fields method returns a dictionary
     assert isinstance(node, dict)
     # test that commit message doesnt contain single curly braces

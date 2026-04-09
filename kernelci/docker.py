@@ -47,7 +47,9 @@ class Docker:
         """Push a Docker image to Docker Hub"""
         client = docker.from_env(timeout=600)
         push_log_json = client.images.push(base_name, tag_name)
-        return list(json.loads(json_line) for json_line in push_log_json.splitlines())
+        return list(
+            json.loads(json_line) for json_line in push_log_json.splitlines()
+        )
 
     def get_image_name(self):
         """Get the base name, tag name and full image name"""
@@ -65,7 +67,9 @@ class Docker:
         """Get the generated Dockerfile"""
         params = {
             "prefix": self._prefix,
-            "fragments": [f"fragment/{fragment}.jinja2" for fragment in self._fragments]
+            "fragments": [
+                f"fragment/{fragment}.jinja2" for fragment in self._fragments
+            ]
             if self._fragments
             else [],
         }

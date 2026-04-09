@@ -275,7 +275,7 @@ class Filter(YAMLConfigObject):
         """Return True if the given *kw* keywords match the filter."""
         raise NotImplementedError("Filter.match() is not implemented")
 
-    def combine(self, items):  # pylint: disable=unused-argument
+    def combine(self, items):
         """Try to avoid making a new filter if we can make a combined
         filter matching both our existing data and the new items.
 

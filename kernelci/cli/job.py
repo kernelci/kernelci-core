@@ -39,7 +39,7 @@ def new(
     name,
     input_node_id,
     *,
-    platform,  # pylint: disable=too-many-arguments
+    platform,
     runtime,
     config,
     api,
@@ -86,7 +86,7 @@ def new(
 @catch_error
 def generate(
     node_id,
-    *,  # pylint: disable=too-many-arguments, too-many-locals
+    *,
     runtime,
     storage,
     platform,
@@ -177,11 +177,11 @@ def submit(
     job_path,
     *,
     runtime,
-    wait,  # pylint: disable=too-many-arguments
+    wait,
     config,
     secrets,
     api,
-):  # pylint: disable=unused-argument
+):
     """Submit a job definition to its designated runtime"""
     configs = kernelci.config.load(config)
     runtime_config = configs["runtimes"][runtime]

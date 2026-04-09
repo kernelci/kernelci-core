@@ -19,7 +19,7 @@ import kernelci.api
 from .base import Args, Command, catch_http_error
 
 
-class APICommand(Command):  # pylint: disable=too-few-public-methods
+class APICommand(Command):
     """Base command class for interacting with the KernelCI API
 
     The Args.api_token argument needs to be added for commands that require

@@ -23,7 +23,6 @@ from kernelci.runtime import Runtime, evaluate_test_suite_result
 
 
 # This will go away when adding get_html_log()
-# pylint: disable=too-few-public-methods
 class LogParser:
     """LAVA log parser
 
@@ -411,7 +410,7 @@ class LAVA(Runtime):
         try:
             rendered = template.render(params)
         # jinja2.exceptions.UndefinedError
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:
             raise ValueError(f"Error rendering job template: {exc}") from exc
 
         # yaml round-trip to process e.g. multi-line commands

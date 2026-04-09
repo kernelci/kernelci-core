@@ -45,7 +45,7 @@ def test_kci_command():
 
     try:
         kernelci.cli.kci(
-            args=[  # pylint: disable=no-value-for-parameter
+            args=[
                 "--toml-settings",
                 "tests/kernelci-cli.toml",
                 "hey",
@@ -65,14 +65,14 @@ def test_kci_command_with_secrets():
 
     @kernelci.cli.kci.command(cls=kernelci.cli.KciS, help="With secrets")
     @click.option("--foo", type=str)
-    def cmd(foo, secrets):  # pylint: disable=disallowed-name
+    def cmd(foo, secrets):
         assert isinstance(foo, str)
         assert foo == "bar"
         assert secrets.foo.baz == "FooBarBaz"
 
     try:
         kernelci.cli.kci(
-            args=[  # pylint: disable=no-value-for-parameter
+            args=[
                 "--toml-settings",
                 "tests/kernelci-cli.toml",
                 "cmd",
