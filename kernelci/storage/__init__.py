@@ -68,7 +68,9 @@ class Storage(abc.ABC):
         urls = self._upload([file_path], dest_path)
         if urls:
             return urls[file_path[1]]
-        return urljoin(self.config.base_url, "/".join([".", dest_path, file_path[1]]))
+        return urljoin(
+            self.config.base_url, "/".join([".", dest_path, file_path[1]])
+        )
 
     def upload_multiple(self, file_paths, dest_path=""):
         """Upload multiple files to storage

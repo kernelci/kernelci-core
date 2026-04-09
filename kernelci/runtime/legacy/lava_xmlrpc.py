@@ -3,6 +3,4 @@
 # Copyright (C) 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-# pylint: disable=all
-
 from kernelci.legacy.lava.lava_xmlrpc import get_runtime as get_runtime

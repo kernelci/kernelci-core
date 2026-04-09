@@ -350,7 +350,6 @@ class Base:
 class API(abc.ABC, Base):
     """KernelCI API Python bindings abstraction"""
 
-    # pylint: disable=abstract-class-instantiated
     def __init__(self, config: kernelci.config.api.API, token: str):
         data = Data(config, token)
         Base.__init__(self, data)

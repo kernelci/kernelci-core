@@ -8,12 +8,11 @@
 from .base import YAMLConfigObject
 
 
-class Job(YAMLConfigObject):  # pylint: disable=too-many-instance-attributes
+class Job(YAMLConfigObject):
     """Pipeline job definition"""
 
     yaml_tag = "!Job"
 
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         name,
@@ -32,7 +31,9 @@ class Job(YAMLConfigObject):  # pylint: disable=too-many-instance-attributes
         self._image = image
         self._kcidb_test_suite = kcidb_test_suite
         self._priority = priority
-        self._params = self.format_params(params.copy(), params) if params else {}
+        self._params = (
+            self.format_params(params.copy(), params) if params else {}
+        )
         self._rules = rules
 
     @property

@@ -69,7 +69,12 @@ def _load_results_file(filename):
 
 
 def _run_fluster(
-    test_suite=None, timeout=None, jobs=None, decoders=None, skips=None, verbose=False
+    test_suite=None,
+    timeout=None,
+    jobs=None,
+    decoders=None,
+    skips=None,
+    verbose=False,
 ):
     cmd = [
         "python3",
@@ -109,7 +114,11 @@ def main(args):
     if not args.results:
         # run fluster tests
         _run_fluster(
-            args.test_suite, args.timeout, args.jobs, args.decoders, args.skip_vectors
+            args.test_suite,
+            args.timeout,
+            args.jobs,
+            args.decoders,
+            args.skip_vectors,
         )
 
     if not args.run:

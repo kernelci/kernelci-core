@@ -50,7 +50,9 @@ def match_configs(configs, meta, lab):
     """
     dtbs = meta.get_single_artifact("dtbs", attr="contents") or []
     bmeta = meta.get("bmeta")
-    env, kernel, rev = (bmeta.get(key) for key in ["environment", "kernel", "revision"])
+    env, kernel, rev = (
+        bmeta.get(key) for key in ["environment", "kernel", "revision"]
+    )
     defconfig = kernel["defconfig_full"]
     arch = env["arch"]
 
@@ -138,7 +140,9 @@ def get_params(meta, target, plan_config, storage, device_id):
         dtb_url = None
     modules = meta.get_single_artifact("modules", attr="path")
     modules_url = (
-        urllib.parse.urljoin(storage, "/".join([url_px, modules])) if modules else None
+        urllib.parse.urljoin(storage, "/".join([url_px, modules]))
+        if modules
+        else None
     )
     modules_compression = _get_compression(modules_url)
     defconfig_full = kernel["defconfig_full"]

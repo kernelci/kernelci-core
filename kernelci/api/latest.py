@@ -24,7 +24,7 @@ class NodeStates(enum.Enum):
     DONE = "done"
 
 
-class LatestAPI(API):  # pylint: disable=too-many-public-methods
+class LatestAPI(API):
     """Latest API version
 
     The 'latest' version is used to refer to the current development version,

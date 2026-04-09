@@ -4,9 +4,6 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
-# Silence pylint error of `unused argument` for all the pytest fixtures
-# pylint: disable=unused-argument
-
 """Unit tests for KernelCI API bindings"""
 
 import kernelci.api
@@ -40,7 +37,9 @@ def test_subscribe_with_filter(get_api_config, mock_api_subscribe):
     for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
-        sub_id = helper.subscribe_filters(filters={"name": "checkout"}, channel="test")
+        sub_id = helper.subscribe_filters(
+            filters={"name": "checkout"}, channel="test"
+        )
         assert isinstance(sub_id, int)
 
 
@@ -57,7 +56,9 @@ def test_get_node_from_event(get_api_config, mock_api_get_node_from_id):
     for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
-        node = helper.get_node_from_event(APIHelperTestData().get_test_cloud_event())
+        node = helper.get_node_from_event(
+            APIHelperTestData().get_test_cloud_event()
+        )
         assert node.keys() == {
             "id",
             "artifacts",
@@ -81,7 +82,9 @@ def test_submit_regression(get_api_config, mock_api_post_regression):
     for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
-        resp = helper.submit_regression(regression=APIHelperTestData().regression_node)
+        resp = helper.submit_regression(
+            regression=APIHelperTestData().regression_node
+        )
         assert resp.status_code == 200
         assert resp.json().keys() == {
             "id",
@@ -141,7 +144,9 @@ def test_pubsub_event_filter_negative(get_api_config, mock_api_subscribe):
         assert ret is False
 
 
-def test_submit_results(get_api_config, mock_api_put_nodes, mock_api_get_node_from_id):
+def test_submit_results(
+    get_api_config, mock_api_put_nodes, mock_api_get_node_from_id
+):
     """Test method to submit a hierarchy of results"""
     for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
@@ -149,7 +154,10 @@ def test_submit_results(get_api_config, mock_api_put_nodes, mock_api_get_node_fr
         results = {
             "node": APIHelperTestData().kunit_node,
             "child_nodes": [
-                {"node": APIHelperTestData().kunit_child_node, "child_nodes": []}
+                {
+                    "node": APIHelperTestData().kunit_child_node,
+                    "child_nodes": [],
+                }
             ],
         }
         resp = helper.submit_results(
@@ -176,7 +184,10 @@ def test_submit_results(get_api_config, mock_api_put_nodes, mock_api_get_node_fr
 
 
 def test_receive_event_node(
-    get_api_config, mock_receive_event, mock_api_get_node_from_id, mock_api_subscribe
+    get_api_config,
+    mock_receive_event,
+    mock_api_get_node_from_id,
+    mock_api_subscribe,
 ):
     """Test method to receive node from event"""
     for _, api_config in get_api_config.items():
@@ -221,9 +232,7 @@ def test_prepare_results(get_api_config, mock_api_get_node_from_id):
             "state": "done",
         }
         parent = api.node.get(root["parent"])
-        resp = helper._prepare_results(  # pylint: disable=protected-access
-            results, parent, base
-        )
+        resp = helper._prepare_results(results, parent, base)
         assert resp["node"] == root
         assert set(resp["child_nodes"][0]["node"]) == {
             "artifacts",

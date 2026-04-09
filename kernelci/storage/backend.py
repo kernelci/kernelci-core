@@ -3,9 +3,6 @@
 # Copyright (C) 2022, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-# Needed to use open() in dictionary comprehension
-# pylint: disable=consider-using-with
-
 """KernelCI storage implementation for kernelci-backend"""
 
 import time
@@ -36,7 +33,7 @@ class StorageBackend(Storage):
         if exc.response is not None:
             try:
                 body = exc.response.text
-            except Exception:  # pylint: disable=broad-except
+            except Exception:
                 body = "<unable to read response body>"
 
         # Only retry on server errors (5xx status codes)

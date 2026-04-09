@@ -18,7 +18,6 @@ import yaml
 from kernelci.context import KContext, create_context, create_context_from_args
 
 
-# pylint: disable=too-many-public-methods
 class TestKContext(unittest.TestCase):
     """Test cases for KContext class"""
 
@@ -72,7 +71,7 @@ class TestKContext(unittest.TestCase):
     def tearDown(self):
         """Clean up test fixtures"""
         # Remove test files
-        import shutil  # pylint: disable=import-outside-toplevel
+        import shutil
 
         shutil.rmtree(self.test_dir)
 

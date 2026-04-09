@@ -499,7 +499,6 @@ class APIHelper:
 
         return False
 
-    # pylint: disable=too-many-arguments
     def create_job_node(
         self,
         job_config,
@@ -619,7 +618,6 @@ class APIHelper:
         [TODO] Leave this function in place in case we'll need any other
         processing or formatting before submitting the regression node
         """
-        # pylint: disable=protected-access
         try:
             return self.api._post("node", regression)
         except requests.exceptions.HTTPError as error:
@@ -716,7 +714,6 @@ class APIHelper:
         # Once this has been consolidated at the API level:
         # self.api.create_node_hierarchy(data)
         node_id = data["node"]["id"]
-        # pylint: disable=protected-access
         try:
             return self.api._put(f"nodes/{node_id}", data).json()
         except requests.exceptions.HTTPError as error:

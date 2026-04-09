@@ -8,10 +8,6 @@
 
 """Unit test for KernelCI Runtime implementation"""
 
-# This is normal practice for tests in order to cover parts of the
-# implementation.
-# pylint: disable=protected-access
-
 import types
 
 import kernelci.config
@@ -42,16 +38,14 @@ class _FakeSession:
         self._post_handler = post_handler
         self.calls = []
 
-    def get(self, url, params=None, timeout=30):  # pylint: disable=unused-argument
+    def get(self, url, params=None, timeout=30):
         """Invoke the GET handler and return a fake response."""
         if not self._get_handler:
             raise AssertionError("GET handler not set")
         self.calls.append((url, params))
         return _FakeResponse(self._get_handler(url, params))
 
-    def post(  # pylint: disable=unused-argument
-        self, url, json=None, allow_redirects=False, timeout=30
-    ):
+    def post(self, url, json=None, allow_redirects=False, timeout=30):
         """Invoke the POST handler and return its response."""
         if not self._post_handler:
             raise AssertionError("POST handler not set")
@@ -123,7 +117,10 @@ def test_lava_priority_hierarchy():
         "Job",
         (),
         {
-            "node": {"data": {"tree_priority": "low"}, "submitter": "service:pipeline"},
+            "node": {
+                "data": {"tree_priority": "low"},
+                "submitter": "service:pipeline",
+            },
             "config": job_config_no_priority,
         },
     )()
@@ -146,7 +143,10 @@ def test_lava_priority_hierarchy():
         "Job",
         (),
         {
-            "node": {"data": {"priority": "high"}, "submitter": "user@example.com"},
+            "node": {
+                "data": {"priority": "high"},
+                "submitter": "user@example.com",
+            },
             "config": job_config_no_priority,
         },
     )()
@@ -286,7 +286,11 @@ def test_lava_get_device_names_by_type():
                             "hostname": "dev-1",
                             "health": "Good",
                         },
-                        {"device_type": "type-a", "hostname": "dev-2", "health": "Bad"},
+                        {
+                            "device_type": "type-a",
+                            "hostname": "dev-2",
+                            "health": "Bad",
+                        },
                         {
                             "device_type": "type-b",
                             "hostname": "dev-x",

@@ -5,12 +5,6 @@
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 # Author: Denys Fedoryshchenko <denys.f@collabora.com>
 
-# Disable below flag as some models are just for storing the data and do not
-# need methods
-# pylint: disable=too-few-public-methods
-
-# pylint: disable=no-name-in-module
-
 """KernelCI API model definitions used by client-facing endpoints"""
 
 import enum
@@ -286,7 +280,7 @@ class Node(DatabaseModel):
         self.updated = datetime.utcnow()
 
     @field_validator("user_groups")
-    def validate_groups(cls, groups):  # pylint: disable=no-self-argument
+    def validate_groups(cls, groups):
         """Unique group constraint"""
         unique_names = set(groups)
         if len(unique_names) != len(groups):
@@ -803,10 +797,8 @@ class PublishEvent(BaseModel):
         description="Extra Cloudevents Extension Context Attributes", default={}
     )
 
-    # suppress pylint error below
-    # It's a known issue: https://github.com/pylint-dev/pylint/issues/6900
     @field_validator("data")
-    def validate_data(cls, val):  # pylint: disable=no-self-argument
+    def validate_data(cls, val):
         """Do not allow 'None' as event payload data"""
         if not val:
             raise ValueError("None is not allowed as event payload")

@@ -12,7 +12,7 @@ import kernelci.storage
 from .base import Args, Command, sub_main
 
 
-class cmd_upload(Command):  # pylint: disable=invalid-name
+class cmd_upload(Command):
     """Upload files to storage"""
 
     args = Command.args + [

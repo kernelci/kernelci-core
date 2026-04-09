@@ -4,12 +4,6 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
-# Disable below flag as some models are just for storing the data and do not
-# need methods
-# pylint: disable=too-few-public-methods
-
-# pylint: disable=no-name-in-module
-
 """Common KernelCI API model definitions"""
 
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -110,7 +104,7 @@ class DatabaseModel(ModelId):
         """
         values = self.__dict__.copy()
 
-        # TODO:  # pylint: disable=fixme
+        # TODO:
         # Remove manual handling of `exclude` fields below once
         # the pydantic issue is fixed:
         # https://github.com/pydantic/pydantic/issues/6575

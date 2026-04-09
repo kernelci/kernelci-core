@@ -84,7 +84,7 @@ class Kubernetes(Runtime):
                     error,
                 )
                 continue
-            except Exception as error:  # pylint: disable=broad-except
+            except Exception as error:
                 last_error = error
                 logger.warning(
                     "k8s cluster %s: %s listing pods (attempt %d/3): %s",

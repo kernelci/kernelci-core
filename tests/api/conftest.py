@@ -226,7 +226,7 @@ def mock_api_post_regression(mocker):
     """Mocks call to LatestAPI class method used to submit regression node"""
     resp = Response()
     resp.status_code = 200
-    resp._content = json.dumps(  # pylint: disable=protected-access
+    resp._content = json.dumps(
         APIHelperTestData().get_regression_node_with_id()
     ).encode("utf-8")
 
@@ -248,9 +248,7 @@ def mock_api_put_nodes(mocker):
         APIHelperTestData().update_kunit_node(),
         APIHelperTestData().update_kunit_child_node(),
     ]
-    resp._content = json.dumps(  # pylint: disable=protected-access
-        resp_data
-    ).encode("utf-8")
+    resp._content = json.dumps(resp_data).encode("utf-8")
     mocker.patch(
         "kernelci.api.API._put",
         return_value=resp,
@@ -265,7 +263,7 @@ def mock_receive_event(mocker):
     resp = Response()
     resp.status_code = 200
     event = APIHelperTestData().get_test_cloud_event()
-    resp._content = to_json(event)  # pylint: disable=protected-access
+    resp._content = to_json(event)
     mocker.patch(
         "kernelci.api.latest.LatestAPI.receive_event",
         return_value=event,

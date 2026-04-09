@@ -176,7 +176,6 @@ def forecast_tests(merged_data, kbuild, checkout):
     return tests
 
 
-# pylint: disable=too-many-branches disable=too-many-locals
 def get_forecast_data(merged_data):
     """
     Process merged data to get forecast of builds and tests.

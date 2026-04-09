@@ -74,7 +74,6 @@ class Runtime(abc.ABC):
 
     TEMPLATES = ["config/runtime", "/etc/kernelci/runtime"]
 
-    # pylint: disable=unused-argument,too-many-arguments
     def __init__(
         self,
         config,
@@ -137,7 +136,7 @@ class Runtime(abc.ABC):
 
         def kci_raise(msg):
             """Raise an exception"""
-            raise Exception(msg)  # pylint: disable=broad-exception-raised
+            raise Exception(msg)
 
         def kci_yaml_dump(data):
             """Dump data to YAML"""

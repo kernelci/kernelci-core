@@ -13,7 +13,6 @@ class SchedulerEntry(YAMLConfigObject):
 
     yaml_tag = "!SchedulerEntry"
 
-    # pylint: disable=too-many-arguments
     def __init__(self, job, runtime, event, *, platforms=None, rules=None):
         self._job = job
         self._runtime = runtime
@@ -56,7 +55,8 @@ class SchedulerEntry(YAMLConfigObject):
 def from_yaml(data, _):
     """Create the pipeline scheduler definitions using data loaded from YAML"""
     scheduler = [
-        SchedulerEntry.load_from_yaml(config) for config in data.get("scheduler", {})
+        SchedulerEntry.load_from_yaml(config)
+        for config in data.get("scheduler", {})
     ]
 
     return {

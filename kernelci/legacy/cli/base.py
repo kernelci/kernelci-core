@@ -27,7 +27,7 @@ import kernelci.config
 #
 
 
-class Args:  # pylint: disable=too-few-public-methods
+class Args:
     """A list of all the common command line argument options
 
     All the members of this class are arguments that can be reused in various

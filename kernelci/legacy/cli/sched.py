@@ -14,7 +14,7 @@ import kernelci.scheduler
 from .base import Args, Command, sub_main
 
 
-class cmd_get_schedule(Command):  # pylint: disable=invalid-name
+class cmd_get_schedule(Command):
     """Get scheduler configs matching an event provided on stdin"""
 
     opt_args = Command.opt_args + [

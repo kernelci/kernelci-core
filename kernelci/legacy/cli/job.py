@@ -12,7 +12,7 @@ from .base import Args, Command, sub_main
 from .base_api import APICommand
 
 
-class cmd_init(APICommand):  # pylint: disable=invalid-name
+class cmd_init(APICommand):
     """Initialise job data before running it"""
 
     args = APICommand.args + [
@@ -55,7 +55,7 @@ Invalid arguments.  Either --input-node-id or --input-node-json is required."
         return True
 
 
-class cmd_generate(APICommand):  # pylint: disable=invalid-name
+class cmd_generate(APICommand):
     """Generate a job definition file"""
 
     args = APICommand.args + [
@@ -114,7 +114,7 @@ Invalid arguments.  Either --node-id or --node-json is required."
         return True
 
 
-class cmd_submit(Command):  # pylint: disable=invalid-name
+class cmd_submit(Command):
     """Submit a job definition from a file"""
 
     args = Command.args + [
