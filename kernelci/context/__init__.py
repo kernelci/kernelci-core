@@ -14,6 +14,7 @@ import argparse
 import os
 import sys
 from typing import Any, Dict, List, Optional, Union
+
 import toml
 import yaml
 
@@ -504,7 +505,9 @@ class KContext:
         try:
             return kernelci.storage.get_storage(storage_config, credentials)
         except (AttributeError, ValueError, TypeError) as e:
-            print(f"Failed to initialize storage '{name}': {e}", file=sys.stderr)
+            print(
+                f"Failed to initialize storage '{name}': {e}", file=sys.stderr
+            )
             return None
 
     def init_api(self, name: str) -> Optional[Dict[str, Any]]:
@@ -652,7 +655,9 @@ def create_context(
         KContext instance with loaded configuration and secrets
     """
     return KContext(
-        config_paths=config_paths, secrets_path=secrets_path, program_name=program_name
+        config_paths=config_paths,
+        secrets_path=secrets_path,
+        program_name=program_name,
     )
 
 

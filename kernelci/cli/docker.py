@@ -10,6 +10,7 @@ import functools
 import click
 
 from kernelci.docker import Docker
+
 from . import Args, kci
 
 
@@ -59,7 +60,9 @@ def name(image, fragments, arch, prefix, version):
 
 def _get_docker_args(build_arg):
     try:
-        docker_args = dict(barg.split("=") for barg in build_arg) if build_arg else {}
+        docker_args = (
+            dict(barg.split("=") for barg in build_arg) if build_arg else {}
+        )
         return docker_args
     except ValueError as exc:
         raise click.UsageError(f"Invalid --build-arg value: {exc}")

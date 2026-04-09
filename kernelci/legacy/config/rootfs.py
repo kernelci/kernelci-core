@@ -17,6 +17,7 @@
 
 
 from kernelci import sort_check
+
 from .base import _YAMLObject
 
 
@@ -257,7 +258,13 @@ class RootFS_Buildroot(RootFS):
 
 class RootFS_ChromiumOS(RootFS):
     def __init__(
-        self, name, rootfs_type, arch_list=None, board=None, branch=None, serial=None
+        self,
+        name,
+        rootfs_type,
+        arch_list=None,
+        board=None,
+        branch=None,
+        serial=None,
     ):
         super().__init__(name, rootfs_type)
         self._arch_list = arch_list or list()
@@ -354,18 +361,26 @@ def validate(configs):
 def _validate_debos(name, config):
     err = sort_check(config.arch_list)
     if err:
-        print("Arch order broken for {}: '{}' before '{}".format(name, err[0], err[1]))
+        print(
+            "Arch order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     err = sort_check(config.extra_packages)
     if err:
         print(
-            "Packages order broken for {}: '{}' before '{}".format(name, err[0], err[1])
+            "Packages order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
         )
         return False
     err = sort_check(config.extra_packages_remove)
     if err:
         print(
-            "Packages order broken for {}: '{}' before '{}".format(name, err[0], err[1])
+            "Packages order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
         )
         return False
     return True
@@ -374,11 +389,19 @@ def _validate_debos(name, config):
 def _validate_buildroot(name, config):
     err = sort_check(config.arch_list)
     if err:
-        print("Arch order broken for {}: '{}' before '{}".format(name, err[0], err[1]))
+        print(
+            "Arch order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     err = sort_check(config.frags)
     if err:
-        print("Frags order broken for {}: '{}' before '{}".format(name, err[0], err[1]))
+        print(
+            "Frags order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     return True
 
@@ -386,7 +409,11 @@ def _validate_buildroot(name, config):
 def _validate_chromiumos(name, config):
     err = sort_check(config.arch_list)
     if err:
-        print("Arch order broken for {}: '{}' before '{}".format(name, err[0], err[1]))
+        print(
+            "Arch order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     return True
 

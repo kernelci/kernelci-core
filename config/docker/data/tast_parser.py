@@ -17,12 +17,12 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from functools import partial
+import json
+import os
+import pwd
 import subprocess
 import sys
-import os
-import json
-import pwd
+from functools import partial
 
 FAILED_RUN_FILE = "failed_run"
 STDERR_FILE = "stderr.log"
@@ -69,7 +69,9 @@ def report_lava(test_data):
     if "measurements" in test_data:
         lava_test_set_start(test_data["name"])
         for measurement in test_data["measurements"]:
-            report_lava_test_case(measurement["name"], test_data["result"], measurement)
+            report_lava_test_case(
+                measurement["name"], test_data["result"], measurement
+            )
         lava_test_set_stop(test_data["name"])
     else:
         report_lava_test_case(test_data["name"], test_data["result"])
@@ -178,7 +180,9 @@ def parse_test_results():
                 report_lava_critical("Tast tests run failed, no results")
                 sys.exit(1)
         for test_data in parse_results(results):
-            results_chart = os.path.join(test_data["outDir"], RESULTS_CHART_FILE)
+            results_chart = os.path.join(
+                test_data["outDir"], RESULTS_CHART_FILE
+            )
             if os.path.isfile(results_chart):
                 with open(results_chart, "r") as rc_file:
                     rc_data = json.load(rc_file)

@@ -8,9 +8,11 @@
 import glob
 import importlib
 import os
+
 import yaml
 
 import kernelci
+
 from .base import default_filters_from_yaml
 
 
@@ -55,12 +57,16 @@ def validate_yaml(config_paths, entries):
     try:
         for path in get_config_paths(config_paths):
             for yaml_path, data in iterate_yaml_files(path):
-                for name, value in ((k, v) for k, v in data.items() if k in entries):
+                for name, value in (
+                    (k, v) for k, v in data.items() if k in entries
+                ):
                     if isinstance(value, dict):
                         keys = value.keys()
                     elif isinstance(value, list):
                         keys = (
-                            [] if len(value) and isinstance(value[0], dict) else value
+                            []
+                            if len(value) and isinstance(value[0], dict)
+                            else value
                         )
                     else:
                         keys = []
@@ -206,7 +212,9 @@ def resolve_rootfs_params(params, rootfs_defs):
             f"rootfs_ref '{rootfs_ref}' used but no rootfs definitions found in config"
         )
     if rootfs_ref not in rootfs_defs:
-        raise ValueError(f"rootfs_ref '{rootfs_ref}' not found in rootfs config")
+        raise ValueError(
+            f"rootfs_ref '{rootfs_ref}' not found in rootfs config"
+        )
     for key, value in rootfs_defs[rootfs_ref].items():
         if key not in params:
             params[key] = value

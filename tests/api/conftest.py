@@ -7,9 +7,10 @@
 """pytest fixtures for APIHelper unit tests"""
 
 import json
+
 import pytest
-from cloudevents.http import CloudEvent
 from cloudevents.conversion import to_json
+from cloudevents.http import CloudEvent
 from requests import Response
 
 import kernelci.config
@@ -163,7 +164,9 @@ class APIHelperTestData:
                 "group": self._kunit_node["group"],
                 "holdoff": None,
                 "kind": self._kunit_node["kind"],
-                "path": (self._kunit_node["path"] + [self._kunit_child_node["name"]]),
+                "path": (
+                    self._kunit_node["path"] + [self._kunit_child_node["name"]]
+                ),
                 "state": self._kunit_node["state"],
                 "timeout": "2022-11-02T16:06:39.509000",
                 "updated": "2022-11-01T16:07:09.633000",

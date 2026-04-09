@@ -7,10 +7,11 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Michal Galka <michal.galka@collabora.com>
 
-from jinja2 import Environment, FileSystemLoader
 import json
 import os
 import sys
+
+from jinja2 import Environment, FileSystemLoader
 
 
 def add_kci_raise(jinja2_env):
@@ -74,7 +75,9 @@ class LavaRuntime:
     ):
         if templates_paths is None:
             templates_paths = self.DEFAULT_TEMPLATE_PATHS
-        short_template_file = plan_config.get_template_path(device_config.boot_method)
+        short_template_file = plan_config.get_template_path(
+            device_config.boot_method
+        )
         base_name = params["base_device_type"]
         priority = self._get_priority(plan_config)
         params.update(
@@ -88,7 +91,8 @@ class LavaRuntime:
         if callback_opts:
             self._add_callback_params(params, callback_opts)
         jinja2_env = Environment(
-            loader=FileSystemLoader(templates_paths), extensions=["jinja2.ext.do"]
+            loader=FileSystemLoader(templates_paths),
+            extensions=["jinja2.ext.do"],
         )
         add_kci_raise(jinja2_env)
         template = jinja2_env.get_template(short_template_file)
@@ -100,7 +104,9 @@ class LavaRuntime:
         output_file = os.path.join(output_path, file_name)
         if os.path.isfile(output_file):
             # print error message to stderr
-            print("ERROR: file already exists: %s" % output_file, file=sys.stderr)
+            print(
+                "ERROR: file already exists: %s" % output_file, file=sys.stderr
+            )
             return None
         with open(output_file, "w") as output:
             output.write(job)

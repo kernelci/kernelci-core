@@ -15,7 +15,6 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from datetime import datetime
 import fnmatch
 import itertools
 import json
@@ -25,14 +24,19 @@ import re
 import shutil
 import tarfile
 import time
+from datetime import datetime
 
 import requests
-from kernelci import shell_cmd, print_flush, __version__ as kernelci_version
-import kernelci.elf
+
 import kernelci.config
+import kernelci.elf
+from kernelci import __version__ as kernelci_version
+from kernelci import print_flush, shell_cmd
 
 # This is used to get the mainline tags as a minimum for git describe
-TORVALDS_GIT_URL = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+TORVALDS_GIT_URL = (
+    "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+)
 
 CIP_CONFIG_URL = "https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-\
 /raw/master/{branch}/{config}"
@@ -158,7 +162,10 @@ def update_repo(config, path, ref=None):
         ref_opt = "--reference={ref}".format(ref=ref) if ref else ""
         shell_cmd(
             "git clone {ref} -o {remote} {url} {path}".format(
-                ref=ref_opt, remote=config.tree.name, url=config.tree.url, path=path
+                ref=ref_opt,
+                remote=config.tree.name,
+                url=config.tree.url,
+                path=path,
             )
         )
 
@@ -634,7 +641,9 @@ class Metadata:
         path = os.path.join(directory, file_name)
         return self._add_artifact(step_name, "file", path, None, key)
 
-    def add_artifact_contents(self, step_name, artifact_type, path, contents, key=None):
+    def add_artifact_contents(
+        self, step_name, artifact_type, path, contents, key=None
+    ):
         """Add meta-data for artifacts with file contents
 
         Add a meta-data entry for an artifact with a list of files as its
@@ -1443,7 +1452,9 @@ class MakeModules(Step):
                 list(
                     set(
                         path
-                        for path in (os.path.basename(entry.name) for entry in tarball)
+                        for path in (
+                            os.path.basename(entry.name) for entry in tarball
+                        )
                         if path and path.endswith(".ko")
                     )
                 )
@@ -1594,7 +1605,8 @@ class MakeSelftests(Step):
             kselftests = set(
                 path
                 for path in (
-                    os.path.split(os.path.relpath(entry.name))[0] for entry in tarball
+                    os.path.split(os.path.relpath(entry.name))[0]
+                    for entry in tarball
                 )
                 if path
             )

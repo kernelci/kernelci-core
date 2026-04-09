@@ -13,13 +13,13 @@
 
 """KernelCI API model definitions used by client-facing endpoints"""
 
-from datetime import datetime, timedelta
-from typing import Any, Optional, Dict, List, ClassVar, Literal
 import enum
-import os
-from operator import attrgetter
 import json
-from typing_extensions import Annotated
+import os
+from datetime import datetime, timedelta
+from operator import attrgetter
+from typing import Any, ClassVar, Dict, List, Literal, Optional
+
 from bson import ObjectId
 from pydantic import (
     AnyHttpUrl,
@@ -27,13 +27,15 @@ from pydantic import (
     BaseModel,
     BeforeValidator,
     Field,
-    field_validator,
     StrictInt,
     TypeAdapter,
+    field_validator,
 )
+from typing_extensions import Annotated
+
 from .models_base import (
-    PyObjectId,
     DatabaseModel,
+    PyObjectId,
 )
 
 any_url_adapter = TypeAdapter(AnyUrl)
@@ -41,7 +43,9 @@ any_http_url_adapter = TypeAdapter(AnyHttpUrl)
 
 # TTL configuration for time-limited collections
 # Set environment variables to override defaults
-EVENT_HISTORY_TTL_SECONDS = int(os.getenv("EVENT_HISTORY_TTL_SECONDS", "604800"))
+EVENT_HISTORY_TTL_SECONDS = int(
+    os.getenv("EVENT_HISTORY_TTL_SECONDS", "604800")
+)
 TELEMETRY_TTL_SECONDS = int(os.getenv("TELEMETRY_TTL_SECONDS", "1209600"))
 
 
@@ -93,7 +97,9 @@ class ErrorCodes(str, enum.Enum):
 class KernelVersion(BaseModel):
     """Linux kernel version model"""
 
-    version: StrictInt = Field(description="Major version number e.g. 4 in 'v4.19'")
+    version: StrictInt = Field(
+        description="Major version number e.g. 4 in 'v4.19'"
+    )
     patchlevel: StrictInt = Field(
         description="Minor version number or 'patch level' e.g. 19 in 'v4.19'"
     )
@@ -102,7 +108,8 @@ class KernelVersion(BaseModel):
         default=None,
     )
     extra: Optional[str] = Field(
-        description="Extra version string e.g. -rc2 in 'v4.19-rc2'", default=None
+        description="Extra version string e.g. -rc2 in 'v4.19-rc2'",
+        default=None,
     )
     name: Optional[str] = Field(
         description="Version name e.g. People's Front for v4.19", default=None
@@ -124,16 +131,23 @@ class Revision(BaseModel):
 
     tree: str = Field(description="git tree of the revision")
     url: Annotated[
-        str, BeforeValidator(lambda value: str(any_url_adapter.validate_python(value)))
+        str,
+        BeforeValidator(
+            lambda value: str(any_url_adapter.validate_python(value))
+        ),
     ] = Field(description="git URL of the revision")
     branch: str = Field(description="git branch of the revision")
     commit: str = Field(description="git commit SHA of the revision")
     describe: Optional[str] = Field(
         default=None, description="git describe of the revision"
     )
-    version: Optional[KernelVersion] = Field(default=None, description="Kernel version")
+    version: Optional[KernelVersion] = Field(
+        default=None, description="Kernel version"
+    )
     patchset: Optional[str] = Field(default=None, description="Patchset hash")
-    commit_tags: List[str] = Field(description="List of git commit tags", default=[])
+    commit_tags: List[str] = Field(
+        description="List of git commit tags", default=[]
+    )
     commit_message: Optional[str] = Field(
         default=None, description="git commit message"
     )
@@ -181,7 +195,9 @@ class Node(DatabaseModel):
     group: Optional[str] = Field(
         description="Name of a group this node belongs to", default=None
     )
-    parent: Optional[PyObjectId] = Field(description="Parent commit SHA", default=None)
+    parent: Optional[PyObjectId] = Field(
+        description="Parent commit SHA", default=None
+    )
     state: StateValues = Field(
         default=StateValues.RUNNING.value, description="State of the node"
     )
@@ -195,12 +211,15 @@ class Node(DatabaseModel):
             Annotated[
                 str,
                 BeforeValidator(
-                    lambda value: str(any_http_url_adapter.validate_python(value))
+                    lambda value: str(
+                        any_http_url_adapter.validate_python(value)
+                    )
                 ),
             ],
         ]
     ] = Field(
-        description="Artifacts associated with the node (binaries, logs...)", default={}
+        description="Artifacts associated with the node (binaries, logs...)",
+        default={},
     )
     data: Optional[Dict[str, Any]] = Field(
         description="Arbitrary data stored in the node", default={}
@@ -209,14 +228,16 @@ class Node(DatabaseModel):
         description="Debug info fields (for development purposes)", default={}
     )
     jobfilter: Optional[List[str]] = Field(
-        description="Restrict jobs that can be scheduled by this node", default=None
+        description="Restrict jobs that can be scheduled by this node",
+        default=None,
     )
     platform_filter: Optional[List[str]] = Field(
         default=[],
         description="Restrict test jobs to be scheduled on specific platforms",
     )
     created: datetime = Field(
-        default_factory=datetime.utcnow, description="Timestamp of node creation"
+        default_factory=datetime.utcnow,
+        description="Timestamp of node creation",
     )
     updated: datetime = Field(
         default_factory=datetime.utcnow,
@@ -227,14 +248,19 @@ class Node(DatabaseModel):
         description="Node expiry timestamp",
     )
     holdoff: Optional[datetime] = Field(
-        description="Node expiry timestamp while in Available state", default=None
+        description="Node expiry timestamp while in Available state",
+        default=None,
     )
-    owner: Optional[str] = Field(description="Username of node owner", default=None)
+    owner: Optional[str] = Field(
+        description="Username of node owner", default=None
+    )
     submitter: Optional[str] = Field(
         description="Token md5 hash to identify node origin(submitter token)",
         default=None,
     )
-    treeid: Optional[str] = Field(description="Tree unique identifier", default=None)
+    treeid: Optional[str] = Field(
+        description="Tree unique identifier", default=None
+    )
     user_groups: List[str] = Field(
         default=[], description="User groups that are permitted to update node"
     )
@@ -249,7 +275,12 @@ class Node(DatabaseModel):
     )
 
     OBJECT_ID_FIELDS: ClassVar[list] = ["parent"]
-    TIMESTAMP_FIELDS: ClassVar[list] = ["created", "updated", "timeout", "holdoff"]
+    TIMESTAMP_FIELDS: ClassVar[list] = [
+        "created",
+        "updated",
+        "timeout",
+        "holdoff",
+    ]
 
     def update(self):
         self.updated = datetime.utcnow()
@@ -426,7 +457,9 @@ class KbuildData(BaseModel):
     kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data", default=None
     )
-    arch: Optional[str] = Field(description="CPU architecture family", default=None)
+    arch: Optional[str] = Field(
+        description="CPU architecture family", default=None
+    )
     defconfig: Optional[str] = Field(
         description="Kernel defconfig identifier", default=None
     )
@@ -438,7 +471,8 @@ class KbuildData(BaseModel):
     )
     error_msg: Optional[str] = Field(description="Error message", default=None)
     fragments: Optional[List[str]] = Field(
-        description="List of additional configuration fragments used", default=None
+        description="List of additional configuration fragments used",
+        default=None,
     )
     config_full: Optional[str] = Field(
         description=(
@@ -459,7 +493,8 @@ class KbuildData(BaseModel):
         description="Kernel image type (zimage, bzimage...)", default=None
     )
     regression: Optional[PyObjectId] = Field(
-        description="Regression node related to this build instance", default=None
+        description="Regression node related to this build instance",
+        default=None,
     )
 
 
@@ -489,9 +524,13 @@ class TestData(BaseModel):
     test_source: Optional[
         Annotated[
             str,
-            BeforeValidator(lambda value: str(any_url_adapter.validate_python(value))),
+            BeforeValidator(
+                lambda value: str(any_url_adapter.validate_python(value))
+            ),
         ]
-    ] = Field(description="Repository containing the test source code", default=None)
+    ] = Field(
+        description="Repository containing the test source code", default=None
+    )
     test_revision: Optional[Revision] = Field(
         description="Test repo revision data", default=None
     )
@@ -513,7 +552,9 @@ class TestData(BaseModel):
     kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data", default=None
     )
-    arch: Optional[str] = Field(description="CPU architecture family", default=None)
+    arch: Optional[str] = Field(
+        description="CPU architecture family", default=None
+    )
     defconfig: Optional[str] = Field(
         description="Kernel defconfig identifier", default=None
     )
@@ -609,7 +650,9 @@ class RegressionData(BaseModel):
     failed_kernel_revision: Optional[Revision] = Field(
         description="Kernel repo revision data of the failed job", default=None
     )
-    arch: Optional[str] = Field(description="CPU architecture family", default=None)
+    arch: Optional[str] = Field(
+        description="CPU architecture family", default=None
+    )
     defconfig: Optional[str] = Field(
         description="Kernel defconfig identifier", default=None
     )
@@ -714,11 +757,13 @@ class Regression(Node):
             )
         if pass_node.result != "pass":
             raise RuntimeError(
-                error_msg + f"The pass node has a wrong result: {pass_node.result}"
+                error_msg
+                + f"The pass node has a wrong result: {pass_node.result}"
             )
         if fail_node.result != "fail":
             raise RuntimeError(
-                error_msg + f"The fail node has a wrong result: {fail_node.result}"
+                error_msg
+                + f"The fail node has a wrong result: {fail_node.result}"
             )
         # End of sanity checks
         data_field = {
@@ -748,7 +793,9 @@ class PublishEvent(BaseModel):
     """API model for the data of a <publish> event"""
 
     data: Any = Field(description="Event payload", default=None)
-    type: Optional[str] = Field(description="Type of the <publish> event", default=None)
+    type: Optional[str] = Field(
+        description="Type of the <publish> event", default=None
+    )
     source: Optional[str] = Field(
         description="Source of the <publish> event", default=None
     )
@@ -784,9 +831,12 @@ class EventHistory(DatabaseModel):
         description="Timestamp of event creation", default_factory=datetime.now
     )
     sequence_id: Optional[int] = Field(
-        default=None, description="Sequential ID for pub/sub ordering (auto-generated)"
+        default=None,
+        description="Sequential ID for pub/sub ordering (auto-generated)",
     )
-    channel: Optional[str] = Field(default="node", description="Pub/Sub channel name")
+    channel: Optional[str] = Field(
+        default="node", description="Pub/Sub channel name"
+    )
     owner: Optional[str] = Field(
         default=None, description="Username of event publisher"
     )
@@ -802,7 +852,9 @@ class EventHistory(DatabaseModel):
         Also creates compound index for efficient pub/sub catch-up queries.
         """
         return [
-            cls.Index("timestamp", {"expireAfterSeconds": EVENT_HISTORY_TTL_SECONDS}),
+            cls.Index(
+                "timestamp", {"expireAfterSeconds": EVENT_HISTORY_TTL_SECONDS}
+            ),
             cls.Index([("channel", 1), ("sequence_id", 1)], {}),
         ]
 
@@ -830,28 +882,37 @@ class TelemetryEvent(DatabaseModel):
     device_id: Optional[str] = Field(
         default=None, description="Actual device identifier (LAVA only)"
     )
-    job_name: Optional[str] = Field(default=None, description="Job configuration name")
+    job_name: Optional[str] = Field(
+        default=None, description="Job configuration name"
+    )
     test_name: Optional[str] = Field(
         default=None, description="Individual test case name"
     )
     job_id: Optional[str] = Field(
         default=None, description="Runtime job identifier (e.g. LAVA job ID)"
     )
-    node_id: Optional[str] = Field(default=None, description="API node identifier")
+    node_id: Optional[str] = Field(
+        default=None, description="API node identifier"
+    )
     tree: Optional[str] = Field(default=None, description="Kernel tree name")
-    branch: Optional[str] = Field(default=None, description="Kernel branch name")
+    branch: Optional[str] = Field(
+        default=None, description="Kernel branch name"
+    )
     arch: Optional[str] = Field(default=None, description="CPU architecture")
     result: Optional[str] = Field(
         default=None, description="Result: pass, fail, skip, incomplete"
     )
     is_infra_error: bool = Field(
-        default=False, description="Whether the failure is an infrastructure error"
+        default=False,
+        description="Whether the failure is an infrastructure error",
     )
     error_type: Optional[str] = Field(
         default=None,
         description="Error category: online_check, submission, queue_depth, etc.",
     )
-    error_msg: Optional[str] = Field(default=None, description="Error message details")
+    error_msg: Optional[str] = Field(
+        default=None, description="Error message details"
+    )
     retry: int = Field(default=0, description="Retry attempt counter")
     extra: Dict[str, Any] = Field(
         default={}, description="Additional fields for future extensibility"

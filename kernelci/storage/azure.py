@@ -5,10 +5,12 @@
 
 """KernelCI storage implementation for Azure Files"""
 
-from urllib.parse import urljoin
 import os
-from azure.storage.fileshare import ShareServiceClient
+from urllib.parse import urljoin
+
 from azure.storage.blob import ContentSettings
+from azure.storage.fileshare import ShareServiceClient
+
 from . import Storage
 
 

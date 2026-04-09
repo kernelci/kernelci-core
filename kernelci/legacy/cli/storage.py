@@ -8,6 +8,7 @@
 import os.path
 
 import kernelci.storage
+
 from .base import Args, Command, sub_main
 
 
@@ -29,7 +30,9 @@ class cmd_upload(Command):  # pylint: disable=invalid-name
 
     def __call__(self, configs, args):
         storage_config = configs["storage_configs"].get(args.storage_config)
-        storage = kernelci.storage.get_storage(storage_config, args.storage_cred)
+        storage = kernelci.storage.get_storage(
+            storage_config, args.storage_cred
+        )
         for file_path in args.files:
             url = storage.upload_single(
                 (file_path, os.path.basename(file_path)), args.upload_path or ""

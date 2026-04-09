@@ -7,8 +7,8 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Michal Galka <michal.galka@collabora.com>
 
-import xmlrpc.client
 import urllib.parse
+import xmlrpc.client
 
 from . import LavaRuntime
 
@@ -64,7 +64,11 @@ class LAVA(LavaRuntime):
         if user and token:
             url = urllib.parse.urlparse(self.config.url)
             api_url = "{scheme}://{user}:{token}@{loc}{path}".format(
-                scheme=url.scheme, user=user, token=token, loc=url.netloc, path=url.path
+                scheme=url.scheme,
+                user=user,
+                token=token,
+                loc=url.netloc,
+                path=url.path,
             )
         else:
             api_url = self.config.url

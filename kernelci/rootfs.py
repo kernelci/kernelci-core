@@ -16,8 +16,9 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from kernelci import shell_cmd
 import os
+
+from kernelci import shell_cmd
 
 
 class RootfsBuilder:
@@ -180,7 +181,9 @@ def build(name, config, data_path, arch, output):
     """
     builder_cls = ROOTFS_BUILDERS.get(config.rootfs_type)
     if builder_cls is None:
-        raise ValueError("rootfs_type not supported: {}".format(config.rootfs_type))
+        raise ValueError(
+            "rootfs_type not supported: {}".format(config.rootfs_type)
+        )
 
     builder = builder_cls(name)
     return builder.build(config, data_path, arch, output)

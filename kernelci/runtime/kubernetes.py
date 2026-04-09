@@ -6,12 +6,13 @@
 """Kubernetes runtime implementation"""
 
 import logging
+import os
 import random
 import re
 import string
-import os
 
 import kubernetes
+
 from . import Runtime
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,9 @@ class Kubernetes(Runtime):
         super().__init__(*args, **kwargs)
         self.kcontext = None
         # Allow timeout to be configured, otherwise use default
-        self.api_timeout = getattr(self.config, "api_timeout", self.DEFAULT_API_TIMEOUT)
+        self.api_timeout = getattr(
+            self.config, "api_timeout", self.DEFAULT_API_TIMEOUT
+        )
 
     @classmethod
     def _get_job_file_name(cls, params):

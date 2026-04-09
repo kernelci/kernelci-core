@@ -16,8 +16,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import os
-import requests
 from urllib.parse import urljoin
+
+import requests
+
 from kernelci.build import get_branch_head, git_describe, make_tarball
 
 
@@ -84,7 +86,10 @@ def set_last_commit(config, api, token, commit):
     *commit* is the git SHA to send
     """
     _upload_files(
-        api, token, config.tree.name, {_get_last_commit_file_name(config): commit}
+        api,
+        token,
+        config.tree.name,
+        {_get_last_commit_file_name(config): commit},
     )
 
 

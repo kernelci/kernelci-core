@@ -16,7 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-from .base import FilterFactory, _YAMLObject, YAMLConfigObject
+from .base import FilterFactory, YAMLConfigObject, _YAMLObject
 
 
 class DeviceType(_YAMLObject):
@@ -172,17 +172,23 @@ class DeviceType_riscv(DeviceType):
 
 
 class DeviceType_shell(DeviceType):
-    def __init__(self, name, mach=None, arch=None, boot_method=None, *args, **kwargs):
+    def __init__(
+        self, name, mach=None, arch=None, boot_method=None, *args, **kwargs
+    ):
         super().__init__(name, mach, arch, boot_method, *args, **kwargs)
 
 
 class DeviceType_docker(DeviceType):
-    def __init__(self, name, mach=None, arch=None, boot_method=None, *args, **kwargs):
+    def __init__(
+        self, name, mach=None, arch=None, boot_method=None, *args, **kwargs
+    ):
         super().__init__(name, mach, arch, boot_method, *args, **kwargs)
 
 
 class DeviceType_kubernetes(DeviceType):
-    def __init__(self, name, mach=None, arch=None, boot_method=None, *args, **kwargs):
+    def __init__(
+        self, name, mach=None, arch=None, boot_method=None, *args, **kwargs
+    ):
         super().__init__(name, mach, arch, boot_method, *args, **kwargs)
 
 
@@ -333,7 +339,8 @@ class RootFS(_YAMLObject):
             {
                 fs: url
                 for (fs, url) in (
-                    (fs, rootfs.get(fs)) for fs in ["ramdisk", "nfs", "diskfile"]
+                    (fs, rootfs.get(fs))
+                    for fs in ["ramdisk", "nfs", "diskfile"]
                 )
                 if url
             }
@@ -408,7 +415,9 @@ class RootFS(_YAMLObject):
 class TestPlan(_YAMLObject):
     """Test plan model."""
 
-    _pattern = "{plan}/{category}-{method}-{protocol}-{rootfs}-{plan}-template.jinja2"
+    _pattern = (
+        "{plan}/{category}-{method}-{protocol}-{rootfs}-{plan}-template.jinja2"
+    )
 
     def __init__(
         self,
@@ -540,10 +549,14 @@ class TestConfig(_YAMLObject):
         self._filters = filters or list()
 
     @classmethod
-    def from_yaml(cls, test_config, device_types, test_plans, default_filters=None):
+    def from_yaml(
+        cls, test_config, device_types, test_plans, default_filters=None
+    ):
         kw = {
             "device_type": device_types[test_config["device_type"]],
-            "test_plans": [test_plans[test] for test in test_config["test_plans"]],
+            "test_plans": [
+                test_plans[test] for test in test_config["test_plans"]
+            ],
             "filters": FilterFactory.from_data(test_config, default_filters),
         }
 
@@ -561,9 +574,14 @@ class TestConfig(_YAMLObject):
         return (
             (
                 plan is None
-                or (plan in self._test_plans and self._test_plans[plan].match(config))
+                or (
+                    plan in self._test_plans
+                    and self._test_plans[plan].match(config)
+                )
             )
-            and (self.device_type.arch is None or (self.device_type.arch == arch))
+            and (
+                self.device_type.arch is None or (self.device_type.arch == arch)
+            )
             and self.device_type.match(flags, config)
             and all(f.match(**config) for f in self._filters)
         )

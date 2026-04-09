@@ -10,6 +10,7 @@ import sys
 
 import kernelci.runtime
 import kernelci.scheduler
+
 from .base import Args, Command, sub_main
 
 
@@ -30,7 +31,9 @@ class cmd_get_schedule(Command):  # pylint: disable=invalid-name
         sched = kernelci.scheduler.Scheduler(configs, runtimes)
         event = json.loads(sys.stdin.read())
         channel = args.channel or "node"
-        for job, runtime, platform, _rules in sched.get_schedule(event, channel):
+        for job, runtime, platform, _rules in sched.get_schedule(
+            event, channel
+        ):
             print(f"{job.name:32} {runtime.config.name:32} {platform.name}")
         return True
 

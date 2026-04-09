@@ -7,6 +7,7 @@
 
 import kernelci.api.helper
 import kernelci.runtime
+
 from .base import Args, Command, sub_main
 from .base_api import APICommand
 
@@ -100,7 +101,9 @@ Invalid arguments.  Either --node-id or --node-json is required."
             else None
         )
         runtime_config = configs["runtimes"][args.runtime_config]
-        runtime = kernelci.runtime.get_runtime(runtime_config, token=args.runtime_token)
+        runtime = kernelci.runtime.get_runtime(
+            runtime_config, token=args.runtime_token
+        )
         params = runtime.get_params(job, api.config)
         job_data = runtime.generate(job, params)
         if args.output:
@@ -132,7 +135,9 @@ class cmd_submit(Command):  # pylint: disable=invalid-name
 
     def __call__(self, configs, args):
         runtime_config = configs["runtimes"][args.runtime_config]
-        runtime = kernelci.runtime.get_runtime(runtime_config, token=args.runtime_token)
+        runtime = kernelci.runtime.get_runtime(
+            runtime_config, token=args.runtime_token
+        )
         job = runtime.submit(args.job_path)
         print(runtime.get_job_id(job))
         if args.wait:

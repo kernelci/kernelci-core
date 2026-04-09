@@ -60,9 +60,8 @@ classifiers = [
 dev = [
   "mypy==1.19.1",
   "pre-commit==4.2.0",
-  "pycodestyle==2.14.0",
-  "pylint==4.0.4",
   "pytest-mock==3.15.1",
+  "ruff >= 0.9.0",
   "types-PyYAML==6.0.12.20250915",
   "types-requests==2.32.4.20260107",
   "types-urllib3==1.26.25.14",
@@ -76,3 +75,30 @@ Repository = "https://github.com/kernelci/kernelci-core"
 [project.scripts]
 kci = "kernelci.scripts.kci:main"
 kci_rootfs = "kernelci.scripts.kci_rootfs:main"
+
+# Ruff — used by CI and pre-commit hooks
+[tool.ruff]
+target-version = "py39"
+# Soft limit for formatter wrapping
+line-length = 80
+
+[tool.ruff.lint]
+# Ruff defaults (E, F, W) plus import sorting and complexity checking
+select = ["E", "F", "W", "I", "C901"]
+
+[tool.ruff.lint.pycodestyle]
+# Hard limit — lines beyond this are errors regardless of formatter
+max-line-length = 110
+
+[tool.ruff.lint.per-file-ignores]
+# Legacy high-complexity entrypoints, to be refactored incrementally
+"examples/example_context_usage.py" = ["C901", "E501"]
+"kernelci/api/__init__.py" = ["C901"]
+"kernelci/api/helper.py" = ["C901"]
+"kernelci/build.py" = ["C901"]
+"kernelci/context/__init__.py" = ["C901"]
+"kernelci/kbuild.py" = ["C901"]
+"kernelci/legacy/cli/base.py" = ["C901"]
+"kernelci/runtime/__init__.py" = ["C901"]
+# Click subcommand modules imported for registration side effects
+"kernelci/scripts/kci.py" = ["F401"]

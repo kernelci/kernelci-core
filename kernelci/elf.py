@@ -21,14 +21,18 @@
 
 """Open the ELF file and read some of its content."""
 
-import elftools.elf.constants as elfconst
-import elftools.elf.elffile as elffile
 import io
 import os
 
+import elftools.elf.constants as elfconst
+import elftools.elf.elffile as elffile
+
 # Default section names and their build document keys to look in the ELF file.
 # These are supposed to always be available.
-DEFAULT_ELF_SECTIONS = [(".bss", "vmlinux_bss_size"), (".text", "vmlinux_text_size")]
+DEFAULT_ELF_SECTIONS = [
+    (".bss", "vmlinux_bss_size"),
+    (".text", "vmlinux_text_size"),
+]
 
 # Write/Alloc & Alloc constant we need to check for in the ELF sections.
 ELF_WA_FLAG = elfconst.SH_FLAGS.SHF_WRITE | elfconst.SH_FLAGS.SHF_ALLOC
