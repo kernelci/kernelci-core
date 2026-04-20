@@ -823,39 +823,19 @@ trap 'case $stage in
             defconfig = "defconfig"
             extra_defconfigs.insert(0, cros_config)
 
-        cmd_parts = [
-            "tuxmake --runtime=null",
-            f"--target-arch={self._arch}",
-            f"--toolchain={self._compiler}",
-            f"--output-dir={self._af_dir}",
-        ]
+        cmd_parts = self._tuxmake_base(
+            self._af_dir, defconfig, extra_defconfigs
+        )
 
-        cmd_parts.append(f"--kconfig={defconfig}")
-        for extra in extra_defconfigs:
-            cmd_parts.append(f"--kconfig-add={extra}")
-            print(f"[_build_with_tuxmake] Adding extra defconfig: {extra}")
-
-        for fragfile in self._fragment_files:
-            if os.path.exists(fragfile):
-                cmd_parts.append(f"--kconfig-add={fragfile}")
-                print(
-                    f"[_build_with_tuxmake] Adding fragment: {os.path.basename(fragfile)}"
-                )
-            else:
-                print(
-                    f"[_build_with_tuxmake] WARNING: Fragment file not found: {fragfile}"
-                )
-
-        # Build targets depend on mode
+        # Build targets depend on mode. kselftest is built in a separate
+        # tuxmake invocation below so a kselftest build failure cannot
+        # fail the kernel build.
         if self._dtbs_check:
             targets = ["dtbs_check"]
         else:
-            # Normal build: kernel, modules, plus dtbs if arch supports it
             targets = ["kernel", "modules"]
             if self._arch not in DTBS_DISABLED:
                 targets.append("dtbs")
-            if self._kselftest:
-                targets.append("kselftest")
         cmd_parts.append(" ".join(targets))
         print(f"[_build_with_tuxmake] Building targets: {' '.join(targets)}")
 
@@ -882,6 +862,66 @@ trap 'case $stage in
             f"fi"
         )
 
+        self.addcmd("cd ..")
+
+        if not self._dtbs_check and self._kselftest:
+            self._build_kselftest_tuxmake(defconfig, extra_defconfigs)
+
+    def _tuxmake_base(self, output_dir, defconfig, extra_defconfigs):
+        """Build the common tuxmake argument list for an invocation."""
+        parts = [
+            "tuxmake --runtime=null",
+            f"--target-arch={self._arch}",
+            f"--toolchain={self._compiler}",
+            f"--output-dir={output_dir}",
+            f"--kconfig={defconfig}",
+        ]
+        for extra in extra_defconfigs:
+            parts.append(f"--kconfig-add={extra}")
+            print(f"[_tuxmake_base] Adding extra defconfig: {extra}")
+        for fragfile in self._fragment_files:
+            if os.path.exists(fragfile):
+                parts.append(f"--kconfig-add={fragfile}")
+                print(
+                    "[_tuxmake_base] Adding fragment: "
+                    f"{os.path.basename(fragfile)}"
+                )
+            else:
+                print(
+                    "[_tuxmake_base] WARNING: Fragment file not found: "
+                    f"{fragfile}"
+                )
+        return parts
+
+    def _build_kselftest_tuxmake(self, defconfig, extra_defconfigs):
+        """Build kselftest as a separate tuxmake invocation.
+
+        Runs non-critical so a kselftest build failure does not fail
+        the kernel build. Uses a distinct output directory to avoid
+        overwriting kernel tuxmake artifacts (build.log, metadata.json,
+        etc.); the kselftest tarball is copied back to af_dir.
+        """
+        kselftest_out = f"{self._workspace}/kselftest_build"
+        self.startjob("build_kselftest")
+        self.addcmd(f"mkdir -p {kselftest_out}")
+        self.addcmd("cd " + self._srcdir)
+
+        cmd_parts = self._tuxmake_base(
+            kselftest_out, defconfig, extra_defconfigs
+        )
+        cmd_parts.append("kselftest")
+        kselftest_cmd = " ".join(cmd_parts) + REDIR.format(
+            self._af_dir + "/build_kselftest.log",
+            self._af_dir + "/build_kselftest_stderr.log",
+        )
+        print(f"[_build_kselftest_tuxmake] Command: {kselftest_cmd}")
+        self.addcmd(kselftest_cmd, False)
+
+        self.addcmd(
+            f"if [ -f {kselftest_out}/kselftest.tar.xz ]; then "
+            f"cp {kselftest_out}/kselftest.tar.xz {self._af_dir}/; "
+            f"fi"
+        )
         self.addcmd("cd ..")
 
     def _build_kernel(self):
