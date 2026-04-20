@@ -27,6 +27,18 @@ def _debug_print(message):
         print(message)
 
 
+def _http_error_detail(error):
+    """Return a useful payload from an HTTPError, JSON if possible, raw text otherwise."""
+    response = error.response
+    status = getattr(response, "status_code", "?")
+    content = getattr(response, "content", b"") or b""
+    try:
+        return {"status": status, "body": json.loads(content)}
+    except (ValueError, TypeError):
+        text = content.decode("utf-8", errors="replace")
+        return {"status": status, "body": text[:2000]}
+
+
 def merge(primary: dict, secondary: dict):
     """Deep merges dicts a and b, returning a new dict containing
     dictionary a updated with the contents of dictionary b.
@@ -717,21 +729,21 @@ class APIHelper:
         try:
             return self.api._put(f"nodes/{node_id}", data).json()
         except requests.exceptions.HTTPError as error:
-            raise RuntimeError(json.loads(error.response.content)) from error
+            raise RuntimeError(_http_error_detail(error)) from error
 
     def set_kv(self, namespace, key, value):
         """Set a key-value pair in the API"""
         try:
             return self.api.set_kv(namespace, key, value)
         except requests.exceptions.HTTPError as error:
-            raise RuntimeError(json.loads(error.response.content)) from error
+            raise RuntimeError(_http_error_detail(error)) from error
 
     def get_kv(self, namespace, key):
         """Get a key-value pair from the API"""
         try:
             return self.api.get_kv(namespace, key)
         except requests.exceptions.HTTPError as error:
-            raise RuntimeError(json.loads(error.response.content)) from error
+            raise RuntimeError(_http_error_detail(error)) from error
 
     @classmethod
     def load_json(cls, json_path, encoding="utf-8"):
