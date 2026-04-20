@@ -1448,13 +1448,18 @@ trap 'case $stage in
         # TODO(nuclearcat):
         # Add child_nodes for each sub-step
 
-        # do we have kselftest archive in artifact keys? then node is ok
+        # Determine kselftest result. If the kernel build failed, the
+        # script exited before kselftest was attempted, so mark it skip
+        # rather than fail to keep regression tracking meaningful.
         if self._kselftest:
-            kselftest_result = "fail"
-            for artifact in af_uri:
-                if artifact in ("kselftest_tar_xz", "kselftest_tar_gz"):
-                    kselftest_result = "pass"
-                    break
+            if job_result != "pass":
+                kselftest_result = "skip"
+            else:
+                kselftest_result = "fail"
+                for artifact in af_uri:
+                    if artifact in ("kselftest_tar_xz", "kselftest_tar_gz"):
+                        kselftest_result = "pass"
+                        break
 
         # This is second line of defense against kernel build failure,
         # if 'kernel' is not in artifacts, we assume it is a failure
@@ -1498,14 +1503,16 @@ trap 'case $stage in
         results["node"]["data"]["fragments"] = self._fragments
         results["node"]["data"]["config_full"] = self._config_full
 
-        # if we have kselftest, we need to add child node
-        # but only if build was successful
-        if self._kselftest and job_result == "pass":
+        # Always emit the kselftest child node when kselftest is enabled,
+        # so regression tracking has a continuous signal (skip when the
+        # kernel build failed, pass/fail otherwise).
+        if self._kselftest:
             kselftest_node = self._node.copy()
             # remove id to not have same as parent
             kselftest_node.pop("id")
             kselftest_node["name"] = kselftest_node["name"] + "-kselftest"
-            kselftest_node["kind"] = "test"
+            # kind=job so subsystem builds can attach as kind=test children
+            kselftest_node["kind"] = "job"
             existing_path = kselftest_node.get("path")
             if existing_path and isinstance(existing_path, list):
                 kselftest_node["path"] = existing_path + [
