@@ -1473,7 +1473,15 @@ trap 'case $stage in
                 ]
             kselftest_node["parent"] = self._node["id"]
             kselftest_node["data"] = results["node"]["data"].copy()
-            kselftest_node["artifacts"] = None
+            # Move kselftest build logs from the parent kbuild node to this
+            # child test node so kselftest failures can be diagnosed from
+            # the kselftest result node itself. Only logs are moved for now;
+            # the kselftest tarball stays on the parent kbuild node.
+            kselftest_af = {}
+            for key in list(af_uri.keys()):
+                if key.startswith("build_kselftest"):
+                    kselftest_af[key] = af_uri.pop(key)
+            kselftest_node["artifacts"] = kselftest_af or None
             kselftest_node["state"] = "done"
             kselftest_node["result"] = kselftest_result
 
