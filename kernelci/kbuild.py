@@ -22,6 +22,7 @@ Available kbuild parameters:
 - cross_compile_compat: cross compile compat prefix
 - dtbs_check: run "make dtbs_check" ONLY, it is actually a separate test
 - kselftest: false - do not build kselftest
+- extra_targets: list of additional tuxmake targets (e.g. ['binrpm-pkg'])
 """
 
 import concurrent.futures
@@ -199,6 +200,7 @@ class KBuild:
                 self._kselftest = False
             else:
                 self._kselftest = True
+            self._extra_targets = params.get("extra_targets", [])
             self._apijobname = jobname
             self._steps = []
             self._artifacts = []
@@ -258,6 +260,7 @@ class KBuild:
                 "kselftest", jsonobj.get("kfselftest")
             )
             self._coverage = jsonobj.get("coverage", False)
+            self._extra_targets = jsonobj.get("extra_targets", [])
             return
         raise ValueError("No valid arguments provided")
 
@@ -836,6 +839,8 @@ trap 'case $stage in
             targets = ["kernel", "modules"]
             if self._arch not in DTBS_DISABLED:
                 targets.append("dtbs")
+            if self._extra_targets:
+                targets.extend(self._extra_targets)
         cmd_parts.append(" ".join(targets))
         print(f"[_build_with_tuxmake] Building targets: {' '.join(targets)}")
 
