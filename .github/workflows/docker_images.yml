@@ -41,7 +41,7 @@ jobs:
     environment: deploydocker
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
           repository: ${{ env.USER_GIT_OWNER }}/kernelci-core
           ref: ${{ env.USER_GIT_BRANCH }}
@@ -55,7 +55,7 @@ jobs:
           python3 -m pip install '.[dev]' --break-system-packages
           sudo cp -R config /etc/kernelci/
       - name: Cache apt packages
-        uses: awalsh128/cache-apt-pkgs-action@latest
+        uses: awalsh128/cache-apt-pkgs-action@2c09a5e66da6c8016428a2172bd76e5e4f14bb17  # v1.5.4
         with:
           packages: python3-pip git docker.io python3-docker
           version: 1.0
@@ -124,21 +124,21 @@ jobs:
     environment: deploydocker
     steps:
       - name: Checkout kernelci-core
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
           repository: ${{ env.USER_GIT_OWNER }}/kernelci-core
           ref: ${{ env.USER_GIT_BRANCH }}
           fetch-depth: 0
           path: kernelci-core
       - name: Checkout kernelci-pipeline
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
           repository: ${{ env.USER_GIT_OWNER }}/kernelci-pipeline
           ref: ${{ env.USER_GIT_BRANCH }}
           fetch-depth: 0
           path: kernelci-pipeline
       - name: Checkout kernelci-api
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
           repository: ${{ env.USER_GIT_OWNER }}/kernelci-api
           ref: ${{ env.USER_GIT_BRANCH }}
@@ -151,7 +151,7 @@ jobs:
           python3 -m pip install '.[dev]' --break-system-packages
           sudo cp -R config /etc/kernelci/
       - name: Cache apt packages
-        uses: awalsh128/cache-apt-pkgs-action@latest
+        uses: awalsh128/cache-apt-pkgs-action@2c09a5e66da6c8016428a2172bd76e5e4f14bb17  # v1.5.4
         with:
           packages: python3-pip git docker.io python3-docker
           version: 1.0
