@@ -18,7 +18,7 @@ jobs:
             - name: Discord notification for start
               env:
                 DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-              uses: Ilshidur/action-discord@master
+              uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
               with:
                 args: 'Maestro production deploy started: "${{ inputs.message }}" by ${{ github.actor }}'
     tag-core:
@@ -26,7 +26,7 @@ jobs:
         needs: discord-notify-start
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
               with:
                 repository: kernelci/kernelci-core
                 ref: main
@@ -46,7 +46,7 @@ jobs:
         needs: discord-notify-start
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
               with:
                 repository: kernelci/kernelci-pipeline
                 ref: main
@@ -71,7 +71,7 @@ jobs:
         needs: discord-notify-start
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
               with:
                 repository: kernelci/kernelci-api
                 ref: main
@@ -103,12 +103,12 @@ jobs:
         needs: call-docker-build
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
               with:
                 repository: kernelci/kernelci-deploy
                 ref: main
             - name: Set up kubectl
-              uses: azure/k8s-set-context@v4
+              uses: azure/k8s-set-context@ae59a723ba9abe7a9655538854a025448dbab4aa  # v4
               with:
                 method: kubeconfig
                 kubeconfig: ${{ secrets.KUBECONFIG }}
@@ -119,7 +119,7 @@ jobs:
             - name: Discord notification for end
               env:
                 DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-              uses: Ilshidur/action-discord@master
+              uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
               with:
                 args: 'Maestro production deploy completed.'
     discord-notify-failure:
@@ -130,6 +130,6 @@ jobs:
             - name: Notify failure to Discord
               env:
                 DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-              uses: Ilshidur/action-discord@master
+              uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
               with:
                 args: '❌ Maestro production deploy failed.'

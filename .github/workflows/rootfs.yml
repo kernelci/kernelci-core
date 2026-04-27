@@ -41,7 +41,7 @@ jobs:
           - name: Discord notification for start
             env:
               DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-            uses: Ilshidur/action-discord@master
+            uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
             with:
               args: 'Rootfs build started: "${{ github.event.inputs.ROOTFS_NAME }}" for architecture "${{ github.event.inputs.ROOTFS_ARCH }}" by ${{ github.actor }}'
 
@@ -52,13 +52,13 @@ jobs:
     environment: deploysecrets
     steps:
       - name: Checkout kernelci-deploy
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
           repository: kernelci/kernelci-deploy
           path: kernelci-deploy
           ref: 'main'
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
           repository: ${{ env.USER_GIT_REPO }}
           ref: ${{ env.USER_GIT_BRANCH }}
@@ -80,7 +80,7 @@ jobs:
           echo "ROOTFS_TIMECODE=$(date +%Y%m%d.0)" >> $GITHUB_ENV
       - name: Copy files via scp to staging
         if: ${{ env.ROOTFS_DESTINATION == 'staging' }}
-        uses: appleboy/scp-action@v1
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345  # v1.0.0
         with:
           host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USERNAME }}
@@ -91,7 +91,7 @@ jobs:
           strip_components: 8
       - name: Copy files via scp to production
         if: ${{ env.ROOTFS_DESTINATION == 'production' }}
-        uses: appleboy/scp-action@v1
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345  # v1.0.0
         with:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USERNAME }}
@@ -105,7 +105,7 @@ jobs:
           echo "FINAL_MSG=Rootfs build completed: ${{ secrets.STAGING_URL }}/${{ env.ROOTFS_NAME }}/${{ env.ROOTFS_TIMECODE }}/${{ env.ROOTFS_ARCH }}" >> $GITHUB_ENV
           cat $GITHUB_ENV|grep FINAL_MSG
       - name: Slack notification
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661  # v2.3.3
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_CHANNEL: 'bot'
@@ -122,7 +122,7 @@ jobs:
           - name: Discord notification for end
             env:
               DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-            uses: Ilshidur/action-discord@master
+            uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
             with:
               args: 'Rootfs build completed: "${{ github.event.inputs.ROOTFS_NAME }}" for architecture "${{ github.event.inputs.ROOTFS_ARCH }}". Check the logs for more details.'
 
@@ -134,6 +134,6 @@ jobs:
           - name: Notify failure to Discord
             env:
               DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-            uses: Ilshidur/action-discord@master
+            uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
             with:
               args: 'Rootfs build failed: "${{ github.event.inputs.ROOTFS_NAME }}" for architecture "${{ github.event.inputs.ROOTFS_ARCH }}". Check the logs for more details.'
