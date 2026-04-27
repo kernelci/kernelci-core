@@ -524,10 +524,18 @@ def from_yaml(data, _):
         for name, config in data.get("trees", {}).items()
     }
 
-    fragments = {
-        name: Fragment.load_from_yaml(config, name=name)
-        for name, config in data.get("fragments", {}).items()
-    }
+    fragments = {}
+    for name, config in data.get("fragments", {}).items():
+        if not config or not config.get("path"):
+            raise ValueError(
+                f"Fragment '{name}' is missing required 'path' field"
+            )
+        try:
+            fragments[name] = Fragment.load_from_yaml(config, name=name)
+        except TypeError as exc:
+            raise ValueError(
+                f"Failed to load fragment '{name}': {exc}"
+            ) from exc
 
     build_environments = {
         name: BuildEnvironment.load_from_yaml(config, name=name)
