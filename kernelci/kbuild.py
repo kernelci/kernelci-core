@@ -847,6 +847,7 @@ trap 'case $stage in
         tuxmake_cmd = " ".join(cmd_parts)
         print(f"[_build_with_tuxmake] Command: {tuxmake_cmd}")
         print(f"[_build_with_tuxmake] Output directory: {self._af_dir}")
+        self.addcmd("rpmdb --initdb 2>/dev/null || true")
         self.addcmd("stage=1")  # stage 1 failure is build failure
         self.addcmd(tuxmake_cmd)
         self.addcmd("stage=2")
