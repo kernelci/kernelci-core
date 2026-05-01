@@ -52,7 +52,7 @@ jobs:
         run: |
           pip3 install --upgrade pip
           cd kernelci-core
-          python3 -m pip install '.[dev]' --break-system-packages
+          python3 -m pip install -r requirements-dev.txt --break-system-packages
           sudo cp -R config /etc/kernelci/
       - name: Cache apt packages
         uses: awalsh128/cache-apt-pkgs-action@2c09a5e66da6c8016428a2172bd76e5e4f14bb17  # v1.5.4
@@ -148,7 +148,7 @@ jobs:
         run: |
           pip3 install --upgrade pip
           cd kernelci-core
-          python3 -m pip install '.[dev]' --break-system-packages
+          python3 -m pip install -r requirements-dev.txt --break-system-packages
           sudo cp -R config /etc/kernelci/
       - name: Cache apt packages
         uses: awalsh128/cache-apt-pkgs-action@2c09a5e66da6c8016428a2172bd76e5e4f14bb17  # v1.5.4
@@ -202,4 +202,3 @@ jobs:
           DHNAME=$(./kci docker name --prefix=kernelci/staging- ${{ matrix.kcicmd }})
           docker tag $NAME $DHNAME
           docker push $DHNAME
-
