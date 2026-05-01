@@ -847,6 +847,16 @@ trap 'case $stage in
         tuxmake_cmd = " ".join(cmd_parts)
         print(f"[_build_with_tuxmake] Command: {tuxmake_cmd}")
         print(f"[_build_with_tuxmake] Output directory: {self._af_dir}")
+        # rpm defaults to /var/lib/rpm which a non-root build user cannot
+        # write to. Redirect _dbpath and _topdir into the workspace via
+        # ~/.rpmmacros so rpmdb and any rpmbuild invoked by tuxmake's
+        # *rpm-pkg targets share a writable location.
+        rpm_root = f"{self._workspace}/rpm"
+        self.addcmd(f"mkdir -p {rpm_root}/db {rpm_root}/build")
+        self.addcmd(
+            f"printf '%%_dbpath {rpm_root}/db\\n"
+            f"%%_topdir {rpm_root}/build\\n' > $HOME/.rpmmacros"
+        )
         self.addcmd("rpmdb --initdb 2>/dev/null || true")
         self.addcmd("stage=1")  # stage 1 failure is build failure
         self.addcmd(tuxmake_cmd)
@@ -866,6 +876,13 @@ trap 'case $stage in
             f"tar -xf {self._af_dir}/dtbs.tar.xz -C {self._af_dir} && "
             f"rm {self._af_dir}/dtbs.tar.xz; "
             f"fi"
+        )
+
+        # Collect any rpm/srpm artifacts produced under our _topdir
+        # (set in ~/.rpmmacros above) so they land in af_dir for upload.
+        self.addcmd(
+            f"find {rpm_root}/build \\( -name '*.rpm' -o -name '*.src.rpm' \\) "
+            f"-exec cp {{}} {self._af_dir}/ \\; 2>/dev/null || true"
         )
 
         self.addcmd("cd ..")
