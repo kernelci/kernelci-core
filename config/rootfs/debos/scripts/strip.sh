@@ -16,11 +16,15 @@ export DEBIAN_FRONTEND=noninteractive
 exec 3>&-
 exec 4>&-
 
-# Removing unused packages
+# Removing unused packages.
+# Use dpkg --purge --force-depends rather than apt-get remove --purge:
+# in Debian trixie, python3.13 and libpython3.13-stdlib Depend: tzdata,
+# so apt cascades the purge and drops the entire Python stack, which
+# breaks rootfses that need python3-tap / python3-yaml / asyncio etc.
 for PACKAGE in ${PACKAGES_TO_REMOVE}
 do
 	echo ${PACKAGE}
-	if ! apt-get remove --purge --yes "${PACKAGE}"
+	if ! dpkg --purge --force-depends "${PACKAGE}"
 	then
 		echo "WARNING: ${PACKAGE} isn't installed"
 	fi
