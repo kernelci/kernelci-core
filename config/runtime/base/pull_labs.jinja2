@@ -9,8 +9,8 @@
 {%- if node.artifacts.modules %},
     "modules": "{{ node.artifacts.modules }}"
 {%- endif %}
-{%- if node.artifacts.kselftest %},
-    "kselftest": "{{ node.artifacts.kselftest }}"
+{%- if node.artifacts.kselftest_tar_xz or node.artifacts.kselftest_tar_gz %},
+    "kselftest": "{{ node.artifacts.kselftest_tar_xz | default(node.artifacts.kselftest_tar_gz, true) }}"
 {%- endif %}
 {%- if nfsroot is defined and nfsroot %},
     "rootfs": "{{ nfsroot }}/full.rootfs.tar.xz"
