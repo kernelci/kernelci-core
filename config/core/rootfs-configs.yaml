@@ -408,6 +408,7 @@ rootfs_configs:
       - amd64
       - arm64
       - armhf
+      - riscv64
     extra_packages:
       - btrfs-progs
       - ca-certificates
