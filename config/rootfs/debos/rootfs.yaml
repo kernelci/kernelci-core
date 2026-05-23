@@ -128,7 +128,7 @@ actions:
   - action: run
     description: Set symbolic link to init
     chroot: true
-    command: ln -s /usr/bin/systemd /init
+    command: ln -s /usr/lib/systemd/systemd /init
 
   - action: run
     description: Clean installed package files
