@@ -26,6 +26,7 @@ rootfs_configs:
       - i386
       - mips64el
       - mipsel
+      - riscv64
     extra_packages:
       - isc-dhcp-client
     extra_packages_remove: &extra_packages_remove_trixie
@@ -305,6 +306,7 @@ rootfs_configs:
       - amd64
       - arm64
       - armhf
+      - riscv64
     extra_packages:
       - alsa-utils
       - arping
