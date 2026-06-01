@@ -1,5 +1,5 @@
 azure-storage-blob==12.29.0
-azure-storage-file-share==12.24.0
+azure-storage-file-share==12.25.0
 bson==0.5.10
 click==8.3.1
 cloudevents==1.12.1
