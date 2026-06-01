@@ -8,7 +8,7 @@ LTP_URL="https://github.com/linux-test-project/ltp.git"
 LTP_SHA=20260130
 
 # Version of Kirk to install
-KIRK_VERSION=v2.3
+KIRK_VERSION=v4.1.0
 
 # Build-depends needed to build the test suites, they'll be removed later
 BUILD_DEPS="\
