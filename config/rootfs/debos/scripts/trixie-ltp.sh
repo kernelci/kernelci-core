@@ -5,7 +5,7 @@
 set -e
 
 LTP_URL="https://github.com/linux-test-project/ltp.git"
-LTP_SHA=20260130
+LTP_SHA=20260529
 
 # Version of Kirk to install
 KIRK_VERSION=v2.3
