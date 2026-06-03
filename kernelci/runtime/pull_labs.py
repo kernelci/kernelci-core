@@ -269,6 +269,28 @@ class Callback:
         return LogParser(log)
 
 
+LEGACY_FVP_ARCH_VERSION = {
+    "linux-5.15.y": "9.5",
+    "linux-6.1.y": "9.5",
+}
+
+
+def compute_tuxrun_parameters(platform_name, node):
+    """Build tuxrun --parameters K=V values per job.
+
+    Clamps FVP_ARM_ARCH_VERSION on FVP jobs for legacy trees that
+    cannot boot on newer Arm architecture versions.
+    """
+    params = {}
+    if platform_name and platform_name.startswith("fvp-"):
+        branch = (
+            node.get("data", {}).get("kernel_revision", {}).get("branch", "")
+        )
+        if branch in LEGACY_FVP_ARCH_VERSION:
+            params["FVP_ARM_ARCH_VERSION"] = LEGACY_FVP_ARCH_VERSION[branch]
+    return params
+
+
 class PullLabs(Runtime):
     """Runtime implementation for PULL_LABS protocol
 
@@ -288,6 +310,9 @@ class PullLabs(Runtime):
         params = super().get_params(job, api_config)
         params["timeout"] = self.config.timeout
         params["poll_interval"] = self.config.poll_interval
+        params["tuxrun_parameters"] = compute_tuxrun_parameters(
+            job.platform_config.name, job.node
+        )
         return params
 
     def generate(self, job, params):

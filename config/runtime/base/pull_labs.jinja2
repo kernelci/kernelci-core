@@ -77,6 +77,13 @@
     "url": "{{ instance_callback }}/node/{{ node.id }}",
     "token_name": "{{ callback_token_name | default('kernelci-pipeline-callback') }}"
   }
+{%- if tuxrun_parameters %}
+  ,"parameters": {
+{%- for k, v in tuxrun_parameters.items() %}
+    "{{ k }}": "{{ v }}"{{ "," if not loop.last else "" }}
+{%- endfor %}
+  }
+{%- endif %}
 {%- if node.artifacts.metadata %}
   ,"integrity": {
     "sha256": {

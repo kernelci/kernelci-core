@@ -12,6 +12,7 @@ import types
 
 import kernelci.config
 import kernelci.runtime
+from kernelci.runtime.pull_labs import compute_tuxrun_parameters
 
 
 class _FakeResponse:
@@ -345,3 +346,40 @@ def test_lava_submit_rest():
     job_id = lab._submit("jobdef")
     assert job_id == 123
     assert captured["json"]["definition"] == "jobdef"
+
+
+def _node_with_branch(branch):
+    return {"data": {"kernel_revision": {"branch": branch}}}
+
+
+def test_compute_tuxrun_parameters_legacy_fvp():
+    """Old stable trees on FVP clamp to an older Arm arch version."""
+    for branch in ("linux-5.15.y", "linux-6.1.y"):
+        params = compute_tuxrun_parameters(
+            "fvp-aemva", _node_with_branch(branch)
+        )
+        assert params == {"FVP_ARM_ARCH_VERSION": "9.5"}
+
+
+def test_compute_tuxrun_parameters_modern_fvp():
+    """Mainline and modern stable trees on FVP keep the default arch version."""
+    for branch in ("master", "linux-6.6.y", "linux-6.12.y", "linux-next"):
+        params = compute_tuxrun_parameters(
+            "fvp-aemva", _node_with_branch(branch)
+        )
+        assert params == {}
+
+
+def test_compute_tuxrun_parameters_non_fvp():
+    """Non-FVP platforms get no tuxrun parameters regardless of branch."""
+    for platform in ("qemu-arm64", "rpi4", "rk3588"):
+        params = compute_tuxrun_parameters(
+            platform, _node_with_branch("linux-5.15.y")
+        )
+        assert params == {}
+
+
+def test_compute_tuxrun_parameters_missing_branch():
+    """Nodes lacking kernel_revision.branch get an empty parameter set."""
+    assert compute_tuxrun_parameters("fvp-aemva", {}) == {}
+    assert compute_tuxrun_parameters("fvp-aemva", {"data": {}}) == {}
