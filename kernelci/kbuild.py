@@ -103,6 +103,16 @@ ARTIFACT_NAMES = {
     r"metadata\.json": "metadata",
 }
 
+# kselftest TARGETS that build successfully but install no test binaries.
+# The presence-based check in _kselftest_suite_results() would otherwise mark
+# these as a false 'fail'; they are reported as 'skip' instead. Keyed by the
+# raw TARGET name as it appears in kselftest_targets.txt (e.g. "net/mptcp").
+# TODO: replace this hardcoded list by parsing build_kselftest.log for the
+# real per-suite build outcome once the kernel-side "preserve subtarget
+# failures in all/install" support lands, so a genuinely broken no-artifact
+# suite is still caught instead of being silently skipped.
+KSELFTEST_NO_ARTIFACT_TARGETS = set()
+
 # first argument stdout+stderr, second argument stderr only
 REDIR = " > >(tee {}) 2> >(tee {} >&1)"
 
@@ -945,7 +955,94 @@ trap 'case $stage in
             f"cp {kselftest_out}/kselftest.tar.xz {self._af_dir}/; "
             f"fi"
         )
+        # Copy tuxmake's kselftest metadata.json back to the artifacts dir.
+        # Its top-level 'artifacts.kselftest' key lists every file inside the
+        # tarball, from which _submit() derives which suites actually built.
+        self.addcmd(
+            f"if [ -f {kselftest_out}/metadata.json ]; then "
+            f"cp {kselftest_out}/metadata.json "
+            f"{self._af_dir}/kselftest_metadata.json; "
+            f"fi"
+        )
+        # Record the kselftest suites the kernel would build for this
+        # arch/config: the effective 'TARGETS' make variable (after
+        # SKIP_TARGETS). This is the 'expected' set that _submit() diffs the
+        # built set against to mark each suite's build pass/fail. ARCH is
+        # already exported earlier in the build script, so SKIP_TARGETS is
+        # resolved for the target arch.
+        self.addcmd(
+            "make -sC tools/testing/selftests --no-print-directory "
+            "--eval='__kci_targets: ; @echo $(TARGETS)' __kci_targets "
+            f"> {self._af_dir}/kselftest_targets.txt 2>/dev/null || true",
+            False,
+        )
         self.addcmd("cd ..")
+
+    def _kselftest_suite_results(self, kselftest_result):
+        """Derive per-suite kselftest build results.
+
+        Returns a list of (name, result) tuples, one per kselftest TARGET
+        the kernel would build for this arch/config, where 'result' is:
+          - skip: the kernel build failed, so kselftest was never attempted
+          - pass: the suite's files are present in the built tarball
+          - fail: the suite was expected but produced no installed files
+
+        Reads two artifacts emitted by _build_kselftest_tuxmake():
+        'kselftest_targets.txt' (the expected suite list) and
+        'kselftest_metadata.json' (tuxmake metadata whose top-level
+        'artifacts.kselftest' lists every file in the tarball). Returns an
+        empty list when the expected suite list can't be determined, so the
+        caller falls back to a single aggregate kselftest node.
+
+        NOTE: this is presence-based. A suite that builds but installs no
+        files reads as 'fail'; once the kernel-side "preserve subtarget
+        failures" support lands, build_kselftest.log can refine these.
+        """
+        targets_path = os.path.join(self._af_dir, "kselftest_targets.txt")
+        try:
+            with open(targets_path, "r") as f:
+                expected = f.read().split()
+        except OSError:
+            return []
+        if not expected:
+            return []
+
+        # Files in the built tarball, from tuxmake's metadata.json. The key
+        # is absent when no tarball was produced (nothing built).
+        built_files = []
+        meta_path = os.path.join(self._af_dir, "kselftest_metadata.json")
+        try:
+            with open(meta_path, "r") as f:
+                meta = json.load(f)
+            built_files = meta.get("artifacts", {}).get("kselftest", [])
+        except (OSError, ValueError):
+            built_files = []
+        # Normalise any leading "./" so prefix matching is tar-agnostic.
+        built_files = [p[2:] if p.startswith("./") else p for p in built_files]
+
+        results = []
+        for suite in expected:
+            # A TARGET may be a nested path (e.g. "net/mptcp"); it is "built"
+            # if any installed file lives under it. Use "." in the node name
+            # to keep path elements free of slashes.
+            name = suite.replace("/", ".")
+            if kselftest_result == "skip":
+                result = "skip"
+            elif kselftest_result == "fail":
+                # No tarball at all, so nothing built.
+                result = "fail"
+            else:
+                prefix = suite.rstrip("/") + "/"
+                built = any(p.startswith(prefix) for p in built_files)
+                if built:
+                    result = "pass"
+                elif suite in KSELFTEST_NO_ARTIFACT_TARGETS:
+                    # Builds fine but installs no binaries: not a real fail.
+                    result = "skip"
+                else:
+                    result = "fail"
+            results.append((name, result))
+        return results
 
     def _build_kernel(self):
         """Add kernel build steps"""
@@ -1555,7 +1652,29 @@ trap 'case $stage in
             kselftest_node["state"] = "done"
             kselftest_node["result"] = kselftest_result
 
-            child_nodes = [{"node": kselftest_node, "child_nodes": []}]
+            # Attach one kind=test child per kselftest suite (TARGET), so
+            # each suite's build pass/fail is tracked individually and feeds
+            # regression detection. Falls back to no children when the suite
+            # list could not be derived, preserving the single-node behaviour.
+            suite_children = []
+            for suite_name, suite_result in self._kselftest_suite_results(
+                kselftest_result
+            ):
+                suite_children.append(
+                    {
+                        "node": {
+                            "name": suite_name,
+                            "kind": "test",
+                            "state": "done",
+                            "result": suite_result,
+                        },
+                        "child_nodes": [],
+                    }
+                )
+
+            child_nodes = [
+                {"node": kselftest_node, "child_nodes": suite_children}
+            ]
         else:
             child_nodes = []
 
