@@ -96,6 +96,7 @@ class RuntimeLAVA(Runtime):
         notify=None,
         max_queue_depth=None,
         disable_queue_limit=None,
+        max_queue_depth_priority_factor=None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -113,6 +114,15 @@ class RuntimeLAVA(Runtime):
             max_queue_depth if max_queue_depth is not None else 50
         )
         self._disable_queue_limit = bool(disable_queue_limit)
+        # The per-device queue ceiling is scaled from 1x (lowest priority)
+        # up to this factor (highest priority), never beyond it.  A value of
+        # 1.0 disables priority weighting; values below 1.0 are clamped to 1.0
+        # since a high-priority job must never get a smaller allowance.
+        self._max_queue_depth_priority_factor = (
+            max(1.0, float(max_queue_depth_priority_factor))
+            if max_queue_depth_priority_factor is not None
+            else 2.0
+        )
 
     @property
     def url(self):
@@ -163,6 +173,18 @@ class RuntimeLAVA(Runtime):
         """
         return self._disable_queue_limit
 
+    @property
+    def max_queue_depth_priority_factor(self):
+        """Highest-priority multiplier applied to max_queue_depth.
+
+        The per-device queue ceiling scales linearly with job priority, from
+        1x at the lowest priority up to this factor at the highest priority.
+        High-priority jobs therefore get a larger but still bounded queue
+        allowance (the hard cap is max_queue_depth * online_devices * factor),
+        so devices stay protected from excessive load. Set to 1.0 to disable.
+        """
+        return self._max_queue_depth_priority_factor
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
@@ -176,6 +198,7 @@ class RuntimeLAVA(Runtime):
                 "notify",
                 "max_queue_depth",
                 "disable_queue_limit",
+                "max_queue_depth_priority_factor",
             }
         )
         return attrs

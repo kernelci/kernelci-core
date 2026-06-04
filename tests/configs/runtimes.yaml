@@ -26,6 +26,7 @@ runtimes:
       days: 1
     max_queue_depth: 50
     disable_queue_limit: false
+    max_queue_depth_priority_factor: 2.0
     notify: {}
     filters:
       - blocklist:
@@ -50,6 +51,7 @@ runtimes:
       hours: 1
     max_queue_depth: 50
     disable_queue_limit: false
+    max_queue_depth_priority_factor: 2.0
     notify:
       callback:
         token: some-token-name

@@ -399,6 +399,28 @@ class LAVA(Runtime):
             priority = int((priority * prio_range / 100) + prio_min)
         return priority
 
+    def get_queue_priority_fraction(
+        self, tree_priority=None, job_priority=None
+    ):
+        """Return job priority normalized to 0.0..1.0 for queue weighting.
+
+        Mirrors the pipeline-submitted branch of :meth:`_get_priority`:
+        *tree_priority* is preferred when set, otherwise *job_priority* (the
+        job config priority) is used, both resolved through the same
+        high/medium/low mapping and defaulting to ``PRIORITY_LOW``.
+
+        The result is the base priority as a fraction of the 0-100 scale. This
+        fraction is invariant under the lab's configured priority bounds
+        (priority / priority_min / priority_max), because those only apply a
+        linear remapping, so weighting the queue by it keeps us within the
+        configured priority bounds.
+        """
+        if tree_priority is not None:
+            base = self._resolve_priority(tree_priority, self.PRIORITY_LOW)
+        else:
+            base = self._resolve_priority(job_priority, self.PRIORITY_LOW)
+        return max(0.0, min(1.0, base / 100.0))
+
     def get_params(self, job, api_config=None):
         params = super().get_params(job, api_config)
         params["notify"] = self.config.notify
