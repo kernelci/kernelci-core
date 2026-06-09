@@ -868,6 +868,19 @@ trap 'case $stage in
             f"%%_topdir {rpm_root}/build\\n' > $HOME/.rpmmacros"
         )
         self.addcmd("rpmdb --initdb 2>/dev/null || true")
+        try:
+            from tuxmake.arch import Architecture
+            from tuxmake.toolchain import Toolchain
+
+            compiler_bin = Toolchain(self._compiler).compiler(
+                Architecture(self._arch)
+            )
+        except Exception:
+            compiler_bin = (
+                "clang" if self._compiler.startswith("clang") else None
+            )
+        if compiler_bin:
+            self.addcmd(f"{compiler_bin} --version || true")
         self.addcmd("stage=1")  # stage 1 failure is build failure
         self.addcmd(tuxmake_cmd)
         self.addcmd("stage=2")
