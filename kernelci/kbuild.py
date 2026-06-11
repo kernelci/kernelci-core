@@ -216,6 +216,7 @@ class KBuild:
             self._artifacts = []
             self._current_job = None
             self._config_full = ""
+            self._compiler_version = None
             self._srcdir = None
             self._firmware_dir = None
             self._af_dir = None
@@ -251,6 +252,7 @@ class KBuild:
             self._artifacts = jsonobj["artifacts"]
             self._current_job = jsonobj["current_job"]
             self._config_full = jsonobj["config_full"]
+            self._compiler_version = jsonobj["compiler_version"]
             self._srcdir = jsonobj["srcdir"]
             self._srctarball = jsonobj["srctarball"]
             self._firmware_dir = jsonobj["firmware_dir"]
@@ -1255,9 +1257,35 @@ trap 'case $stage in
         metadata["build"]["srcdir"] = self._srcdir
         metadata["build"]["config_full"] = self._config_full
         metadata["build"]["backend"] = self._backend
+        if self._compiler_version:
+            metadata["build"]["compiler_version"] = self._compiler_version
 
         with open(os.path.join(self._af_dir, "metadata.json"), "w") as f:
             json.dump(metadata, f, indent=4)
+
+    def _preserve_tuxmake_metadata(self):
+        """
+        Rename tuxmake's metadata.json to tuxmake_metadata.json so it
+        survives _write_metadata overwriting it, and keep the compiler
+        version it records for our own metadata and the node data
+        """
+        metadata_path = os.path.join(self._af_dir, "metadata.json")
+        if self._backend != "tuxmake" or not os.path.exists(metadata_path):
+            return
+        try:
+            with open(metadata_path) as f:
+                tux_meta = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return
+        if not isinstance(tux_meta, dict) or "tuxmake" not in tux_meta:
+            return
+        os.rename(
+            metadata_path,
+            os.path.join(self._af_dir, "tuxmake_metadata.json"),
+        )
+        version_full = tux_meta.get("compiler", {}).get("version_full")
+        if version_full:
+            self._compiler_version = version_full
 
     def serialize(self, filename):
         """Serialize class to json
@@ -1298,6 +1326,7 @@ trap 'case $stage in
                         )
                         self._artifacts.append(file)
         # Update manifest/metadata
+        self._preserve_tuxmake_metadata()
         self._write_metadata()
         print("Artifacts verified")
 
@@ -1626,6 +1655,8 @@ trap 'case $stage in
         results["node"]["data"] = node["data"]
         results["node"]["data"]["arch"] = self._arch
         results["node"]["data"]["compiler"] = self._compiler
+        if self._compiler_version:
+            results["node"]["data"]["compiler_version"] = self._compiler_version
         # As we are late to change data formats, we need to keep
         # defconfig as string, not list, so we use + to separate
         # multiple defconfigs
