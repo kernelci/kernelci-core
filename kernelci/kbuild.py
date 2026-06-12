@@ -57,6 +57,7 @@ LATEST_LTS_MINOR = 12
 DTBS_DISABLED = {
     "i386": True,
     "x86_64": True,
+    "s390": True,
     "sparc": True,
     "um": True,
 }
@@ -68,9 +69,12 @@ MAKE_TARGETS = {
     "arc": "uImage",
     "i386": "bzImage",
     "x86_64": "bzImage",
+    "loongarch": "vmlinuz.efi",
     "mips": "uImage.gz",
+    "powerpc": "zImage",
     "riscv": "Image",
     "riscv64": "Image",
+    "s390": "bzImage",
     "sparc": "zImage",
     "um": "linux",
 }
@@ -81,9 +85,12 @@ KERNEL_IMAGE_NAMES = {
     "arm64": {"Image", "Image.gz"},
     "arc": {"uImage"},
     "i386": {"bzImage"},
+    "loongarch": {"vmlinuz.efi", "vmlinux.efi"},
     "mips": {"uImage.gz", "vmlinux.gz.itb", "vmlinuz"},
+    "powerpc": {"zImage", "uImage"},
     "riscv": {"Image", "Image.gz"},
     "riscv64": {"Image", "Image.gz"},
+    "s390": {"bzImage"},
     "sparc": {"zImage"},
     "x86_64": {"bzImage"},
     "x86": {"bzImage"},
