@@ -87,7 +87,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     u-boot-tools \
     uuid-dev \
     wget \
-    xz-utils
+    xz-utils \
+    zstd
 
 # Install dtschema for dtbs_check
 RUN pip3 install dtschema --break-system-packages
