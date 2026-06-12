@@ -28,12 +28,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        kciarch: [ 'arc', 'arm', 'armv5', 'arm64', 'x86', 'mips', 'riscv64' ]
+        kciarch: [ 'arc', 'arm', 'armv5', 'arm64', 'x86', 'mips', 'riscv64',
+                   'powerpc', 's390', 'loongarch' ]
         kcicmd: [ 'clang-21 kselftest kernelci',
                   'gcc-14 kselftest kernelci'
                    ]
         exclude:
+          # no clang-21 templates for these architectures (yet)
           - kciarch: 'arc'
+            kcicmd: 'clang-21 kselftest kernelci'
+          - kciarch: 'powerpc'
+            kcicmd: 'clang-21 kselftest kernelci'
+          - kciarch: 's390'
+            kcicmd: 'clang-21 kselftest kernelci'
+          - kciarch: 'loongarch'
             kcicmd: 'clang-21 kselftest kernelci'
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","bhcopeland"]', github.actor) && !inputs.SKIP_COMPILER_IMAGES

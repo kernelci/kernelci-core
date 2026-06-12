@@ -1,6 +1,6 @@
 # kselftest
 {%- if sub_arch %}
-    {%- if sub_arch == 'riscv64' %}
+    {%- if sub_arch in ['riscv64', 'loong64'] %}
         {%- set libc6_pkgarch = '-' + sub_arch + '-cross' %}
         {%- set pkgarch = '' %}
     {% else %}

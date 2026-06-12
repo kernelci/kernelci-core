@@ -1,0 +1,31 @@
+{%- set sub_arch = 's390x' %}
+{%- extends 'base/host-tools.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    gcc-14-s390x-linux-gnu
+
+RUN update-alternatives \
+    --install /usr/bin/s390x-linux-gnu-gcc \
+              s390x-linux-gnu-gcc \
+              /usr/bin/s390x-linux-gnu-gcc-14 500 \
+    --slave /usr/bin/s390x-linux-gnu-gcc-ar \
+            s390x-linux-gnu-ar \
+            /usr/bin/s390x-linux-gnu-gcc-ar-14 \
+    --slave /usr/bin/s390x-linux-gnu-gcc-nm \
+            s390x-linux-gnu-nm \
+            /usr/bin/s390x-linux-gnu-gcc-nm-14 \
+    --slave /usr/bin/s390x-linux-gnu-gcc-ranlib \
+            s390x-linux-gnu-ranlib \
+            /usr/bin/s390x-linux-gnu-gcc-ranlib-14 \
+    --slave /usr/bin/s390x-linux-gnu-gcc-gcov \
+            s390x-linux-gnu-gcov \
+            /usr/bin/s390x-linux-gnu-gcov-14 \
+    --slave /usr/bin/s390x-linux-gnu-gcc-gcov-dump \
+            s390x-linux-gnu-gcov-dump \
+            /usr/bin/s390x-linux-gnu-gcov-dump-14 \
+    --slave /usr/bin/s390x-linux-gnu-gcc-gcov-tool \
+            s390x-linux-gnu-gcov-tool \
+            /usr/bin/s390x-linux-gnu-gcov-tool-14
+{%- endblock %}

@@ -1,0 +1,31 @@
+{%- set sub_arch = 'ppc64el' %}
+{%- extends 'base/host-tools.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    gcc-14-powerpc64le-linux-gnu
+
+RUN update-alternatives \
+    --install /usr/bin/powerpc64le-linux-gnu-gcc \
+              powerpc64le-linux-gnu-gcc \
+              /usr/bin/powerpc64le-linux-gnu-gcc-14 500 \
+    --slave /usr/bin/powerpc64le-linux-gnu-gcc-ar \
+            powerpc64le-linux-gnu-ar \
+            /usr/bin/powerpc64le-linux-gnu-gcc-ar-14 \
+    --slave /usr/bin/powerpc64le-linux-gnu-gcc-nm \
+            powerpc64le-linux-gnu-nm \
+            /usr/bin/powerpc64le-linux-gnu-gcc-nm-14 \
+    --slave /usr/bin/powerpc64le-linux-gnu-gcc-ranlib \
+            powerpc64le-linux-gnu-ranlib \
+            /usr/bin/powerpc64le-linux-gnu-gcc-ranlib-14 \
+    --slave /usr/bin/powerpc64le-linux-gnu-gcc-gcov \
+            powerpc64le-linux-gnu-gcov \
+            /usr/bin/powerpc64le-linux-gnu-gcov-14 \
+    --slave /usr/bin/powerpc64le-linux-gnu-gcc-gcov-dump \
+            powerpc64le-linux-gnu-gcov-dump \
+            /usr/bin/powerpc64le-linux-gnu-gcov-dump-14 \
+    --slave /usr/bin/powerpc64le-linux-gnu-gcc-gcov-tool \
+            powerpc64le-linux-gnu-gcov-tool \
+            /usr/bin/powerpc64le-linux-gnu-gcov-tool-14
+{%- endblock %}
