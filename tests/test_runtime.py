@@ -10,9 +10,13 @@
 
 import types
 
+import pytest
+import yaml
+
 import kernelci.config
 import kernelci.runtime
 from kernelci.runtime.pull_labs import compute_tuxrun_parameters
+import kernelci.runtime.lava
 
 
 class _FakeResponse:
@@ -52,6 +56,87 @@ class _FakeSession:
             raise AssertionError("POST handler not set")
         self.calls.append((url, json))
         return self._post_handler(url, json)
+
+
+def _lava_callback(lava_results):
+    return kernelci.runtime.lava.Callback(
+        {
+            "status": kernelci.runtime.lava.Callback.INCOMPLETE,
+            "definition": yaml.safe_dump({"metadata": {}}),
+            "results": {"lava": yaml.safe_dump(lava_results)},
+        }
+    )
+
+
+def _lava_job_node():
+    return {
+        "id": "lava-job-node",
+        "name": "baseline",
+        "result": "incomplete",
+        "data": {},
+    }
+
+
+def test_lava_callback_early_infrastructure_failure_has_no_setup():
+    """Early infrastructure errors should not invent a setup test suite."""
+    callback = _lava_callback(
+        [
+            {
+                "name": "job",
+                "result": "fail",
+                "metadata": {
+                    "error_type": "Infrastructure",
+                    "error_msg": "Deployment failed before boot actions",
+                },
+            }
+        ]
+    )
+
+    results = callback.get_results()
+    hierarchy = callback.get_hierarchy(results, _lava_job_node())
+
+    assert results == {}
+    assert hierarchy["node"]["result"] == "incomplete"
+    assert hierarchy["node"]["data"]["error_code"] == "Infrastructure"
+    assert hierarchy["child_nodes"] == []
+
+
+@pytest.mark.parametrize(
+    ("lava_test", "setup_result"),
+    [
+        ({"name": "login-action", "result": "fail"}, {"login": "fail"}),
+        (
+            {"name": "kernel-messages", "result": "fail"},
+            {"kernelmsg": "fail"},
+        ),
+    ],
+)
+def test_lava_callback_infrastructure_setup_failures_stay_incomplete(
+    lava_test, setup_result
+):
+    """Infrastructure errors should remain incomplete even with setup failures."""
+    callback = _lava_callback(
+        [
+            {
+                "name": "job",
+                "result": "fail",
+                "metadata": {
+                    "error_type": "Infrastructure",
+                    "error_msg": "LAVA setup failed",
+                },
+            },
+            {"name": "1_setup", "result": "fail", "metadata": {}},
+            {**lava_test, "metadata": {}},
+        ]
+    )
+
+    results = callback.get_results()
+    hierarchy = callback.get_hierarchy(results, _lava_job_node())
+
+    assert results == {"setup": setup_result}
+    assert hierarchy["node"]["result"] == "incomplete"
+    assert hierarchy["node"]["data"]["error_code"] == "Infrastructure"
+    assert hierarchy["child_nodes"][0]["node"]["result"] == "fail"
 
 
 def test_runtimes_init():

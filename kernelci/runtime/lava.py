@@ -278,7 +278,12 @@ class Callback:
 
         child_nodes = self._get_results_hierarchy(results)
 
-        if job_result == "incomplete" and "baseline" in job_node["name"]:
+        error_code = job_node["data"].get("error_code")
+        if (
+            job_result == "incomplete"
+            and error_code != "Infrastructure"
+            and "baseline" in job_node["name"]
+        ):
             for child in child_nodes:
                 if (
                     child["node"]["name"] == "setup"
