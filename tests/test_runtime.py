@@ -15,8 +15,8 @@ import yaml
 
 import kernelci.config
 import kernelci.runtime
-from kernelci.runtime.pull_labs import compute_tuxrun_parameters
 import kernelci.runtime.lava
+from kernelci.runtime.pull_labs import compute_tuxrun_parameters
 
 
 class _FakeResponse:
