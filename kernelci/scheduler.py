@@ -41,8 +41,23 @@ class Scheduler:
             if sched_event_channel == channel:
                 sched_event = entry.event.copy()
                 sched_event.pop("channel")
-                if sched_event.items() <= event.items():
-                    yield entry
+                if not sched_event.items() <= event.items():
+                    continue
+                # Edge-triggered scheduling (kernelci-core#2912): when the API
+                # reports a node update together with its previous state/result,
+                # only act on the transition INTO the matched condition. This
+                # avoids re-creating identical child jobs every time the parent
+                # node is updated while staying in the same matching state (e.g.
+                # an artifact or timeout update on an already-`available` node).
+                # Falls back to level-triggered behaviour when no previous_*
+                # info is present (node creation, retry events or older API).
+                if event.get("op") == "updated" and "previous_state" in event:
+                    previous_event = dict(event)
+                    previous_event["state"] = event.get("previous_state")
+                    previous_event["result"] = event.get("previous_result")
+                    if sched_event.items() <= previous_event.items():
+                        continue
+                yield entry
 
     def get_schedule(self, event, channel="node"):
         """Get the (job, runtime, platform) configs for each job to run"""
