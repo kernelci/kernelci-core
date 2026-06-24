@@ -5,9 +5,9 @@
 
 # Add retries and deb-src entries
 RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries && \
-    echo "deb-src http://deb.debian.org/debian trixie main non-free contrib" \
+    echo "deb-src http://deb.debian.org/debian {{ debian_release | default('trixie') }} main non-free contrib" \
         >> /etc/apt/sources.list && \
-    echo "deb-src http://deb.debian.org/debian-security/ trixie-security main contrib non-free" \
+    echo "deb-src http://deb.debian.org/debian-security/ {{ debian_release | default('trixie') }}-security main contrib non-free" \
         >> /etc/apt/sources.list
 
 # Prepare environment for building packages
@@ -41,7 +41,7 @@ RUN mk-build-deps -ir \
     -t "apt-get -o Debug::pkgProblemResolver=yes -y --no-install-recommends"
 RUN debuild -b -uc -us
 
-FROM mirror.gcr.io/debian:trixie
+FROM mirror.gcr.io/debian:{{ debian_release | default('trixie') }}
 MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 ENV DEBIAN_FRONTEND=noninteractive
 {%- endblock %}

@@ -31,7 +31,8 @@ jobs:
         kciarch: [ 'arc', 'arm', 'armv5', 'arm64', 'x86', 'mips', 'riscv64',
                    'powerpc', 's390', 'loongarch' ]
         kcicmd: [ 'clang-21 kselftest kernelci',
-                  'gcc-14 kselftest kernelci'
+                  'gcc-14 kselftest kernelci',
+                  'gcc-15 kselftest kernelci'
                    ]
         exclude:
           # no clang-21 templates for these architectures (yet)
@@ -43,6 +44,21 @@ jobs:
             kcicmd: 'clang-21 kselftest kernelci'
           - kciarch: 'loongarch'
             kcicmd: 'clang-21 kselftest kernelci'
+          # gcc-15 (forky-based) is only rolled out on arm, x86 and arm64 for now
+          - kciarch: 'arc'
+            kcicmd: 'gcc-15 kselftest kernelci'
+          - kciarch: 'armv5'
+            kcicmd: 'gcc-15 kselftest kernelci'
+          - kciarch: 'mips'
+            kcicmd: 'gcc-15 kselftest kernelci'
+          - kciarch: 'riscv64'
+            kcicmd: 'gcc-15 kselftest kernelci'
+          - kciarch: 'powerpc'
+            kcicmd: 'gcc-15 kselftest kernelci'
+          - kciarch: 's390'
+            kcicmd: 'gcc-15 kselftest kernelci'
+          - kciarch: 'loongarch'
+            kcicmd: 'gcc-15 kselftest kernelci'
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","bhcopeland"]', github.actor) && !inputs.SKIP_COMPILER_IMAGES
     runs-on: ubuntu-22.04

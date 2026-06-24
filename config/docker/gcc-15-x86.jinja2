@@ -1,0 +1,20 @@
+{%- set debian_release = 'forky' %}
+{%- extends 'base/host-tools.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+RUN apt update && apt install --no-install-recommends -y \
+    gcc-15 \
+    gcc-15-plugin-dev
+
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 500
+
+# 32-bit support for host tools and kselftest
+RUN apt update && apt install --no-install-recommends -y \
+    gcc-multilib \
+    libc6-i386 \
+    libc6-dev-i386
+
+# GCC i386.h header fix for the Debian package
+RUN apt update && apt install --no-install-recommends -y curl patch
+{% endblock %}
