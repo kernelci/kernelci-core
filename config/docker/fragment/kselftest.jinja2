@@ -16,7 +16,11 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libcap-dev{{ pkgarch }} \
    libcap-ng-dev{{ pkgarch }} \
    libelf-dev{{ pkgarch }} \
+{%- if debian_release | default('trixie') == 'trixie' %}
    libfuse-dev{{ pkgarch }} \
+{%- else %}
+   libfuse3-dev{{ pkgarch }} \
+{%- endif %}
    libhugetlbfs-dev{{ pkgarch }} \
    libmnl-dev{{ pkgarch }} \
    libnuma-dev{{ pkgarch }} \
