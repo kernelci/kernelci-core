@@ -136,3 +136,58 @@ class TestPreserveTuxmakeMetadata:
         own = json.loads((af_dir / "metadata.json").read_text())
         assert own["build"]["compiler"] == "clang-21"
         assert "compiler_version" not in own["build"]
+
+
+class FakeStorage:
+    def __init__(self):
+        self.single_uploads = []
+        self.archive_uploads = []
+
+    def upload_single(self, file_path, dest_path=""):
+        self.single_uploads.append((file_path, dest_path))
+        return f"https://storage.test/{dest_path}/{file_path[1]}"
+
+    def upload_archive(
+        self, archive_path, file_paths, dest_path="", archive_name=None
+    ):
+        self.archive_uploads.append(
+            (archive_path, file_paths, dest_path, archive_name)
+        )
+        return {
+            file_dst: f"https://storage.test/{dest_path}/{file_dst}"
+            for _file_src, file_dst in file_paths
+        }
+
+
+class TestUploadArtifacts:
+    def test_tuxmake_dtbs_use_archive_upload(self, tmp_path):
+        kbuild = _kbuild(tmp_path, arch="arm64")
+        af_dir = tmp_path / "artifacts"
+        (af_dir / "dtbs" / "nested").mkdir(parents=True)
+        (af_dir / "dtbs" / "board-a.dtb").write_bytes(b"dtb-a")
+        (af_dir / "dtbs" / "nested" / "board-b.dtb").write_bytes(b"dtb-b")
+        (af_dir / "dtbs.tar.xz").write_bytes(b"archive")
+
+        storage = FakeStorage()
+        kbuild._get_storage = lambda: storage
+        kbuild._apijobname = "kbuild-clang-arm64"
+        kbuild._node = {"id": "node123", "data": {}}
+        kbuild._full_artifacts = {}
+
+        node_af = kbuild.upload_artifacts()
+
+        assert storage.single_uploads == []
+        assert len(storage.archive_uploads) == 1
+        archive_path, file_paths, dest_path, archive_name = (
+            storage.archive_uploads[0]
+        )
+        assert archive_path == str(af_dir / "dtbs.tar.xz")
+        assert dest_path == "kbuild-clang-arm64-node123"
+        assert archive_name == "dtbs.tar.xz"
+        assert sorted(file_dst for _file_src, file_dst in file_paths) == [
+            "dtbs/board-a.dtb",
+            "dtbs/nested/board-b.dtb",
+        ]
+        assert "dtbs/board-a.dtb" in kbuild._full_artifacts
+        assert "dtbs/nested/board-b.dtb" in kbuild._full_artifacts
+        assert node_af["dtbs/board-a_dtb"].endswith("dtbs/board-a.dtb")

@@ -905,8 +905,7 @@ trap 'case $stage in
         # the archive has dtbs/ prefix inside, so extract to af_dir
         self.addcmd(
             f"if [ -f {self._af_dir}/dtbs.tar.xz ]; then "
-            f"tar -xf {self._af_dir}/dtbs.tar.xz -C {self._af_dir} && "
-            f"rm {self._af_dir}/dtbs.tar.xz; "
+            f"tar -xf {self._af_dir}/dtbs.tar.xz -C {self._af_dir}; "
             f"fi"
         )
 
@@ -1395,6 +1394,23 @@ trap 'case $stage in
                 artifact_path = os.path.join(self._af_dir, artifact)
                 upload_tasks.append((artifact, artifact_path))
 
+        def is_dtb_artifact(artifact):
+            return artifact.startswith("dtbs/") and artifact.endswith(".dtb")
+
+        dtb_tasks = [task for task in upload_tasks if is_dtb_artifact(task[0])]
+        dtbs_archive_task = next(
+            (task for task in upload_tasks if task[0] == "dtbs.tar.xz"),
+            None,
+        )
+        if dtb_tasks and dtbs_archive_task:
+            # Upload DTBs via one archive request and skip uploading both the
+            # extracted DTB files and tuxmake's archive as regular artifacts.
+            upload_tasks = [
+                task
+                for task in upload_tasks
+                if not is_dtb_artifact(task[0]) and task[0] != "dtbs.tar.xz"
+            ]
+
         # Function to handle a single artifact upload
         # args: (artifact, artifact_path)
         # returns: (artifact, stored_url, error)
@@ -1444,38 +1460,70 @@ trap 'case $stage in
                 return artifact, None, str(e)
 
         # Process uploads in parallel
-        max_workers = min(10, len(upload_tasks))  # Limit concurrent uploads
         successful_uploads = 0
         failed_uploads = []
 
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=max_workers
-        ) as executor:
-            # Submit all tasks
-            future_to_task = {
-                executor.submit(process_and_upload_artifact, task): task
-                for task in upload_tasks
-            }
-
-            # Process results as they complete
-            for future in concurrent.futures.as_completed(future_to_task):
-                artifact, stored_url, error = future.result()
-
-                if error:
-                    failed_uploads.append((artifact, error))
-                    continue
-
-                successful_uploads += 1
-                self._full_artifacts[artifact] = stored_url
-                artifact_key = self.map_artifact_name(artifact)
-
-                # Thread-safe update of node_af
-                with node_af_lock:
-                    if artifact in KERNEL_IMAGE_NAMES[self._arch]:
-                        node_af["kernel"] = stored_url
-                        self._node["data"]["kernel_type"] = artifact.lower()
-                    else:
+        if dtb_tasks and dtbs_archive_task:
+            try:
+                print(
+                    "[_upload_artifacts] Uploading "
+                    f"{len(dtb_tasks)} DTBs as {dtbs_archive_task[0]}"
+                )
+                dtb_urls = storage.upload_archive(
+                    dtbs_archive_task[1],
+                    [
+                        (artifact_path, artifact)
+                        for artifact, artifact_path in dtb_tasks
+                    ],
+                    root_path,
+                    archive_name=dtbs_archive_task[0],
+                )
+                for artifact, _artifact_path in dtb_tasks:
+                    stored_url = dtb_urls.get(artifact)
+                    if not stored_url:
+                        failed_uploads.append(
+                            (artifact, "missing URL after archive upload")
+                        )
+                        continue
+                    successful_uploads += 1
+                    self._full_artifacts[artifact] = stored_url
+                    artifact_key = self.map_artifact_name(artifact)
+                    with node_af_lock:
                         node_af[artifact_key] = stored_url
+            except Exception as e:
+                failed_uploads.append(("dtbs", str(e)))
+                print(f"[_upload_artifacts] Error uploading DTB archive: {e}")
+
+        if upload_tasks:
+            max_workers = min(10, len(upload_tasks))  # Limit concurrent uploads
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=max_workers
+            ) as executor:
+                # Submit all tasks
+                future_to_task = {
+                    executor.submit(process_and_upload_artifact, task): task
+                    for task in upload_tasks
+                }
+
+                # Process results as they complete
+                for future in concurrent.futures.as_completed(future_to_task):
+                    artifact, stored_url, error = future.result()
+
+                    if error:
+                        failed_uploads.append((artifact, error))
+                        continue
+
+                    successful_uploads += 1
+                    self._full_artifacts[artifact] = stored_url
+                    artifact_key = self.map_artifact_name(artifact)
+
+                    # Thread-safe update of node_af
+                    with node_af_lock:
+                        if artifact in KERNEL_IMAGE_NAMES[self._arch]:
+                            node_af["kernel"] = stored_url
+                            self._node["data"]["kernel_type"] = artifact.lower()
+                        else:
+                            node_af[artifact_key] = stored_url
 
         # Report results
         print(
