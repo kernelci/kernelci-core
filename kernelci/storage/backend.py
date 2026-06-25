@@ -137,6 +137,76 @@ class StorageBackend(Storage):
         if last_exception:
             raise last_exception
 
+    def _upload_archive(
+        self, archive_path, file_paths, dest_path, archive_name
+    ):
+        headers = {
+            "Authorization": self.credentials,
+        }
+        data = {
+            "path": dest_path,
+        }
+
+        max_retries = 5
+        retry_delay = 10  # seconds
+        last_exception = None
+
+        for attempt in range(max_retries):
+            try:
+                with open(archive_path, "rb") as archive_file:
+                    files = {
+                        "archive": (archive_name, archive_file),
+                    }
+
+                    url = urljoin(self.config.api_url, "v1/archive")
+                    resp = requests.post(
+                        url,
+                        headers=headers,
+                        data=data,
+                        files=files,
+                        timeout=900,
+                    )
+                    resp.raise_for_status()
+
+                try:
+                    body = resp.json()
+                except ValueError as exc:
+                    raise RuntimeError(
+                        f"Archive upload returned invalid JSON: {resp.text}"
+                    ) from exc
+
+                if body.get("failed", 0):
+                    failures = ", ".join(body.get("failures", []))
+                    raise RuntimeError(
+                        "Archive upload failed for "
+                        f"{body.get('failed')} files: {failures}"
+                    )
+
+                return {
+                    file_dst: urljoin(
+                        self.config.base_url,
+                        "/".join([".", dest_path, file_dst]),
+                    )
+                    for (file_src, file_dst) in file_paths
+                }
+
+            except (
+                requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.Timeout,
+            ) as exc:
+                last_exception = self._handle_network_error(
+                    exc, attempt, max_retries, retry_delay
+                )
+
+            except requests.exceptions.HTTPError as exc:
+                last_exception = self._handle_http_error(
+                    exc, attempt, max_retries, retry_delay
+                )
+
+        if last_exception:
+            raise last_exception
+
 
 def get_storage(config, credentials):
     """Get a StorageBackend object"""

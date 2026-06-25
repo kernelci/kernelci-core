@@ -51,6 +51,17 @@ class Storage(abc.ABC):
         destination path and files names.
         """
 
+    def _upload_archive(
+        self, archive_path, file_paths, dest_path, archive_name
+    ):
+        """Implementation method to upload an archive for server-side unpacking.
+
+        Backends that support archive uploads should return a dictionary keyed
+        by destination file name. Backends that do not support this method use
+        the regular multi-file upload fallback.
+        """
+        raise NotImplementedError
+
     def upload_single(self, file_path, dest_path=""):
         """Upload a single file to storage
 
@@ -98,6 +109,34 @@ class Storage(abc.ABC):
             urljoin(self.config.base_url, "/".join([".", dest_path, file_dst]))
             for (file_src, file_dst) in file_paths
         ]
+
+    def upload_archive(
+        self, archive_path, file_paths, dest_path="", archive_name=None
+    ):
+        """Upload many files using an archive when supported by the backend.
+
+        Upload *archive_path* to storage for server-side extraction. The
+        *file_paths* argument is a list of (local, remote) file names, matching
+        .upload_multiple(), and is used to compute public URLs and to fall back
+        to a regular multi-file upload when the backend has no archive support.
+        """
+        self._connect()
+        archive_name = archive_name or archive_path
+        try:
+            urls = self._upload_archive(
+                archive_path, file_paths, dest_path, archive_name
+            )
+        except NotImplementedError:
+            urls = self._upload(file_paths, dest_path)
+
+        if urls:
+            return urls
+        return {
+            file_dst: urljoin(
+                self.config.base_url, "/".join([".", dest_path, file_dst])
+            )
+            for (file_src, file_dst) in file_paths
+        }
 
 
 def get_storage(config, credentials):
