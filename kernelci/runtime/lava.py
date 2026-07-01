@@ -36,7 +36,7 @@ class LogParser:
 
     @classmethod
     def _get_raw_log(cls, log_data_yaml):
-        log = yaml.safe_load(log_data_yaml)
+        log = yaml.load(log_data_yaml, Loader=yaml.CSafeLoader)
         raw_log = []
         for line in log:
             dtime, level, msg = (line.get(key) for key in ["dt", "lvl", "msg"])
