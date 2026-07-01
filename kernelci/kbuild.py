@@ -1402,6 +1402,13 @@ trap 'case $stage in
             (task for task in upload_tasks if task[0] == "dtbs.tar.xz"),
             None,
         )
+        if dtb_tasks or dtbs_archive_task:
+            print(
+                "[_upload_artifacts] DTB archive upload check: "
+                f"dtbs={len(dtb_tasks)}, "
+                f"archive={'yes' if dtbs_archive_task else 'no'}, "
+                f"backend={self._backend}"
+            )
         if dtb_tasks and dtbs_archive_task:
             # Upload DTBs via one archive request and skip uploading both the
             # extracted DTB files and tuxmake's archive as regular artifacts.
