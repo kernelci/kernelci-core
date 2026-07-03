@@ -11,7 +11,7 @@ on:
 
 jobs:
     prepare-staging-branches:
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         environment: deploydocker
         steps:
             - name: Checkout

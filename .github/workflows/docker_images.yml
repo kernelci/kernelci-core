@@ -61,7 +61,7 @@ jobs:
             kcicmd: 'gcc-15 kselftest kernelci'
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","bhcopeland"]', github.actor) && !inputs.SKIP_COMPILER_IMAGES
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     environment: deploydocker
     steps:
       - name: Checkout
@@ -143,7 +143,7 @@ jobs:
           - kcicmd: 'rustc-1.75 kselftest kernelci --arch x86'
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","bhcopeland"]', github.actor)
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     environment: deploydocker
     steps:
       - name: Checkout kernelci-core
