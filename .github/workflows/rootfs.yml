@@ -48,7 +48,7 @@ jobs:
   rootfs-build:
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","pawiecz","nfraprado","vigneshraman","bhcopeland"]', github.actor)
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     environment: deploysecrets
     steps:
       - name: Checkout kernelci-deploy
