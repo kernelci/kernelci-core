@@ -521,6 +521,8 @@ class API(abc.ABC, Base):
         """Subscribe to a pub/sub channel
 
         Subscribe to the given `channel` and get the subscription id.
+        If `subscriber_id` is provided, the API may use it as a stable durable
+        subscriber name to replay missed events after reconnects.
         """
 
     @abc.abstractmethod

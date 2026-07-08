@@ -181,8 +181,6 @@ class LatestAPI(API):
             params["promisc"] = promisc
         if subscriber_id:
             params["subscriber_id"] = subscriber_id
-        if not params:
-            params = None
         resp = self._post(f"subscribe/{channel}", params=params)
         return resp.json()["id"]
 
