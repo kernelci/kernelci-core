@@ -512,7 +512,12 @@ class API(abc.ABC, Base):
     # -------
 
     @abc.abstractmethod
-    def subscribe(self, channel: str, promisc: Optional[bool] = None) -> int:
+    def subscribe(
+        self,
+        channel: str,
+        promisc: Optional[bool] = None,
+        subscriber_id: Optional[str] = None,
+    ) -> int:
         """Subscribe to a pub/sub channel
 
         Subscribe to the given `channel` and get the subscription id.
