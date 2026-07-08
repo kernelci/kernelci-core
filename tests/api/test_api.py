@@ -6,8 +6,11 @@
 
 """Unit tests for KernelCI API bindings"""
 
+from unittest.mock import Mock
+
 import kernelci.api
 import kernelci.api.helper
+import kernelci.api.latest
 import kernelci.config
 
 from .conftest import APIHelperTestData
@@ -41,6 +44,42 @@ def test_subscribe_with_filter(get_api_config, mock_api_subscribe):
             filters={"name": "checkout"}, channel="test"
         )
         assert isinstance(sub_id, int)
+
+
+def test_subscribe_with_subscriber_id(get_api_config, monkeypatch):
+    """Test durable subscription ID forwarding through APIHelper"""
+    mock_subscribe = Mock(return_value=1)
+    monkeypatch.setattr(
+        kernelci.api.latest.LatestAPI, "subscribe", mock_subscribe
+    )
+    for _, api_config in get_api_config.items():
+        api = kernelci.api.get_api(api_config)
+        helper = kernelci.api.helper.APIHelper(api)
+        sub_id = helper.subscribe_filters(
+            channel="node", subscriber_id="scheduler:node"
+        )
+        assert isinstance(sub_id, int)
+        mock_subscribe.assert_called_with("node", False, "scheduler:node")
+
+
+def test_api_subscribe_sends_subscriber_id(get_api_config, monkeypatch):
+    """Test durable subscription ID query param in the API binding"""
+    response = Mock()
+    response.json.return_value = {"id": 1}
+    mock_post = Mock(return_value=response)
+    monkeypatch.setattr(kernelci.api.API, "_post", mock_post)
+
+    for _, api_config in get_api_config.items():
+        api = kernelci.api.get_api(api_config)
+        sub_id = api.subscribe(
+            "node", promisc=True, subscriber_id="scheduler:node"
+        )
+        assert sub_id == 1
+        mock_post.assert_called_with(
+            "subscribe/node",
+            params={"promisc": True, "subscriber_id": "scheduler:node"},
+        )
+        break
 
 
 def test_unsubscribe(get_api_config, mock_api_unsubscribe):

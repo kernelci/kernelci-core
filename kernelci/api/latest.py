@@ -170,8 +170,19 @@ class LatestAPI(API):
             params = attributes.copy() if attributes else {}
             return self._get("telemetry/stats", params=params).json()
 
-    def subscribe(self, channel: str, promisc: Optional[bool] = None) -> int:
-        params = {"promisc": promisc} if promisc else None
+    def subscribe(
+        self,
+        channel: str,
+        promisc: Optional[bool] = None,
+        subscriber_id: Optional[str] = None,
+    ) -> int:
+        params = {}
+        if promisc:
+            params["promisc"] = promisc
+        if subscriber_id:
+            params["subscriber_id"] = subscriber_id
+        if not params:
+            params = None
         resp = self._post(f"subscribe/{channel}", params=params)
         return resp.json()["id"]
 
