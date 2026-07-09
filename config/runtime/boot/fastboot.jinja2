@@ -41,14 +41,23 @@
 {% else %}
   {% set ramdisk_name = "rootfs.cpio.gz" %}
 {% endif %}
+{% set append_dtb = fastboot_boot_image_format|default('android-header-dtb') == 'appended-dtb' %}
+{% set kernel_image = 'Image.gz' if node.data.kernel_type.endswith('.gz') else 'Image' %}
+{% set boot_kernel_image = kernel_image + '+dtb' if append_dtb else 'Image' %}
     postprocess:
       docker:
         image: ghcr.io/mwasilew/docker-mkbootimage:master
         steps:
-{%- if node.data.kernel_type.endswith('.gz') %}
+{%- if append_dtb %}
+        - cat {{ kernel_image }} {{ dtb }} > {{ boot_kernel_image }}
+{%- elif node.data.kernel_type.endswith('.gz') %}
         - gunzip Image.gz
 {%- endif %}
+{%- if append_dtb %}
+        - mkbootimg --kernel {{ boot_kernel_image }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk {{ ramdisk_name }} --pagesize {{ fastboot_mkbootimg_pagesize|default(4096) }} --base {{ fastboot_mkbootimg_base|default('0x80000000') }} --output boot.img
+{%- else %}
         - mkbootimg --header_version 2 --kernel Image --dtb {{ dtb }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk {{ ramdisk_name }} --output boot.img
+{%- endif %}
     to: downloads
 
 - deploy:
