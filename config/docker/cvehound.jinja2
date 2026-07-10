@@ -17,5 +17,5 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python3-setuptools \
     python3-wheel
 
-RUN pip3 install cvehound==1.2.1
+RUN pip3 install git+https://github.com/evdenis/cvehound.git@master
 {%- endblock %}
