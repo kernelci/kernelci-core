@@ -137,6 +137,7 @@ jobs:
                   'qemu',
                   'buildroot kernelci',
                   'debos kernelci',
+                  'cvehound kernelci',
                    ]
         exclude:
           - kcicmd: 'rustc-1.74 kselftest kernelci --arch x86'
