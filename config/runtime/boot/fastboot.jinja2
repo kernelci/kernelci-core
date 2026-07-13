@@ -55,9 +55,17 @@
     images:
       boot:
         url: 'downloads://boot.img'
+{% if fastboot_docker_image %}
+    docker:
+      image: '{{ fastboot_docker_image }}'
+{% endif %}
     timeout:
       minutes: 2
+{% if fastboot_docker_image %}
+    to: fastboot
+{% else %}
     to: download
+{% endif %}
 
 - boot:
     prompts:
@@ -71,3 +79,7 @@
       auto-login-action:
         minutes: 2
     method: fastboot
+{% if fastboot_docker_image %}
+    docker:
+      image: '{{ fastboot_docker_image }}'
+{% endif %}

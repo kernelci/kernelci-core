@@ -9,14 +9,55 @@
 """Unit test for KernelCI Runtime implementation"""
 
 import types
+from pathlib import Path
 
 import pytest
 import yaml
+from jinja2 import Environment, FileSystemLoader
 
 import kernelci.config
 import kernelci.runtime
 import kernelci.runtime.lava
 from kernelci.runtime.pull_labs import compute_tuxrun_parameters
+
+
+@pytest.mark.parametrize(
+    "docker_image", [None, "example.com/lava/fastboot:latest"]
+)
+def test_fastboot_docker_image_is_optional(docker_image):
+    """Fastboot actions use a container only when one is configured."""
+    template_dir = Path(__file__).parents[1] / "config" / "runtime"
+    template = Environment(loader=FileSystemLoader(template_dir)).get_template(
+        "boot/fastboot.jinja2"
+    )
+    params = {
+        "boot_commands": "ramdisk",
+        "device_dtb": "dtbs/qcom/apq8096-db820c.dtb",
+        "fastboot_docker_image": docker_image,
+        "node": {
+            "artifacts": {
+                "dtb": "https://example.com/apq8096-db820c.dtb",
+                "kernel": "https://example.com/Image",
+                "kselftest_tar_xz": "https://example.com/kselftest.tar.xz",
+                "modules": "https://example.com/modules.tar.xz",
+            },
+            "data": {"kernel_type": "image"},
+        },
+        "ramdiskroot": "https://example.com/rootfs",
+    }
+
+    actions = yaml.safe_load(template.render(params))
+    fastboot_deploy = actions[1]["deploy"]
+    fastboot_boot = actions[2]["boot"]
+
+    if docker_image:
+        assert fastboot_deploy["to"] == "fastboot"
+        assert fastboot_deploy["docker"] == {"image": docker_image}
+        assert fastboot_boot["docker"] == {"image": docker_image}
+    else:
+        assert fastboot_deploy["to"] == "download"
+        assert "docker" not in fastboot_deploy
+        assert "docker" not in fastboot_boot
 
 
 class _FakeResponse:
