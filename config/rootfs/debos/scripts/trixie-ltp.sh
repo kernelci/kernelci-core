@@ -82,6 +82,11 @@ cd /opt/kirk
 git reset --hard $KIRK_VERSION
 rm -rf ./.git
 
+# test-definitions' ltp.sh resolves the runner as a bare "kirk" through
+# PATH, so make it reachable without every caller having to know where
+# kirk is installed.
+ln -sf /opt/kirk/kirk /usr/bin/kirk
+
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
 ########################################################################
