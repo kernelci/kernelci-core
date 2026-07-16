@@ -1,15 +1,17 @@
 ---
-name: KernelCI API tokens
-about: Request to get some KernelCI API tokens
-title: Request API tokens for USER
+name: KernelCI API accounts
+about: Request a KernelCI (Maestro) API account
+title: Request API account for USER
 labels: ''
 assignees: ''
 
 ---
 
-KernelCI uses kernelci-backend to manage its database which contains all the data about builds and tests.  There are 2 main instances, a production one for kernelci.org and a test one for staging.kernelci.org.  Separate tokens can be provided for either or both, with several permissions to choose from.  KernelCI labs will also typically need a token to be able to push their test results.
+KernelCI uses the [Maestro API](https://github.com/kernelci/kernelci-api) to manage its database which contains all the data about builds and tests.  There are 2 main instances, a production one for kernelci.org and a staging one for testing changes.  Access is based on user accounts: an admin sends you an invitation link, you set a password and then obtain API tokens by logging in.  Reading data doesn't require any account or token, so this is only needed to send data to the API.
 
-Please answer the questions below to request some API tokens:
+Lab owners connecting their lab to KernelCI typically need an account for [pull labs](https://docs.kernelci.org/components/maestro/pipeline/connecting-pull-lab/), which poll the API for jobs and push their test results.  [LAVA labs](https://docs.kernelci.org/components/maestro/pipeline/connecting-lab/) don't need an API account: they use a callback token generated in the lab itself and added to the pipeline configuration.
+
+Please answer the questions below to request an account:
 
 **Contact details**
 
@@ -17,28 +19,26 @@ Please answer the questions below to request some API tokens:
 
 ⇨ Email address:
 
-If this is for a lab token:
+If this is for a lab:
 
 ⇨ Lab owner first and last names:
 
 ⇨ Lab name:
 
+⇨ Lab type (pull lab or LAVA):
+
 **Production**
 
-The production instance is the one behind `https://kernelci.org`.  Production tokens are only provided for labs that are able to send useful data, or with read-only permissions to create dashboards or consume the results data in any way (stats, reports...).  Uses of the kernelci.org production data should ideally be made public.
+The production instance is the one behind `https://kernelci.org`.  Production accounts are only provided for labs and services that are able to send useful data.  Reading the production data doesn't require an account.
 
 The URL of the production API server is `https://api.kernelci.org`.
 
-Do you need a token to access the production API?  If so, is this to be able to read the data or also send some test results from a lab?
-
-⇨ Read-only or also to to push results:
+⇨ Do you need an account on the production API?
 
 **Staging**
 
-The URL of the staging API server is `https://staging-api.kernelci.org`.
+The URL of the staging API server is `https://staging.kernelci.org:9000`.
 
-The staging instance is used for experimental features without impacting the production instance.  This is useful for anything new that needs to be tested in a full KernelCI environment with results publicly available on `https://staging.kernelci.org` but not sent to regular mailing lists.
+The staging instance is used for experimental features without impacting the production instance.  This is useful for anything new that needs to be tested in a full KernelCI environment before moving to production.
 
-Do you need a token to access the staging API?  If so, is this to be able to read the data or send some test results from a lab?
-
-⇨ Read-only or also to push results:
+⇨ Do you need an account on the staging API?
