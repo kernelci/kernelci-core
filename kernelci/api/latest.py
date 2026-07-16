@@ -10,8 +10,6 @@ import enum
 import json
 from typing import Dict, Optional, Sequence
 
-from cloudevents.http import from_json
-
 from . import API
 
 
@@ -197,8 +195,8 @@ class LatestAPI(API):
             data = resp.json().get("data")
             if not data:
                 continue
-            event = from_json(data)
-            if event.data == "BEEP":
+            event = json.loads(data)
+            if event.get("data") == "BEEP":
                 if not block:
                     # If block is False, return None
                     # for semi-nonblocking operation
@@ -211,11 +209,8 @@ class LatestAPI(API):
 
     def pop_event(self, list_name: str):
         path = "/".join(["pop", str(list_name)])
-        while True:
-            resp = self._get(path)
-            data = json.dumps(resp.json())
-            event = from_json(data)
-            return event
+        resp = self._get(path)
+        return resp.json()
 
     def subscription_stats(self):
         return self._get("stats/subscriptions").json()

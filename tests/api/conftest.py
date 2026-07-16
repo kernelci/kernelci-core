@@ -7,10 +7,10 @@
 """pytest fixtures for APIHelper unit tests"""
 
 import json
+import uuid
+from datetime import datetime, timezone
 
 import pytest
-from cloudevents.conversion import to_json
-from cloudevents.http import CloudEvent
 from requests import Response
 
 import kernelci.config
@@ -180,16 +180,18 @@ class APIHelperTestData:
         return self._kunit_child_node
 
     def get_test_cloud_event(self):
-        """Get test CloudEvent instance"""
-        attributes = {
-            "type": "api.kernelci.org",
+        """Get test CloudEvents JSON envelope as a dict"""
+        return {
+            "specversion": "1.0",
+            "id": str(uuid.uuid4()),
             "source": "https://api.kernelci.org/",
+            "type": "api.kernelci.org",
+            "time": datetime.now(timezone.utc).isoformat(),
+            "data": {
+                "op": "created",
+                "id": self.checkout_node["id"],
+            },
         }
-        data = {
-            "op": "created",
-            "id": self.checkout_node["id"],
-        }
-        return CloudEvent(attributes=attributes, data=data)
 
 
 @pytest.fixture
@@ -258,12 +260,12 @@ def mock_api_put_nodes(mocker):
 @pytest.fixture
 def mock_receive_event(mocker):
     """
-    Mocks call to LatestAPI class method used to receive CloudEvent
+    Mocks call to LatestAPI class method used to receive an event
     """
     resp = Response()
     resp.status_code = 200
     event = APIHelperTestData().get_test_cloud_event()
-    resp._content = to_json(event)
+    resp._content = json.dumps(event).encode("utf-8")
     mocker.patch(
         "kernelci.api.latest.LatestAPI.receive_event",
         return_value=event,
