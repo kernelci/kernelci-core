@@ -13,7 +13,6 @@ import urllib
 from typing import Dict, Optional, Sequence
 
 import requests
-from cloudevents.http import CloudEvent
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
@@ -527,7 +526,7 @@ class API(abc.ABC, Base):
         """Send an event to a given pub/sub channel"""
 
     @abc.abstractmethod
-    def receive_event(self, sub_id: int) -> CloudEvent:
+    def receive_event(self, sub_id: int) -> dict:
         """Listen and receive an event from a given subscription id"""
 
     @abc.abstractmethod
@@ -535,7 +534,7 @@ class API(abc.ABC, Base):
         """Push an event to a given Redis List"""
 
     @abc.abstractmethod
-    def pop_event(self, list_name: str) -> CloudEvent:
+    def pop_event(self, list_name: str) -> dict:
         """Listen and pop an event from a given List"""
 
     @abc.abstractmethod
