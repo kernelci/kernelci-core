@@ -5,7 +5,10 @@ USER root
 RUN python3 -m pip install git+https://github.com/kernelci/kcidb.git --break-system-packages
 
 # Install logspec
-RUN pip install git+https://github.com/kernelci/logspec.git
+ARG logspec_url=https://github.com/kernelci/logspec.git
+ARG logspec_rev=370c994c940011e35cd7eb6ff173c451a5de2cd1
+RUN python3 -m pip install "git+${logspec_url}@${logspec_rev}" --break-system-packages
+ENV KCI_VER_LOGSPEC=$logspec_rev
 
 USER kernelci
 ARG pipeline_url=https://github.com/kernelci/kernelci-pipeline.git
