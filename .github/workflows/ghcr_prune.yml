@@ -1,0 +1,142 @@
+name: 'Prune old untagged GHCR container versions'
+
+on:
+  schedule:
+    # every Sunday at 03:17 UTC
+    - cron: '17 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      DRY_RUN:
+        type: boolean
+        description: 'Only list what would be deleted'
+        required: false
+        default: false
+      OLDER_THAN_DAYS:
+        type: string
+        description: 'Delete untagged versions older than this many days'
+        required: false
+        default: '180'
+
+permissions:
+  packages: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prune untagged versions older than cutoff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ inputs.DRY_RUN && '1' || '0' }}
+          OLDER_THAN_DAYS: ${{ inputs.OLDER_THAN_DAYS || '180' }}
+        run: |
+          python3 - <<'EOF'
+          import json
+          import os
+          import sys
+          import urllib.request
+          from datetime import datetime, timedelta, timezone
+
+          ORG = 'kernelci'
+          # Keep in sync with the images built by docker_images.yml
+          PKGS = [
+              'buildroot', 'clang-21', 'cvehound', 'debos', 'gcc-14',
+              'gcc-15', 'k8s', 'kernelci', 'qemu',
+          ]
+          PKGS += ['staging-' + p for p in PKGS]
+
+          DRY_RUN = os.environ['DRY_RUN'] == '1'
+          CUTOFF = datetime.now(timezone.utc) - timedelta(
+              days=int(os.environ['OLDER_THAN_DAYS']))
+          API_ACCEPT = 'application/vnd.github+json'
+          MANIFEST_ACCEPT = ', '.join([
+              'application/vnd.docker.distribution.manifest.v2+json',
+              'application/vnd.docker.distribution.manifest.list.v2+json',
+              'application/vnd.oci.image.manifest.v1+json',
+              'application/vnd.oci.image.index.v1+json',
+          ])
+
+          def request(url, token, accept, method='GET'):
+              req = urllib.request.Request(url, method=method)
+              req.add_header('Authorization', 'Bearer ' + token)
+              req.add_header('Accept', accept)
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                  link = resp.headers.get('Link', '')
+                  body = resp.read()
+              return json.loads(body) if body else None, link
+
+          def api_paginate(path):
+              gh_token = os.environ['GH_TOKEN']
+              url = f'https://api.github.com{path}?per_page=100'
+              items = []
+              while url:
+                  page, link = request(url, gh_token, API_ACCEPT)
+                  items += page
+                  url = None
+                  for part in link.split(','):
+                      if 'rel="next"' in part:
+                          url = part[part.index('<') + 1:part.index('>')]
+              return items
+
+          def registry_token(pkg):
+              url = f'https://ghcr.io/token?scope=repository:{ORG}/{pkg}:pull'
+              with urllib.request.urlopen(url, timeout=30) as resp:
+                  return json.load(resp)['token']
+
+          total_deleted = 0
+          errors = 0
+          for pkg in PKGS:
+              try:
+                  versions = api_paginate(
+                      f'/orgs/{ORG}/packages/container/{pkg}/versions')
+              except Exception as exc:
+                  print(f'{pkg}: cannot list versions, skipping: {exc}')
+                  errors += 1
+                  continue
+
+              # Digests referenced by any tagged version (including the
+              # per-arch children of multi-arch indexes) must be kept.
+              referenced = set()
+              reg_token = registry_token(pkg)
+              for version in versions:
+                  if not version['metadata']['container']['tags']:
+                      continue
+                  referenced.add(version['name'])
+                  manifest, _ = request(
+                      f'https://ghcr.io/v2/{ORG}/{pkg}/manifests/{version["name"]}',
+                      reg_token, MANIFEST_ACCEPT)
+                  for child in manifest.get('manifests', []):
+                      referenced.add(child['digest'])
+
+              candidates = [
+                  version for version in versions
+                  if not version['metadata']['container']['tags']
+                  and version['name'] not in referenced
+                  and datetime.fromisoformat(
+                      version['updated_at'].replace('Z', '+00:00')) < CUTOFF
+              ]
+              print(f'{pkg}: {len(versions)} versions, '
+                    f'{len(candidates)} to delete')
+
+              for version in candidates:
+                  if DRY_RUN:
+                      continue
+                  try:
+                      request(f'https://api.github.com/orgs/{ORG}/packages/'
+                              f'container/{pkg}/versions/{version["id"]}',
+                              os.environ['GH_TOKEN'], API_ACCEPT,
+                              method='DELETE')
+                      total_deleted += 1
+                  except urllib.error.HTTPError as exc:
+                      # Rate limit exhausted: stop, next run will catch up
+                      if exc.code in (403, 429):
+                          print(f'Rate limited, stopping. '
+                                f'Deleted {total_deleted} so far.')
+                          sys.exit(0)
+                      print(f'{pkg}: failed to delete id={version["id"]}: {exc}')
+                      errors += 1
+
+          print(f'Done: deleted {total_deleted}, errors {errors}'
+                + (' (dry run, nothing deleted)' if DRY_RUN else ''))
+          sys.exit(1 if errors else 0)
+          EOF
