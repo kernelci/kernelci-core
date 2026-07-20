@@ -37,4 +37,4 @@ unit-tests:
 	python3 -m pytest tests
 
 validate-yaml:
-	./kci_rootfs validate
+	./kci rootfs validate
