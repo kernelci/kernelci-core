@@ -164,7 +164,10 @@ actions:
 
   - action: run
     description: Move image to output directory
-    command: mv ${ARTIFACTDIR}/rootfs.ext4 ${ARTIFACTDIR}/{{ $basename -}}/
+    command: |
+      if [ "{{ $basename }}" != "." ]; then
+        mv ${ARTIFACTDIR}/rootfs.ext4 ${ARTIFACTDIR}/{{ $basename -}}/
+      fi
     postprocess: true
 
   - action: run
