@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 """Typed configuration for root filesystem image builds."""
 
+import re
 from pathlib import Path
 from typing import Annotated, Dict, List, Literal, Optional, Union
 
@@ -100,6 +101,13 @@ class RootfsConfigFile(BaseModel):
             raise ValueError("rootfs_configs must not be empty")
         if list(value) != sorted(value):
             raise ValueError("rootfs_configs must be sorted")
+        invalid = [
+            name
+            for name in value
+            if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", name)
+        ]
+        if invalid:
+            raise ValueError(f"invalid rootfs configuration names: {invalid}")
         return value
 
 
