@@ -35,6 +35,9 @@ from kernelci.cli import (
     node as kci_node,
 )
 from kernelci.cli import (
+    rootfs as kci_rootfs,
+)
+from kernelci.cli import (
     storage as kci_storage,
 )
 from kernelci.cli import (
