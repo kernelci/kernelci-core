@@ -6,6 +6,9 @@ description: "Command line tool to build rootfs images"
 weight: 5
 ---
 
+> This interface is deprecated.  See [Root filesystem images](../../rootfs/)
+> for the native `kci rootfs` command and workflow.
+
 ### How to build a rootfs image using kci_rootfs
 
 You will be using `kernelci/debos:kernelci` docker image for this purpose.
