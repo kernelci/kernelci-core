@@ -6,9 +6,6 @@ from . import (
     db as db_config,
 )
 from . import (
-    rootfs as rootfs_config,
-)
-from . import (
     test as test_config,
 )
 
@@ -17,6 +14,5 @@ def from_yaml(data, filters):
     """Load legacy YAML configuration data"""
     config = dict()
     config.update(db_config.from_yaml(data, filters))
-    config.update(rootfs_config.from_yaml(data, filters))
     config.update(test_config.from_yaml(data, filters))
     return config

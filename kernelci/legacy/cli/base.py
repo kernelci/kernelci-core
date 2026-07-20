@@ -336,7 +336,7 @@ the matching results are retrieved.""",
         "name": "--rootfs-type",
         "help": "Rootfs type",
         "type": str,
-        "choices": ("debos", "buildroot", "chromiumos"),
+        "choices": ("debos", "buildroot"),
     }
 
     storage_config = {
