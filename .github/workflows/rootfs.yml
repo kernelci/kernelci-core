@@ -1,139 +1,169 @@
-name: "Build rootfs images"
+name: Build rootfs images
 
 on:
   workflow_dispatch:
     inputs:
       GIT_REPO:
-        description: 'Repo (owner/repo)'
+        description: Repository containing the rootfs configuration
         required: true
-        default: 'kernelci/kernelci-core'
+        default: kernelci/kernelci-core
+        type: string
       GIT_BRANCH:
-        description: 'Branch'
+        description: Git branch or revision to build
         required: true
-        default: 'main'
+        default: main
+        type: string
       ROOTFS_NAME:
-        description: 'Rootfs name'
+        description: Rootfs configuration name
         required: true
-        default: 'bookworm'
+        default: trixie
+        type: string
       ROOTFS_ARCH:
-        description: 'Rootfs architecture'
+        description: Architecture name or "all"
         required: true
-        default: 'arm64'
+        default: all
+        type: string
       ROOTFS_DESTINATION:
-        description: 'Rootfs destination'
+        description: Protected publication environment
         required: true
+        default: staging
         type: choice
         options:
-          - 'staging'
-          - 'production'
+          - staging
+          - production
+      ROOTFS_VERSION:
+        description: Optional version in YYYYMMDD.N format
+        required: false
+        default: ""
+        type: string
 
-env:
-  ROOTFS_NAME: ${{ github.event.inputs.ROOTFS_NAME }}
-  ROOTFS_ARCH: ${{ github.event.inputs.ROOTFS_ARCH }}
-  ROOTFS_DESTINATION: ${{ github.event.inputs.ROOTFS_DESTINATION }}
-  USER_GIT_REPO: ${{ github.event.inputs.GIT_REPO }}
-  USER_GIT_BRANCH: ${{ github.event.inputs.GIT_BRANCH }}
+permissions:
+  contents: read
 
 jobs:
-  discord-notify-start:
-      runs-on: ubuntu-latest
-      steps:
-          - name: Discord notification for start
-            env:
-              DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-            uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
-            with:
-              args: 'Rootfs build started: "${{ github.event.inputs.ROOTFS_NAME }}" for architecture "${{ github.event.inputs.ROOTFS_ARCH }}" by ${{ github.actor }}'
-
-  rootfs-build:
-    # only selected people can trigger this job
-    if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","pawiecz","nfraprado","vigneshraman","bhcopeland"]', github.actor)
+  prepare:
     runs-on: ubuntu-latest
-    environment: deploysecrets
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+      version: ${{ steps.select.outputs.version }}
     steps:
-      - name: Checkout kernelci-deploy
+      - name: Check out requested KernelCI revision
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
-          repository: kernelci/kernelci-deploy
-          path: kernelci-deploy
-          ref: 'main'
-      - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+          repository: ${{ inputs.GIT_REPO }}
+          ref: ${{ inputs.GIT_BRANCH }}
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
         with:
-          repository: ${{ env.USER_GIT_REPO }}
-          ref: ${{ env.USER_GIT_BRANCH }}
-          submodules: recursive
-          fetch-depth: 0
-          path: kernelci-deploy/tools/kernelci-core
-      - name: Prepare necessary tools
-        run: |
-          sudo apt-get update
-          sudo apt-get remove containerd.io
-          sudo apt-get install -y python3-pip git docker.io python3-docker
-      - name: run rootfs build
-        run: |
-           cd kernelci-deploy/tools;sudo ./kci-rootfs.py --arch $ROOTFS_ARCH --name $ROOTFS_NAME
-      - name: set rootfs env variables
-        run: |
-          ROOTFS_DIR=$(find kernelci-deploy/tools -type d -name _install_)
-          echo "ROOTFS_DIR=$ROOTFS_DIR" >> $GITHUB_ENV
-          echo "ROOTFS_TIMECODE=$(date +%Y%m%d.0)" >> $GITHUB_ENV
-      - name: Copy files via scp to staging
-        if: ${{ env.ROOTFS_DESTINATION == 'staging' }}
-        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345  # v1.0.0
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USERNAME }}
-          key: ${{ secrets.STAGING_KEY }}
-          port: ${{ secrets.STAGING_PORT }}
-          source: "${{ env.ROOTFS_DIR }}/*"
-          target: ${{ secrets.STAGING_DIR }}/${{ env.ROOTFS_NAME }}/${{ env.ROOTFS_TIMECODE }}/${{ env.ROOTFS_ARCH }}
-          strip_components: 8
-      - name: Copy files via scp to production
-        if: ${{ env.ROOTFS_DESTINATION == 'production' }}
-        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345  # v1.0.0
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USERNAME }}
-          key: ${{ secrets.PRODUCTION_KEY }}
-          port: ${{ secrets.PRODUCTION_PORT }}
-          source: "${{ env.ROOTFS_DIR }}/*"
-          target: ${{ secrets.PRODUCTION_DIR }}/${{ env.ROOTFS_NAME }}/${{ env.ROOTFS_TIMECODE }}/${{ env.ROOTFS_ARCH }}
-          strip_components: 8
-      - name: print out published rootfs
-        run: |
-          echo "FINAL_MSG=Rootfs build completed: ${{ secrets.STAGING_URL }}/${{ env.ROOTFS_NAME }}/${{ env.ROOTFS_TIMECODE }}/${{ env.ROOTFS_ARCH }}" >> $GITHUB_ENV
-          cat $GITHUB_ENV|grep FINAL_MSG
-      - name: Slack notification
-        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661  # v2.3.3
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install checked-out KernelCI package
+        run: python -m pip install .
+
+      - name: Validate configuration and select variants
+        id: select
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL: 'bot'
+          REQUESTED_NAME: ${{ inputs.ROOTFS_NAME }}
+          REQUESTED_ARCH: ${{ inputs.ROOTFS_ARCH }}
+          REQUESTED_VERSION: ${{ inputs.ROOTFS_VERSION }}
+        run: |
+          set -euo pipefail
+          kci rootfs validate
+
+          variant_args=(rootfs variants "$REQUESTED_NAME" --format json)
+          if [[ "$REQUESTED_ARCH" != "all" ]]; then
+            variant_args+=(--arch "$REQUESTED_ARCH")
+          fi
+          variants=$(kci "${variant_args[@]}")
+          echo "matrix={\"include\":${variants}}" >> "$GITHUB_OUTPUT"
+
+          version="$REQUESTED_VERSION"
+          if [[ -z "$version" ]]; then
+            version="$(date -u +%Y%m%d).0"
+          fi
+          if [[ ! "$version" =~ ^[0-9]{8}\.[0-9]+$ ]]; then
+            echo "Invalid rootfs version: $version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  build-and-publish:
+    name: ${{ matrix.name }} / ${{ matrix.arch }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ROOTFS_DESTINATION }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: Check out requested KernelCI revision
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
-          status: 'completed'
-          author_name: ${{ github.actor }}
-          title: 'ROOTFS Build completed'
-          text: ${{ env.FINAL_MSG }}
+          repository: ${{ inputs.GIT_REPO }}
+          ref: ${{ inputs.GIT_BRANCH }}
+          fetch-depth: 1
 
-  discord-notify-end:
-      runs-on: ubuntu-latest
-      needs: rootfs-build
-      steps:
-          - name: Discord notification for end
-            env:
-              DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-            uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
-            with:
-              args: 'Rootfs build completed: "${{ github.event.inputs.ROOTFS_NAME }}" for architecture "${{ github.event.inputs.ROOTFS_ARCH }}". Check the logs for more details.'
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: "3.11"
+          cache: pip
 
-  discord-notify-failure:
-      runs-on: ubuntu-latest
-      if: failure()
-      needs: [discord-notify-start, rootfs-build, discord-notify-end]
-      steps:
-          - name: Notify failure to Discord
-            env:
-              DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-            uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
-            with:
-              args: 'Rootfs build failed: "${{ github.event.inputs.ROOTFS_NAME }}" for architecture "${{ github.event.inputs.ROOTFS_ARCH }}". Check the logs for more details.'
+      - name: Install checked-out KernelCI package
+        run: python -m pip install .
+
+      - name: Verify container engine
+        run: docker version
+
+      - name: Build rootfs
+        env:
+          ROOTFS_NAME: ${{ matrix.name }}
+          ROOTFS_ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          kci rootfs build "$ROOTFS_NAME" \
+            --arch "$ROOTFS_ARCH" \
+            --output-dir output \
+            --cache-dir .cache/kernelci/rootfs \
+            --pull always \
+            --verbose
+
+      - name: Publish rootfs
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345  # v1.0.0
+        with:
+          host: ${{ secrets.ROOTFS_HOST }}
+          username: ${{ secrets.ROOTFS_USERNAME }}
+          key: ${{ secrets.ROOTFS_SSH_KEY }}
+          port: ${{ secrets.ROOTFS_PORT }}
+          source: output/${{ matrix.name }}/${{ matrix.arch }}/*
+          target: ${{ vars.ROOTFS_BASE_DIR }}/${{ matrix.name }}/${{ needs.prepare.outputs.version }}/${{ matrix.arch }}
+          strip_components: 3
+
+      - name: Add published image to job summary
+        env:
+          ROOTFS_PUBLIC_URL: ${{ vars.ROOTFS_PUBLIC_URL }}
+          ROOTFS_NAME: ${{ matrix.name }}
+          ROOTFS_ARCH: ${{ matrix.arch }}
+          ROOTFS_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          echo "Rootfs: ${ROOTFS_PUBLIC_URL}/${ROOTFS_NAME}/${ROOTFS_VERSION}/${ROOTFS_ARCH}" >> "$GITHUB_STEP_SUMMARY"
+
+  notify:
+    if: always()
+    needs:
+      - prepare
+      - build-and-publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report workflow result to Discord
+        uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554  # 0.4.0
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: >-
+            Rootfs workflow for "${{ inputs.ROOTFS_NAME }}" completed with
+            status "${{ needs.build-and-publish.result }}". Run:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
