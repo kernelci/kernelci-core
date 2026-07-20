@@ -201,7 +201,10 @@ actions:
     chroot: true
     command: |
       for exp in {{ $extra_files_remove }}; do
-        for f in $(find . -name "$exp"); do
+        # /run/host is provided by the Debos sandbox and contains read-only
+        # placeholders.  It is not part of the resulting rootfs, so do not
+        # let broad patterns such as "dir" descend into it.
+        for f in $(find . -path ./run/host -prune -o -name "$exp" -print); do
           rm -rf "$f"
         done
       done
