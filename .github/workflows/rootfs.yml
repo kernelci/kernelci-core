@@ -94,7 +94,7 @@ jobs:
     name: ${{ matrix.name }} / ${{ matrix.arch }}
     needs: prepare
     runs-on: ubuntu-latest
-    environment: ${{ inputs.ROOTFS_DESTINATION }}
+    environment: deploysecrets
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
@@ -131,15 +131,28 @@ jobs:
             --pull always \
             --verbose
 
-      - name: Publish rootfs
+      - name: Publish rootfs to staging
+        if: inputs.ROOTFS_DESTINATION == 'staging'
         uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345  # v1.0.0
         with:
-          host: ${{ secrets.ROOTFS_HOST }}
-          username: ${{ secrets.ROOTFS_USERNAME }}
-          key: ${{ secrets.ROOTFS_SSH_KEY }}
-          port: ${{ secrets.ROOTFS_PORT }}
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USERNAME }}
+          key: ${{ secrets.STAGING_KEY }}
+          port: ${{ secrets.STAGING_PORT }}
           source: output/${{ matrix.name }}/${{ matrix.arch }}/*
-          target: ${{ vars.ROOTFS_BASE_DIR }}/${{ matrix.name }}/${{ needs.prepare.outputs.version }}/${{ matrix.arch }}
+          target: ${{ secrets.STAGING_DIR }}/${{ matrix.name }}/${{ needs.prepare.outputs.version }}/${{ matrix.arch }}
+          strip_components: 3
+
+      - name: Publish rootfs to production
+        if: inputs.ROOTFS_DESTINATION == 'production'
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345  # v1.0.0
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_KEY }}
+          port: ${{ secrets.PRODUCTION_PORT }}
+          source: output/${{ matrix.name }}/${{ matrix.arch }}/*
+          target: ${{ secrets.PRODUCTION_DIR }}/${{ matrix.name }}/${{ needs.prepare.outputs.version }}/${{ matrix.arch }}
           strip_components: 3
 
       - name: Add published image to job summary
