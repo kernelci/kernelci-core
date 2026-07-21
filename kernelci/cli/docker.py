@@ -6,12 +6,17 @@
 """Tool to build and manage Docker images"""
 
 import functools
+import time
 
 import click
+import docker
 
 from kernelci.docker import Docker
 
 from . import Args, kci
+
+PUSH_ATTEMPTS = 3
+PUSH_RETRY_DELAY = 5
 
 
 def kci_docker_args(func):
@@ -69,14 +74,34 @@ def _get_docker_args(build_arg):
 
 
 def _do_push(helper, base_name, tag_name, verbose):
-    push_log = helper.push_image(base_name, tag_name)
-    if verbose:
-        for line in helper.iterate_push_log(push_log):
-            click.echo(line)
-        for line in push_log:
-            error = line.get("errorDetail")
-            if error:
-                raise click.ClickException(error["message"])
+    retry_delay = PUSH_RETRY_DELAY
+    for attempt in range(1, PUSH_ATTEMPTS + 1):
+        try:
+            push_log = helper.push_image(base_name, tag_name)
+            if verbose:
+                for line in helper.iterate_push_log(push_log):
+                    click.echo(line)
+            error_message = next(
+                (
+                    line["errorDetail"]["message"]
+                    for line in push_log
+                    if line.get("errorDetail")
+                ),
+                None,
+            )
+        except docker.errors.DockerException as exc:
+            error_message = str(exc)
+
+        if error_message is None:
+            return
+        if attempt == PUSH_ATTEMPTS:
+            raise click.ClickException(error_message)
+
+        click.echo(
+            f"Push failed: {error_message}; retrying in {retry_delay} seconds"
+        )
+        time.sleep(retry_delay)
+        retry_delay *= 2
 
 
 @kci_docker.command
