@@ -97,9 +97,7 @@ class RootfsBuilder:
             raise
         return paths.final
 
-    def _write_manifest(
-        self, context: BuildContext, started: datetime
-    ) -> None:
+    def _write_manifest(self, context: BuildContext, started: datetime) -> None:
         artifact_data = []
         for path in sorted(context.paths.staging.iterdir()):
             if not path.is_file():

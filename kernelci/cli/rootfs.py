@@ -114,9 +114,7 @@ def variants(name, config_path, data_dir, arch, output_format):
         click.echo(json.dumps(entries, separators=(",", ":")))
     else:
         for entry in entries:
-            click.echo(
-                f"{entry['name']} {entry['arch']} {entry['type']}"
-            )
+            click.echo(f"{entry['name']} {entry['arch']} {entry['type']}")
 
 
 @kci_rootfs.command
@@ -185,9 +183,7 @@ def build(
     """Build one rootfs configuration for selected architectures."""
     requested_arches = list(arch or [])
     if bool(requested_arches) == bool(all_arches):
-        raise click.UsageError(
-            "use either --arch (repeatable) or --all-arches"
-        )
+        raise click.UsageError("use either --arch (repeatable) or --all-arches")
     configs, rootfs_data = load_inputs(config_path, data_dir)
     config = configs.rootfs_configs.get(name)
     if config is None:

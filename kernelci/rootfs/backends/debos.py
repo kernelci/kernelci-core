@@ -70,6 +70,4 @@ class DebosBackend:
             devices=devices,
             environment={"HOME": "/tmp"},
         )
-        context.runner.normalize_ownership(
-            context.image, context.paths.staging
-        )
+        context.runner.normalize_ownership(context.image, context.paths.staging)
