@@ -137,7 +137,9 @@ def load_rootfs_config(
     except yaml.YAMLError as exc:
         raise RootfsConfigError(f"invalid YAML in {path}: {exc}") from exc
     if not isinstance(data, dict):
-        raise RootfsConfigError(f"rootfs configuration must be a mapping: {path}")
+        raise RootfsConfigError(
+            f"rootfs configuration must be a mapping: {path}"
+        )
     return RootfsConfigFile.model_validate(data)
 
 

@@ -30,7 +30,14 @@ def test_build_container_command(tmp_path):
         environment={"Z": "last", "A": "first"},
     )
 
-    assert command[:6] == ["docker", "run", "--rm", "--pull", "always", "--mount"]
+    assert command[:6] == [
+        "docker",
+        "run",
+        "--rm",
+        "--pull",
+        "always",
+        "--mount",
+    ]
     assert f"source={source.resolve()}" in command[6]
     assert "readonly" in command[6]
     assert command[-3:] == ["example/image:tag", "tool", "value;not-shell"]

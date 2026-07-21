@@ -41,9 +41,7 @@ class BuildrootBackend:
 
     def build(self, context: BuildContext) -> None:
         if not isinstance(context.config, BuildrootRootfsConfig):
-            raise TypeError(
-                "BuildrootBackend requires BuildrootRootfsConfig"
-            )
+            raise TypeError("BuildrootBackend requires BuildrootRootfsConfig")
 
         config = context.config
         command = (

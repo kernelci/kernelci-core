@@ -61,7 +61,12 @@ def test_debos_command_and_mounts(tmp_path):
 
     kwargs = context.runner.run.call_args.kwargs
     command = context.runner.run.call_args.args[1]
-    assert command[:4] == ["debos", "--cpus=4", "--memory=8G", "--scratchsize=10G"]
+    assert command[:4] == [
+        "debos",
+        "--cpus=4",
+        "--memory=8G",
+        "--scratchsize=10G",
+    ]
     assert "architecture:arm64" in command
     assert "extra_packages:curl git" in command
     assert "basename:." in command

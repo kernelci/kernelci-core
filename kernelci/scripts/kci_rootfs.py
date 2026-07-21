@@ -20,7 +20,9 @@ def _config_file(path):
     if not path:
         return None
     candidate = Path(path)
-    return candidate / "rootfs-configs.yaml" if candidate.is_dir() else candidate
+    return (
+        candidate / "rootfs-configs.yaml" if candidate.is_dir() else candidate
+    )
 
 
 def _data_dir(path):
@@ -43,9 +45,7 @@ def make_parser():
     validate.add_argument("--verbose", action="store_true")
 
     list_configs = commands.add_parser("list_configs")
-    list_configs.add_argument(
-        "--rootfs-type", choices=("debos", "buildroot")
-    )
+    list_configs.add_argument("--rootfs-type", choices=("debos", "buildroot"))
 
     list_variants = commands.add_parser("list_variants")
     list_variants.add_argument("--rootfs-config")

@@ -83,9 +83,7 @@ def test_build_one_architecture(runner_class, builder_class):
     result = invoke("build", "trixie", "--arch", "amd64")
 
     assert result.exit_code == 0, result.output
-    builder_class.return_value.build.assert_called_once_with(
-        "trixie", "amd64"
-    )
+    builder_class.return_value.build.assert_called_once_with("trixie", "amd64")
     assert "Artifacts: /tmp/output/trixie/amd64" in result.output
 
 
