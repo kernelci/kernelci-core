@@ -1,0 +1,24 @@
+#!/bin/sh
+
+PREREQ="klibc-utils"
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case "$1" in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+# shellcheck source=/dev/null
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /usr/lib/kernelci/mount.nfs /usr/sbin/mount.nfs
+
+# Replace klibc's NFSv2/v3-only helper after its hook has installed it.
+rm -f "${DESTDIR}/bin/nfsmount" "${DESTDIR}/usr/bin/nfsmount"
+copy_file script /usr/lib/kernelci/nfsmount /bin/nfsmount

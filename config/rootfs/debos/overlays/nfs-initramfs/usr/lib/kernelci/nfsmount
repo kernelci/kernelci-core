@@ -1,0 +1,100 @@
+#!/bin/sh
+
+# Compatibility wrapper for initramfs-tools.  Its NFS boot script calls the
+# klibc nfsmount interface using one or more "-o options" pairs.  Collect those
+# options for mount.nfs and translate LAVA's legacy v4.x spelling.
+#
+# Replacing klibc's NFSv2/v3-only nfsmount with mount.nfs follows the workaround
+# discussed in Debian bug #409271.  The argument translation here is needed for
+# the initramfs-tools call interface and KernelCI's LAVA boot arguments.
+# https://bugs.debian.org/409271
+
+normalize_options()
+{
+	input=$1
+	output=
+
+	while [ -n "$input" ]; do
+		case "$input" in
+		*,*)
+			option=${input%%,*}
+			input=${input#*,}
+			;;
+		*)
+			option=$input
+			input=
+			;;
+		esac
+
+		case "$option" in
+		v4)
+			option=vers=4
+			;;
+		v4.0)
+			option=vers=4.0
+			;;
+		v4.1)
+			option=vers=4.1
+			;;
+		v4.2)
+			option=vers=4.2
+			;;
+		esac
+
+		if [ -n "$output" ]; then
+			output="$output,$option"
+		else
+			output=$option
+		fi
+	done
+
+	printf '%s' "$output"
+}
+
+mount_options=
+mount_source=
+mount_target=
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+	-o)
+		shift
+		if [ "$#" -eq 0 ]; then
+			echo "nfsmount: option requires an argument -- 'o'" >&2
+			exit 1
+		fi
+		options=$(normalize_options "$1")
+		if [ -n "$mount_options" ]; then
+			mount_options="$mount_options,$options"
+		else
+			mount_options=$options
+		fi
+		;;
+	-*)
+		echo "nfsmount: unsupported option '$1'" >&2
+		exit 1
+		;;
+	*)
+		if [ -z "$mount_source" ]; then
+			mount_source=$1
+		elif [ -z "$mount_target" ]; then
+			mount_target=$1
+		else
+			echo "nfsmount: too many paths" >&2
+			exit 1
+		fi
+		;;
+	esac
+	shift
+done
+
+if [ -z "$mount_source" ] || [ -z "$mount_target" ]; then
+	echo "nfsmount: need a server path and mount point" >&2
+	exit 1
+fi
+
+if [ -n "$mount_options" ]; then
+	exec /usr/sbin/mount.nfs -o "$mount_options" "$mount_source" "$mount_target"
+else
+	exec /usr/sbin/mount.nfs "$mount_source" "$mount_target"
+fi
