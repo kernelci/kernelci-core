@@ -12,6 +12,7 @@ import os
 import sys
 
 from jinja2 import Environment, FileSystemLoader
+from jinja2.exceptions import TemplateRuntimeError
 
 
 def add_kci_raise(jinja2_env):
@@ -23,7 +24,7 @@ def add_kci_raise(jinja2_env):
     """
 
     def template_exception(msg):
-        raise Exception(msg)
+        raise TemplateRuntimeError(msg)
 
     jinja2_env.globals["kci_raise"] = template_exception
 
