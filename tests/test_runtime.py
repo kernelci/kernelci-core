@@ -14,11 +14,30 @@ from pathlib import Path
 import pytest
 import yaml
 from jinja2 import Environment, FileSystemLoader
+from jinja2.exceptions import TemplateRuntimeError
 
 import kernelci.config
+import kernelci.legacy.lava
 import kernelci.runtime
 import kernelci.runtime.lava
 from kernelci.runtime.pull_labs import compute_tuxrun_parameters
+
+
+def test_kci_raise_uses_jinja_runtime_error():
+    """The runtime helper raises a template-specific exception."""
+    kci_raise = kernelci.runtime.Runtime._get_jinja2_functions()["kci_raise"]
+
+    with pytest.raises(TemplateRuntimeError, match="invalid parameters"):
+        kci_raise("invalid parameters")
+
+
+def test_legacy_kci_raise_uses_jinja_runtime_error():
+    """The legacy LAVA helper raises a template-specific exception."""
+    environment = Environment()
+    kernelci.legacy.lava.add_kci_raise(environment)
+
+    with pytest.raises(TemplateRuntimeError, match="invalid parameters"):
+        environment.globals["kci_raise"]("invalid parameters")
 
 
 @pytest.mark.parametrize(

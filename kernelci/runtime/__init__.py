@@ -13,6 +13,7 @@ import os
 import requests
 import yaml
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader
+from jinja2.exceptions import TemplateRuntimeError
 
 from kernelci.config.base import get_system_arch
 
@@ -136,7 +137,7 @@ class Runtime(abc.ABC):
 
         def kci_raise(msg):
             """Raise an exception"""
-            raise Exception(msg)
+            raise TemplateRuntimeError(msg)
 
         def kci_yaml_dump(data):
             """Dump data to YAML"""
