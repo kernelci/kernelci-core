@@ -405,6 +405,7 @@ rootfs_configs:
   trixie-ltp:
     rootfs_type: debos
     debian_release: trixie
+    cross_compile: true
     arch_list:
       - amd64
       - arm64

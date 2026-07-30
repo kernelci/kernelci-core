@@ -44,6 +44,7 @@ class DebosRootfsConfig(BaseRootfsConfig):
 
     rootfs_type: Literal["debos"]
     debian_release: str
+    cross_compile: bool = False
     extra_packages: List[str] = Field(default_factory=list)
     extra_packages_remove: List[str] = Field(default_factory=list)
     extra_files_remove: List[str] = Field(default_factory=list)

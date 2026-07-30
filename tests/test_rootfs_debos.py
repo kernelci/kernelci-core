@@ -40,6 +40,7 @@ def test_debos_command_and_mounts(tmp_path):
         rootfs_type="debos",
         debian_release="trixie",
         arch_list=["arm64"],
+        cross_compile=True,
         extra_packages=["curl", "git"],
         extra_packages_remove=["apt"],
         extra_files_remove=["/var/cache"],
@@ -69,6 +70,7 @@ def test_debos_command_and_mounts(tmp_path):
         "--scratchsize=10G",
     ]
     assert "architecture:arm64" in command
+    assert "cross_compile:true" in command
     assert "extra_packages:curl git" in command
     assert "basename:." in command
     assert command[-2:] == [
@@ -98,6 +100,7 @@ def test_debos_defaults_and_omits_empty_variables(tmp_path):
 
     command = context.runner.run.call_args.args[1]
     assert "--memory=4G" in command
+    assert "cross_compile:true" not in command
     assert not any(item.startswith("extra_packages:") for item in command)
 
 
