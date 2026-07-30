@@ -5,7 +5,40 @@
 
 """KernelCI pipeline job configuration"""
 
+import copy
+from typing import Annotated, Any, Dict, Literal, Optional, Union
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from .base import YAMLConfigObject
+
+JobPriority = Union[
+    Literal["low", "medium", "high"],
+    Annotated[int, Field(ge=0, le=100)],
+]
+
+
+class JobConfig(BaseModel):
+    """Validated YAML representation of a pipeline job."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    template: str = Field(min_length=1)
+    kind: str = "node"
+    base_name: Optional[str] = None
+    image: Optional[str] = None
+    params: Dict[str, Any] = Field(default_factory=dict)
+    rules: Any = None
+    kcidb_test_suite: Any = None
+    priority: Optional[JobPriority] = None
+
+
+class JobsConfig(BaseModel):
+    """Validated top-level pipeline jobs configuration."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    jobs: Dict[str, JobConfig] = Field(default_factory=dict)
 
 
 class Job(YAMLConfigObject):
@@ -19,6 +52,7 @@ class Job(YAMLConfigObject):
         template,
         *,
         kind="node",
+        base_name=None,
         image=None,
         params=None,
         rules=None,
@@ -28,11 +62,12 @@ class Job(YAMLConfigObject):
         self._name = name
         self._template = template
         self._kind = kind
+        self._base_name = base_name
         self._image = image
         self._kcidb_test_suite = kcidb_test_suite
         self._priority = priority
         self._params = (
-            self.format_params(params.copy(), params) if params else {}
+            self.format_params(copy.deepcopy(params), params) if params else {}
         )
         self._rules = rules
 
@@ -52,6 +87,11 @@ class Job(YAMLConfigObject):
         return self._kind
 
     @property
+    def base_name(self):
+        """Optional base job name used to group related job variants"""
+        return self._base_name
+
+    @property
     def priority(self):
         """Job priority"""
         return self._priority
@@ -69,7 +109,7 @@ class Job(YAMLConfigObject):
     @property
     def params(self):
         """Arbitrary parameters passed to the template"""
-        return dict(self._params)
+        return copy.deepcopy(self._params)
 
     @property
     def rules(self):
@@ -88,6 +128,7 @@ class Job(YAMLConfigObject):
             {
                 "template",
                 "kind",
+                "base_name",
                 "image",
                 "params",
                 "rules",
@@ -100,9 +141,10 @@ class Job(YAMLConfigObject):
 
 def from_yaml(data, _):
     """Create the pipeline job definitions using data loaded from YAML"""
+    validated = JobsConfig.model_validate({"jobs": data.get("jobs", {})})
     jobs = {
-        name: Job.load_from_yaml(config, name=name)
-        for name, config in data.get("jobs", {}).items()
+        name: Job(name=name, **config.model_dump())
+        for name, config in validated.jobs.items()
     }
 
     return {
