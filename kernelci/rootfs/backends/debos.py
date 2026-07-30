@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 """Debos rootfs build backend."""
 
+import os
 from pathlib import Path
 from typing import Dict, List
 
@@ -67,6 +68,7 @@ class DebosBackend:
             command,
             mounts=mounts,
             workdir="/work",
+            user=f"{os.getuid()}:{os.getgid()}",
             devices=devices,
             environment={"HOME": "/tmp"},
         )
