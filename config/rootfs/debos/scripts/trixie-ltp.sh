@@ -1,8 +1,11 @@
 #!/bin/bash
 
-# Important: This script is run under QEMU
+# Build LTP outside the target chroot so foreign architectures use a
+# cross-compiler instead of running a native compiler under QEMU.
 
-set -e
+set -euo pipefail
+
+TARGET_ARCH=${1:?target architecture is required}
 
 LTP_URL="https://github.com/linux-test-project/ltp.git"
 LTP_SHA=20260529
@@ -10,38 +13,72 @@ LTP_SHA=20260529
 # Version of Kirk to install
 KIRK_VERSION=v4.1.0
 
-# Build-depends needed to build the test suites, they'll be removed later
-BUILD_DEPS="\
-    gcc \
-    git \
-    make \
-    pkgconf \
-    autoconf \
-    automake \
-    bison \
-    flex \
-    m4 \
-    libc6-dev \
-    libnuma-dev \
-"
+# Build dependencies installed in the native Debos build environment.
+HOST_BUILD_DEPS=(
+    git
+    make
+    pkgconf
+    autoconf
+    automake
+    bison
+    flex
+    m4
+)
 
-apt-get install --no-install-recommends -y  ${BUILD_DEPS}
+# Development packages installed temporarily in the target rootfs.
+TARGET_BUILD_DEPS=(
+    libc6-dev
+    libnuma-dev
+)
 
-BUILD_DIR="/ltp"
-BUILDFILE=/test_suites.json
-echo '{  "tests_suites": [' >> $BUILDFILE
+case "${TARGET_ARCH}" in
+    amd64)
+        GNU_TRIPLET=x86_64-linux-gnu
+        CROSS_GCC=gcc
+        ;;
+    arm64)
+        GNU_TRIPLET=aarch64-linux-gnu
+        CROSS_GCC=gcc-aarch64-linux-gnu
+        ;;
+    armhf)
+        GNU_TRIPLET=arm-linux-gnueabihf
+        CROSS_GCC=gcc-arm-linux-gnueabihf
+        ;;
+    riscv64)
+        GNU_TRIPLET=riscv64-linux-gnu
+        CROSS_GCC=gcc-riscv64-linux-gnu
+        ;;
+    *)
+        echo "Unsupported LTP cross-compilation architecture: ${TARGET_ARCH}" >&2
+        exit 1
+        ;;
+esac
+
+apt-get update
+apt-get install --no-install-recommends -y \
+    "${HOST_BUILD_DEPS[@]}" \
+    "${CROSS_GCC}"
+
+# Install target headers before using the rootfs as the compiler sysroot.
+chroot "${ROOTDIR}" apt-get install --no-install-recommends -y \
+    "${TARGET_BUILD_DEPS[@]}"
+
+BUILD_DIR=$(mktemp -d /tmp/ltp-build.XXXXXX)
+BUILDFILE="${ROOTDIR}/test_suites.json"
+cat > "${BUILDFILE}" <<EOF
+{  "tests_suites": [
+    {"name": "ltp-tests", "git_url": "${LTP_URL}", "git_commit": "${LTP_SHA}" }
+  ]}
+EOF
 
 ########################################################################
 # Build and install tests                                              #
 ########################################################################
-mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
+cd "${BUILD_DIR}"
 
 git config --global http.sslverify false
 
-echo '    {"name": "ltp-tests", "git_url": "'$LTP_URL'", "git_commit": "'$LTP_SHA'" }' >> $BUILDFILE
-echo '  ]}' >> $BUILDFILE
-
-git clone -b ${LTP_SHA} ${LTP_URL}
+git clone --depth 1 -b "${LTP_SHA}" "${LTP_URL}"
 cd ltp
 
 # See https://github.com/kernelci/kernelci-core/issues/948
@@ -61,36 +98,63 @@ index 1bbdddfd5..de84b9e6f 100755
 \t\techo \".run-test files not found under \$1, have been the tests compiled?\"
 " | patch -p1
 
-NBCPU=$(grep ^processor /proc/cpuinfo | wc -l)
+NBCPU=$(nproc)
+BUILD_TRIPLET=$(gcc -dumpmachine)
+TARGET_CC="${GNU_TRIPLET}-gcc --sysroot=${ROOTDIR}"
+TARGET_AR="${GNU_TRIPLET}-ar"
+TARGET_RANLIB="${GNU_TRIPLET}-ranlib"
+TARGET_STRIP="${GNU_TRIPLET}-strip"
+TARGET_READELF="${GNU_TRIPLET}-readelf"
+
+export PKG_CONFIG_SYSROOT_DIR="${ROOTDIR}"
+export PKG_CONFIG_LIBDIR="\
+${ROOTDIR}/usr/lib/${GNU_TRIPLET}/pkgconfig:\
+${ROOTDIR}/usr/share/pkgconfig"
 
 make autotools
-./configure
-make all -j$NBCPU
-find . -executable -type f -exec strip {} \;
-make install
+./configure \
+    --build="${BUILD_TRIPLET}" \
+    --host="${GNU_TRIPLET}" \
+    --prefix=/opt/ltp \
+    CC="${TARGET_CC}" \
+    AR="${TARGET_AR}" \
+    RANLIB="${TARGET_RANLIB}"
+make all -j"${NBCPU}"
+make install DESTDIR="${ROOTDIR}"
 
-cd testcases/open_posix_testsuite/ && ./configure
-make all -j$NBCPU
-make install prefix=/opt/ltp
+cd testcases/open_posix_testsuite/
+./configure \
+    --build="${BUILD_TRIPLET}" \
+    --host="${GNU_TRIPLET}" \
+    CC="${TARGET_CC}"
+make all -j"${NBCPU}"
+make install DESTDIR="${ROOTDIR}" prefix=/opt/ltp
+
+# Strip target ELF files without attempting to process installed scripts.
+while IFS= read -r -d '' target_file; do
+    if "${TARGET_READELF}" -h "${target_file}" >/dev/null 2>&1; then
+        "${TARGET_STRIP}" --strip-unneeded "${target_file}"
+    fi
+done < <(find "${ROOTDIR}/opt/ltp" -type f -print0)
 
 ########################################################################
 # Install kirk                                                         #
 ########################################################################
 
-git clone https://github.com/linux-test-project/kirk /opt/kirk
-cd /opt/kirk
-git reset --hard $KIRK_VERSION
-rm -rf ./.git
+git clone https://github.com/linux-test-project/kirk "${ROOTDIR}/opt/kirk"
+cd "${ROOTDIR}/opt/kirk"
+git reset --hard "${KIRK_VERSION}"
+rm -rf .git
 
 # test-definitions' ltp.sh resolves the runner as a bare "kirk" through
 # PATH, so make it reachable without every caller having to know where
 # kirk is installed.
-ln -sf /opt/kirk/kirk /usr/bin/kirk
+ln -sf /opt/kirk/kirk "${ROOTDIR}/usr/bin/kirk"
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
 ########################################################################
 
-rm -rf ${BUILD_DIR}
-apt-get autoremove --purge -y ${BUILD_DEPS}
-apt-get clean
+rm -rf "${BUILD_DIR}"
+chroot "${ROOTDIR}" apt-get autoremove --purge -y "${TARGET_BUILD_DEPS[@]}"
+chroot "${ROOTDIR}" apt-get clean

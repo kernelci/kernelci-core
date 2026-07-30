@@ -13,6 +13,7 @@
 {{- $keyring_package := or .keyring_package "" -}}
 {{- $keyring_file := or .keyring_file "" -}}
 {{- $imagesize := or .imagesize "1GB" -}}
+{{- $cross_compile := .cross_compile -}}
 
 architecture: {{ $architecture }}
 
@@ -56,8 +57,13 @@ actions:
 
   - action: run
     description: Build testsuite
+{{ if $cross_compile }}
+    chroot: false
+    script: {{ $script }} {{ $architecture }}
+{{ else }}
     chroot: true
     script: {{ $script }}
+{{ end }}
 
   - action: run
     description: Create manifest file

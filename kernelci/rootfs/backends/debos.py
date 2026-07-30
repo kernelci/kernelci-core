@@ -37,6 +37,8 @@ class DebosBackend:
             "keyring_file": config.keyring_file,
             "imagesize": config.imagesize,
         }
+        if config.cross_compile:
+            variables["cross_compile"] = "true"
         return {key: value for key, value in variables.items() if value}
 
     def build(self, context: BuildContext) -> None:
