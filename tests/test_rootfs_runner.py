@@ -26,6 +26,7 @@ def test_build_container_command(tmp_path):
         mounts=(Mount(source, "/source", read_only=True),),
         workdir="/work",
         user="1000:1000",
+        groups=("992",),
         devices=("/dev/kvm",),
         environment={"Z": "last", "A": "first"},
     )
@@ -41,7 +42,8 @@ def test_build_container_command(tmp_path):
     assert f"source={source.resolve()}" in command[6]
     assert "readonly" in command[6]
     assert command[-3:] == ["example/image:tag", "tool", "value;not-shell"]
-    assert ["--env", "A=first"] == command[9:11]
+    assert ["--group-add", "992"] == command[9:11]
+    assert ["--env", "A=first"] == command[11:13]
 
 
 @mock.patch("subprocess.run")

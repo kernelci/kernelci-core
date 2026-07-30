@@ -55,6 +55,15 @@ actions:
     command: TMPDIR=/scratch ${RECIPEDIR}/scripts/install-firmware.sh -f {{ $extra_firmware }} {{ if $linux_fw_version }} -v {{ $linux_fw_version }} {{ end }}
 {{ end }}
 
+{{ if $cross_compile }}
+  - action: apt
+    description: Install cross-build target dependencies
+    recommends: false
+    packages:
+      - libc6-dev
+      - libnuma-dev
+{{ end }}
+
   - action: run
     description: Build testsuite
 {{ if $cross_compile }}
@@ -63,6 +72,13 @@ actions:
 {{ else }}
     chroot: true
     script: {{ $script }}
+{{ end }}
+
+{{ if $cross_compile }}
+  - action: run
+    description: Remove cross-build target dependencies
+    chroot: true
+    command: apt-get autoremove --purge -y libc6-dev libnuma-dev && apt-get clean
 {{ end }}
 
   - action: run

@@ -13,40 +13,18 @@ LTP_SHA=20260529
 # Version of Kirk to install
 KIRK_VERSION=v4.1.0
 
-# Build dependencies installed in the native Debos build environment.
-HOST_BUILD_DEPS=(
-    git
-    make
-    pkgconf
-    autoconf
-    automake
-    bison
-    flex
-    m4
-)
-
-# Development packages installed temporarily in the target rootfs.
-TARGET_BUILD_DEPS=(
-    libc6-dev
-    libnuma-dev
-)
-
 case "${TARGET_ARCH}" in
     amd64)
         GNU_TRIPLET=x86_64-linux-gnu
-        CROSS_GCC=gcc
         ;;
     arm64)
         GNU_TRIPLET=aarch64-linux-gnu
-        CROSS_GCC=gcc-aarch64-linux-gnu
         ;;
     armhf)
         GNU_TRIPLET=arm-linux-gnueabihf
-        CROSS_GCC=gcc-arm-linux-gnueabihf
         ;;
     riscv64)
         GNU_TRIPLET=riscv64-linux-gnu
-        CROSS_GCC=gcc-riscv64-linux-gnu
         ;;
     *)
         echo "Unsupported LTP cross-compilation architecture: ${TARGET_ARCH}" >&2
@@ -54,14 +32,29 @@ case "${TARGET_ARCH}" in
         ;;
 esac
 
-apt-get update
-apt-get install --no-install-recommends -y \
-    "${HOST_BUILD_DEPS[@]}" \
-    "${CROSS_GCC}"
-
-# Install target headers before using the rootfs as the compiler sysroot.
-chroot "${ROOTDIR}" apt-get install --no-install-recommends -y \
-    "${TARGET_BUILD_DEPS[@]}"
+HOST_BUILD_TOOLS=(
+    autoconf
+    automake
+    bison
+    flex
+    gcc
+    git
+    m4
+    make
+    patch
+    pkgconf
+    "${GNU_TRIPLET}-ar"
+    "${GNU_TRIPLET}-gcc"
+    "${GNU_TRIPLET}-ranlib"
+    "${GNU_TRIPLET}-readelf"
+    "${GNU_TRIPLET}-strip"
+)
+for tool in "${HOST_BUILD_TOOLS[@]}"; do
+    command -v "${tool}" >/dev/null || {
+        echo "Missing LTP host build tool: ${tool}" >&2
+        exit 1
+    }
+done
 
 BUILD_DIR=$(mktemp -d /tmp/ltp-build.XXXXXX)
 BUILDFILE="${ROOTDIR}/test_suites.json"
@@ -127,7 +120,10 @@ cd testcases/open_posix_testsuite/
     --build="${BUILD_TRIPLET}" \
     --host="${GNU_TRIPLET}" \
     CC="${TARGET_CC}"
-make all -j"${NBCPU}"
+make all -j"${NBCPU}" \
+    CC="${TARGET_CC}" \
+    AR="${TARGET_AR}" \
+    RANLIB="${TARGET_RANLIB}"
 make install DESTDIR="${ROOTDIR}" prefix=/opt/ltp
 
 # Strip target ELF files without attempting to process installed scripts.
@@ -156,5 +152,3 @@ ln -sf /opt/kirk/kirk "${ROOTDIR}/usr/bin/kirk"
 ########################################################################
 
 rm -rf "${BUILD_DIR}"
-chroot "${ROOTDIR}" apt-get autoremove --purge -y "${TARGET_BUILD_DEPS[@]}"
-chroot "${ROOTDIR}" apt-get clean
