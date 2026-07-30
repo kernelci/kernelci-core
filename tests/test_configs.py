@@ -16,6 +16,7 @@ from pydantic import ValidationError
 
 import kernelci.config
 import kernelci.config.build
+from kernelci.config.job import Job, JobConfig
 
 # -----------------------------------------------------------------------------
 # Legacy
@@ -172,6 +173,66 @@ class TestJobConfigs(ConfigTest):
             jobs["kunit-x86_64"]["image"]
             == "kernelci/staging-gcc-10:x86-kunit-qemu-kernelci"
         )
+
+    def test_job_schema_is_authoritative(self):
+        """Expose and serialize schema fields without per-field properties."""
+        schema = JobConfig(
+            template="kbuild.jinja2",
+            kind="kbuild",
+            base_name="kbuild-base",
+            priority="high",
+        )
+        job = Job("kbuild-example", config=schema)
+
+        serialized = yaml.safe_load(yaml.dump(job))
+
+        assert set(serialized) == set(JobConfig.model_fields)
+        assert serialized["base_name"] == job.base_name
+        assert serialized["priority"] == job.priority
+        delegated_fields = {
+            "template",
+            "kind",
+            "base_name",
+            "rules",
+            "kcidb_test_suite",
+            "priority",
+        }
+        assert delegated_fields.isdisjoint(Job.__dict__)
+
+    def test_job_legacy_constructor_uses_schema(self):
+        """Keep direct construction compatible while validating its fields."""
+        job = Job(
+            "legacy-job",
+            "kbuild.jinja2",
+            kind="kbuild",
+            priority="medium",
+        )
+
+        assert job.template == "kbuild.jinja2"
+        assert job.kind == "kbuild"
+        assert job.priority == "medium"
+        with pytest.raises(ValidationError, match="unknown"):
+            Job(
+                "invalid-job",
+                template="kbuild.jinja2",
+                unknown="value",
+            )
+
+    def test_job_image_override_is_runtime_state(self):
+        """Keep image overrides separate from immutable source configuration."""
+        schema = JobConfig(
+            template="kbuild.jinja2",
+            image="original:image",
+        )
+        job = Job("kbuild-example", config=schema)
+
+        job.image = "override:image"
+
+        assert schema.image == "original:image"
+        assert job.image == "override:image"
+        assert yaml.safe_load(yaml.dump(job))["image"] == "override:image"
+        job.image = None
+        assert job.image is None
 
     def test_jobs_reject_unknown_fields(self):
         """Reject misspelled or unsupported job fields."""

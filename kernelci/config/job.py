@@ -41,35 +41,54 @@ class JobsConfig(BaseModel):
     jobs: Dict[str, JobConfig] = Field(default_factory=dict)
 
 
+_IMAGE_NOT_OVERRIDDEN = object()
+
+
 class Job(YAMLConfigObject):
-    """Pipeline job definition"""
+    """Pipeline job definition backed by a validated ``JobConfig``."""
 
     yaml_tag = "!Job"
 
-    def __init__(
-        self,
-        name,
-        template,
-        *,
-        kind="node",
-        base_name=None,
-        image=None,
-        params=None,
-        rules=None,
-        kcidb_test_suite=None,
-        priority=None,
-    ):
+    def __init__(self, name, config=None, **legacy_values):
+        """Create a named job from validated configuration.
+
+        ``legacy_values`` keeps the previous ``Job(name, template=..., ...)``
+        construction API working while ensuring the schema remains the single
+        source of truth for accepted fields.
+        """
+        if isinstance(config, JobConfig):
+            if legacy_values:
+                fields = ", ".join(sorted(legacy_values))
+                raise TypeError(
+                    f"Unexpected fields with validated JobConfig: {fields}"
+                )
+        else:
+            if config is not None:
+                legacy_values["template"] = config
+            config = JobConfig.model_validate(legacy_values)
+
         self._name = name
-        self._template = template
-        self._kind = kind
-        self._base_name = base_name
-        self._image = image
-        self._kcidb_test_suite = kcidb_test_suite
-        self._priority = priority
-        self._params = (
-            self.format_params(copy.deepcopy(params), params) if params else {}
+        self._config = config
+        self._image_override = _IMAGE_NOT_OVERRIDDEN
+        formatted_params = (
+            self.format_params(
+                copy.deepcopy(self._config.params), self._config.params
+            )
+            if self._config.params
+            else {}
         )
-        self._rules = rules
+        self._config = self._config.model_copy(
+            update={"params": formatted_params}
+        )
+
+    def __getattr__(self, name):
+        """Delegate configuration fields to the validated schema."""
+        if name.startswith("_"):
+            raise AttributeError(name)
+        config = self.__dict__.get("_config")
+        if config is None:
+            raise AttributeError(name)
+        return getattr(config, name)
 
     @property
     def name(self):
@@ -77,73 +96,39 @@ class Job(YAMLConfigObject):
         return self._name
 
     @property
-    def template(self):
-        """Template file name"""
-        return self._template
-
-    @property
-    def kind(self):
-        """Job node kind"""
-        return self._kind
-
-    @property
-    def base_name(self):
-        """Optional base job name used to group related job variants"""
-        return self._base_name
-
-    @property
-    def priority(self):
-        """Job priority"""
-        return self._priority
-
-    @property
     def image(self):
-        """Runtime environment image name"""
-        return self._image
+        """Runtime image, including an optional runtime override."""
+        if self._image_override is _IMAGE_NOT_OVERRIDDEN:
+            return self._config.image
+        return self._image_override
 
     @image.setter
     def image(self, value):
-        """Set the runtime environment image name"""
-        self._image = value
+        """Override the runtime environment image name."""
+        self._image_override = value
 
     @property
     def params(self):
-        """Arbitrary parameters passed to the template"""
-        return copy.deepcopy(self._params)
+        """Return isolated parameters passed to the template."""
+        return copy.deepcopy(self._config.params)
 
-    @property
-    def rules(self):
-        """Kernel requirements (tree, branch, version...)"""
-        return self._rules
-
-    @property
-    def kcidb_test_suite(self):
-        """Mapping of KernelCI test to KCIDB test suite"""
-        return self._kcidb_test_suite
+    def _get_format_map(self):
+        """Derive formatting fields directly from the authoritative schema."""
+        return self._config.model_dump(exclude={"params", "rules"})
 
     @classmethod
-    def _get_yaml_attributes(cls):
-        attrs = super()._get_yaml_attributes()
-        attrs.update(
-            {
-                "template",
-                "kind",
-                "base_name",
-                "image",
-                "params",
-                "rules",
-                "kcidb_test_suite",
-                "priority",
-            }
-        )
-        return attrs
+    def to_yaml(cls, dumper, data):
+        """Serialize all schema fields without a separate attribute list."""
+        values = data._config.model_dump()
+        values["image"] = data.image
+        return dumper.represent_mapping("tag:yaml.org,2002:map", values)
 
 
 def from_yaml(data, _):
     """Create the pipeline job definitions using data loaded from YAML"""
     validated = JobsConfig.model_validate({"jobs": data.get("jobs", {})})
     jobs = {
-        name: Job(name=name, **config.model_dump())
+        name: Job(name=name, config=config)
         for name, config in validated.jobs.items()
     }
 
