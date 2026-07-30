@@ -63,6 +63,7 @@ class ContainerRunner:
         mounts: Sequence[Mount] = (),
         workdir: Optional[str] = None,
         user: Optional[str] = None,
+        groups: Sequence[str] = (),
         devices: Sequence[str] = (),
         environment: Optional[Dict[str, str]] = None,
         entrypoint: Optional[str] = None,
@@ -77,6 +78,8 @@ class ContainerRunner:
             args.extend(("--mount", mount.as_argument()))
         for device in devices:
             args.extend(("--device", device))
+        for group in groups:
+            args.extend(("--group-add", group))
         for key, value in sorted((environment or {}).items()):
             args.extend(("--env", f"{key}={value}"))
         if workdir:

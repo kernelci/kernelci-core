@@ -64,13 +64,20 @@ class DebosBackend:
             Mount(context.paths.work, "/work"),
             Mount(context.paths.cache, "/scratch"),
         )
-        devices = ("/dev/kvm",) if Path("/dev/kvm").exists() else ()
+        kvm_device = Path("/dev/kvm")
+        if kvm_device.exists():
+            devices = (str(kvm_device),)
+            groups = (str(kvm_device.stat().st_gid),)
+        else:
+            devices = ()
+            groups = ()
         context.runner.run(
             context.image,
             command,
             mounts=mounts,
             workdir="/work",
             user=f"{os.getuid()}:{os.getgid()}",
+            groups=groups,
             devices=devices,
             environment={"HOME": "/tmp"},
         )

@@ -19,14 +19,27 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # Dependencies to run debos
 RUN apt-get update && apt-get install --no-install-recommends -y \
+    autoconf \
+    automake \
     binfmt-support \
+    bison \
     busybox \
     debian-ports-archive-keyring \
     debootstrap \
     dosfstools \
     e2fsprogs \
+    flex \
+    gcc \
+    gcc-aarch64-linux-gnu \
+    gcc-arm-linux-gnueabihf \
+    gcc-riscv64-linux-gnu \
+    git \
     linux-image-amd64 \
+    m4 \
+    make \
     parted \
+    patch \
+    pkgconf \
     pkg-config \
     qemu-system-x86 \
     qemu-user-static \
