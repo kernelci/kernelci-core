@@ -8,10 +8,15 @@
 
 """Unit test for KernelCI YAML config handling"""
 
+import copy
+
+import pytest
 import yaml
+from pydantic import ValidationError
 
 import kernelci.config
 import kernelci.config.build
+from kernelci.config.job import Job, JobConfig
 
 # -----------------------------------------------------------------------------
 # Legacy
@@ -168,6 +173,197 @@ class TestJobConfigs(ConfigTest):
             jobs["kunit-x86_64"]["image"]
             == "kernelci/staging-gcc-10:x86-kunit-qemu-kernelci"
         )
+
+    def test_job_schema_is_authoritative(self):
+        """Expose and serialize schema fields without per-field properties."""
+        schema = JobConfig(
+            template="kbuild.jinja2",
+            kind="kbuild",
+            base_name="kbuild-base",
+            priority="high",
+        )
+        job = Job("kbuild-example", config=schema)
+
+        serialized = yaml.safe_load(yaml.dump(job))
+
+        assert set(serialized) == set(JobConfig.model_fields)
+        assert serialized["base_name"] == job.base_name
+        assert serialized["priority"] == job.priority
+        delegated_fields = {
+            "template",
+            "kind",
+            "base_name",
+            "rules",
+            "kcidb_test_suite",
+            "priority",
+        }
+        assert delegated_fields.isdisjoint(Job.__dict__)
+
+    def test_job_legacy_constructor_uses_schema(self):
+        """Keep direct construction compatible while validating its fields."""
+        job = Job(
+            "legacy-job",
+            "kbuild.jinja2",
+            kind="kbuild",
+            priority="medium",
+        )
+
+        assert job.template == "kbuild.jinja2"
+        assert job.kind == "kbuild"
+        assert job.priority == "medium"
+        with pytest.raises(ValidationError, match="unknown"):
+            Job(
+                "invalid-job",
+                template="kbuild.jinja2",
+                unknown="value",
+            )
+
+    def test_job_image_override_is_runtime_state(self):
+        """Keep image overrides separate from immutable source configuration."""
+        schema = JobConfig(
+            template="kbuild.jinja2",
+            image="original:image",
+        )
+        job = Job("kbuild-example", config=schema)
+
+        job.image = "override:image"
+
+        assert schema.image == "original:image"
+        assert job.image == "override:image"
+        assert yaml.safe_load(yaml.dump(job))["image"] == "override:image"
+        job.image = None
+        assert job.image is None
+
+    def test_jobs_reject_unknown_fields(self):
+        """Reject misspelled or unsupported job fields."""
+        data = {
+            "jobs": {
+                "broken-job": {
+                    "template": "kbuild.jinja2",
+                    "temlate": "misspelled.jinja2",
+                }
+            }
+        }
+
+        with pytest.raises(ValidationError, match="temlate"):
+            kernelci.config.load_data(data)
+
+    def test_jobs_require_template(self):
+        """Require every job to select a template."""
+        data = {"jobs": {"broken-job": {"kind": "test"}}}
+
+        with pytest.raises(ValidationError, match="template"):
+            kernelci.config.load_data(data)
+
+    @pytest.mark.parametrize("priority", ["low", "medium", "high", 0, 50, 100])
+    def test_jobs_accept_supported_priorities(self, priority):
+        """Accept symbolic and numeric priorities used by pipeline jobs."""
+        data = {
+            "jobs": {
+                "example": {
+                    "template": "kbuild.jinja2",
+                    "priority": priority,
+                }
+            }
+        }
+
+        config = kernelci.config.load_data(data)
+
+        assert config["jobs"]["example"].priority == priority
+
+    def test_jobs_preserve_base_name(self):
+        """Preserve the base job name used by pipeline job variants."""
+        data = {
+            "jobs": {
+                "ltp-timers_qemu": {
+                    "template": "ltp.jinja2",
+                    "base_name": "ltp-timers",
+                }
+            }
+        }
+
+        config = kernelci.config.load_data(data)
+
+        job = config["jobs"]["ltp-timers_qemu"]
+        assert job.base_name == "ltp-timers"
+        assert yaml.safe_load(yaml.dump(job))["base_name"] == "ltp-timers"
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("params", []),
+            ("priority", "50"),
+            ("priority", 101),
+        ],
+    )
+    def test_jobs_reject_invalid_field_values(self, field, value):
+        """Reject invalid job field types and values."""
+        data = {
+            "jobs": {
+                "broken-job": {
+                    "template": "kbuild.jinja2",
+                    field: value,
+                }
+            }
+        }
+
+        with pytest.raises(ValidationError, match=field):
+            kernelci.config.load_data(data)
+
+    def test_jobs_do_not_mutate_source_data(self):
+        """Formatting job parameters must not mutate loaded YAML data."""
+        data = {
+            "jobs": {
+                "example": {
+                    "template": "kbuild.jinja2",
+                    "params": {
+                        "arch": "arm64",
+                        "nested": {"artifact": "{arch}/kernel"},
+                    },
+                }
+            }
+        }
+        original = copy.deepcopy(data)
+
+        config = kernelci.config.load_data(data)
+
+        assert data == original
+        assert config["jobs"]["example"].params["nested"]["artifact"] == (
+            "arm64/kernel"
+        )
+        returned_params = config["jobs"]["example"].params
+        returned_params["nested"]["artifact"] = "modified"
+        assert config["jobs"]["example"].params["nested"]["artifact"] == (
+            "arm64/kernel"
+        )
+
+    def test_jobs_validate_after_config_merge(self, tmp_path):
+        """Allow partial overrides by validating after all files are merged."""
+        base = tmp_path / "base.yaml"
+        overlay = tmp_path / "overlay.yaml"
+        base.write_text(
+            """
+jobs:
+  example:
+    template: kbuild.jinja2
+    params:
+      arch: arm64
+""",
+            encoding="utf-8",
+        )
+        overlay.write_text(
+            """
+jobs:
+  example:
+    priority: 50
+""",
+            encoding="utf-8",
+        )
+
+        config = kernelci.config.load([str(base), str(overlay)])
+
+        assert config["jobs"]["example"].template == "kbuild.jinja2"
+        assert config["jobs"]["example"].priority == 50
 
 
 class TestAPIConfigs(ConfigTest):
