@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 """Tests for the containerized Debos backend."""
 
+import os
 from unittest import mock
 
 import pytest
@@ -78,6 +79,7 @@ def test_debos_command_and_mounts(tmp_path):
     assert mounts["/configs"].read_only
     assert not mounts["/artifacts"].read_only
     assert kwargs["workdir"] == "/work"
+    assert kwargs["user"] == f"{os.getuid()}:{os.getgid()}"
     context.runner.normalize_ownership.assert_called_once_with(
         context.image, context.paths.staging
     )
