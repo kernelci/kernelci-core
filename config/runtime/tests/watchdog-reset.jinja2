@@ -9,7 +9,7 @@
       minutes: {{ job_timeout|default('5') }}
     interactive:
     - name: wdt-reset
-      prompts: ['/ #']
+      prompts: ['/ #', '~ #']
       script:
       - name: wdt-get-timeout
         command: "wdt_timeout=$(cat /sys/class/watchdog/{{ wdt_dev|default('watchdog0') }}/timeout)"
