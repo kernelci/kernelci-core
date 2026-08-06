@@ -23,8 +23,14 @@ RUN pip3 install --break-system-packages --no-cache-dir tuxmake==1.44.0
 
 # Set up kernelci user
 RUN useradd kernelci -u 1000 -d /home/kernelci -s /bin/bash
-RUN mkdir -p /home/kernelci
-RUN chown kernelci: /home/kernelci
+
+# Initialise the RPM database needed by tuxmake's *rpm-pkg targets.
+# /var/lib/rpm is not writable by the build user, so keep it in the
+# kernelci home directory. Images without rpm installed simply skip it.
+RUN mkdir -p /home/kernelci/rpm/db
+RUN rpmdb --initdb --dbpath /home/kernelci/rpm/db 2>/dev/null || true
+
+RUN chown -R kernelci: /home/kernelci
 USER kernelci
 ENV PATH=$PATH:/home/kernelci/.local/bin
 WORKDIR /home/kernelci

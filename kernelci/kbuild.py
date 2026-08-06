@@ -865,16 +865,16 @@ trap 'case $stage in
         print(f"[_build_with_tuxmake] Command: {tuxmake_cmd}")
         print(f"[_build_with_tuxmake] Output directory: {self._af_dir}")
         # rpm defaults to /var/lib/rpm which a non-root build user cannot
-        # write to. Redirect _dbpath and _topdir into the workspace via
-        # ~/.rpmmacros so rpmdb and any rpmbuild invoked by tuxmake's
-        # *rpm-pkg targets share a writable location.
+        # write to. Point _dbpath at the database the container image
+        # initialised in the build user's home, and redirect _topdir into
+        # the workspace via ~/.rpmmacros so any rpmbuild invoked by
+        # tuxmake's *rpm-pkg targets writes somewhere writable.
         rpm_root = f"{self._workspace}/rpm"
-        self.addcmd(f"mkdir -p {rpm_root}/db {rpm_root}/build")
+        self.addcmd(f"mkdir -p {rpm_root}/build")
         self.addcmd(
-            f"printf '%%_dbpath {rpm_root}/db\\n"
+            "printf '%%_dbpath %%{getenv:HOME}/rpm/db\\n"
             f"%%_topdir {rpm_root}/build\\n' > $HOME/.rpmmacros"
         )
-        self.addcmd("rpmdb --initdb 2>/dev/null || true")
         try:
             from tuxmake.arch import Architecture
             from tuxmake.toolchain import Toolchain
