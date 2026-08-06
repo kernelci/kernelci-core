@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 """Tests for kernelci.kbuild build script generation and metadata"""
 
-import json
 import os
 import sys
 import types
@@ -20,7 +19,6 @@ def _kbuild(tmp_path, compiler="clang-21", arch="x86_64"):
     kbuild._fragments = []
     kbuild._fragment_files = []
     kbuild._config_full = ""
-    kbuild._compiler_version = None
     kbuild._backend = "tuxmake"
     kbuild._dtbs_check = True
     kbuild._steps = []
@@ -82,60 +80,6 @@ class TestCompilerVersionProbe:
         kbuild = _kbuild(tmp_path, compiler="gcc-14")
         kbuild._build_with_tuxmake()
         assert not any("--version" in s for s in kbuild._steps)
-
-
-class TestPreserveTuxmakeMetadata:
-    def test_preserves_tuxmake_metadata(self, tmp_path):
-        kbuild = _kbuild(tmp_path)
-        af_dir = tmp_path / "artifacts"
-        tux_meta = {
-            "tuxmake": {"version": "1.40.0"},
-            "compiler": {
-                "name": "clang",
-                "version": "21.1.8",
-                "version_full": "Debian clang version 21.1.8",
-            },
-        }
-        (af_dir / "metadata.json").write_text(json.dumps(tux_meta))
-        kbuild._preserve_tuxmake_metadata()
-        kbuild._write_metadata()
-        preserved = json.loads((af_dir / "tuxmake_metadata.json").read_text())
-        assert preserved == tux_meta
-        own = json.loads((af_dir / "metadata.json").read_text())
-        assert own["build"]["backend"] == "tuxmake"
-        assert own["build"]["compiler_version"] == "Debian clang version 21.1.8"
-        assert kbuild._compiler_version == "Debian clang version 21.1.8"
-
-    def test_ignores_own_metadata(self, tmp_path):
-        kbuild = _kbuild(tmp_path)
-        af_dir = tmp_path / "artifacts"
-        own_meta = {"build": {"backend": "tuxmake"}}
-        (af_dir / "metadata.json").write_text(json.dumps(own_meta))
-        kbuild._preserve_tuxmake_metadata()
-        kbuild._write_metadata()
-        assert not (af_dir / "tuxmake_metadata.json").exists()
-        own = json.loads((af_dir / "metadata.json").read_text())
-        assert "compiler_version" not in own["build"]
-
-    def test_handles_invalid_json(self, tmp_path):
-        kbuild = _kbuild(tmp_path)
-        af_dir = tmp_path / "artifacts"
-        (af_dir / "metadata.json").write_text("not json {")
-        kbuild._preserve_tuxmake_metadata()
-        kbuild._write_metadata()
-        assert not (af_dir / "tuxmake_metadata.json").exists()
-        own = json.loads((af_dir / "metadata.json").read_text())
-        assert own["build"]["arch"] == "x86_64"
-
-    def test_no_existing_metadata(self, tmp_path):
-        kbuild = _kbuild(tmp_path)
-        af_dir = tmp_path / "artifacts"
-        kbuild._preserve_tuxmake_metadata()
-        kbuild._write_metadata()
-        assert not (af_dir / "tuxmake_metadata.json").exists()
-        own = json.loads((af_dir / "metadata.json").read_text())
-        assert own["build"]["compiler"] == "clang-21"
-        assert "compiler_version" not in own["build"]
 
 
 class FakeStorage:
