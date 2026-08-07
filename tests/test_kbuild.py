@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 """Tests for kernelci.kbuild build script generation and metadata"""
 
+import json
 import os
 import sys
 import types
@@ -80,6 +81,33 @@ class TestCompilerVersionProbe:
         kbuild = _kbuild(tmp_path, compiler="gcc-14")
         kbuild._build_with_tuxmake()
         assert not any("--version" in s for s in kbuild._steps)
+
+
+class TestKselftestSuiteResults:
+    def test_names_identify_build_results(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        af_dir = tmp_path / "artifacts"
+        (af_dir / "kselftest_targets.txt").write_text(
+            "accel net/mptcp\n", encoding="utf-8"
+        )
+        (af_dir / "kselftest_metadata.json").write_text(
+            json.dumps(
+                {
+                    "artifacts": {
+                        "kselftest": [
+                            "accel/test_accel",
+                            "net/mptcp/mptcp_connect",
+                        ]
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.accel", "pass"),
+            ("build.kselftest.net.mptcp", "pass"),
+        ]
 
 
 class FakeStorage:
