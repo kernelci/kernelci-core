@@ -1044,7 +1044,10 @@ trap 'case $stage in
             # A TARGET may be a nested path (e.g. "net/mptcp"); it is "built"
             # if any installed file lives under it. Use "." in the node name
             # to keep path elements free of slashes.
-            name = suite.replace("/", ".")
+            # These nodes report whether each kselftest suite was built; they
+            # are not results from executing the suite.  Keep that distinction
+            # visible when dashboards display the leaf name without its path.
+            name = "build.kselftest." + suite.replace("/", ".")
             if kselftest_result == "skip":
                 result = "skip"
             elif kselftest_result == "fail":
