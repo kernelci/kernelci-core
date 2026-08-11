@@ -3,6 +3,6 @@ mypy==2.3.0
 pre-commit==4.6.0
 pytest-mock==3.15.1
 ruff==0.15.22
-types-PyYAML==6.0.12.20260518
+types-PyYAML==6.0.12.20260724
 types-requests==2.33.0.20260712
 types-urllib3==1.26.25.14
