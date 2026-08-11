@@ -1249,7 +1249,20 @@ trap 'case $stage in
         self.addcmd(f"mkdir -p {self._af_dir}/dtbs")
         # copy dtbs to artifacts
         self.addcmd(f"cp -r _dtbs_/* {self._af_dir}/dtbs", False)
+        # Also pack them into a single archive, with the same dtbs/ prefix
+        # inside as the one tuxmake produces, so that upload_artifacts() can
+        # upload the whole set in one request instead of one per dtb file.
+        # Skipped when no dtb was built, so that verify_build() drops the
+        # artifact and the upload falls back to individual files.
+        # -print -quit stops at the first dtb found, no full traversal
+        find_dtb = f"find {self._af_dir}/dtbs -name '*.dtb' -print -quit"
+        self.addcmd(
+            f'if [ -n "$({find_dtb})" ]; then '
+            f"tar -C {self._af_dir} -cJf {self._af_dir}/dtbs.tar.xz dtbs; "
+            "fi"
+        )
         self.addcmd("cd ..")
+        self._artifacts.append("dtbs.tar.xz")
 
     def _write_metadata(self):
         """

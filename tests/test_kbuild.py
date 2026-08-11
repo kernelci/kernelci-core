@@ -163,3 +163,54 @@ class TestUploadArtifacts:
         assert "dtbs/board-a.dtb" in kbuild._full_artifacts
         assert "dtbs/nested/board-b.dtb" in kbuild._full_artifacts
         assert node_af["dtbs/board-a_dtb"].endswith("dtbs/board-a.dtb")
+
+    def test_make_dtbs_use_archive_upload(self, tmp_path):
+        kbuild = _kbuild(tmp_path, arch="arm64")
+        kbuild._backend = "make"
+        kbuild._dtbs_check = False
+        af_dir = tmp_path / "artifacts"
+        (af_dir / "dtbs" / "nested").mkdir(parents=True)
+        (af_dir / "dtbs" / "board-a.dtb").write_bytes(b"dtb-a")
+        (af_dir / "dtbs" / "nested" / "board-b.dtb").write_bytes(b"dtb-b")
+        (af_dir / "dtbs.tar.xz").write_bytes(b"archive")
+        kbuild._artifacts = ["dtbs.tar.xz"]
+        kbuild.verify_build()
+
+        storage = FakeStorage()
+        kbuild._get_storage = lambda: storage
+        kbuild._apijobname = "kbuild-gcc-arm64"
+        kbuild._node = {"id": "node123", "data": {}}
+        kbuild._full_artifacts = {}
+
+        node_af = kbuild.upload_artifacts()
+
+        assert storage.single_uploads == []
+        assert len(storage.archive_uploads) == 1
+        archive_path, file_paths, _dest_path, archive_name = (
+            storage.archive_uploads[0]
+        )
+        assert archive_path == str(af_dir / "dtbs.tar.xz")
+        assert archive_name == "dtbs.tar.xz"
+        assert sorted(file_dst for _file_src, file_dst in file_paths) == [
+            "dtbs/board-a.dtb",
+            "dtbs/nested/board-b.dtb",
+        ]
+        assert node_af["dtbs/board-a_dtb"].endswith("dtbs/board-a.dtb")
+
+
+class TestPackageDtbs:
+    def test_dtbs_are_packed_into_archive(self, tmp_path):
+        kbuild = _kbuild(tmp_path, arch="arm64")
+        kbuild._package_dtbs()
+        steps = "\n".join(kbuild._steps)
+        af_dir = kbuild._af_dir
+        assert f"tar -C {af_dir} -cJf {af_dir}/dtbs.tar.xz dtbs" in steps
+        # the archive is only built when at least one dtb was produced
+        assert "-print -quit" in steps
+        assert "dtbs.tar.xz" in kbuild._artifacts
+
+    def test_archive_dropped_when_no_dtbs_built(self, tmp_path):
+        kbuild = _kbuild(tmp_path, arch="arm64")
+        kbuild._package_dtbs()
+        kbuild.verify_build()
+        assert "dtbs.tar.xz" not in kbuild._artifacts
