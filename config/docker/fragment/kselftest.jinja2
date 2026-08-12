@@ -22,7 +22,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libfuse3-dev{{ pkgarch }} \
 {%- endif %}
    libhugetlbfs-dev{{ pkgarch }} \
+   libmbedtls-dev{{ pkgarch }} \
    libmnl-dev{{ pkgarch }} \
+   libnl-genl-3-dev{{ pkgarch }} \
    libnuma-dev{{ pkgarch }} \
    libubsan1{{ pkgarch }} \
    liburing-dev{{ pkgarch }} \
@@ -30,4 +32,5 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libssl-dev{{ pkgarch }} \
    patch \
    pkg-config \
-   clang
+   clang \
+   llvm
