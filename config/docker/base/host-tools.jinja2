@@ -90,7 +90,15 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     zstd
 
 # Install dtschema for dtbs_check
-RUN pip3 install dtschema --break-system-packages
+# pylibfdt (a dtschema dependency) is built from source and pip's build
+# isolation fetches the latest swig from PyPI rather than using the
+# distro package.  swig 4.5 removed the Python 2 compatibility macros
+# which pylibfdt still uses in its typemaps, so define them on the
+# compiler command line until a pylibfdt release picks up the upstream
+# fix (dtc commit 5008d1d6a356).
+RUN CFLAGS="-DPyString_FromString=PyUnicode_FromString \
+            -DPyInt_AsLong=PyLong_AsLong" \
+    pip3 install dtschema --break-system-packages
 
 # Download and build pahole v1.28
 RUN wget -c https://storage.kernelci.org/pahole-1.29.tar.gz && \
