@@ -100,12 +100,18 @@ RUN CFLAGS="-DPyString_FromString=PyUnicode_FromString \
             -DPyInt_AsLong=PyLong_AsLong" \
     pip3 install dtschema --break-system-packages
 
-# Download and build pahole v1.28
+# Download and build pahole v1.29
+#
+# Build in Release mode: pahole's CMakeLists defaults to Debug, which adds
+# -Werror (and -O0).  glibc 2.43 in forky makes strchr()/bsearch() and
+# friends preserve the constness of their argument, so pahole's assignments
+# of their results to non-const pointers now trip -Wdiscarded-qualifiers and
+# fail the build.  Release drops -Werror and builds with -O2.
 RUN wget -c https://storage.kernelci.org/pahole-1.29.tar.gz && \
     tar -xzf pahole-1.29.tar.gz && \
     cd pahole-1.29 && \
     mkdir build && cd build && \
-    cmake .. -DLIBBPF_EMBEDDED=OFF && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DLIBBPF_EMBEDDED=OFF && \
     make && \
     make install && \
     echo "/usr/local/lib" > /etc/ld.so.conf.d/dwarves.conf && \
