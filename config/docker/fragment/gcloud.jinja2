@@ -19,6 +19,6 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
     | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
 
 RUN apt-get update && apt-get install -y \
-    google-cloud-sdk \
-    google-cloud-sdk-gke-gcloud-auth-plugin \
+    google-cloud-cli \
+    google-cloud-cli-gke-gcloud-auth-plugin \
     kubectl
