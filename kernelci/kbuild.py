@@ -574,24 +574,42 @@ trap - ERR
 
         return (buffer, fragment)
 
-    def _verify_network(self):
-        """Verify network connectivity"""
-        # TBD: Different URL? pool of urls?
-        retries = 10
+    def _verify_network(self, url=None, max_retries=5, retry_delay=5, timeout=10):
+        """Verify network connectivity to a KernelCI target service"""
+        target_url = url
+        if not target_url:
+            if hasattr(self, "_api_config") and self._api_config and getattr(self._api_config, "url", None):
+                target_url = self._api_config.url
+            elif hasattr(self, "_context") and self._context:
+                target_url = getattr(self._context, "get_api_url", lambda: None)()
+        if not target_url:
+            target_url = "https://api.kernelci.org"
+
+        retries = max_retries
+        start_time = time.time()
         while retries > 0:
             try:
-                r = requests.get("https://google.com")
+                r = requests.get(target_url, timeout=timeout)
+                if r.status_code == 200:
+                    return
+                print(
+                    f"[_verify_network] Non-200 response ({r.status_code}) "
+                    f"from {target_url}"
+                )
             except Exception as e:
-                print(f"[_verify_network] Error: {e}")
-                time.sleep(5)
-                retries -= 1
-                continue
-            if r.status_code == 200:
-                return
-            time.sleep(5)
+                print(f"[_verify_network] Error reaching {target_url}: {e}")
 
-        print("[_verify_network] Network is not available")
-        sys.exit(1)
+            retries -= 1
+            if retries > 0:
+                time.sleep(retry_delay)
+
+        elapsed = int(time.time() - start_time)
+        msg = (
+            f"[_verify_network] Network readiness check failed for {target_url} "
+            f"after {elapsed}s"
+        )
+        print(msg, file=sys.stderr)
+        raise RuntimeError(msg)
 
     def extract_config(self, frag):
         """Extract config fragments from legacy config file"""
@@ -1372,7 +1390,7 @@ trap 'case $stage in
                 for file in files:
                     file_rel = os.path.relpath(
                         os.path.join(root, file), self._af_dir
-                    )
+                    ).replace("\\", "/")
                     artifact_path = os.path.join(self._af_dir, file_rel)
                     upload_tasks.append((file_rel, artifact_path))
         else:
@@ -1382,7 +1400,8 @@ trap 'case $stage in
                 upload_tasks.append((artifact, artifact_path))
 
         def is_dtb_artifact(artifact):
-            return artifact.startswith("dtbs/") and artifact.endswith(".dtb")
+            posix_art = artifact.replace("\\", "/")
+            return posix_art.startswith("dtbs/") and posix_art.endswith(".dtb")
 
         dtb_tasks = [task for task in upload_tasks if is_dtb_artifact(task[0])]
         dtbs_archive_task = next(
@@ -1466,22 +1485,23 @@ trap 'case $stage in
                 dtb_urls = storage.upload_archive(
                     dtbs_archive_task[1],
                     [
-                        (artifact_path, artifact)
+                        (artifact_path, artifact.replace("\\", "/"))
                         for artifact, artifact_path in dtb_tasks
                     ],
                     root_path,
                     archive_name=dtbs_archive_task[0],
                 )
                 for artifact, _artifact_path in dtb_tasks:
-                    stored_url = dtb_urls.get(artifact)
+                    art_posix = artifact.replace("\\", "/")
+                    stored_url = dtb_urls.get(art_posix) or dtb_urls.get(artifact)
                     if not stored_url:
                         failed_uploads.append(
                             (artifact, "missing URL after archive upload")
                         )
                         continue
                     successful_uploads += 1
-                    self._full_artifacts[artifact] = stored_url
-                    artifact_key = self.map_artifact_name(artifact)
+                    self._full_artifacts[art_posix] = stored_url
+                    artifact_key = self.map_artifact_name(art_posix)
                     with node_af_lock:
                         node_af[artifact_key] = stored_url
             except Exception as e:

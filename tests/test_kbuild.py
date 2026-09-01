@@ -5,6 +5,10 @@ import json
 import os
 import sys
 import types
+from unittest import mock
+
+import pytest
+import requests
 
 from kernelci.kbuild import KBuild
 
@@ -214,3 +218,39 @@ class TestPackageDtbs:
         kbuild._package_dtbs()
         kbuild.verify_build()
         assert "dtbs.tar.xz" not in kbuild._artifacts
+
+
+class TestVerifyNetwork:
+    def test_verify_network_success_immediate(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        mock_response = mock.Mock(status_code=200)
+        with mock.patch("kernelci.kbuild.requests.get", return_value=mock_response) as mock_get:
+            kbuild._verify_network(url="https://api.staging.kernelci.org", max_retries=3, retry_delay=0)
+            mock_get.assert_called_once_with("https://api.staging.kernelci.org", timeout=10)
+
+    def test_verify_network_retry_then_success(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        fail_response = mock.Mock(status_code=503)
+        success_response = mock.Mock(status_code=200)
+        with mock.patch("kernelci.kbuild.requests.get", side_effect=[fail_response, success_response]) as mock_get:
+            with mock.patch("time.sleep"):
+                kbuild._verify_network(url="https://api.kernelci.org", max_retries=3, retry_delay=0)
+                assert mock_get.call_count == 2
+
+    def test_verify_network_timeout_and_exhaustion(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        with mock.patch("kernelci.kbuild.requests.get", side_effect=requests.exceptions.Timeout("Connection timed out")):
+            with mock.patch("time.sleep"):
+                with pytest.raises(RuntimeError) as exc_info:
+                    kbuild._verify_network(url="https://custom.target.org", max_retries=2, retry_delay=0)
+                assert "Network readiness check failed for https://custom.target.org" in str(exc_info.value)
+
+    def test_verify_network_non_200_exhaustion(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        mock_response = mock.Mock(status_code=500)
+        with mock.patch("kernelci.kbuild.requests.get", return_value=mock_response):
+            with mock.patch("time.sleep"):
+                with pytest.raises(RuntimeError) as exc_info:
+                    kbuild._verify_network(max_retries=2, retry_delay=0)
+                assert "https://api.kernelci.org" in str(exc_info.value)
+
