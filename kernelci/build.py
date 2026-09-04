@@ -138,16 +138,22 @@ def clone_git(url, path, branch, shallow=True):
     *shallow* shallow (depth=1) git clone
     """
     if not os.path.exists(path):
-        shell_cmd(f"git clone {url} {path}")
+        clone_opts = ""
+        if shallow:
+            clone_opts = "--depth=1 --single-branch --no-tags"
+        shell_cmd(f"git clone {clone_opts} {url} {path}")
+    depth_opt = ""
+    if shallow:
+        depth_opt = "--depth=1"
     shell_cmd(
         """
 set -e
 cd {path}
 git reset --hard
 git clean -fd
-git fetch origin
+git fetch {depth_opt} origin
 git checkout --detach origin/{branch}
-""".format(path=path, branch=branch)
+""".format(path=path, branch=branch, depth_opt=depth_opt)
     )
 
 
