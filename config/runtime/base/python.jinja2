@@ -161,18 +161,24 @@ class Job(BaseJob):
 {% block python_main -%}
 def main(args):
     # Sometimes container DNS is failing if k8s node is still booting
-    # This is a workaround:
-    # test www.google.com until it works or retry 10 times
-    for _ in range(30):
+    # Workaround: resolve target KernelCI API host until ready (up to 10 retries)
+    try:
+        api_yaml = yaml.safe_load(API_CONFIG_YAML) if isinstance(API_CONFIG_YAML, str) else API_CONFIG_YAML
+        api_url = (api_yaml.get('url') if isinstance(api_yaml, dict) else None) or 'https://api.kernelci.org'
+        hostname = urllib.parse.urlparse(api_url).hostname or 'api.kernelci.org'
+    except Exception:
+        hostname = 'api.kernelci.org'
+
+    for _ in range(10):
         try:
-            socket.gethostbyname('www.google.com')
+            socket.gethostbyname(hostname)
             break
         except socket.gaierror:
             pass
         # sleep 1 second
         time.sleep(1)
     else:
-        print("DNS resolution failed, exiting", file=sys.stderr)
+        print(f"DNS resolution failed for {hostname}, exiting", file=sys.stderr)
         sys.exit(1)
 
     job = Job({% block python_job_constr %}api_config=API_CONFIG_YAML, node=NODE, workspace=WORKSPACE{% endblock %})
