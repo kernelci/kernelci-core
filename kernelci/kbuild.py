@@ -764,10 +764,10 @@ trap - ERR
         self.startjob("config_fragments")
         for entry in kconfig_adds:
             if entry.startswith(MAKE_FRAGMENT_PREFIX):
-                print(
-                    f"[_merge_frags] WARNING: ignoring {entry}, the make "
-                    "backend does not run config make targets"
-                )
+                # the target merges its own config into the .config built
+                # so far, so run it in place of a merge_config.sh call
+                target = entry[len(MAKE_FRAGMENT_PREFIX) :]
+                self.addcmd(f"make {target}")
                 continue
             self.addcmd(f"./scripts/kconfig/merge_config.sh -m .config {entry}")
         # TODO: olddefconfig should be optional/configurable
