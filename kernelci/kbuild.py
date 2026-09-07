@@ -54,6 +54,10 @@ FW_GIT = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmwar
 LATEST_LTS_MAJOR = 6
 LATEST_LTS_MINOR = 12
 
+# Prefix marking a fragment entry as a kernel make target generating
+# config (e.g. 'make:kselftest-merge') rather than a config symbol.
+MAKE_FRAGMENT_PREFIX = "make:"
+
 DTBS_DISABLED = {
     "i386": True,
     "x86_64": True,
@@ -618,13 +622,44 @@ trap - ERR
         print(f"Using fragment {fragname} from inline configs")
         return self.extract_config(frag)
 
+    @staticmethod
+    def _split_fragment(content):
+        """Split fragment content into make targets and config symbols
+
+        A fragment entry prefixed with 'make:' names a kernel make target
+        generating config, such as 'make:kselftest-merge', rather than a
+        config symbol. Those entries must be kept out of the fragment file:
+        kconfig does not understand them and merges them as "unexpected
+        data", silently dropping the config the fragment is meant to add.
+
+        Returns:
+            tuple: (list of make targets, config symbol text)
+        """
+        make_targets = []
+        config_lines = []
+
+        for line in content.splitlines():
+            entry = line.strip()
+            if entry.startswith(MAKE_FRAGMENT_PREFIX):
+                target = entry[len(MAKE_FRAGMENT_PREFIX) :]
+                if target:
+                    make_targets.append(target)
+            else:
+                config_lines.append(line)
+
+        config = "\n".join(config_lines).strip()
+        if config:
+            config += "\n"
+        return make_targets, config
+
     def _parse_fragments(self, firmware=False):
         """Parse fragments kbuild config and create config fragments
 
         Returns:
-            list: List of fragment file paths
+            list: List of kconfig additions, each either a fragment file
+            path or a 'make:<target>' directive, in merge order
         """
-        fragment_files = []
+        kconfig_adds = []
 
         for idx, fragment in enumerate(self._fragments):
             content = ""
@@ -646,23 +681,34 @@ trap - ERR
                 )
                 continue
 
-            fragfile = os.path.join(self._fragments_dir, f"{idx}.config")
-            with open(fragfile, "w") as f:
-                f.write(content)
+            make_targets, config = self._split_fragment(content)
 
-            config_count = len(
-                [line for line in content.split("\n") if line.strip()]
-            )
-            print(
-                f"[_parse_fragments] Created {fragfile} ({config_count} configs)"
-            )
+            if config:
+                fragfile = os.path.join(self._fragments_dir, f"{idx}.config")
+                with open(fragfile, "w") as f:
+                    f.write(config)
 
-            fragment_files.append(fragfile)
+                config_count = len(
+                    [line for line in config.split("\n") if line.strip()]
+                )
+                print(
+                    f"[_parse_fragments] Created {fragfile} ({config_count} configs)"
+                )
 
-            # add fragment to artifacts but relative to artifacts dir
-            frag_rel = os.path.relpath(fragfile, self._af_dir)
+                kconfig_adds.append(fragfile)
+
+                # add fragment to artifacts but relative to artifacts dir
+                frag_rel = os.path.relpath(fragfile, self._af_dir)
+                self._artifacts.append(frag_rel)
+
+            for target in make_targets:
+                print(
+                    f"[_parse_fragments] Fragment {fragment_name} runs "
+                    f"make target {target}"
+                )
+                kconfig_adds.append(MAKE_FRAGMENT_PREFIX + target)
+
             self._config_full += "+" + fragment_name
-            self._artifacts.append(frag_rel)
 
         if firmware:
             content = 'CONFIG_EXTRA_FIRMWARE_DIR="' + self._firmware_dir + '"\n'
@@ -672,22 +718,23 @@ trap - ERR
             with open(fragfile, "w") as f:
                 f.write(content)
 
-            fragment_files.append(fragfile)
+            kconfig_adds.append(fragfile)
 
             # add fragment to artifacts but relative to artifacts dir
             frag_rel = os.path.relpath(fragfile, self._af_dir)
             self._artifacts.append(frag_rel)
 
         print(
-            f"[_parse_fragments] Created {len(fragment_files)} fragment files"
+            f"[_parse_fragments] Created {len(kconfig_adds)} kconfig additions"
         )
-        return fragment_files
+        return kconfig_adds
 
-    def _merge_frags(self, fragment_files):
+    def _merge_frags(self, kconfig_adds):
         """Merge config fragments to .config
 
         Args:
-            fragment_files: List of fragment file paths to merge
+            kconfig_adds: List of kconfig additions, as returned by
+            _parse_fragments()
         """
         self.startjob("config_defconfig")
         self.addcmd("cd " + self._srcdir)
@@ -715,10 +762,14 @@ trap - ERR
                 self._config_full = defconfigs + self._config_full
         # fragments
         self.startjob("config_fragments")
-        for fragfile in fragment_files:
-            self.addcmd(
-                f"./scripts/kconfig/merge_config.sh -m .config {fragfile}"
-            )
+        for entry in kconfig_adds:
+            if entry.startswith(MAKE_FRAGMENT_PREFIX):
+                print(
+                    f"[_merge_frags] WARNING: ignoring {entry}, the make "
+                    "backend does not run config make targets"
+                )
+                continue
+            self.addcmd(f"./scripts/kconfig/merge_config.sh -m .config {entry}")
         # TODO: olddefconfig should be optional/configurable
         # TODO: log all warnings/errors of olddefconfig to separate file
         self.addcmd("make olddefconfig")
@@ -729,12 +780,12 @@ trap - ERR
     def _generate_script(self):
         """Generate shell script for complete build"""
         print("Generating shell script")
-        self._fragment_files = self._parse_fragments(firmware=True)
+        self._kconfig_adds = self._parse_fragments(firmware=True)
 
         if self._backend == "tuxmake":
             self._build_with_tuxmake()
         else:
-            self._merge_frags(self._fragment_files)
+            self._merge_frags(self._kconfig_adds)
             self._build_with_make()
 
         self._write_metadata()
@@ -800,12 +851,12 @@ trap 'case $stage in
         """Build kernel using tuxmake with native fragment support"""
         print("[_build_with_tuxmake] Starting tuxmake build")
 
-        if not hasattr(self, "_fragment_files"):
-            print("[_build_with_tuxmake] ERROR: No fragment files available")
-            self._fragment_files = []
+        if not hasattr(self, "_kconfig_adds"):
+            print("[_build_with_tuxmake] ERROR: No kconfig additions available")
+            self._kconfig_adds = []
 
         print(
-            f"[_build_with_tuxmake] Using {len(self._fragment_files)} fragment files"
+            f"[_build_with_tuxmake] Using {len(self._kconfig_adds)} kconfig additions"
         )
 
         # Handle defconfigs - first goes to --kconfig, rest to --kconfig-add
@@ -931,17 +982,20 @@ trap 'case $stage in
         for extra in extra_defconfigs:
             parts.append(f"--kconfig-add={extra}")
             print(f"[_tuxmake_base] Adding extra defconfig: {extra}")
-        for fragfile in self._fragment_files:
-            if os.path.exists(fragfile):
-                parts.append(f"--kconfig-add={fragfile}")
+        for entry in self._kconfig_adds:
+            if entry.startswith(MAKE_FRAGMENT_PREFIX):
+                # tuxmake runs the make target during config preparation
+                parts.append(f"--kconfig-add={entry}")
+                print(f"[_tuxmake_base] Adding make target: {entry}")
+            elif os.path.exists(entry):
+                parts.append(f"--kconfig-add={entry}")
                 print(
                     "[_tuxmake_base] Adding fragment: "
-                    f"{os.path.basename(fragfile)}"
+                    f"{os.path.basename(entry)}"
                 )
             else:
                 print(
-                    "[_tuxmake_base] WARNING: Fragment file not found: "
-                    f"{fragfile}"
+                    f"[_tuxmake_base] WARNING: Fragment file not found: {entry}"
                 )
         return parts
 

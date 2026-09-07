@@ -18,7 +18,7 @@ def _kbuild(tmp_path, compiler="clang-21", arch="x86_64"):
     kbuild._compiler = compiler
     kbuild._defconfig = "defconfig"
     kbuild._fragments = []
-    kbuild._fragment_files = []
+    kbuild._kconfig_adds = []
     kbuild._config_full = ""
     kbuild._backend = "tuxmake"
     kbuild._dtbs_check = True
@@ -81,6 +81,61 @@ class TestCompilerVersionProbe:
         kbuild = _kbuild(tmp_path, compiler="gcc-14")
         kbuild._build_with_tuxmake()
         assert not any("--version" in s for s in kbuild._steps)
+
+
+class TestFragments:
+    @staticmethod
+    def _fragments(tmp_path, fragments, fragment_configs):
+        kbuild = _kbuild(tmp_path)
+        kbuild._fragments = fragments
+        kbuild._fragment_configs = fragment_configs
+        kbuild._fragments_dir = os.path.join(kbuild._af_dir, "fragments")
+        os.makedirs(kbuild._fragments_dir)
+        return kbuild
+
+    def test_make_target_is_not_written_to_a_fragment_file(self, tmp_path):
+        kbuild = self._fragments(
+            tmp_path,
+            ["kselftest"],
+            {"kselftest": {"configs": ["make:kselftest-merge"]}},
+        )
+
+        kconfig_adds = kbuild._parse_fragments()
+
+        # kconfig would merge the directive as "unexpected data"
+        assert kconfig_adds == ["make:kselftest-merge"]
+        assert os.listdir(kbuild._fragments_dir) == []
+        assert kbuild._artifacts == []
+        assert kbuild._config_full == "+kselftest"
+
+    def test_make_targets_are_split_from_config_symbols(self, tmp_path):
+        kbuild = self._fragments(
+            tmp_path,
+            ["kselftest"],
+            {
+                "kselftest": {
+                    "configs": [
+                        "make:kselftest-merge",
+                        "CONFIG_KUNIT=y",
+                    ]
+                }
+            },
+        )
+
+        kconfig_adds = kbuild._parse_fragments()
+
+        fragfile = os.path.join(kbuild._fragments_dir, "0.config")
+        assert kconfig_adds == [fragfile, "make:kselftest-merge"]
+        with open(fragfile) as f:
+            assert f.read() == "CONFIG_KUNIT=y\n"
+
+    def test_make_target_is_passed_to_tuxmake(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        kbuild._kconfig_adds = ["make:kselftest-merge"]
+
+        parts = kbuild._tuxmake_base(kbuild._af_dir, "defconfig", [])
+
+        assert "--kconfig-add=make:kselftest-merge" in parts
 
 
 class TestKselftestSuiteResults:
