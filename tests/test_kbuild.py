@@ -137,6 +137,24 @@ class TestFragments:
 
         assert "--kconfig-add=make:kselftest-merge" in parts
 
+    def test_make_target_is_run_by_the_make_backend(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        kbuild._backend = "make"
+        fragfile = os.path.join(kbuild._af_dir, "0.config")
+
+        kbuild._merge_frags(["make:kselftest-merge", fragfile])
+
+        steps = kbuild._steps
+        merge = steps.index("make kselftest-merge")
+        assert (
+            steps.index(
+                f"./scripts/kconfig/merge_config.sh -m .config {fragfile}"
+            )
+            > merge
+        )
+        # kselftest-merge needs a .config to merge into
+        assert steps.index("make defconfig") < merge
+
 
 class TestKselftestSuiteResults:
     def test_names_identify_build_results(self, tmp_path):
