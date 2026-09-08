@@ -12,6 +12,7 @@ import types
 from pathlib import Path
 
 import pytest
+import requests
 import yaml
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateRuntimeError
@@ -528,3 +529,88 @@ def test_compute_tuxrun_parameters_missing_branch():
     """Nodes lacking kernel_revision.branch get an empty parameter set."""
     assert compute_tuxrun_parameters("fvp-aemva", {}) == {}
     assert compute_tuxrun_parameters("fvp-aemva", {"data": {}}) == {}
+
+
+class _LivenessSession:
+    """Session recording the liveness request and replaying a canned answer"""
+
+    def __init__(self, response=None, error=None):
+        self.response = response
+        self.error = error
+        self.calls = []
+
+    def get(self, url, params=None, timeout=None):
+        self.calls.append((url, timeout))
+        if self.error:
+            raise self.error
+        return self.response
+
+
+def _liveness_lab(response=None, error=None):
+    config = kernelci.config.load("tests/configs/lava-runtimes.yaml")
+    runtime_config = config["runtimes"]["lab-min-12-max-40-new-runtime"]
+    lab = kernelci.runtime.get_runtime(runtime_config)
+    lab._server = types.SimpleNamespace(
+        url="http://lava/api/v0.2/",
+        session=_LivenessSession(response=response, error=error),
+    )
+    return lab
+
+
+def test_lava_is_alive_reports_the_version():
+    """A 200 from /system/version/ means the lab is up."""
+    lab = _liveness_lab(_FakeResponse({"version": "2026.07"}))
+
+    alive, detail = lab.is_alive()
+
+    assert alive is True
+    assert "2026.07" in detail
+    url, timeout = lab._server.session.calls[0]
+    assert url == "http://lava/api/v0.2/system/version/"
+    # Connect fast, then allow the probe timeout for the answer.
+    assert timeout == (
+        kernelci.runtime.lava.LAVA.CONNECT_TIMEOUT,
+        kernelci.runtime.lava.LAVA.LIVENESS_TIMEOUT,
+    )
+
+
+def test_lava_is_alive_treats_forbidden_as_reachable():
+    """A lab that refuses the request has still answered it."""
+    lab = _liveness_lab(_FakeResponse({}, status_code=403))
+
+    alive, detail = lab.is_alive()
+
+    assert alive is True
+    assert "403" in detail
+
+
+def test_lava_is_alive_reports_server_errors_as_down():
+    """A 5xx means the instance cannot serve requests."""
+    lab = _liveness_lab(_FakeResponse({}, status_code=502))
+
+    alive, detail = lab.is_alive()
+
+    assert alive is False
+    assert "502" in detail
+
+
+def test_lava_is_alive_reports_transport_failures_as_down():
+    """An unreachable host is the case this probe exists for."""
+    lab = _liveness_lab(
+        error=requests.ConnectionError("Network is unreachable")
+    )
+
+    alive, detail = lab.is_alive()
+
+    assert alive is False
+    assert "Network is unreachable" in detail
+
+
+def test_lava_is_alive_without_server_url():
+    """A runtime storing jobs externally has no server to probe."""
+    config = kernelci.config.load("tests/configs/lava-runtimes.yaml")
+    runtime_config = config["runtimes"]["lab-min-12-max-40-new-runtime"]
+    lab = kernelci.runtime.get_runtime(runtime_config)
+    lab._server = types.SimpleNamespace(url=None, session=None)
+
+    assert lab.is_alive() == (True, "no server URL configured")

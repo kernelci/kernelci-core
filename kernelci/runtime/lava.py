@@ -346,6 +346,19 @@ class LAVA(Runtime):
     API_VERSION = "v0.2"
     RestAPIServer = namedtuple("RestAPIServer", ["url", "session"])
 
+    # Connecting is capped well below the response timeout so an unreachable
+    # lab fails in seconds instead of tying up the caller for the full
+    # request timeout on every single call.
+    CONNECT_TIMEOUT = 5
+    REQUEST_TIMEOUT = 30
+
+    # Liveness probe.  lava-server answers /system/version/ from a constant
+    # without touching the database (SystemViewSet.version in
+    # lava_rest_app/v02/views.py) and the body is ~20 bytes, so this can be
+    # polled regularly without adding any measurable load to the lab.
+    LIVENESS_PATH = "system/version/"
+    LIVENESS_TIMEOUT = 10
+
     # LAVA supports 'high'/'medium'/'low' (100/50/0), but we define our own
     # values to allow scaling across labs with different priority ranges.
     PRIORITY_HIGHEST = 80
@@ -457,7 +470,7 @@ class LAVA(Runtime):
         job_id = int(job_object)
         job_url = urljoin(self._server.url, "/".join(["jobs", str(job_id)]))
         while True:
-            resp = self._server.session.get(job_url, timeout=30)
+            resp = self._server.session.get(job_url, timeout=self._timeout())
             resp.raise_for_status()
             data = resp.json()
             if data["state"] == "Finished":
@@ -477,8 +490,41 @@ class LAVA(Runtime):
         }
         return rest_api
 
+    def _timeout(self, read_timeout=None):
+        """Timeout tuple for requests: fail fast on connect, wait on read"""
+        return (self.CONNECT_TIMEOUT, read_timeout or self.REQUEST_TIMEOUT)
+
+    def is_alive(self):
+        """Check that the LAVA instance is reachable
+
+        Any HTTP answer proves the instance is up, including the ones that
+        refuse the request: 401 and 403 mean the token or the ACL is wrong,
+        not that the lab is down.  Only a transport failure or a server
+        error counts as unreachable.
+        """
+        if self._server.url is None:
+            return True, "no server URL configured"
+        url = urljoin(self._server.url, self.LIVENESS_PATH)
+        try:
+            resp = self._server.session.get(
+                url, timeout=self._timeout(self.LIVENESS_TIMEOUT)
+            )
+        except requests.RequestException as exc:
+            return False, str(exc)
+        if resp.status_code >= 500:
+            return False, f"HTTP {resp.status_code}"
+        if resp.status_code != 200:
+            return True, f"HTTP {resp.status_code} (reachable)"
+        try:
+            version = resp.json().get("version")
+        except ValueError:
+            version = None
+        return True, f"version {version}" if version else "reachable"
+
     def _get_response(self, url, params=None):
-        resp = self._server.session.get(url, params=params, timeout=30)
+        resp = self._server.session.get(
+            url, params=params, timeout=self._timeout()
+        )
         resp.raise_for_status()
         return resp.json()
 
@@ -574,7 +620,7 @@ class LAVA(Runtime):
             jobs_url,
             json=job_data,
             allow_redirects=False,
-            timeout=30,
+            timeout=self._timeout(),
         )
         if resp.status_code >= 400:
             print(f"Error submitting job: {resp.status_code}, {resp.text}")
