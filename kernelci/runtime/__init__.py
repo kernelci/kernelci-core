@@ -287,6 +287,15 @@ class Runtime(abc.ABC):
     def wait(self, job_object):
         """Wait for a job to complete and get the exit status code"""
 
+    def is_alive(self):
+        """Check whether the runtime is reachable
+
+        Return a (alive, detail) tuple where *detail* describes the outcome
+        for logging.  Runtimes that have no cheap way of answering this, or
+        that cannot become unreachable, report themselves as alive.
+        """
+        return True, "liveness check not implemented"
+
 
 def get_runtime(
     config, user=None, token=None, custom_template_dir=None, kcictx=None
