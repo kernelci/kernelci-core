@@ -142,8 +142,8 @@ rootfs_configs:
       - libdrm-amdgpu1
       - libdrm-nouveau2
       - libdrm2
-      - libdw1
-      - libglib2.0-0
+      - libdw1t64
+      - libglib2.0-0t64
       - libpciaccess0
       - libpixman-1-0
       - libproc2-0
@@ -245,8 +245,8 @@ rootfs_configs:
         - armhf
     extra_packages:
         - libcairo2
-        - libdw1
-        - libglib2.0-0
+        - libdw1t64
+        - libglib2.0-0t64
         - libpciaccess0
         - libproc2-0
         - libudev1
@@ -320,18 +320,18 @@ rootfs_configs:
       - iputils-ping
       - jdim
       - jq
-      - libasound2
-      - libatm1
+      - libasound2t64
+      - libatm1t64
       - libcap2-bin
-      - libelf1
-      - libgdbm-compat4
-      - libgdbm6
+      - libelf1t64
+      - libgdbm-compat4t64
+      - libgdbm6t64
       - libhugetlbfs0
       - libmnl0
       - libnuma1
       - libpam-cap
       - libpcre2-8-0
-      - libpsl5
+      - libpsl5t64
       - liburing2
       - libxtables12
       - netbase
@@ -482,8 +482,8 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
-      - libasound2
-      - libelf1
+      - libasound2t64
+      - libelf1t64
       - libjpeg62-turbo
       - libudev1
       - rdfind
