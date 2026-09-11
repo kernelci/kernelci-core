@@ -24,8 +24,6 @@ rootfs_configs:
       - armel
       - armhf
       - i386
-      - mips64el
-      - mipsel
       - riscv64
     extra_packages:
       - isc-dhcp-client
