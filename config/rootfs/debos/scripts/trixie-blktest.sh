@@ -28,7 +28,7 @@ git config --global user.name "KernelCI Bot"
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 . "$HOME/.cargo/env" || true
 # Install dependencies for blktests
-cargo install --version=^0.1 rublk
+cargo install --version=^0.2 rublk
 # cleanup cargo cache
 rm -rf /root/.cargo/registry
 rustup self uninstall -y
