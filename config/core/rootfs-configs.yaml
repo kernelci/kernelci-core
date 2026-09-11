@@ -150,7 +150,6 @@ rootfs_configs:
       - libudev1
       - libunwind8
       - python3-minimal
-      - sntp
       - zstd
     script: "scripts/trixie-deqp-runner.sh"
     imagesize: 4GB
