@@ -210,7 +210,6 @@ rootfs_configs:
     arch_list:
       - amd64
       - arm64
-      - armhf
     extra_packages_remove:
       - bash
       - e2fslibs
