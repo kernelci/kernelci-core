@@ -39,8 +39,9 @@ GIT_SHA=4e68b52f0e0c9777c91088948374c6ee3d4a1f6b
 echo '    {"name": "rt-tests", "git_url": "'$GIT_URL'", "git_commit": "'$GIT_SHA'" }' >> $BUILDFILE
 echo '  ]}' >> $BUILDFILE
 
-git clone --depth=1 -b main ${GIT_URL}
+git clone -b main ${GIT_URL}
 cd rt-tests
+git checkout ${GIT_SHA}
 make -j$(nproc)
 find . -executable -type f -exec strip {} \;
 make install
