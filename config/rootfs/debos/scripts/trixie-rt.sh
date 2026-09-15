@@ -42,6 +42,27 @@ echo '  ]}' >> $BUILDFILE
 git clone -b main ${GIT_URL}
 cd rt-tests
 git checkout ${GIT_SHA}
+
+# hackbench prints struct timeval fields with %lu.  On 32-bit ports with
+# 64-bit time_t (armhf on trixie) tv_sec/tv_usec are long long, so the
+# format string does not match and the -Werror build fails.  Print them
+# as long long, which is correct on both 32- and 64-bit.
+# Drop this once rt-tests carries the fix upstream.
+patch -p1 << 'EOF'
+--- a/src/hackbench/hackbench.c
++++ b/src/hackbench/hackbench.c
+@@ -567,7 +567,8 @@ int main(int argc, char *argv[])
+ 	/* Print time... */
+ 	if (timer_started) {
+ 		timersub(&stop, &start, &diff);
+-		printf("Time: %lu.%03lu\n", diff.tv_sec, diff.tv_usec/1000);
++		printf("Time: %lld.%03lld\n", (long long)diff.tv_sec,
++		       (long long)diff.tv_usec/1000);
+ 	}
+ 	else
+ 		fprintf(stderr, "No measurements available\n");
+EOF
+
 make -j$(nproc)
 find . -executable -type f -exec strip {} \;
 make install
