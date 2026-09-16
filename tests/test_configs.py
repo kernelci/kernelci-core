@@ -16,6 +16,7 @@ from pydantic import ValidationError
 
 import kernelci.config
 import kernelci.config.build
+import kernelci.config.platform
 
 # -----------------------------------------------------------------------------
 # Legacy
@@ -384,3 +385,42 @@ class TestSchedulerConfigs(ConfigTest):
                 kunit_job = entry
         assert kunit_job is not None
         assert kunit_job["runtime"]["name"] == "k8s-gke-eu-west4"
+
+
+class TestPlatformDebarch:
+    """Tests for the Debian architecture override on platforms"""
+
+    @staticmethod
+    def _platform(**kwargs):
+        return kernelci.config.platform.Platform("test-platform", **kwargs)
+
+    def test_debarch_derived_from_arch(self):
+        """Without an override, debarch is derived from the kernel arch"""
+        platform = self._platform(arch="arm")
+        assert platform.debarch is None
+        params = platform.format_params({"url": "images/{debarch}"})
+        assert params["url"] == "images/armhf"
+
+    def test_debarch_override(self):
+        """An explicit debarch takes precedence over the derived value"""
+        platform = self._platform(arch="arm", debarch="armel")
+        assert platform.debarch == "armel"
+        params = platform.format_params({"url": "images/{debarch}"})
+        assert params["url"] == "images/armel"
+
+    def test_debarch_override_keeps_other_systems_derived(self):
+        """Overriding debarch doesn't affect the other architecture names"""
+        platform = self._platform(arch="arm", debarch="armel")
+        params = platform.format_params(
+            {"br": "{brarch}", "k": "{karch}", "cros": "{crosarch}"}
+        )
+        assert params["br"] == "armel"
+        assert params["k"] == "arm"
+        assert params["cros"] == "armel"
+
+    def test_debarch_loaded_from_yaml(self):
+        """The debarch override can be set from the YAML config"""
+        platform = kernelci.config.platform.Platform.load_from_yaml(
+            {"arch": "arm", "debarch": "armel"}, name="armv5-board"
+        )
+        assert platform.debarch == "armel"

@@ -22,6 +22,7 @@ class Platform(YAMLConfigObject):
         boot_method="grub",
         context=None,
         compatible=None,
+        debarch=None,
         dtb=None,
         flash_image=None,
         mach="x86",
@@ -34,6 +35,7 @@ class Platform(YAMLConfigObject):
         self._boot_method = boot_method
         self._context = context
         self._compatible = compatible
+        self._debarch = debarch
         self._dtb = None
         if dtb:
             if isinstance(dtb, list):
@@ -78,6 +80,18 @@ class Platform(YAMLConfigObject):
         return list(self._compatible) if self._compatible else None
 
     @property
+    def debarch(self):
+        """Debian architecture override
+
+        Debian architectures are normally derived from the kernel
+        architecture, but that mapping is ambiguous for 32-bit ARM: `armhf`
+        requires ARMv7 with hardware floating point, while older ARMv5
+        platforms need `armel`.  Platforms that must not use the derived
+        value can set this explicitly.
+        """
+        return self._debarch
+
+    @property
     def dtb(self):
         """Platform dtb file name"""
         return self._dtb
@@ -112,6 +126,7 @@ class Platform(YAMLConfigObject):
                 "boot_method",
                 "context",
                 "compatible",
+                "debarch",
                 "dtb",
                 "flash_image",
                 "mach",

@@ -243,7 +243,13 @@ class Runtime(abc.ABC):
         params.update(job.config.params)
         arch = params.get("arch") or job.platform_config.arch
         for system in ("brarch", "crosarch", "debarch", "karch"):
-            params.update({system: get_system_arch(system, arch)})
+            # An explicit value from the platform or job params takes
+            # precedence over the one derived from the kernel architecture,
+            # which is ambiguous for 32-bit ARM (`armhf` vs `armel`).
+            override = params.get(system) or getattr(
+                job.platform_config, system, None
+            )
+            params[system] = override or get_system_arch(system, arch)
         return params
 
     @classmethod

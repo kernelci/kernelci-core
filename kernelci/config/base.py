@@ -174,7 +174,13 @@ class YAMLConfigObject(yaml.YAMLObject):
         arch = args.get("arch")
         if arch:
             for system in ("brarch", "crosarch", "debarch", "karch"):
-                args.update({system: get_system_arch(system, arch)})
+                # Only derive the system-specific architecture when the object
+                # doesn't set one explicitly.  The derived value is ambiguous
+                # for some architectures (e.g. `arm` maps to `armhf`, which is
+                # wrong for ARMv5 platforms needing `armel`), so an explicit
+                # override always wins.
+                if args.get(system) is None:
+                    args[system] = get_system_arch(system, arch)
         return _format_dict_strings(param, args)
 
 
