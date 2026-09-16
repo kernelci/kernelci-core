@@ -19,6 +19,16 @@ esac
 
 copy_exec /usr/lib/kernelci/mount.nfs /usr/sbin/mount.nfs
 
+# copy_exec brings in the shared libraries but not the databases mount.nfs
+# reads at run time.  nfs_get_netid() maps the transport to an RPC netid using
+# getprotobynumber(), which reads /etc/protocols, and libtirpc's netconfig
+# lookup, which reads /etc/netconfig.  When either is missing the lookup fails,
+# nfs-utils records RPC_UNKNOWNPROTO and reports it as EPROTONOSUPPORT, and the
+# root mount dies with "mount.nfs: Protocol not supported".  klibc's nfsmount
+# carried its own RPC code and needed neither file.
+copy_file config /etc/netconfig /etc/netconfig
+copy_file config /etc/protocols /etc/protocols
+
 # Replace klibc's NFSv2/v3-only helper after its hook has installed it.
 rm -f "${DESTDIR}/bin/nfsmount" "${DESTDIR}/usr/bin/nfsmount"
 copy_file script /usr/lib/kernelci/nfsmount /bin/nfsmount
