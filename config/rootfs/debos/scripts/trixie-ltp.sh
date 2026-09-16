@@ -20,6 +20,9 @@ case "${TARGET_ARCH}" in
     arm64)
         GNU_TRIPLET=aarch64-linux-gnu
         ;;
+    armel)
+        GNU_TRIPLET=arm-linux-gnueabi
+        ;;
     armhf)
         GNU_TRIPLET=arm-linux-gnueabihf
         ;;

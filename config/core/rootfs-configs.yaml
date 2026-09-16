@@ -301,6 +301,7 @@ rootfs_configs:
     arch_list:
       - amd64
       - arm64
+      - armel
       - armhf
       - riscv64
     extra_packages:
@@ -405,6 +406,7 @@ rootfs_configs:
     arch_list:
       - amd64
       - arm64
+      - armel
       - armhf
       - riscv64
     extra_packages:
