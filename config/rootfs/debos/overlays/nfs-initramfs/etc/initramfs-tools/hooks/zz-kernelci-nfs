@@ -26,8 +26,17 @@ copy_exec /usr/lib/kernelci/mount.nfs /usr/sbin/mount.nfs
 # nfs-utils records RPC_UNKNOWNPROTO and reports it as EPROTONOSUPPORT, and the
 # root mount dies with "mount.nfs: Protocol not supported".  klibc's nfsmount
 # carried its own RPC code and needed neither file.
-copy_file config /etc/netconfig /etc/netconfig
-copy_file config /etc/protocols /etc/protocols
+#
+# copy_file only warns and returns non-zero when the source is missing, and
+# nothing here checks it, so a chroot without netbase used to produce an image
+# that looked fine and then failed to mount its root.  Fail the build instead.
+for db in /etc/netconfig /etc/protocols; do
+	if [ ! -f "${db}" ]; then
+		echo "zz-kernelci-nfs: ${db} is missing from the chroot" >&2
+		exit 1
+	fi
+	copy_file config "${db}" "${db}"
+done
 
 # Replace klibc's NFSv2/v3-only helper after its hook has installed it.
 rm -f "${DESTDIR}/bin/nfsmount" "${DESTDIR}/usr/bin/nfsmount"

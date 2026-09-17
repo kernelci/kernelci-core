@@ -39,11 +39,20 @@ dpkg-query -W -f='${binary:Package}\t${db:Status-Status}\n' \
 # mount.nfs only needs libtirpc and its shared-library dependencies.  Extract
 # the helper without installing nfs-common, whose unrelated device-mapper hook
 # would otherwise make the initramfs larger.
-if ! dpkg-query -W -f='${db:Status-Status}' libtirpc3t64 2>/dev/null \
-    | grep -qx installed; then
-  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    libtirpc3t64
-fi
+#
+# libtirpc3t64 also pulls in libtirpc-common, which owns /etc/netconfig, and
+# netbase owns /etc/protocols.  The zz-kernelci-nfs hook copies both databases
+# into the initramfs, so they have to be present here.  netbase is not part of
+# the minbase debootstrap and most rootfs configs never install it, which left
+# /etc/protocols missing and mount.nfs failing with "Protocol not supported".
+# Both packages are purged again below unless the image already had them.
+for nfs_build_package in libtirpc3t64 netbase; do
+  if ! dpkg-query -W -f='${db:Status-Status}' "$nfs_build_package" 2>/dev/null \
+      | grep -qx installed; then
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      "$nfs_build_package"
+  fi
+done
 nfs_package_dir=$(mktemp -d)
 chown _apt:root "$nfs_package_dir"
 (
