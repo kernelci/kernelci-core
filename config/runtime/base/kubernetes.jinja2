@@ -8,12 +8,20 @@ metadata:
 
 spec:
   completions: 1
+  # backoffLimit is a Job-level field.  This used to sit under
+  # spec.template.spec, where the API server drops it silently, so jobs
+  # ran with the default of 6 retries and every failure was retried
+  # seven times over.
+  backoffLimit: 1
+  # Cap the wall-clock runtime of a job.  Without it a wedged build keeps
+  # its pod Running indefinitely and holds a whole node: the node timeout
+  # tracked by the API is advisory and is not enforced against the Job.
+  activeDeadlineSeconds: {{ k8s_active_deadline_seconds | default(21600) }}
   # During development we keep logs a bit longer
   # TODO: Reduce on production
   ttlSecondsAfterFinished: 1800
   template:
     spec:
-      backoffLimit: 1
       restartPolicy: Never
       terminationGracePeriodSeconds: 10
 
