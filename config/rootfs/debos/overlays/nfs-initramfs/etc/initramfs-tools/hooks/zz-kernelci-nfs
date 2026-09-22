@@ -38,6 +38,30 @@ for db in /etc/netconfig /etc/protocols; do
 	copy_file config "${db}" "${db}"
 done
 
-# Replace klibc's NFSv2/v3-only helper after its hook has installed it.
+# Keep klibc's helper next to mount.nfs instead of replacing it, and put the
+# dispatching wrapper in its place.  klibc cannot do NFSv4, mount.nfs can; but
+# mount.nfs negotiates through libtirpc and fails against hosts klibc mounts
+# without complaint, which is what broke NFS root boots on part of the
+# Collabora lab.  The wrapper sends v4 to mount.nfs and everything else to
+# klibc first, so the image supports v4 without losing those hosts.
+#
+# klibc-utils installs nfsmount in /bin or /usr/bin depending on the merged-usr
+# layout of the chroot; move whichever is there.  The klibc interpreter is
+# already in the image for ipconfig and run-init, so keeping one more klibc
+# binary costs nothing but its own size.
+klibc_nfsmount=
+for candidate in "${DESTDIR}/bin/nfsmount" "${DESTDIR}/usr/bin/nfsmount"; do
+	if [ -f "${candidate}" ]; then
+		klibc_nfsmount=${candidate}
+		break
+	fi
+done
+
+if [ -z "${klibc_nfsmount}" ]; then
+	echo "zz-kernelci-nfs: klibc nfsmount is missing from the initramfs" >&2
+	exit 1
+fi
+
+mv "${klibc_nfsmount}" "${DESTDIR}/bin/nfsmount.klibc"
 rm -f "${DESTDIR}/bin/nfsmount" "${DESTDIR}/usr/bin/nfsmount"
 copy_file script /usr/lib/kernelci/nfsmount /bin/nfsmount
