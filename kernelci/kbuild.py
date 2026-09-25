@@ -878,6 +878,9 @@ trap 'case $stage in
         if not self._dtbs_check:
             self._fetch_firmware()
 
+        build_kselftest = not self._dtbs_check and self._kselftest
+        kernel_build_dir = f"{self._workspace}/kernel_build"
+
         self.startjob("build_tuxmake")
         self.addcmd("cd " + self._srcdir)
 
@@ -897,6 +900,8 @@ trap 'case $stage in
         cmd_parts = self._tuxmake_base(
             self._af_dir, defconfig, extra_defconfigs
         )
+        if build_kselftest:
+            cmd_parts.append(f"--build-dir={kernel_build_dir}")
 
         # Build targets depend on mode. kselftest is built in a separate
         # tuxmake invocation below so a kselftest build failure cannot
@@ -967,8 +972,10 @@ trap 'case $stage in
 
         self.addcmd("cd ..")
 
-        if not self._dtbs_check and self._kselftest:
-            self._build_kselftest_tuxmake(defconfig, extra_defconfigs)
+        if build_kselftest:
+            self._build_kselftest_tuxmake(
+                defconfig, extra_defconfigs, kernel_build_dir
+            )
 
     def _tuxmake_base(self, output_dir, defconfig, extra_defconfigs):
         """Build the common tuxmake argument list for an invocation."""
@@ -999,13 +1006,17 @@ trap 'case $stage in
                 )
         return parts
 
-    def _build_kselftest_tuxmake(self, defconfig, extra_defconfigs):
+    def _build_kselftest_tuxmake(
+        self, defconfig, extra_defconfigs, kernel_build_dir
+    ):
         """Build kselftest as a separate tuxmake invocation.
 
         Runs non-critical so a kselftest build failure does not fail
         the kernel build. Uses a distinct output directory to avoid
         overwriting kernel tuxmake artifacts (build.log, metadata.json,
-        etc.); the kselftest tarball is copied back to af_dir.
+        etc.); the kselftest tarball is copied back to af_dir. Builds in
+        the kernel's build tree, so selftests that build kernel modules
+        (livepatch, mm/page_frag) find the configured and built kernel.
         """
         kselftest_out = f"{self._workspace}/kselftest_build"
         self.startjob("build_kselftest")
@@ -1015,6 +1026,7 @@ trap 'case $stage in
         cmd_parts = self._tuxmake_base(
             kselftest_out, defconfig, extra_defconfigs
         )
+        cmd_parts.append(f"--build-dir={kernel_build_dir}")
         cmd_parts.append("kselftest")
         kselftest_cmd = " ".join(cmd_parts) + REDIR.format(
             self._af_dir + "/build_kselftest.log",

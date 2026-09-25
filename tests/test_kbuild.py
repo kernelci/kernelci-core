@@ -183,6 +183,41 @@ class TestKselftestSuiteResults:
         ]
 
 
+def _tuxmake_invocations(tmp_path, monkeypatch, kselftest, dtbs_check=False):
+    monkeypatch.setitem(sys.modules, "tuxmake", None)
+    kbuild = _kbuild(tmp_path)
+    kbuild._dtbs_check = dtbs_check
+    kbuild._kselftest = kselftest
+    kbuild._extra_targets = []
+    kbuild._fetch_firmware = lambda: None
+    kbuild._build_with_tuxmake()
+    return [s for s in kbuild._steps if s.startswith("tuxmake --runtime=null")]
+
+
+class TestKselftestBuildDir:
+    def test_kselftest_builds_in_kept_kernel_tree(self, tmp_path, monkeypatch):
+        kernel, kselftest = _tuxmake_invocations(tmp_path, monkeypatch, True)
+        build_dir = f"{tmp_path}/kernel_build"
+
+        assert f"--build-dir={build_dir}" in kernel.split()
+        assert f"--output-dir={tmp_path}/artifacts" in kernel.split()
+        assert f"--build-dir={build_dir}" in kselftest.split()
+        assert f"--output-dir={tmp_path}/kselftest_build" in kselftest.split()
+
+    def test_no_kept_kernel_tree_without_kselftest(self, tmp_path, monkeypatch):
+        (kernel,) = _tuxmake_invocations(tmp_path, monkeypatch, False)
+
+        assert "--build-dir" not in kernel
+
+    def test_no_kselftest_build_for_dtbs_check(self, tmp_path, monkeypatch):
+        (kernel,) = _tuxmake_invocations(
+            tmp_path, monkeypatch, True, dtbs_check=True
+        )
+
+        assert "--build-dir" not in kernel
+        assert kernel.split()[-1] == "dtbs_check"
+
+
 class FakeStorage:
     def __init__(self):
         self.single_uploads = []
