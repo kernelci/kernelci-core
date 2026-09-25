@@ -3,8 +3,11 @@
 
 import json
 import os
+import subprocess
 import sys
 import types
+
+import pytest
 
 from kernelci.kbuild import KBuild
 
@@ -155,6 +158,176 @@ class TestFragments:
         )
         # kselftest-merge needs a .config to merge into
         assert steps.index("make defconfig") < merge
+
+    def test_tree_file_is_not_written_to_a_fragment_file(self, tmp_path):
+        kbuild = self._fragments(
+            tmp_path,
+            ["kselftest-arm64"],
+            {
+                "kselftest-arm64": {
+                    "configs": ["tree:tools/testing/selftests/arm64/config"]
+                }
+            },
+        )
+
+        kconfig_adds = kbuild._parse_fragments()
+
+        assert kconfig_adds == ["tree:tools/testing/selftests/arm64/config"]
+        assert os.listdir(kbuild._fragments_dir) == []
+        assert kbuild._artifacts == []
+        assert kbuild._config_full == "+kselftest-arm64"
+
+    def test_tree_files_are_split_from_config_symbols(self, tmp_path):
+        kbuild = self._fragments(
+            tmp_path,
+            ["kselftest-arm64"],
+            {
+                "kselftest-arm64": {
+                    "configs": [
+                        "tree:tools/testing/selftests/arm64/config",
+                        "CONFIG_KUNIT=y",
+                    ]
+                }
+            },
+        )
+
+        kconfig_adds = kbuild._parse_fragments()
+
+        fragfile = os.path.join(kbuild._fragments_dir, "0.config")
+        assert kconfig_adds == [
+            fragfile,
+            "tree:tools/testing/selftests/arm64/config",
+        ]
+        with open(fragfile) as f:
+            assert f.read() == "CONFIG_KUNIT=y\n"
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "../outside.config",
+            "/etc/passwd",
+            "tools/../../x",
+            "",
+            "tools/x; rm -rf /",
+            "tools/$(id)",
+            "tools/`id`",
+            "tools/a b",
+            "tools/x|y",
+            ".",
+            "tools/..",
+        ],
+    )
+    def test_tree_file_outside_the_tree_is_refused(self, tmp_path, path):
+        kbuild = self._fragments(
+            tmp_path,
+            ["bad"],
+            {"bad": {"configs": [f"tree:{path}"]}},
+        )
+        failures = []
+        kbuild.submit_failure = failures.append
+
+        with pytest.raises(SystemExit):
+            kbuild._parse_fragments()
+
+        assert failures
+
+    def test_tree_file_is_merged_by_the_make_backend(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        kbuild._backend = "make"
+
+        kbuild._merge_frags(["tree:tools/testing/selftests/arm64/config"])
+
+        steps = kbuild._steps
+        merge = next(
+            i
+            for i, s in enumerate(steps)
+            if "merge_config.sh -m .config tools/testing/selftests/arm64/config"
+            in s
+        )
+        assert steps.index(f"cd {kbuild._srcdir}") < merge
+        assert steps.index("make defconfig") < merge
+
+    @pytest.mark.parametrize("present", [True, False])
+    def test_make_backend_merges_a_tree_file_only_when_present(
+        self, tmp_path, present
+    ):
+        kbuild = _kbuild(tmp_path)
+        kbuild._backend = "make"
+        kbuild._merge_frags(["tree:tools/testing/selftests/arm64/config"])
+        merge = next(s for s in kbuild._steps if "merge_config.sh" in s)
+        src = tmp_path / "linux"
+        (src / "tools/testing/selftests/arm64").mkdir(parents=True)
+        if present:
+            (src / "tools/testing/selftests/arm64/config").write_text(
+                "CONFIG_X=y\n"
+            )
+        merge_config = src / "scripts/kconfig/merge_config.sh"
+        merge_config.parent.mkdir(parents=True)
+        merge_config.write_text('#!/bin/sh\necho "$@" > merged\n')
+        merge_config.chmod(0o755)
+        script = tmp_path / "merge.sh"
+        script.write_text(f"set -eE -o pipefail\ncd {src}\n{merge}\n")
+
+        result = subprocess.run(
+            ["bash", str(script)], capture_output=True, text=True
+        )
+
+        assert result.returncode == 0
+        merged = src / "merged"
+        if present:
+            assert merged.read_text().split() == [
+                "-m",
+                ".config",
+                "tools/testing/selftests/arm64/config",
+            ]
+        else:
+            assert not merged.exists()
+            assert "not in this tree" in result.stdout
+
+    def test_tree_file_is_passed_to_tuxmake_from_the_tree(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        kbuild._kconfig_adds = ["tree:tools/testing/selftests/arm64/config"]
+
+        parts = kbuild._tuxmake_base(kbuild._af_dir, "defconfig", [])
+
+        path = os.path.join(
+            kbuild._srcdir, "tools/testing/selftests/arm64/config"
+        )
+        assert not os.path.exists(path)
+        added = [p for p in parts if path in p]
+        assert len(added) == 1
+        assert f"--kconfig-add={path}" in added[0]
+
+    @pytest.mark.parametrize("present", [True, False])
+    def test_tuxmake_adds_a_tree_file_only_when_present(
+        self, tmp_path, present
+    ):
+        kbuild = _kbuild(tmp_path)
+        kbuild._kconfig_adds = ["tree:tools/testing/selftests/arm64/config"]
+        path = os.path.join(
+            kbuild._srcdir, "tools/testing/selftests/arm64/config"
+        )
+        if present:
+            os.makedirs(os.path.dirname(path))
+            with open(path, "w") as f:
+                f.write("CONFIG_X=y\n")
+        parts = kbuild._tuxmake_base(kbuild._af_dir, "defconfig", [])
+        added = next(p for p in parts if path in p)
+
+        result = subprocess.run(
+            [
+                "bash",
+                "-c",
+                f"set -eE -o pipefail; set -- {added}; "
+                'echo $#; for a; do echo "$a"; done',
+            ],
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode == 0
+        expected = [f"--kconfig-add={path}"] if present else []
+        assert result.stdout.splitlines() == [str(len(expected))] + expected
 
 
 class TestKselftestSuiteResults:
