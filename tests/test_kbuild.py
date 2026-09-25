@@ -22,6 +22,7 @@ def _kbuild(tmp_path, compiler="clang-21", arch="x86_64"):
     kbuild._config_full = ""
     kbuild._backend = "tuxmake"
     kbuild._dtbs_check = True
+    kbuild._kselftest = False
     kbuild._steps = []
     kbuild._artifacts = []
     kbuild._current_job = None
@@ -211,11 +212,57 @@ class TestKselftestBuildDir:
 
     def test_no_kselftest_build_for_dtbs_check(self, tmp_path, monkeypatch):
         (kernel,) = _tuxmake_invocations(
-            tmp_path, monkeypatch, True, dtbs_check=True
+            tmp_path, monkeypatch, False, dtbs_check=True
         )
 
         assert "--build-dir" not in kernel
         assert kernel.split()[-1] == "dtbs_check"
+
+
+def _kbuild_from_params(monkeypatch, **params):
+    monkeypatch.setenv("KCI_API_TOKEN", "test-token")
+    params = {
+        "arch": "arm64",
+        "compiler": "gcc-14",
+        "defconfig": "defconfig",
+        "fragments": [],
+        **params,
+    }
+    return KBuild(
+        node={"artifacts": {"tarball": "https://storage.test/linux.tar.gz"}},
+        jobname="kbuild-gcc-14-arm64",
+        params=params,
+        apiconfig="url: https://api.test\n",
+    )
+
+
+def _kbuild_from_json(tmp_path, monkeypatch, **params):
+    kbuild = _kbuild_from_params(monkeypatch, **params)
+    kbuild._storage_config = None
+    kbuild._fragments_dir = None
+    path = tmp_path / "kbuild.json"
+    kbuild.serialize(str(path))
+    return KBuild.from_json(str(path))
+
+
+class TestKselftestFlag:
+    def test_enabled_by_default(self, monkeypatch):
+        assert _kbuild_from_params(monkeypatch)._kselftest is True
+
+    def test_disabled_by_param(self, monkeypatch):
+        kbuild = _kbuild_from_params(monkeypatch, kselftest="disable")
+        assert kbuild._kselftest is False
+
+    def test_disabled_for_dtbs_check(self, monkeypatch):
+        kbuild = _kbuild_from_params(monkeypatch, dtbs_check=True)
+        assert kbuild._kselftest is False
+
+    def test_reload_keeps_enabled(self, tmp_path, monkeypatch):
+        assert _kbuild_from_json(tmp_path, monkeypatch)._kselftest is True
+
+    def test_reload_keeps_disabled_for_dtbs_check(self, tmp_path, monkeypatch):
+        kbuild = _kbuild_from_json(tmp_path, monkeypatch, dtbs_check=True)
+        assert kbuild._kselftest is False
 
 
 class FakeStorage:

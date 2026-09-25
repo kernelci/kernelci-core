@@ -217,10 +217,9 @@ class KBuild:
                 self._dtbs_check = params["dtbs_check"]
             else:
                 self._dtbs_check = False
-            if params.get("kselftest") == "disable":
-                self._kselftest = False
-            else:
-                self._kselftest = True
+            self._kselftest = (
+                not self._dtbs_check and params.get("kselftest") != "disable"
+            )
             self._extra_targets = params.get("extra_targets", [])
             self._apijobname = jobname
             self._steps = []
@@ -878,7 +877,6 @@ trap 'case $stage in
         if not self._dtbs_check:
             self._fetch_firmware()
 
-        build_kselftest = not self._dtbs_check and self._kselftest
         kernel_build_dir = f"{self._workspace}/kernel_build"
 
         self.startjob("build_tuxmake")
@@ -900,7 +898,7 @@ trap 'case $stage in
         cmd_parts = self._tuxmake_base(
             self._af_dir, defconfig, extra_defconfigs
         )
-        if build_kselftest:
+        if self._kselftest:
             cmd_parts.append(f"--build-dir={kernel_build_dir}")
 
         # Build targets depend on mode. kselftest is built in a separate
@@ -972,7 +970,7 @@ trap 'case $stage in
 
         self.addcmd("cd ..")
 
-        if build_kselftest:
+        if self._kselftest:
             self._build_kselftest_tuxmake(
                 defconfig, extra_defconfigs, kernel_build_dir
             )
