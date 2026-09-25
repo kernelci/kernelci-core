@@ -276,9 +276,7 @@ class KBuild:
             )
             self._full_artifacts = jsonobj["full_artifacts"]
             self._dtbs_check = jsonobj["dtbs_check"]
-            self._kselftest = jsonobj.get(
-                "kselftest", jsonobj.get("kfselftest")
-            )
+            self._kselftest = jsonobj["kselftest"]
             self._coverage = jsonobj.get("coverage", False)
             self._extra_targets = jsonobj.get("extra_targets", [])
             return
