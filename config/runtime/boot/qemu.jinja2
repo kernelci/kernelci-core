@@ -7,7 +7,20 @@
         url: '{{ node.artifacts.kernel }}'
       ramdisk:
         image_arg: -initrd {ramdisk}
+{%- if boot_commands == "ramdisk" %}
+        url: '{{ ramdiskroot }}/rootfs.cpio.gz'
+        compression: gz
+        format: cpio.newc
+        overlays:
+          lava: true
+          modules:
+            url: '{{ node.artifacts.modules }}'
+            compression: xz
+            format: tar
+            path: /
+{%- else %}
         url: '{{ ramdisk }}'
+{%- endif %}
 {%- if device_dtb %}
       dtb:
         url: '{{ node.artifacts.dtb }}'
