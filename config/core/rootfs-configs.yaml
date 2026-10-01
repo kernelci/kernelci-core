@@ -310,8 +310,10 @@ rootfs_configs:
       - bc
       - bpftool
       - ca-certificates
+      - conntrack
       - curl
       - e2fsprogs
+      - ebtables
       - ethtool
       - iperf3
       - iproute2
@@ -331,21 +333,26 @@ rootfs_configs:
       - libpam-cap
       - libpcre2-8-0
       - libpsl5t64
+      - libteam-utils
       - liburing2
       - libxtables12
       - netbase
+      - netcat-openbsd
       - netsniff-ng
       - net-tools
+      - nftables
       - openssl
       - perl
       - libperl5.40
       - perl-modules-5.40
+      - ppp
       - procps
       - psmisc
       - publicsuffix
       - python3-minimal
       - python3-nose2
       - python3-yaml
+      - smcroute
       - socat
       - tappy
       - tcpdump
