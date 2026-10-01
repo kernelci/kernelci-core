@@ -27,6 +27,17 @@ actions:
     keyring-package: {{ $keyring_package }}
     keyring-file: {{ $keyring_file }}
 
+  - action: run
+    description: Skip apt translations and keep package indexes compressed
+    chroot: true
+    command: |
+      printf '%s\n' \
+        'Acquire::Languages "none";' \
+        'Acquire::GzipIndexes "true";' \
+        'Acquire::CompressionTypes::Order:: "gz";' \
+        > /etc/apt/apt.conf.d/99kernelci-indexes
+      rm -rf /var/lib/apt/lists/*
+
   - action: apt
     recommends: false
     packages:
@@ -155,7 +166,7 @@ actions:
   - action: run
     description: Clean installed package files
     chroot: true
-    command: apt-get clean
+    command: apt-get clean && rm -rf /var/lib/apt/lists/*
 
   - action: run
     description: Create full archive
