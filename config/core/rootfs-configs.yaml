@@ -319,7 +319,6 @@ rootfs_configs:
       - iproute2
       - iptables
       - iputils-ping
-      - jdim
       - jq
       - libasound2t64
       - libatm1t64
