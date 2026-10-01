@@ -335,8 +335,10 @@ rootfs_configs:
       - libteam-utils
       - liburing2
       - libxtables12
+      - ndisc6
       - netbase
       - netcat-openbsd
+      - netperf
       - netsniff-ng
       - net-tools
       - nftables
@@ -358,6 +360,7 @@ rootfs_configs:
       - traceroute
       - tshark
       - tpm2-tools
+      - uuid-runtime
       - wget
       - xz-utils
     script: "scripts/trixie-kselftest.sh"
