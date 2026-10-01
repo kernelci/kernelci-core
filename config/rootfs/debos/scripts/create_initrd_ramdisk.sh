@@ -46,6 +46,10 @@ dpkg-query -W -f='${binary:Package}\t${db:Status-Status}\n' \
 # the minbase debootstrap and most rootfs configs never install it, which left
 # /etc/protocols missing and mount.nfs failing with "Protocol not supported".
 # Both packages are purged again below unless the image already had them.
+#
+# The package indexes were dropped before the image was created, so fetch
+# them again here and remove them once apt is no longer needed.
+apt-get update
 for nfs_build_package in libtirpc3t64 netbase; do
   if ! dpkg-query -W -f='${db:Status-Status}' "$nfs_build_package" 2>/dev/null \
       | grep -qx installed; then
@@ -98,3 +102,4 @@ if ((${#nfs_packages_to_remove[@]})); then
     "${nfs_packages_to_remove[@]}"
 fi
 apt-get clean
+rm -rf /var/lib/apt/lists/*
