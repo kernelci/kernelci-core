@@ -7,6 +7,7 @@
 """KernelCI storage implementation for SSH"""
 
 import os
+import shlex
 
 from paramiko import SSHClient, client
 from scp import SCPClient
@@ -44,7 +45,7 @@ class StorageSSH(Storage):
         for src, dst in file_paths:
             dst_file = os.path.join(self.config.path, dest_path, dst)
             dst_dir = os.path.dirname(dst_file)
-            self._ssh.exec_command(f"mkdir -p {dst_dir}")
+            self._ssh.exec_command(f"mkdir -p {shlex.quote(dst_dir)}")
             self._scp.put(src, dst_file)
 
 
