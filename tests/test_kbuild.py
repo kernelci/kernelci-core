@@ -184,9 +184,11 @@ class TestKselftestSuiteResults:
         ]
 
 
-def _tuxmake_invocations(tmp_path, monkeypatch, kselftest, dtbs_check=False):
+def _tuxmake_invocations(
+    tmp_path, monkeypatch, kselftest, dtbs_check=False, arch="x86_64"
+):
     monkeypatch.setitem(sys.modules, "tuxmake", None)
-    kbuild = _kbuild(tmp_path)
+    kbuild = _kbuild(tmp_path, arch=arch)
     kbuild._dtbs_check = dtbs_check
     kbuild._kselftest = kselftest
     kbuild._extra_targets = []
@@ -217,6 +219,27 @@ class TestKselftestBuildDir:
 
         assert "--build-dir" not in kernel
         assert kernel.split()[-1] == "dtbs_check"
+
+
+class TestTuxmakeDtbsTargets:
+    def test_dtbs_legacy_requested_with_dtbs(self, tmp_path, monkeypatch):
+        (kernel,) = _tuxmake_invocations(
+            tmp_path, monkeypatch, False, arch="arm64"
+        )
+
+        assert kernel.split()[-4:] == [
+            "kernel",
+            "modules",
+            "dtbs",
+            "dtbs-legacy",
+        ]
+
+    def test_no_dtbs_targets_when_disabled(self, tmp_path, monkeypatch):
+        (kernel,) = _tuxmake_invocations(
+            tmp_path, monkeypatch, False, arch="x86_64"
+        )
+
+        assert kernel.split()[-2:] == ["kernel", "modules"]
 
 
 def _kbuild_from_params(monkeypatch, **params):
