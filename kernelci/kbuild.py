@@ -907,7 +907,7 @@ trap 'case $stage in
         else:
             targets = ["kernel", "modules"]
             if self._arch not in DTBS_DISABLED:
-                targets.append("dtbs")
+                targets.extend(["dtbs", "dtbs-legacy"])
             if self._extra_targets:
                 targets.extend(self._extra_targets)
         cmd_parts.append(" ".join(targets))
