@@ -8,10 +8,10 @@ set -euo pipefail
 TARGET_ARCH=${1:?target architecture is required}
 
 LTP_URL="https://github.com/linux-test-project/ltp.git"
-LTP_SHA=20260529
+LTP_SHA=20260930
 
 # Version of Kirk to install
-KIRK_VERSION=v4.1.0
+KIRK_VERSION=v4.2.0-fixed
 
 case "${TARGET_ARCH}" in
     amd64)
