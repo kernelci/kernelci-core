@@ -10,6 +10,7 @@ import os
 import random
 import re
 import string
+import time
 
 import kubernetes
 
@@ -29,6 +30,12 @@ class Kubernetes(Runtime):
     # Default timeout for Kubernetes API calls in seconds
     # This prevents indefinite hangs on network issues
     DEFAULT_API_TIMEOUT = 30
+    # Seconds to skip a cluster after it failed, before probing it again
+    DEAD_CONTEXT_TTL = 600
+    # HTTP statuses that mean the cluster is unusable, not just busy
+    CLUSTER_ERROR_STATUSES = (401, 403, 500, 502, 503, 504)
+    # Recently failed clusters, shared by all instances: name -> expiry
+    _dead_contexts = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,8 +65,47 @@ class Kubernetes(Runtime):
         params["k8s_job_name"] = k8s_job_name
         return template.render(params)
 
+    @classmethod
+    def _is_dead(cls, ctxname):
+        expiry = cls._dead_contexts.get(ctxname)
+        if expiry is None:
+            return False
+        if time.monotonic() >= expiry:
+            del cls._dead_contexts[ctxname]
+            logger.info("k8s cluster %s: probing again", ctxname)
+            return False
+        return True
+
+    @classmethod
+    def _mark_dead(cls, ctxname):
+        if ctxname not in cls._dead_contexts:
+            logger.error(
+                "k8s cluster %s: disabled for %ds",
+                ctxname,
+                cls.DEAD_CONTEXT_TTL,
+            )
+        cls._dead_contexts[ctxname] = time.monotonic() + cls.DEAD_CONTEXT_TTL
+
+    @classmethod
+    def _is_cluster_error(cls, error):
+        """Tell apart an unusable cluster from a problem with the job"""
+        if isinstance(error, kubernetes.utils.FailToCreateError):
+            return any(
+                cls._is_cluster_error(api_error)
+                for api_error in error.api_exceptions
+            )
+        if isinstance(error, kubernetes.client.rest.ApiException):
+            return error.status in cls.CLUSTER_ERROR_STATUSES
+        # Connection errors, timeouts, credential plugin failures
+        return True
+
     def _fetch_load(self, ctxname):
-        """Fetch load with retry and workaround due repeating errors"""
+        """Fetch load with retry and workaround due repeating errors
+
+        Returns None if the cluster is unreachable or recently was.
+        """
+        if self._is_dead(ctxname):
+            return None
         kubernetes.config.load_kube_config(context=ctxname)
         core_v1 = kubernetes.client.CoreV1Api()
         pods = None
@@ -83,6 +129,9 @@ class Kubernetes(Runtime):
                     attempt + 1,
                     error,
                 )
+                # Credentials are rejected, retrying will not help
+                if error.status in (401, 403):
+                    break
                 continue
             except Exception as error:
                 last_error = error
@@ -97,11 +146,12 @@ class Kubernetes(Runtime):
 
         if not pods:
             logger.error(
-                "k8s cluster %s: failed to list pods after 3 attempts, last error: %s",
+                "k8s cluster %s: failed to list pods, last error: %s",
                 ctxname,
                 last_error,
             )
-            return 1000
+            self._mark_dead(ctxname)
+            return None
 
         load = len([pod for pod in pods.items if pod.status.phase == "Pending"])
         return load
@@ -111,26 +161,57 @@ class Kubernetes(Runtime):
         state)"""
         load = {}
         for ctxname in self.config.context:
-            load[ctxname] = self._fetch_load(ctxname)
+            ctx_load = self._fetch_load(ctxname)
+            if ctx_load is None:
+                continue
+            load[ctxname] = ctx_load
             # We found free cluster, return it, no need to check others
-            if load[ctxname] == 0:
+            if ctx_load == 0:
                 break
         return load
+
+    def _get_candidates(self):
+        """Clusters to try submitting to, best first"""
+        if not isinstance(self.config.context, list):
+            return [self.config.context]
+        load = self._get_clusters_load()
+        candidates = sorted(load, key=load.get)
+        # Live clusters skipped by the early exit, as fallback
+        candidates += [
+            ctxname
+            for ctxname in self.config.context
+            if ctxname not in load and not self._is_dead(ctxname)
+        ]
+        if not candidates:
+            # Try them all anyway rather than drop the job
+            logger.error(
+                "All k8s clusters unreachable: %s",
+                ", ".join(self.config.context),
+            )
+            candidates = list(self.config.context)
+        return candidates
 
     def submit(self, job_path):
         # if context is array, we have multiple k8s build clusters
         # TBD: Implement caching to not check load for each job?
-        if isinstance(self.config.context, list):
-            # get the cluster with the least load
-            load = self._get_clusters_load()
-            self.kcontext = min(load, key=load.get)
-            if load[self.kcontext] >= 1000:
-                logger.error("All k8s clusters unreachable, loads: %s", load)
-        else:
-            self.kcontext = self.config.context
-        kubernetes.config.load_kube_config(context=self.kcontext)
-        client = kubernetes.client.ApiClient()
-        return kubernetes.utils.create_from_yaml(client, job_path)
+        candidates = self._get_candidates()
+        last_error = None
+        for ctxname in candidates:
+            self.kcontext = ctxname
+            try:
+                kubernetes.config.load_kube_config(context=ctxname)
+                client = kubernetes.client.ApiClient()
+                return kubernetes.utils.create_from_yaml(client, job_path)
+            except Exception as error:  # pylint: disable=broad-except
+                if not self._is_cluster_error(error):
+                    raise
+                last_error = error
+                logger.warning(
+                    "k8s cluster %s: submit failed: %s", ctxname, error
+                )
+                if len(candidates) > 1:
+                    self._mark_dead(ctxname)
+        raise last_error
 
     def get_job_id(self, job_object):
         return job_object[0][0].metadata.labels["job-name"]
