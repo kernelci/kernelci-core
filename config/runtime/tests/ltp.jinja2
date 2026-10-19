@@ -21,8 +21,8 @@
         SHARD_NUMBER: {{ shard_number|default(1) }}
         SHARD_INDEX: {{ shard_index|default(1) }}
         SKIP_INSTALL: "{{ skip_install }}"
-        SKIPFILE: {{ skipfile }}
-        RUNNER: /opt/kirk/kirk
+        SKIPFILE: {{ skipfile|default('')|tojson }}
+        KIRK_PATH: /opt/kirk/kirk
         KIRK_WORKERS: {{ workers|default('1') }}
         EXTRA_KIRK_ARGS: "{{ extra_kirk_args|default('') }}"
 {% if "coverage" in node.data.config_full %}
