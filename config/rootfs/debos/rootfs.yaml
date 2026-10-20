@@ -76,8 +76,14 @@ actions:
     description: Install cross-build target dependencies
     recommends: false
     packages:
+      - libacl1-dev
+      - libaio-dev
       - libc6-dev
+      - libcap-dev
+      - libmnl-dev
       - libnuma-dev
+      - libssl-dev
+      - libtirpc-dev
 {{ end }}
 
   - action: run
@@ -94,7 +100,11 @@ actions:
   - action: run
     description: Remove cross-build target dependencies
     chroot: true
-    command: apt-get autoremove --purge -y libc6-dev libnuma-dev && apt-get clean
+    command: >-
+      apt-get autoremove --purge -y
+      libacl1-dev libaio-dev libc6-dev libcap-dev
+      libmnl-dev libnuma-dev libssl-dev libtirpc-dev
+      && apt-get clean
 {{ end }}
 
   - action: run
