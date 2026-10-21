@@ -365,6 +365,8 @@ rootfs_configs:
       - wget
       - xz-utils
     script: "scripts/trixie-kselftest.sh"
+    crush_image_options:
+      - --keep-perl
 
   trixie-kvm-unit-tests:
     rootfs_type: debos
