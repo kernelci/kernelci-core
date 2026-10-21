@@ -198,6 +198,9 @@ remove_packages()  {
 
    for PACKAGE in $@
    do
+	if [ "$PACKAGE" = perl-base ] && [ "$KEEP_PERL" = true ]; then
+	  continue
+	fi
 	echo "Forcing removal of ${PACKAGE}"
 	if ! dpkg --purge --force-remove-essential --force-depends "${PACKAGE}"
 	then
@@ -206,19 +209,21 @@ remove_packages()  {
    done
 }
 
-## crush all by default or only given components.
-if [ $# -eq 0 ]; then
-  filesystem
-  ncurses
-  compress_tool
-  hostname_tool
-  systemd
-  misc_packages
-  package_management
-  misc_directories
-else
-  for item in "$@"
-    do
-    $item
-  done
+# --keep-perl can be combined with selected components or used alone to
+# retain the interpreter while running the default cleanup sequence.
+KEEP_PERL=false
+COMPONENTS=""
+for item in "$@"; do
+  case "$item" in
+    --keep-perl) KEEP_PERL=true ;;
+    *) COMPONENTS="$COMPONENTS $item" ;;
+  esac
+done
+
+if [ -z "$COMPONENTS" ]; then
+  COMPONENTS="filesystem ncurses compress_tool hostname_tool systemd
+              misc_packages package_management misc_directories"
 fi
+for item in $COMPONENTS; do
+  "$item"
+done
