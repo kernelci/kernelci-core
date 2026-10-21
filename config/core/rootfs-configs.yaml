@@ -333,6 +333,7 @@ rootfs_configs:
       - libpcre2-8-0
       - libpsl5t64
       - libteam-utils
+      - libubsan1
       - liburing2
       - libxtables12
       - ndisc6
