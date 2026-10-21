@@ -240,6 +240,16 @@ class Callback:
         tests = self._data.get("tests", {})
         child_nodes = self._parse_tests_hierarchy(tests)
 
+        # A summary can claim success without supplying any test cases.
+        if (
+            job_result == "pass"
+            and job_node["name"].startswith("kselftest-")
+            and not child_nodes
+        ):
+            job_result = "incomplete"
+            job_node.setdefault("data", {})["error_code"] = "Test"
+            job_node["data"]["error_msg"] = "No kselftest cases were reported"
+
         # Re-evaluate job result based on children
         if child_nodes and job_result == "pass":
             child_result = evaluate_test_suite_result(child_nodes)

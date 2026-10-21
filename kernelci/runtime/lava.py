@@ -296,6 +296,20 @@ result: incomplete -> fail"
                     job_result = "fail"
                     break
 
+        # A completed LAVA job may report only setup when test signals were
+        # lost. Completion alone does not establish that kselftest ran.
+        if (
+            job_result == "pass"
+            and job_node["name"].startswith("kselftest-")
+            and not any(
+                child["node"]["name"] != "setup" and child["child_nodes"]
+                for child in child_nodes
+            )
+        ):
+            job_result = "incomplete"
+            job_node["data"]["error_code"] = "Test"
+            job_node["data"]["error_msg"] = "No kselftest cases were reported"
+
         if job_result == "pass":
             final_job_result = self._get_job_node_result(
                 child_nodes, job_result
