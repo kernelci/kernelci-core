@@ -34,7 +34,7 @@
 - boot:
     docker:
       binary: qemu-system-{{ platform_config.arch }}
-      image: kernelci/qemu
+      image: '{{ qemu_docker_image | default("kernelci/qemu", true) }}'
     media: tmpfs
     method: qemu
     failure_retry: 3
