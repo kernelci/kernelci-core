@@ -13,7 +13,6 @@
 # * kernel image name
 # * UEFI binaries for QEMU etc.
 # * rootfs URL
-# * Docker image for QEMU
 
 job_name: "[{{ instanceid|default('KernelCI AKS')}}] {{ node.id }} {{ node.name }} {{ node.data.kernel_revision.describe }}"
 
