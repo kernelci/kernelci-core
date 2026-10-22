@@ -144,8 +144,7 @@ misc_directories()  {
     # it
     rm -rf var/* srv share
 
-    # ca-certificates are in /etc drop the source
-    rm -rf usr/share/ca-certificates
+    # Keep the CA sources: /etc/ssl/certs contains symlinks to these files.
 
     # No bash, no need for completions
     rm -rf usr/share/bash-completion

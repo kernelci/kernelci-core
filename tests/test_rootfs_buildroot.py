@@ -59,7 +59,8 @@ def test_buildroot_command_uses_configured_source_and_fragments(tmp_path):
         "debug",
     )
     mounts = {mount.target: mount for mount in kwargs["mounts"]}
-    assert set(mounts) == {"/workspace", "/cache", "/artifacts"}
+    assert set(mounts) == {"/configs", "/workspace", "/cache", "/artifacts"}
+    assert mounts["/configs"].read_only
     assert kwargs["environment"]["BR2_DL_DIR"] == "/cache/dl"
     assert kwargs["workdir"] == "/workspace"
     assert ":" in kwargs["user"]

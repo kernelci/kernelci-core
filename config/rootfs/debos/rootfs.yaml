@@ -38,6 +38,11 @@ actions:
         > /etc/apt/apt.conf.d/99kernelci-indexes
       rm -rf /var/lib/apt/lists/*
 
+  - action: run
+    description: Install the distribution CA security update before HTTPS downloads
+    chroot: true
+    script: scripts/update-ca-certificates.sh {{ $suite }}
+
   - action: apt
     recommends: false
     packages:
@@ -164,6 +169,16 @@ actions:
     command: ln -s /usr/lib/systemd/systemd /init
 
   - action: run
+    description: Restore updated CAs after testsuite dependency cleanup
+    chroot: true
+    script: scripts/update-ca-certificates.sh {{ $suite }}
+
+  - action: run
+    description: Verify CA trust before creating full filesystem images
+    chroot: false
+    command: python3 ${RECIPEDIR}/scripts/verify-ca-certificates.py ${ROOTDIR}/etc/ssl/certs
+
+  - action: run
     description: Clean installed package files
     chroot: true
     command: apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -249,6 +264,11 @@ actions:
         done
       done
 {{ end }}
+
+  - action: run
+    description: Verify CA trust survived stripping and crushing
+    chroot: false
+    command: python3 ${RECIPEDIR}/scripts/verify-ca-certificates.py ${ROOTDIR}/etc/ssl/certs
 
   - action: run
     description: Create cpio archive

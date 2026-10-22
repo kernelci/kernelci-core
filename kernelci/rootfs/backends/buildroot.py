@@ -26,7 +26,13 @@ fi
 git fetch --depth 1 --prune origin "$git_branch"
 git checkout --detach FETCH_HEAD
 git clean -fd
+# Keep toolchains and downloads, but never republish old filesystem formats.
+rm -rf output/images
 ./configs/frags/build "$arch" "$@"
+
+ca_verifier=/configs/debos/scripts/verify-ca-certificates.py
+python3 "$ca_verifier" output/target/etc/ssl/certs
+python3 "$ca_verifier" output/host/etc/ssl/certs
 
 test -d output/images
 find /artifacts -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
@@ -58,6 +64,7 @@ class BuildrootBackend:
             context.image,
             command,
             mounts=(
+                Mount(context.data_dir, "/configs", read_only=True),
                 Mount(context.paths.work, "/workspace"),
                 Mount(context.paths.cache, "/cache"),
                 Mount(context.paths.staging, "/artifacts"),
