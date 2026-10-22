@@ -71,6 +71,33 @@ Each successful directory includes `rootfs-build.json` with the normalized
 configuration, source revisions, resolved builder image identity, and SHA-256
 checksums of generated files.
 
+## CA trust in root filesystems
+
+Every Debian recipe installs the distribution's CA security update before
+HTTPS downloads, then restores it after testsuite scripts have removed build
+dependencies. The recipe verifies the bundle and individual certificate anchors
+before producing the full tar/cpio/ext4 images and again after stripping and
+crushing. The NFS initramfs also receives the updated CA bundle.
+
+Buildroot builds verify both the target and host SDK trust stores before copying
+artifacts into the publication directory. The configured `kernelci/2026.05`
+branch must include the fixed `ca-certificates` package and select both
+`BR2_PACKAGE_CA_CERTIFICATES` and `BR2_PACKAGE_HOST_CA_CERTIFICATES`. Otherwise
+the build stops rather than publishing an image without verified CAs.
+
+The verifier rejects the compromised eMudhra keys and their signing roots by
+SHA-256 of SubjectPublicKeyInfo. This also covers cross-signed certificates. It
+checks individual PEM/CRT files and hashed CApath entries, resolves absolute
+symlinks inside the rootfs, and rejects missing or broken stores.
+
+Existing dated images do not change when these recipes merge. Rebuild all
+configured variants with the updated Buildroot branch and builder images, publish
+under a new version, then update the runtime URLs in `kernelci-pipeline`. Include
+separate references in `config/rootfs.yaml`, `config/jobs-pull-labs.yaml` and
+`config/platforms-cip.yaml`. Keep the old URLs until the new artifacts exist;
+do not merely change the date in a URL. The legacy `rootfs-images.yaml` is not
+the active pipeline catalogue.
+
 ## GitHub workflow
 
 The `Build rootfs images` workflow accepts one configuration and either one

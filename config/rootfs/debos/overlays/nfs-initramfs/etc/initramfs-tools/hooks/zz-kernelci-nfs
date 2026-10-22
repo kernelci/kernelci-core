@@ -30,12 +30,12 @@ copy_exec /usr/lib/kernelci/mount.nfs /usr/sbin/mount.nfs
 # copy_file only warns and returns non-zero when the source is missing, and
 # nothing here checks it, so a chroot without netbase used to produce an image
 # that looked fine and then failed to mount its root.  Fail the build instead.
-for db in /etc/netconfig /etc/protocols; do
+for db in /etc/netconfig /etc/protocols /etc/ssl/certs/ca-certificates.crt; do
 	if [ ! -f "${db}" ]; then
 		echo "zz-kernelci-nfs: ${db} is missing from the chroot" >&2
 		exit 1
 	fi
-	copy_file config "${db}" "${db}"
+	copy_file config "${db}" "${db}" || exit 1
 done
 
 # Keep klibc's helper next to mount.nfs instead of replacing it, and put the
