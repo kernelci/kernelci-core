@@ -1,0 +1,19 @@
+- test:
+    name: {{ node.name }}
+    timeout:
+      minutes: {{ test_timeout|default(15) }}
+    definitions:
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-reset.jinja2" %}
+{% endif %}
+    - repository: https://github.com/linaro/test-definitions.git
+      from: git
+      revision: master
+      path: automated/linux/ltp-open-posix/ltp-open-posix.yaml
+      name: {{ node.name }}
+      parameters:
+        SKIP_INSTALL: "{{ skip_install|default('true') }}"
+        GRP_TEST: {{ grp_test|default('')|tojson }}
+{% if "coverage" in node.data.config_full %}
+{% include "util/gcov-upload.jinja2" %}
+{% endif %}
