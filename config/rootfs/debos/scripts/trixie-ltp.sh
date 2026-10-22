@@ -112,22 +112,12 @@ make autotools
     --build="${BUILD_TRIPLET}" \
     --host="${GNU_TRIPLET}" \
     --prefix=/opt/ltp \
+    --with-open-posix-testsuite \
     CC="${TARGET_CC}" \
     AR="${TARGET_AR}" \
     RANLIB="${TARGET_RANLIB}"
 make all -j"${NBCPU}"
 make install DESTDIR="${ROOTDIR}"
-
-cd testcases/open_posix_testsuite/
-./configure \
-    --build="${BUILD_TRIPLET}" \
-    --host="${GNU_TRIPLET}" \
-    CC="${TARGET_CC}"
-make all -j"${NBCPU}" \
-    CC="${TARGET_CC}" \
-    AR="${TARGET_AR}" \
-    RANLIB="${TARGET_RANLIB}"
-make install DESTDIR="${ROOTDIR}" prefix=/opt/ltp
 
 # Strip target ELF files without attempting to process installed scripts.
 while IFS= read -r -d '' target_file; do
