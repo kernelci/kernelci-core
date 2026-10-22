@@ -71,6 +71,7 @@ rootfs_configs:
       - python3-jsonschema
       - python3-flask
       - python3-flask-restful
+      - python3-six
       - e2fsprogs
       - xfsprogs
       - f2fs-tools

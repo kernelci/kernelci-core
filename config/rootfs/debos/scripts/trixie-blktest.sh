@@ -96,7 +96,7 @@ pip install . --break-system-packages
 git clone https://github.com/nuclearcat/nvmetcli
 cd nvmetcli
 git checkout rest-install
-python3 setup.py install
+pip install . --break-system-packages
 
 # Packages to run blktests
 apt-get install --no-install-recommends -y blktrace fio gawk pciutils xfsprogs
