@@ -497,6 +497,31 @@ rootfs_configs:
     imagesize: 14GB
     debos_memory: 8G
 
+  trixie-tegra:
+    rootfs_type: debos
+    debian_release: trixie
+    arch_list:
+      - arm64
+    extra_packages:
+      - libdrm2
+      - python3
+      - python3-pyudev
+    extra_firmware:
+      - nvidia/tegra186/nvdec.bin
+      - nvidia/tegra186/vic04_ucode.bin
+      - nvidia/tegra194/nvdec.bin
+      - nvidia/tegra194/vic.bin
+      - nvidia/tegra210/nvdec.bin
+      - nvidia/tegra210/vic04_ucode.bin
+      - nvidia/tegra234/vic.bin
+      - nvidia/tegra264/vic.bin
+      - nvidia/tegra264/vic.bin.desc
+    linux_fw_version: bdeb9f0f93f18d10b281217e66e81838527ce55a
+    script: "scripts/trixie-tegra.sh"
+    # install-firmware.sh copies all of this linux-firmware before picking
+    # the files above: more than the default RAM-backed scratch space holds.
+    debos_scratchsize: 16G
+
   trixie-v4l2:
     rootfs_type: debos
     debian_release: trixie
