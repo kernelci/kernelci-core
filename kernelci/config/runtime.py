@@ -272,12 +272,23 @@ class RuntimePullLabs(Runtime):
     yaml_tag = "!RuntimePullLabs"
 
     def __init__(
-        self, poll_interval=None, timeout=None, storage_name=None, **kwargs
+        self,
+        poll_interval=None,
+        timeout=None,
+        storage_name=None,
+        pickup_state=None,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._poll_interval = poll_interval or 30
         self._timeout = timeout or 3600
         self._storage_name = storage_name
+        self._pickup_state = pickup_state or "available"
+        if self._pickup_state not in ("available", "prepared"):
+            raise ValueError(
+                f"Invalid pickup_state: {self._pickup_state}, "
+                "expected 'available' or 'prepared'"
+            )
 
     @property
     def poll_interval(self):
@@ -294,10 +305,15 @@ class RuntimePullLabs(Runtime):
         """Storage configuration name for job definitions"""
         return self._storage_name
 
+    @property
+    def pickup_state(self):
+        """Node state the pull-lab workers poll for jobs in"""
+        return self._pickup_state
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({"poll_interval", "timeout", "storage_name"})
+        attrs.update({"poll_interval", "timeout", "storage_name", "pickup_state"})
         return attrs
 
 
