@@ -80,6 +80,15 @@ Build the `kernelci` image with a particular revision using `--build-arg`:
 
 ## Perf build dependencies
 
+The `perf` fragment installs target development packages, including Debian's
+OpenCSD package and libdw for DWARF unwinding:
+
 ```sh
 ./kci docker build gcc-14 perf kernelci --arch=arm64 --prefix=my-stuff/
+```
+
+From the kernel source directory inside the image, build perf with CoreSight:
+
+```sh
+tuxmake --runtime=null --target-arch=arm64 --toolchain=gcc-14 CORESIGHT=1 perf
 ```
