@@ -1,0 +1,19 @@
+# perf
+{%- set pkgarch = ':' + sub_arch if sub_arch else '' %}
+{%- if sub_arch %}
+RUN dpkg --add-architecture {{ sub_arch }}
+{%- endif %}
+# clang and llvm are host tools for BPF skeletons; libraries target the build arch.
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    clang \
+    dpkg-dev \
+    libc6-dev{{ pkgarch }} \
+    libdw-dev{{ pkgarch }} \
+    libelf-dev{{ pkgarch }} \
+    libnuma-dev{{ pkgarch }} \
+    libssl-dev{{ pkgarch }} \
+    libtraceevent-dev{{ pkgarch }} \
+    libzstd-dev{{ pkgarch }} \
+    llvm \
+    pkg-config \
+    zlib1g-dev{{ pkgarch }}

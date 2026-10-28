@@ -77,3 +77,9 @@ installed, as well as the KernelCI core tools:
 Build the `kernelci` image with a particular revision using `--build-arg`:
 
     ./kci docker build kernelci --build-arg core_rev=staging-20220728.1 --prefix=kernelci/
+
+## Perf build dependencies
+
+```sh
+./kci docker build gcc-14 perf kernelci --arch=arm64 --prefix=my-stuff/
+```

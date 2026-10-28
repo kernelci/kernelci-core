@@ -59,6 +59,9 @@ jobs:
             kcicmd: 'gcc-15 kselftest kernelci'
           - kciarch: 'loongarch'
             kcicmd: 'gcc-15 kselftest kernelci'
+        include:
+          - kciarch: 'arm64'
+            kcicmd: 'gcc-14 perf kernelci'
     # only selected people can trigger this job
     if: contains('["nuclearcat","JenySadadia","a-wai","broonie","laura-nao","bhcopeland"]', github.actor) && !inputs.SKIP_COMPILER_IMAGES
     runs-on: ubuntu-latest
