@@ -457,36 +457,6 @@ rootfs_configs:
       - rtla
     script: "scripts/trixie-rt.sh"
 
-  trixie-tast:
-    rootfs_type: debos
-    debian_release: trixie
-    arch_list:
-      - amd64
-      - arm64
-    extra_packages_remove:
-      - e2fslibs
-      - e2fsprogs
-      - klibc-utils
-      - libext2fs2
-      - libgnutls30
-      - libklibc
-      - libncursesw6
-      - libp11-kit0
-      - libunistring2
-      - sensible-utils
-    extra_packages:
-      - ca-certificates
-      - libgbm1
-      - libdrm2
-      - libva2
-      - libva-drm2
-      - unzip
-      - wget
-    script: "scripts/trixie-tast.sh"
-    test_overlay: "overlays/tast"
-    imagesize: 14GB
-    debos_memory: 8G
-
   trixie-v4l2:
     rootfs_type: debos
     debian_release: trixie
