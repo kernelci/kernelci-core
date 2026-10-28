@@ -35,7 +35,7 @@ def test_list_configs_as_json():
     entries = json.loads(result.output)
     assert entries[0]["name"] == "buildroot-baseline"
     assert entries[0]["type"] == "buildroot"
-    assert len(entries) == 19
+    assert len(entries) == 18
 
 
 def test_list_filters_backend():
@@ -62,7 +62,7 @@ def test_validate():
     result = invoke("validate")
 
     assert result.exit_code == 0, result.output
-    assert result.output == "Validated 19 rootfs configurations.\n"
+    assert result.output == "Validated 18 rootfs configurations.\n"
 
 
 def test_build_requires_explicit_arch_selection():

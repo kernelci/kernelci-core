@@ -31,7 +31,7 @@ def write_config(tmp_path, rootfs_configs):
 def test_load_canonical_config():
     config = load_rootfs_config(CONFIG_PATH)
 
-    assert len(config.rootfs_configs) == 19
+    assert len(config.rootfs_configs) == 18
     assert isinstance(
         config.rootfs_configs["buildroot-baseline"], BuildrootRootfsConfig
     )
