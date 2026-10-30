@@ -57,6 +57,7 @@ LATEST_LTS_MINOR = 12
 # Prefix marking a fragment entry as a kernel make target generating
 # config (e.g. 'make:kselftest-merge') rather than a config symbol.
 MAKE_FRAGMENT_PREFIX = "make:"
+MAKE_FRAGMENT_TARGET = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 TREE_FRAGMENT_PREFIX = "tree:"
 TREE_FRAGMENT_PATH = re.compile(r"[A-Za-z0-9._/-]+")
 
@@ -671,6 +672,20 @@ trap - ERR
             sys.exit(1)
         return normalised
 
+    def _make_fragment_target(self, directive):
+        """Return the target a 'make:' directive names
+
+        The target is written into the build script unquoted, so one that
+        is not a plain make target name is refused as a job error.
+        """
+        target = directive[len(MAKE_FRAGMENT_PREFIX) :]
+        if not MAKE_FRAGMENT_TARGET.fullmatch(target):
+            message = f"Fragment directive {directive} is not a make target"
+            print(f"[_parse_fragments] {message}")
+            self.submit_failure(message)
+            sys.exit(1)
+        return target
+
     def _parse_fragments(self, firmware=False):
         """Parse fragments kbuild config and create config fragments
 
@@ -730,9 +745,9 @@ trap - ERR
                     )
                     kconfig_adds.append(TREE_FRAGMENT_PREFIX + path)
                     continue
-                target = directive[len(MAKE_FRAGMENT_PREFIX) :]
-                if not target:
+                if directive == MAKE_FRAGMENT_PREFIX:
                     continue
+                target = self._make_fragment_target(directive)
                 print(
                     f"[_parse_fragments] Fragment {fragment_name} runs "
                     f"make target {target}"
