@@ -159,6 +159,48 @@ class TestFragments:
         # kselftest-merge needs a .config to merge into
         assert steps.index("make defconfig") < merge
 
+    @pytest.mark.parametrize(
+        "target", ["kselftest-merge", "kvm_guest.config", "64bit.config"]
+    )
+    def test_make_target_name_is_accepted(self, tmp_path, target):
+        kbuild = self._fragments(
+            tmp_path, ["frag"], {"frag": {"configs": [f"make:{target}"]}}
+        )
+
+        assert kbuild._parse_fragments() == [f"make:{target}"]
+
+    def test_bare_make_directive_is_skipped(self, tmp_path):
+        kbuild = self._fragments(
+            tmp_path, ["frag"], {"frag": {"configs": ["make:"]}}
+        )
+
+        assert kbuild._parse_fragments() == []
+
+    @pytest.mark.parametrize(
+        "target",
+        [
+            "x; rm -rf /",
+            "$(id)",
+            "`id`",
+            "a b",
+            "x|y",
+            "-j99",
+            "V=1",
+            "generic/32r2.config",
+        ],
+    )
+    def test_make_target_that_is_not_a_name_is_refused(self, tmp_path, target):
+        kbuild = self._fragments(
+            tmp_path, ["frag"], {"frag": {"configs": [f"make:{target}"]}}
+        )
+        failures = []
+        kbuild.submit_failure = failures.append
+
+        with pytest.raises(SystemExit):
+            kbuild._parse_fragments()
+
+        assert failures
+
     def test_tree_file_is_not_written_to_a_fragment_file(self, tmp_path):
         kbuild = self._fragments(
             tmp_path,
