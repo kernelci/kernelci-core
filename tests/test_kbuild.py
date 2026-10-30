@@ -129,7 +129,7 @@ class TestFragments:
         kconfig_adds = kbuild._parse_fragments()
 
         fragfile = os.path.join(kbuild._fragments_dir, "0.config")
-        assert kconfig_adds == [fragfile, "make:kselftest-merge"]
+        assert kconfig_adds == ["make:kselftest-merge", fragfile]
         with open(fragfile) as f:
             assert f.read() == "CONFIG_KUNIT=y\n"
 
@@ -237,11 +237,70 @@ class TestFragments:
 
         fragfile = os.path.join(kbuild._fragments_dir, "0.config")
         assert kconfig_adds == [
-            fragfile,
             "tree:tools/testing/selftests/arm64/config",
+            fragfile,
         ]
         with open(fragfile) as f:
             assert f.read() == "CONFIG_KUNIT=y\n"
+
+    def test_entries_are_merged_in_the_order_written(self, tmp_path):
+        perf = "tools/perf/tests/config-fragments"
+        kbuild = self._fragments(
+            tmp_path,
+            ["perf-arm64"],
+            {
+                "perf-arm64": {
+                    "configs": [
+                        "CONFIG_A=y",
+                        f"tree:{perf}/config",
+                        "CONFIG_TRACING=n",
+                        "CONFIG_B=y",
+                        f"tree:{perf}/arm64",
+                    ]
+                }
+            },
+        )
+
+        kconfig_adds = kbuild._parse_fragments()
+
+        first = os.path.join(kbuild._fragments_dir, "0.config")
+        second = os.path.join(kbuild._fragments_dir, "0.1.config")
+        assert kconfig_adds == [
+            first,
+            f"tree:{perf}/config",
+            second,
+            f"tree:{perf}/arm64",
+        ]
+        with open(first) as f:
+            assert f.read() == "CONFIG_A=y\n"
+        with open(second) as f:
+            assert f.read() == "CONFIG_TRACING=n\nCONFIG_B=y\n"
+        assert kbuild._artifacts == [
+            "fragments/0.config",
+            "fragments/0.1.config",
+        ]
+
+        kbuild._merge_frags(kconfig_adds)
+        merged = [
+            s.split()[-1] if s.startswith("./") else s.split()[3]
+            for s in kbuild._steps
+            if "merge_config.sh" in s
+        ]
+        assert merged == [first, f"{perf}/config", second, f"{perf}/arm64"]
+
+        kbuild._kconfig_adds = kconfig_adds
+        parts = kbuild._tuxmake_base(kbuild._af_dir, "defconfig", [])
+        added = [
+            p.split()[3] if p.startswith("$(") else p.split("=", 1)[1]
+            for p in parts
+            if p.startswith(("$(", "--kconfig-add="))
+        ]
+        assert added == [
+            first,
+            os.path.join(kbuild._srcdir, perf, "config"),
+            second,
+            os.path.join(kbuild._srcdir, perf, "arm64"),
+        ]
 
     def test_tree_files_are_merged_in_order(self, tmp_path):
         perf = "tools/perf/tests/config-fragments"
