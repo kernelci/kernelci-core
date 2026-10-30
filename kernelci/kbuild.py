@@ -624,29 +624,35 @@ trap - ERR
 
     @staticmethod
     def _split_fragment(content):
-        """Split fragment content into directives and config symbols
+        """Split fragment content into config symbols and directives
 
         'make:<target>' and 'tree:<path>' entries are not config symbols,
-        so they are kept out of the fragment file.
+        so they are kept out of the fragment files. The config symbols on
+        either side of them are kept apart so everything merges in the
+        order written.
 
         Returns:
-            tuple: (list of 'make:' and 'tree:' directives, config symbol
-            text)
+            list: ('config', text) for each run of config symbols and
+            ('directive', entry) for each 'make:' or 'tree:' entry, in order
         """
-        directives = []
+        segments = []
         config_lines = []
+
+        def add_config():
+            config = "\n".join(config_lines).strip()
+            if config:
+                segments.append(("config", config + "\n"))
+            config_lines.clear()
 
         for line in content.splitlines():
             entry = line.strip()
             if entry.startswith((MAKE_FRAGMENT_PREFIX, TREE_FRAGMENT_PREFIX)):
-                directives.append(entry)
+                add_config()
+                segments.append(("directive", entry))
             else:
                 config_lines.append(line)
-
-        config = "\n".join(config_lines).strip()
-        if config:
-            config += "\n"
-        return directives, config
+        add_config()
+        return segments
 
     def _tree_fragment_path(self, directive):
         """Return the tree-relative path a 'tree:' directive names
@@ -686,6 +692,22 @@ trap - ERR
             sys.exit(1)
         return target
 
+    def _write_config_fragment(self, name, config):
+        """Write config symbols to a fragment file and return its path"""
+        fragfile = os.path.join(self._fragments_dir, name)
+        with open(fragfile, "w") as f:
+            f.write(config)
+
+        config_count = len(
+            [line for line in config.split("\n") if line.strip()]
+        )
+        print(f"[_parse_fragments] Created {fragfile} ({config_count} configs)")
+
+        # add fragment to artifacts but relative to artifacts dir
+        frag_rel = os.path.relpath(fragfile, self._af_dir)
+        self._artifacts.append(frag_rel)
+        return fragfile
+
     def _parse_fragments(self, firmware=False):
         """Parse fragments kbuild config and create config fragments
 
@@ -716,27 +738,16 @@ trap - ERR
                 )
                 continue
 
-            directives, config = self._split_fragment(content)
+            part = 0
+            for kind, value in self._split_fragment(content):
+                if kind == "config":
+                    name = f"{idx}.{part}.config" if part else f"{idx}.config"
+                    part += 1
+                    fragfile = self._write_config_fragment(name, value)
+                    kconfig_adds.append(fragfile)
+                    continue
 
-            if config:
-                fragfile = os.path.join(self._fragments_dir, f"{idx}.config")
-                with open(fragfile, "w") as f:
-                    f.write(config)
-
-                config_count = len(
-                    [line for line in config.split("\n") if line.strip()]
-                )
-                print(
-                    f"[_parse_fragments] Created {fragfile} ({config_count} configs)"
-                )
-
-                kconfig_adds.append(fragfile)
-
-                # add fragment to artifacts but relative to artifacts dir
-                frag_rel = os.path.relpath(fragfile, self._af_dir)
-                self._artifacts.append(frag_rel)
-
-            for directive in directives:
+                directive = value
                 if directive.startswith(TREE_FRAGMENT_PREFIX):
                     path = self._tree_fragment_path(directive)
                     print(
