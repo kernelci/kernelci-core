@@ -49,6 +49,10 @@ import kernelci.storage
 CIP_CONFIG_URL = "https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-/raw/master/{branch}/{config}"  # noqa
 CROS_CONFIG_URL = "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
 FW_GIT = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"  # noqa
+# In-cluster pull-through cache for source tarballs, used by build jobs
+# when the Service resolves (see KBuild._add_tarball_download)
+TARBALL_CACHE_HOST = "tarball-cache"
+TARBALL_CACHE_UPSTREAM = "https://files.kernelci.org/"
 
 # TODO: find a way to automatically fetch this information
 LATEST_LTS_MAJOR = 6
@@ -396,14 +400,48 @@ class KBuild:
         # download tarball
         self.addcomment("Download tarball")
         self.addcmd("cd " + self._workspace)
+        self._add_tarball_download()
         self.addcmd(
+            "tar -xzf linux.tgz -C " + self._srcdir + " --strip-components=1"
+        )
+
+    def _add_tarball_download(self):
+        """Download the source tarball to linux.tgz
+
+        Every build job fetches its own copy of the source tarball, so a
+        cluster running N builds of one checkout downloads it N times.  If
+        the cluster runs a tarball-cache Service (kernelci-deploy,
+        kubernetes/caching/tarball-cache.yaml), fetch through it instead
+        and fall back to the direct download if it is missing or fails.
+        Clusters without the Service keep downloading directly.
+        """
+        direct = (
             'wget -c -t 10 --retry-on-host-error "'
             + self._srctarball
             + '" -O linux.tgz'
         )
-        self.addcmd(
-            "tar -xzf linux.tgz -C " + self._srcdir + " --strip-components=1"
+        if not self._srctarball.startswith(TARBALL_CACHE_UPSTREAM):
+            self.addcmd(direct)
+            return
+        cached = (
+            "http://"
+            + TARBALL_CACHE_HOST
+            + "/"
+            + self._srctarball[len(TARBALL_CACHE_UPSTREAM) :]
         )
+        # The cache attempt is an "if" condition so that its failure does
+        # not trip "set -e" or the ERR trap; only the direct download can.
+        # -T 360 outlasts proxy_cache_lock_timeout (5m) on the cache side:
+        # a job waiting on another job's fetch is not cut off first.
+        self.addcmd(
+            "if getent hosts " + TARBALL_CACHE_HOST + " >/dev/null 2>&1 && "
+            'wget -t 3 -T 360 "' + cached + '" -O linux.tgz; then'
+        )
+        self.addcmd('  echo "Source tarball fetched from in-cluster cache"')
+        self.addcmd("else")
+        self.addcmd("  rm -f linux.tgz")
+        self.addcmd("  " + direct)
+        self.addcmd("fi")
 
     def addspacer(self):
         """Add empty line, mostly for easier reading"""
