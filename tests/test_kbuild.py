@@ -392,3 +392,58 @@ class TestPackageDtbs:
         kbuild._package_dtbs()
         kbuild.verify_build()
         assert "dtbs.tar.xz" not in kbuild._artifacts
+
+
+class TestTarballDownload:
+    FILES_URL = (
+        "https://files.kernelci.org/linux-next-master-next-20261030.tar.gz"
+    )
+
+    def _steps(self, tmp_path, url):
+        kbuild = _kbuild(tmp_path)
+        kbuild._srctarball = url
+        kbuild._add_tarball_download()
+        return kbuild._steps
+
+    def test_files_url_tries_cluster_cache_first(self, tmp_path):
+        script = "\n".join(self._steps(tmp_path, self.FILES_URL))
+        assert "getent hosts tarball-cache" in script
+        assert (
+            '"http://tarball-cache/linux-next-master-next-20261030.tar.gz"'
+            in script
+        )
+        # direct download kept as the fallback, after the cache attempt
+        direct = f'wget -c -t 10 --retry-on-host-error "{self.FILES_URL}"'
+        assert script.index("tarball-cache") < script.index(direct)
+
+    def test_other_urls_download_directly(self, tmp_path):
+        url = "https://storage.example.org/linux.tar.gz"
+        assert self._steps(tmp_path, url) == [
+            f'wget -c -t 10 --retry-on-host-error "{url}" -O linux.tgz'
+        ]
+
+    def test_falls_back_when_cache_absent(self, tmp_path):
+        """Run the generated shell with stub getent/wget under set -e"""
+        import subprocess
+
+        bindir = tmp_path / "bin"
+        bindir.mkdir()
+        log = tmp_path / "wget.log"
+        (bindir / "getent").write_text("#!/bin/sh\nexit 2\n")
+        (bindir / "wget").write_text(
+            f'#!/bin/sh\necho "$@" >> {log}\n'
+            'while [ $# -gt 0 ]; do [ "$1" = -O ] && echo data > "$2"; '
+            "shift; done\n"
+        )
+        for f in bindir.iterdir():
+            f.chmod(0o755)
+        script = "set -eE -o pipefail\ntrap 'exit 99' ERR\n" + "\n".join(
+            self._steps(tmp_path, self.FILES_URL)
+        )
+        env = dict(os.environ, PATH=f"{bindir}:{os.environ['PATH']}")
+        subprocess.run(
+            ["bash", "-c", script], cwd=tmp_path, env=env, check=True
+        )
+        calls = log.read_text().splitlines()
+        assert len(calls) == 1 and self.FILES_URL in calls[0]
+        assert (tmp_path / "linux.tgz").exists()
