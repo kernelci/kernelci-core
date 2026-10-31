@@ -3,8 +3,11 @@
 
 import json
 import os
+import subprocess
 import sys
 import types
+
+import pytest
 
 from kernelci.kbuild import KBuild
 
@@ -126,7 +129,7 @@ class TestFragments:
         kconfig_adds = kbuild._parse_fragments()
 
         fragfile = os.path.join(kbuild._fragments_dir, "0.config")
-        assert kconfig_adds == [fragfile, "make:kselftest-merge"]
+        assert kconfig_adds == ["make:kselftest-merge", fragfile]
         with open(fragfile) as f:
             assert f.read() == "CONFIG_KUNIT=y\n"
 
@@ -155,6 +158,310 @@ class TestFragments:
         )
         # kselftest-merge needs a .config to merge into
         assert steps.index("make defconfig") < merge
+
+    @pytest.mark.parametrize(
+        "target", ["kselftest-merge", "kvm_guest.config", "64bit.config"]
+    )
+    def test_make_target_name_is_accepted(self, tmp_path, target):
+        kbuild = self._fragments(
+            tmp_path, ["frag"], {"frag": {"configs": [f"make:{target}"]}}
+        )
+
+        assert kbuild._parse_fragments() == [f"make:{target}"]
+
+    def test_bare_make_directive_is_skipped(self, tmp_path):
+        kbuild = self._fragments(
+            tmp_path, ["frag"], {"frag": {"configs": ["make:"]}}
+        )
+
+        assert kbuild._parse_fragments() == []
+
+    @pytest.mark.parametrize(
+        "target",
+        [
+            "x; rm -rf /",
+            "$(id)",
+            "`id`",
+            "a b",
+            "x|y",
+            "-j99",
+            "V=1",
+            "generic/32r2.config",
+        ],
+    )
+    def test_make_target_that_is_not_a_name_is_refused(self, tmp_path, target):
+        kbuild = self._fragments(
+            tmp_path, ["frag"], {"frag": {"configs": [f"make:{target}"]}}
+        )
+        failures = []
+        kbuild.submit_failure = failures.append
+
+        with pytest.raises(SystemExit):
+            kbuild._parse_fragments()
+
+        assert failures
+
+    def test_tree_file_is_not_written_to_a_fragment_file(self, tmp_path):
+        kbuild = self._fragments(
+            tmp_path,
+            ["kselftest-arm64"],
+            {
+                "kselftest-arm64": {
+                    "configs": ["tree:tools/testing/selftests/arm64/config"]
+                }
+            },
+        )
+
+        kconfig_adds = kbuild._parse_fragments()
+
+        assert kconfig_adds == ["tree:tools/testing/selftests/arm64/config"]
+        assert os.listdir(kbuild._fragments_dir) == []
+        assert kbuild._artifacts == []
+        assert kbuild._config_full == "+kselftest-arm64"
+
+    def test_tree_files_are_split_from_config_symbols(self, tmp_path):
+        kbuild = self._fragments(
+            tmp_path,
+            ["kselftest-arm64"],
+            {
+                "kselftest-arm64": {
+                    "configs": [
+                        "tree:tools/testing/selftests/arm64/config",
+                        "CONFIG_KUNIT=y",
+                    ]
+                }
+            },
+        )
+
+        kconfig_adds = kbuild._parse_fragments()
+
+        fragfile = os.path.join(kbuild._fragments_dir, "0.config")
+        assert kconfig_adds == [
+            "tree:tools/testing/selftests/arm64/config",
+            fragfile,
+        ]
+        with open(fragfile) as f:
+            assert f.read() == "CONFIG_KUNIT=y\n"
+
+    def test_entries_are_merged_in_the_order_written(self, tmp_path):
+        perf = "tools/perf/tests/config-fragments"
+        kbuild = self._fragments(
+            tmp_path,
+            ["perf-arm64"],
+            {
+                "perf-arm64": {
+                    "configs": [
+                        "CONFIG_A=y",
+                        f"tree:{perf}/config",
+                        "CONFIG_TRACING=n",
+                        "CONFIG_B=y",
+                        f"tree:{perf}/arm64",
+                    ]
+                }
+            },
+        )
+
+        kconfig_adds = kbuild._parse_fragments()
+
+        first = os.path.join(kbuild._fragments_dir, "0.config")
+        second = os.path.join(kbuild._fragments_dir, "0.1.config")
+        assert kconfig_adds == [
+            first,
+            f"tree:{perf}/config",
+            second,
+            f"tree:{perf}/arm64",
+        ]
+        with open(first) as f:
+            assert f.read() == "CONFIG_A=y\n"
+        with open(second) as f:
+            assert f.read() == "CONFIG_TRACING=n\nCONFIG_B=y\n"
+        assert kbuild._artifacts == [
+            "fragments/0.config",
+            "fragments/0.1.config",
+        ]
+
+        kbuild._merge_frags(kconfig_adds)
+        merged = [
+            s.split()[-1] if s.startswith("./") else s.split()[3]
+            for s in kbuild._steps
+            if "merge_config.sh" in s
+        ]
+        assert merged == [first, f"{perf}/config", second, f"{perf}/arm64"]
+
+        kbuild._kconfig_adds = kconfig_adds
+        parts = kbuild._tuxmake_base(kbuild._af_dir, "defconfig", [])
+        added = [
+            p.split()[3] if p.startswith("$(") else p.split("=", 1)[1]
+            for p in parts
+            if p.startswith(("$(", "--kconfig-add="))
+        ]
+        assert added == [
+            first,
+            os.path.join(kbuild._srcdir, perf, "config"),
+            second,
+            os.path.join(kbuild._srcdir, perf, "arm64"),
+        ]
+
+    def test_tree_files_are_merged_in_order(self, tmp_path):
+        perf = "tools/perf/tests/config-fragments"
+        kbuild = self._fragments(
+            tmp_path,
+            ["perf-arm64"],
+            {
+                "perf-arm64": {
+                    "configs": [f"tree:{perf}/config", f"tree:{perf}/arm64"]
+                }
+            },
+        )
+
+        kconfig_adds = kbuild._parse_fragments()
+
+        assert kconfig_adds == [f"tree:{perf}/config", f"tree:{perf}/arm64"]
+        kbuild._merge_frags(kconfig_adds)
+        merges = [s for s in kbuild._steps if "merge_config.sh" in s]
+        assert [m.split()[3] for m in merges] == [
+            f"{perf}/config",
+            f"{perf}/arm64",
+        ]
+        kbuild._kconfig_adds = kconfig_adds
+        parts = kbuild._tuxmake_base(kbuild._af_dir, "defconfig", [])
+        added = [p for p in parts if perf in p]
+        assert [
+            os.path.relpath(p.split()[3], kbuild._srcdir) for p in added
+        ] == [
+            f"{perf}/config",
+            f"{perf}/arm64",
+        ]
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "./",
+            "x/..",
+            "../outside.config",
+            "/etc/passwd",
+            "tools/../../x",
+            "",
+            "tools/x; rm -rf /",
+            "tools/$(id)",
+            "tools/`id`",
+            "tools/a b",
+            "tools/x|y",
+            ".",
+            "tools/..",
+        ],
+    )
+    def test_tree_file_outside_the_tree_is_refused(self, tmp_path, path):
+        kbuild = self._fragments(
+            tmp_path,
+            ["bad"],
+            {"bad": {"configs": [f"tree:{path}"]}},
+        )
+        failures = []
+        kbuild.submit_failure = failures.append
+
+        with pytest.raises(SystemExit):
+            kbuild._parse_fragments()
+
+        assert failures
+
+    def test_tree_file_is_merged_by_the_make_backend(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        kbuild._backend = "make"
+
+        kbuild._merge_frags(["tree:tools/testing/selftests/arm64/config"])
+
+        steps = kbuild._steps
+        merge = next(
+            i
+            for i, s in enumerate(steps)
+            if "merge_config.sh -m .config tools/testing/selftests/arm64/config"
+            in s
+        )
+        assert steps.index(f"cd {kbuild._srcdir}") < merge
+        assert steps.index("make defconfig") < merge
+
+    @pytest.mark.parametrize("present", [True, False])
+    def test_make_backend_merges_a_tree_file_only_when_present(
+        self, tmp_path, present
+    ):
+        kbuild = _kbuild(tmp_path)
+        kbuild._backend = "make"
+        kbuild._merge_frags(["tree:tools/testing/selftests/arm64/config"])
+        merge = next(s for s in kbuild._steps if "merge_config.sh" in s)
+        src = tmp_path / "linux"
+        (src / "tools/testing/selftests/arm64").mkdir(parents=True)
+        if present:
+            (src / "tools/testing/selftests/arm64/config").write_text(
+                "CONFIG_X=y\n"
+            )
+        merge_config = src / "scripts/kconfig/merge_config.sh"
+        merge_config.parent.mkdir(parents=True)
+        merge_config.write_text('#!/bin/sh\necho "$@" > merged\n')
+        merge_config.chmod(0o755)
+        script = tmp_path / "merge.sh"
+        script.write_text(f"set -eE -o pipefail\ncd {src}\n{merge}\n")
+
+        result = subprocess.run(
+            ["bash", str(script)], capture_output=True, text=True
+        )
+
+        assert result.returncode == 0
+        merged = src / "merged"
+        if present:
+            assert merged.read_text().split() == [
+                "-m",
+                ".config",
+                "tools/testing/selftests/arm64/config",
+            ]
+        else:
+            assert not merged.exists()
+            assert "not in this tree" in result.stdout
+
+    def test_tree_file_is_passed_to_tuxmake_from_the_tree(self, tmp_path):
+        kbuild = _kbuild(tmp_path)
+        kbuild._kconfig_adds = ["tree:tools/testing/selftests/arm64/config"]
+
+        parts = kbuild._tuxmake_base(kbuild._af_dir, "defconfig", [])
+
+        path = os.path.join(
+            kbuild._srcdir, "tools/testing/selftests/arm64/config"
+        )
+        assert not os.path.exists(path)
+        added = [p for p in parts if path in p]
+        assert len(added) == 1
+        assert f"--kconfig-add={path}" in added[0]
+
+    @pytest.mark.parametrize("present", [True, False])
+    def test_tuxmake_adds_a_tree_file_only_when_present(
+        self, tmp_path, present
+    ):
+        kbuild = _kbuild(tmp_path)
+        kbuild._kconfig_adds = ["tree:tools/testing/selftests/arm64/config"]
+        path = os.path.join(
+            kbuild._srcdir, "tools/testing/selftests/arm64/config"
+        )
+        if present:
+            os.makedirs(os.path.dirname(path))
+            with open(path, "w") as f:
+                f.write("CONFIG_X=y\n")
+        parts = kbuild._tuxmake_base(kbuild._af_dir, "defconfig", [])
+        added = next(p for p in parts if path in p)
+
+        result = subprocess.run(
+            [
+                "bash",
+                "-c",
+                f"set -eE -o pipefail; set -- {added}; "
+                'echo $#; for a; do echo "$a"; done',
+            ],
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode == 0
+        expected = [f"--kconfig-add={path}"] if present else []
+        assert result.stdout.splitlines() == [str(len(expected))] + expected
 
 
 class TestKselftestSuiteResults:

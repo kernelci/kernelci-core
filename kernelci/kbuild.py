@@ -57,6 +57,9 @@ LATEST_LTS_MINOR = 12
 # Prefix marking a fragment entry as a kernel make target generating
 # config (e.g. 'make:kselftest-merge') rather than a config symbol.
 MAKE_FRAGMENT_PREFIX = "make:"
+MAKE_FRAGMENT_TARGET = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+TREE_FRAGMENT_PREFIX = "tree:"
+TREE_FRAGMENT_PATH = re.compile(r"[A-Za-z0-9._/-]+")
 
 DTBS_DISABLED = {
     "i386": True,
@@ -621,40 +624,97 @@ trap - ERR
 
     @staticmethod
     def _split_fragment(content):
-        """Split fragment content into make targets and config symbols
+        """Split fragment content into config symbols and directives
 
-        A fragment entry prefixed with 'make:' names a kernel make target
-        generating config, such as 'make:kselftest-merge', rather than a
-        config symbol. Those entries must be kept out of the fragment file:
-        kconfig does not understand them and merges them as "unexpected
-        data", silently dropping the config the fragment is meant to add.
+        'make:<target>' and 'tree:<path>' entries are not config symbols,
+        so they are kept out of the fragment files. The config symbols on
+        either side of them are kept apart so everything merges in the
+        order written.
 
         Returns:
-            tuple: (list of make targets, config symbol text)
+            list: ('config', text) for each run of config symbols and
+            ('directive', entry) for each 'make:' or 'tree:' entry, in order
         """
-        make_targets = []
+        segments = []
         config_lines = []
+
+        def add_config():
+            config = "\n".join(config_lines).strip()
+            if config:
+                segments.append(("config", config + "\n"))
+            config_lines.clear()
 
         for line in content.splitlines():
             entry = line.strip()
-            if entry.startswith(MAKE_FRAGMENT_PREFIX):
-                target = entry[len(MAKE_FRAGMENT_PREFIX) :]
-                if target:
-                    make_targets.append(target)
+            if entry.startswith((MAKE_FRAGMENT_PREFIX, TREE_FRAGMENT_PREFIX)):
+                add_config()
+                segments.append(("directive", entry))
             else:
                 config_lines.append(line)
+        add_config()
+        return segments
 
-        config = "\n".join(config_lines).strip()
-        if config:
-            config += "\n"
-        return make_targets, config
+    def _tree_fragment_path(self, directive):
+        """Return the tree-relative path a 'tree:' directive names
+
+        The path is merged from the kernel source tree and written into
+        the build script unquoted, so one that is empty, absolute, leaves
+        the tree or holds anything but letters, digits, '.', '_', '-' and
+        '/' is refused as a job error.
+        """
+        path = directive[len(TREE_FRAGMENT_PREFIX) :]
+        normalised = os.path.normpath(path)
+        if (
+            normalised == "."
+            or not TREE_FRAGMENT_PATH.fullmatch(normalised)
+            or os.path.isabs(normalised)
+            or normalised.split(os.sep)[0] == ".."
+        ):
+            message = (
+                f"Fragment directive {directive} is not a path in the tree"
+            )
+            print(f"[_parse_fragments] {message}")
+            self.submit_failure(message)
+            sys.exit(1)
+        return normalised
+
+    def _make_fragment_target(self, directive):
+        """Return the target a 'make:' directive names
+
+        The target is written into the build script unquoted, so one that
+        is not a plain make target name is refused as a job error.
+        """
+        target = directive[len(MAKE_FRAGMENT_PREFIX) :]
+        if not MAKE_FRAGMENT_TARGET.fullmatch(target):
+            message = f"Fragment directive {directive} is not a make target"
+            print(f"[_parse_fragments] {message}")
+            self.submit_failure(message)
+            sys.exit(1)
+        return target
+
+    def _write_config_fragment(self, name, config):
+        """Write config symbols to a fragment file and return its path"""
+        fragfile = os.path.join(self._fragments_dir, name)
+        with open(fragfile, "w") as f:
+            f.write(config)
+
+        config_count = len(
+            [line for line in config.split("\n") if line.strip()]
+        )
+        print(f"[_parse_fragments] Created {fragfile} ({config_count} configs)")
+
+        # add fragment to artifacts but relative to artifacts dir
+        frag_rel = os.path.relpath(fragfile, self._af_dir)
+        self._artifacts.append(frag_rel)
+        return fragfile
 
     def _parse_fragments(self, firmware=False):
         """Parse fragments kbuild config and create config fragments
 
         Returns:
-            list: List of kconfig additions, each either a fragment file
-            path or a 'make:<target>' directive, in merge order
+            list: List of kconfig additions, each a fragment file path, a
+            'make:<target>' directive or a 'tree:<path>' directive, in
+            merge order
         """
         kconfig_adds = []
 
@@ -678,27 +738,27 @@ trap - ERR
                 )
                 continue
 
-            make_targets, config = self._split_fragment(content)
+            part = 0
+            for kind, value in self._split_fragment(content):
+                if kind == "config":
+                    name = f"{idx}.{part}.config" if part else f"{idx}.config"
+                    part += 1
+                    fragfile = self._write_config_fragment(name, value)
+                    kconfig_adds.append(fragfile)
+                    continue
 
-            if config:
-                fragfile = os.path.join(self._fragments_dir, f"{idx}.config")
-                with open(fragfile, "w") as f:
-                    f.write(config)
-
-                config_count = len(
-                    [line for line in config.split("\n") if line.strip()]
-                )
-                print(
-                    f"[_parse_fragments] Created {fragfile} ({config_count} configs)"
-                )
-
-                kconfig_adds.append(fragfile)
-
-                # add fragment to artifacts but relative to artifacts dir
-                frag_rel = os.path.relpath(fragfile, self._af_dir)
-                self._artifacts.append(frag_rel)
-
-            for target in make_targets:
+                directive = value
+                if directive.startswith(TREE_FRAGMENT_PREFIX):
+                    path = self._tree_fragment_path(directive)
+                    print(
+                        f"[_parse_fragments] Fragment {fragment_name} merges "
+                        f"{path} from the tree"
+                    )
+                    kconfig_adds.append(TREE_FRAGMENT_PREFIX + path)
+                    continue
+                if directive == MAKE_FRAGMENT_PREFIX:
+                    continue
+                target = self._make_fragment_target(directive)
                 print(
                     f"[_parse_fragments] Fragment {fragment_name} runs "
                     f"make target {target}"
@@ -765,6 +825,14 @@ trap - ERR
                 # so far, so run it in place of a merge_config.sh call
                 target = entry[len(MAKE_FRAGMENT_PREFIX) :]
                 self.addcmd(f"make {target}")
+                continue
+            if entry.startswith(TREE_FRAGMENT_PREFIX):
+                path = entry[len(TREE_FRAGMENT_PREFIX) :]
+                self.addcmd(
+                    f"if [ -f {path} ]; then "
+                    f"./scripts/kconfig/merge_config.sh -m .config {path}; "
+                    f'else echo "{path} not in this tree, skipping"; fi'
+                )
                 continue
             self.addcmd(f"./scripts/kconfig/merge_config.sh -m .config {entry}")
         # TODO: olddefconfig should be optional/configurable
@@ -990,6 +1058,17 @@ trap 'case $stage in
                 # tuxmake runs the make target during config preparation
                 parts.append(f"--kconfig-add={entry}")
                 print(f"[_tuxmake_base] Adding make target: {entry}")
+            elif entry.startswith(TREE_FRAGMENT_PREFIX):
+                path = os.path.join(
+                    self._srcdir, entry[len(TREE_FRAGMENT_PREFIX) :]
+                )
+                parts.append(
+                    f"$(if [ -f {path} ]; then echo --kconfig-add={path}; "
+                    f'else echo "{path} not in this tree, skipping" >&2; fi)'
+                )
+                print(
+                    f"[_tuxmake_base] Adding tree fragment if present: {path}"
+                )
             elif os.path.exists(entry):
                 parts.append(f"--kconfig-add={entry}")
                 print(
