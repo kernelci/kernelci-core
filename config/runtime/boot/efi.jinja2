@@ -21,7 +21,7 @@
         {% if boot_commands == "ramdisk" %}
         url: '{{ ramdiskroot }}/rootfs.cpio.gz'
         {% else %}
-        url: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{{ brarch }}/initrd.cpio.gz'
+        url: '{{ ramdisk }}'
         {% endif %}
         compression: gz
         format: cpio.newc
