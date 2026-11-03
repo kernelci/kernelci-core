@@ -1,0 +1,15 @@
+{%- set perf_url = node.artifacts.perf_tar_xz | default(node.artifacts.perf_tar_gz, true) | default('', true) -%}
+- test:
+    timeout:
+      minutes: {{ test_timeout }}
+    definitions:
+    - repository: {{ test_url | default('https://github.com/Linaro/test-definitions.git', true) | tojson }}
+      from: git
+      revision: {{ test_revision | default('master', true) | tojson }}
+      path: automated/linux/perf/perf.yaml
+      name: {{ node.name | tojson }}
+      parameters:
+        TESTPROG_URL: {{ perf_url | tojson }}
+        SKIP_INSTALL: {{ skip_install | default('false') | string | lower | tojson }}
+        PARALLEL_TESTS: {{ parallel_tests | default('false') | string | lower | tojson }}
+        SKIP_TEST_NAMES: {{ skip_test_names | default('') | tojson }}
