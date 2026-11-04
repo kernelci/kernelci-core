@@ -443,6 +443,36 @@ rootfs_configs:
     imagesize: 2GB
     debos_memory: 8G
 
+  trixie-perf:
+    rootfs_type: debos
+    debian_release: trixie
+    arch_list:
+      - arm64
+    # Prebuilt perf runtime and tools used by its shell tests.
+    # Matching OpenCSD libraries come from the perf bundle.
+    extra_packages:
+      - bc
+      - binutils
+      - gcc
+      - iputils-ping
+      - isc-dhcp-client
+      - libc6-dev
+      - libdw1t64
+      - libelf1t64
+      - liblzma5
+      - libnuma1
+      - libstdc++6
+      - libtraceevent1
+      - libzstd1
+      - python3
+      - tar
+      - wget
+      - xz-utils
+      - zlib1g
+    crush_image_options:
+      - --keep-perl
+    test_overlay: "overlays/baseline"
+
   trixie-rt:
     rootfs_type: debos
     debian_release: trixie

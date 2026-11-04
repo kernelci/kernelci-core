@@ -9,6 +9,7 @@ import types
 
 import pytest
 
+import kernelci.kbuild
 from kernelci.kbuild import KBuild
 
 
@@ -85,6 +86,33 @@ class TestCompilerVersionProbe:
         kbuild = _kbuild(tmp_path, compiler="gcc-14")
         kbuild._build_with_tuxmake()
         assert not any("--version" in s for s in kbuild._steps)
+
+
+@pytest.mark.parametrize("has_runtime", [True, False])
+def test_perf_runtime_files(tmp_path, monkeypatch, has_runtime):
+    kbuild = _kbuild(tmp_path)
+    runtime = tmp_path / "runtime files"
+    install_dir = tmp_path / "build files/perf-install"
+    install_dir.mkdir(parents=True)
+    stale = install_dir / "old-library.so"
+    stale.touch()
+    if has_runtime:
+        library_dir = runtime / "usr/lib/aarch64-linux-gnu"
+        library_dir.mkdir(parents=True)
+        (library_dir / "libopencsd.so.1.8.3").write_bytes(b"OpenCSD")
+        (library_dir / "libopencsd.so.1").symlink_to("libopencsd.so.1.8.3")
+    monkeypatch.setattr(kernelci.kbuild, "PERF_RUNTIME_DIR", str(runtime))
+    kbuild._stage_perf_runtime(str(install_dir.parent))
+
+    subprocess.run(["bash", "-e", "-c", "\n".join(kbuild._steps)], check=True)
+
+    assert not stale.exists()
+    if has_runtime:
+        link = install_dir / "usr/lib/aarch64-linux-gnu/libopencsd.so.1"
+        assert link.is_symlink()
+        assert link.read_bytes() == b"OpenCSD"
+    else:
+        assert not install_dir.exists()
 
 
 class TestFragments:

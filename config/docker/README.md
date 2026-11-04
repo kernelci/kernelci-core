@@ -77,3 +77,24 @@ installed, as well as the KernelCI core tools:
 Build the `kernelci` image with a particular revision using `--build-arg`:
 
     ./kci docker build kernelci --build-arg core_rev=staging-20220728.1 --prefix=kernelci/
+
+## Perf build dependencies
+
+The `perf` fragment installs target development packages, including Debian's
+OpenCSD package and libdw for DWARF unwinding:
+
+```sh
+./kci docker build gcc-14 perf kernelci --arch=arm64 --prefix=my-stuff/
+```
+
+From the kernel source directory inside the image, build perf with CoreSight:
+
+```sh
+tuxmake --runtime=null --target-arch=arm64 --toolchain=gcc-14 CORESIGHT=1 perf
+```
+
+The direct TuxMake command above builds perf but does not bundle the OpenCSD
+runtime libraries. KernelCI perf jobs stage the matching libraries and Debian
+copyright notice before TuxMake packages `perf.tar.xz`. The bundle records the
+installed package versions in `usr/share/doc/opencsd/build-info`. Other runtime
+dependencies must be available on the target.
