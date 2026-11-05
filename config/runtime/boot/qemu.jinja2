@@ -3,7 +3,7 @@
     images:
       kernel:
         image_arg: -kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug
-          verbose console_msg_format=syslog earlycon"
+          verbose console_msg_format=syslog earlycon{{ ' acpi=force' if qemu_acpi_enabled else '' }}"
         url: '{{ node.artifacts.kernel }}'
       ramdisk:
         image_arg: -initrd {ramdisk}

@@ -20,6 +20,7 @@ RUN apt-get update && \
         qemu-system-s390x \
         qemu-system-sparc \
         qemu-system-x86 \
+        qemu-efi-aarch64 \
         qemu-utils
 
 RUN mkdir -p /etc/qemu && echo allow all > /etc/qemu/bridge.conf
