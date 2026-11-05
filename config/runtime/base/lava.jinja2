@@ -11,7 +11,6 @@
 # * timeout
 # * modules
 # * kernel image name
-# * UEFI binaries for QEMU etc.
 # * rootfs URL
 
 job_name: "[{{ instanceid|default('KernelCI AKS')}}] {{ node.id }} {{ node.name }} {{ node.data.kernel_revision.describe }}"
@@ -22,10 +21,17 @@ visibility: public
 
 priority: {{ priority | default('10') }}
 
-{% if platform_config.context or extra_kernel_args %}
+{% set qemu_acpi_enabled = (qemu_arm64_acpi | default(false)) and
+    platform_config.boot_method == 'qemu' and platform_config.arch == 'arm64' %}
+{% set lava_context = dict(platform_config.context or {}) %}
+{% if qemu_acpi_enabled %}
+  {% set _ = lava_context.update(extra_options=(lava_context.get('extra_options') or []) +
+      ['-bios', '/usr/share/qemu-efi-aarch64/QEMU_EFI.fd']) %}
+{% endif %}
+{% if lava_context or extra_kernel_args %}
 context:
-  {% if platform_config.context %}
-    {% for key, value in platform_config.context.items() %}
+  {% if lava_context %}
+    {% for key, value in lava_context.items() %}
   {{ key }}: {{ value }}
     {% endfor %}
   {% endif %}
