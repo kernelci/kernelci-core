@@ -18,9 +18,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libelf-dev{{ pkgarch }} \
 {%- if debian_release | default('trixie') == 'trixie' %}
    libfuse-dev{{ pkgarch }} \
-{%- else %}
-   libfuse3-dev{{ pkgarch }} \
 {%- endif %}
+   libfuse3-dev{{ pkgarch }} \
    libhugetlbfs-dev{{ pkgarch }} \
    libmbedtls-dev{{ pkgarch }} \
    libmnl-dev{{ pkgarch }} \
