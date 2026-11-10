@@ -423,21 +423,31 @@ rootfs_configs:
       - armhf
       - riscv64
     extra_packages:
+      - bc
       - btrfs-progs
+      - bzip2
       - ca-certificates
       - curl
       - dosfstools
       - e2fsprogs
+      - file
+      - gcc
       - gdb-minimal
       - iproute2
+      - iputils-ping
       - jq
-      - libnuma-dev
+      - libaio1t64
+      - libc6-dev
+      - libnuma1
       - net-tools
       - nfs-kernel-server
       - ntfs-3g
+      - numactl
       - parted
+      - psmisc
       - python3
       - quota
+      - unzip
       - xfsprogs
     script: "scripts/trixie-ltp.sh"
     imagesize: 2GB
