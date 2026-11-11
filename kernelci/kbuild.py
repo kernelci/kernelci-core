@@ -126,14 +126,22 @@ ARTIFACT_NAMES = {
 }
 
 # kselftest TARGETS that build successfully but install no test binaries.
-# The presence-based check in _kselftest_suite_results() would otherwise mark
-# these as a false 'fail'; they are reported as 'skip' instead. Keyed by the
-# raw TARGET name as it appears in kselftest_targets.txt (e.g. "net/mptcp").
-# TODO: replace this hardcoded list by parsing build_kselftest.log for the
-# real per-suite build outcome once the kernel-side "preserve subtarget
-# failures in all/install" support lands, so a genuinely broken no-artifact
-# suite is still caught instead of being silently skipped.
+# For kernels without a kselftest build report, the presence-based check in
+# _kselftest_suite_results() would otherwise mark these as a false 'fail';
+# they are reported as 'skip' instead. Keyed by the raw TARGET name as it
+# appears in kselftest_targets.txt (e.g. "net/mptcp").
 KSELFTEST_NO_ARTIFACT_TARGETS = set()
+
+# Per-suite build report of the kselftest build. Since Linux v7.4 the
+# selftests append one tab-separated record per suite and phase to the file
+# named by KSFT_BUILD_REPORT: the phase ('all' or 'install'), the TARGET
+# name and the exit status of that step. See "Recording suite build results"
+# in Documentation/dev-tools/kselftest.rst. The kernel advertises the format
+# as KSFT_BUILD_REPORT_VERSION, which is saved to the version file; older
+# kernels ignore the variable and leave the report empty.
+KSELFTEST_BUILD_REPORT = "build_kselftest_report.tsv"
+KSELFTEST_BUILD_REPORT_VERSION_FILE = "kselftest_report_version.txt"
+KSELFTEST_BUILD_REPORT_VERSION = "1"
 
 # first argument stdout+stderr, second argument stderr only
 REDIR = " > >(tee {}) 2> >(tee {} >&1)"
@@ -1157,6 +1165,12 @@ trap 'case $stage in
         )
         cmd_parts.append(f"--build-dir={kernel_build_dir}")
         cmd_parts.append("kselftest")
+        # Ask the selftests to record the exit status of each suite's build
+        # and installation. They only append to the report, so start from
+        # an empty file. Kernels without the report ignore the variable.
+        report = os.path.join(self._af_dir, KSELFTEST_BUILD_REPORT)
+        self.addcmd(f": > {report}", False)
+        cmd_parts.append(f"KSFT_BUILD_REPORT={report}")
         kselftest_cmd = " ".join(cmd_parts) + REDIR.format(
             self._af_dir + "/build_kselftest.log",
             self._af_dir + "/build_kselftest_stderr.log",
@@ -1190,27 +1204,90 @@ trap 'case $stage in
             f"> {self._af_dir}/kselftest_targets.txt 2>/dev/null || true",
             False,
         )
+        # Record the format of the build report. The variable is empty for
+        # kernels that cannot write one.
+        self.addcmd(
+            "make -sC tools/testing/selftests --no-print-directory "
+            "--eval='__kci_report_version: ; "
+            "@echo $(KSFT_BUILD_REPORT_VERSION)' __kci_report_version "
+            f"> {self._af_dir}/{KSELFTEST_BUILD_REPORT_VERSION_FILE} "
+            "2>/dev/null",
+            False,
+        )
         self.addcmd("cd ..")
+
+    def _kselftest_build_report(self, expected):
+        """Read the kselftest build report, if the kernel wrote one.
+
+        Returns a dict mapping each expected TARGET to the exit statuses
+        recorded for it, or None when the kernel does not write a report in
+        the known format or the report holds no usable record. A record
+        belongs to the TARGET with the longest name that equals the record
+        name or is followed by '/' in it, so that records for subdirectories
+        (e.g. "arm64/tags") and installation dependencies (e.g. "net/lib")
+        count for the suite they are part of. Records that belong to no
+        expected TARGET are ignored.
+        """
+        version_path = os.path.join(
+            self._af_dir, KSELFTEST_BUILD_REPORT_VERSION_FILE
+        )
+        report_path = os.path.join(self._af_dir, KSELFTEST_BUILD_REPORT)
+        try:
+            with open(version_path, "r") as f:
+                version = f.read().split()
+            with open(report_path, "r") as f:
+                lines = f.read().splitlines()
+        except OSError:
+            return None
+        if version[-1:] != [KSELFTEST_BUILD_REPORT_VERSION]:
+            return None
+
+        statuses = {}
+        for line in lines:
+            fields = line.split("\t")
+            if len(fields) != 3 or fields[0] not in ("all", "install"):
+                continue
+            try:
+                status = int(fields[2])
+            except ValueError:
+                continue
+            owners = [
+                t
+                for t in expected
+                if fields[1] == t or fields[1].startswith(t + "/")
+            ]
+            if owners:
+                owner = max(owners, key=len)
+                statuses.setdefault(owner, []).append(status)
+        return statuses or None
 
     def _kselftest_suite_results(self, kselftest_result):
         """Derive per-suite kselftest build results.
 
         Returns a list of (name, result) tuples, one per kselftest TARGET
-        the kernel would build for this arch/config, where 'result' is:
-          - skip: the kernel build failed, so kselftest was never attempted
+        the kernel would build for this arch/config. When the kselftest
+        build produced a tarball and the kernel wrote a build report (see
+        KSELFTEST_BUILD_REPORT), 'result' is:
+          - fail: a build or install step of the suite failed, or the suite
+            has no record
+          - pass: every step succeeded and the suite installed files
+          - skip: every step succeeded but the suite installed nothing,
+            as for suites of other architectures
+
+        Without a report the result is presence-based:
           - pass: the suite's files are present in the built tarball
           - fail: the suite was expected but produced no installed files
 
-        Reads two artifacts emitted by _build_kselftest_tuxmake():
-        'kselftest_targets.txt' (the expected suite list) and
-        'kselftest_metadata.json' (tuxmake metadata whose top-level
-        'artifacts.kselftest' lists every file in the tarball). Returns an
-        empty list when the expected suite list can't be determined, so the
-        caller falls back to a single aggregate kselftest node.
+        In both cases every suite is 'skip' when the kernel build failed, so
+        kselftest was never attempted, and 'fail' when no tarball was built.
 
-        NOTE: this is presence-based. A suite that builds but installs no
-        files reads as 'fail'; once the kernel-side "preserve subtarget
-        failures" support lands, build_kselftest.log can refine these.
+        Reads the artifacts emitted by _build_kselftest_tuxmake():
+        'kselftest_targets.txt' (the expected suite list),
+        'kselftest_metadata.json' (tuxmake metadata whose top-level
+        'artifacts.kselftest' lists every file in the tarball) and the build
+        report with its version file. Returns an empty list when the
+        expected suite list can't be determined, so the caller falls back to
+        a single aggregate kselftest node.
         """
         targets_path = os.path.join(self._af_dir, "kselftest_targets.txt")
         try:
@@ -1234,14 +1311,17 @@ trap 'case $stage in
         # Normalise any leading "./" so prefix matching is tar-agnostic.
         built_files = [p[2:] if p.startswith("./") else p for p in built_files]
 
+        statuses = self._kselftest_build_report(expected)
+        if kselftest_result == "pass":
+            mode = "build report" if statuses is not None else "installed files"
+            print(f"[_kselftest_suite_results] Using {mode}")
+
         results = []
         for suite in expected:
-            # A TARGET may be a nested path (e.g. "net/mptcp"); it is "built"
-            # if any installed file lives under it. Use "." in the node name
-            # to keep path elements free of slashes.
             # These nodes report whether each kselftest suite was built; they
             # are not results from executing the suite.  Keep that distinction
             # visible when dashboards display the leaf name without its path.
+            # Use "." in the node name to keep path elements free of slashes.
             name = "build.kselftest." + suite.replace("/", ".")
             if kselftest_result == "skip":
                 result = "skip"
@@ -1249,17 +1329,36 @@ trap 'case $stage in
                 # No tarball at all, so nothing built.
                 result = "fail"
             else:
-                prefix = suite.rstrip("/") + "/"
-                built = any(p.startswith(prefix) for p in built_files)
-                if built:
-                    result = "pass"
-                elif suite in KSELFTEST_NO_ARTIFACT_TARGETS:
-                    # Builds fine but installs no binaries: not a real fail.
-                    result = "skip"
-                else:
-                    result = "fail"
+                result = self._kselftest_suite_result(
+                    suite, built_files, statuses
+                )
             results.append((name, result))
         return results
+
+    @staticmethod
+    def _kselftest_suite_result(suite, built_files, statuses):
+        """Result of one suite of a kselftest build that produced a tarball.
+
+        'statuses' is the output of _kselftest_build_report(), or None to
+        judge the suite only by its installed files.
+        """
+        # A TARGET may be a nested path (e.g. "net/mptcp"); it installed
+        # files if any file in the tarball lives under it.
+        prefix = suite.rstrip("/") + "/"
+        built = any(p.startswith(prefix) for p in built_files)
+        if statuses is not None:
+            codes = statuses.get(suite)
+            if not codes or any(codes):
+                # A failed suite can still install some of its files.
+                return "fail"
+            # Suites for other architectures build and install nothing.
+            return "pass" if built else "skip"
+        if built:
+            return "pass"
+        if suite in KSELFTEST_NO_ARTIFACT_TARGETS:
+            # Builds fine but installs no binaries: not a real fail.
+            return "skip"
+        return "fail"
 
     def _build_kernel(self):
         """Add kernel build steps"""
