@@ -528,25 +528,38 @@ trap - ERR
 """
         self._steps.append(dis_trap)
 
+    def _add_firmware_download(self):
+        """Fetch a complete firmware archive through the optional HTTP cache."""
+        temporary = "linux-firmware.tar.gz.tmp"
+        self.addcmd(f"rm -f {temporary}")
+        self.addcmd("if getent hosts tarball-cache >/dev/null 2>&1 &&")
+        self.addcmd(
+            '   wget -t 3 -T 360 "http://tarball-cache/linux-firmware.tar.gz" '
+            f"-O {temporary} &&"
+        )
+        self.addcmd(f"   gzip -t {temporary}; then")
+        self.addcmd('  echo "Firmware fetched from in-cluster cache"')
+        self.addcmd("else")
+        # Discard a partial or invalid cache response before fetching upstream.
+        # Do not resume a rolling URL: it may have changed between requests.
+        self.addcmd(f"  rm -f {temporary}")
+        self.addcmd(
+            "  wget -t 10 -T 360 --retry-on-host-error "
+            '"https://storage.kernelci.org/linux-firmware.tar.gz" '
+            f"-O {temporary}"
+        )
+        self.addcmd(f"  gzip -t {temporary}")
+        self.addcmd("fi")
+        self.addcmd(f"mv -f {temporary} linux-firmware.tar.gz")
+
     def _fetch_firmware(self):
-        """
-        Fetch firmware from linux-firmware repo
-        TODO: Implement caching and optional fetch
-        TODO: Implement firmware commit id meta/settings
-        """
+        """Fetch and install firmware without a shared filesystem mount."""
         self.startjob("fetch_firmware")
-        # self.addcmdretry(f"git clone {FW_GIT} --depth 1", 10)
-        # This file available https://storage.kernelci.org/linux-firmware.tar.gz
-        # we download it there for better reliability
-        # self.addcmd("wget -c -t 10 --retry-on-host-error " +
-        #            "https://storage.kernelci.org/linux-firmware.tar.gz -O linux-firmware.tar.gz")
-        # We should have cached copy of linux-firmware.tar.gz at /data directory
-        self.addcmd("cp /data/linux-firmware.tar.gz .")
+        self._add_firmware_download()
         self.addcmd("tar -xzf linux-firmware.tar.gz")
         self.addcmd("cd linux-firmware")
         self.addcmd("./copy-firmware.sh " + self._firmware_dir)
         self.addcmd("cd ..")
-        # self.addcmd("rm -rf linux-firmware")
 
     def _download_file(self, url):
         """Download file from url and return it in buffer"""
