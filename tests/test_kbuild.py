@@ -519,6 +519,145 @@ class TestKselftestSuiteResults:
         ]
 
 
+def _suite_artifacts(tmp_path, targets, files, records=None, version="1"):
+    """Write the kselftest artifacts that _kselftest_suite_results() reads.
+
+    'records' are (phase, name, status) tuples of the build report, or None
+    for a kernel that does not write one. 'version' is the content of the
+    report version file, or None to leave it out.
+    """
+    kbuild = _kbuild(tmp_path)
+    af_dir = tmp_path / "artifacts"
+    (af_dir / "kselftest_targets.txt").write_text(
+        " ".join(targets) + "\n", encoding="utf-8"
+    )
+    (af_dir / "kselftest_metadata.json").write_text(
+        json.dumps({"artifacts": {"kselftest": files}}), encoding="utf-8"
+    )
+    if version is not None:
+        (af_dir / "kselftest_report_version.txt").write_text(
+            version + "\n", encoding="utf-8"
+        )
+    lines = [f"{p}\t{n}\t{s}\n" for p, n, s in records or []]
+    (af_dir / "build_kselftest_report.tsv").write_text(
+        "".join(lines), encoding="utf-8"
+    )
+    return kbuild
+
+
+class TestKselftestBuildReport:
+    TARGETS = ["accel", "filesystems/configfs", "sparc64", "net", "net/mptcp"]
+    FILES = [
+        "./accel/test_accel",
+        "./filesystems/configfs/settings",
+        "./net/tcp_test",
+        "./net/mptcp/mptcp_connect",
+    ]
+
+    def test_report_decides_suite_results(self, tmp_path):
+        records = [
+            ("all", "accel", 0),
+            ("all", "filesystems/configfs", 2),
+            ("all", "sparc64", 0),
+            ("all", "net", 0),
+            ("all", "net/mptcp", 0),
+            ("install", "accel", 0),
+            ("install", "filesystems/configfs", 0),
+            ("install", "sparc64", 0),
+            ("install", "net/lib", 2),
+            ("install", "net", 0),
+            ("install", "net/mptcp", 0),
+        ]
+        kbuild = _suite_artifacts(tmp_path, self.TARGETS, self.FILES, records)
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.accel", "pass"),
+            # Installed a file although its build failed.
+            ("build.kselftest.filesystems.configfs", "fail"),
+            # Built and installed nothing on this architecture.
+            ("build.kselftest.sparc64", "skip"),
+            # The failed dependency counts for net, not net/mptcp.
+            ("build.kselftest.net", "fail"),
+            ("build.kselftest.net.mptcp", "pass"),
+        ]
+
+    def test_suite_without_records_fails(self, tmp_path):
+        records = [("all", "accel", 0), ("install", "accel", 0)]
+        kbuild = _suite_artifacts(
+            tmp_path, ["accel", "net"], self.FILES, records
+        )
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.accel", "pass"),
+            ("build.kselftest.net", "fail"),
+        ]
+
+    def test_subdirectory_records_count_for_suite(self, tmp_path):
+        records = [
+            ("all", "arm64", 0),
+            ("all", "arm64/tags", 2),
+            ("install", "arm64", 0),
+        ]
+        kbuild = _suite_artifacts(
+            tmp_path, ["arm64"], ["arm64/fp/fpmr"], records
+        )
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.arm64", "fail"),
+        ]
+
+    def test_malformed_and_unknown_records_are_ignored(self, tmp_path):
+        records = [
+            ("all", "accel", 0),
+            ("all", "accel", "x"),
+            ("build", "accel", 2),
+            ("all", "acceleration", 2),
+            ("install", "accel", 0),
+        ]
+        kbuild = _suite_artifacts(tmp_path, ["accel"], self.FILES, records)
+        report = tmp_path / "artifacts" / "build_kselftest_report.tsv"
+        with report.open("a", encoding="utf-8") as f:
+            f.write("accel\t2\n")
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.accel", "pass"),
+        ]
+
+    @pytest.mark.parametrize("version", [None, "", "2"])
+    def test_installed_files_without_known_report(self, tmp_path, version):
+        records = [("all", "filesystems/configfs", 2), ("all", "sparc64", 0)]
+        kbuild = _suite_artifacts(
+            tmp_path, self.TARGETS, self.FILES, records, version
+        )
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.accel", "pass"),
+            ("build.kselftest.filesystems.configfs", "pass"),
+            ("build.kselftest.sparc64", "fail"),
+            ("build.kselftest.net", "pass"),
+            ("build.kselftest.net.mptcp", "pass"),
+        ]
+
+    def test_installed_files_with_empty_report(self, tmp_path):
+        kbuild = _suite_artifacts(tmp_path, ["accel", "sparc64"], self.FILES)
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.accel", "pass"),
+            ("build.kselftest.sparc64", "fail"),
+        ]
+
+    @pytest.mark.parametrize("kselftest_result", ["skip", "fail"])
+    def test_report_does_not_change_aggregate_results(
+        self, tmp_path, kselftest_result
+    ):
+        records = [("all", "accel", 0), ("install", "accel", 0)]
+        kbuild = _suite_artifacts(tmp_path, ["accel"], self.FILES, records)
+
+        assert kbuild._kselftest_suite_results(kselftest_result) == [
+            ("build.kselftest.accel", kselftest_result),
+        ]
+
+
 def _tuxmake_invocations(
     tmp_path, monkeypatch, kselftest, dtbs_check=False, arch="x86_64"
 ):
@@ -542,10 +681,41 @@ class TestKselftestBuildDir:
         assert f"--build-dir={build_dir}" in kselftest.split()
         assert f"--output-dir={tmp_path}/kselftest_build" in kselftest.split()
 
+    def test_kselftest_records_build_report(self, tmp_path, monkeypatch):
+        monkeypatch.setitem(sys.modules, "tuxmake", None)
+        kbuild = _kbuild(tmp_path)
+        kbuild._dtbs_check = False
+        kbuild._kselftest = True
+        kbuild._extra_targets = []
+        kbuild._fetch_firmware = lambda: None
+        kbuild._build_with_tuxmake()
+        report = f"{tmp_path}/artifacts/build_kselftest_report.tsv"
+        steps = kbuild._steps
+        (kselftest,) = [
+            i
+            for i, s in enumerate(steps)
+            if s.startswith("tuxmake --runtime=null")
+            and "kselftest" in s.split()
+        ]
+        (truncate,) = [i for i, s in enumerate(steps) if s.startswith(": >")]
+
+        assert f"KSFT_BUILD_REPORT={report}" in steps[kselftest].split()
+        assert steps[truncate] == f": > {report} || true"
+        assert truncate < kselftest
+        assert any(
+            "$(KSFT_BUILD_REPORT_VERSION)" in s
+            and s.endswith(
+                f"> {tmp_path}/artifacts/kselftest_report_version.txt "
+                "2>/dev/null || true"
+            )
+            for s in steps[kselftest:]
+        )
+
     def test_no_kept_kernel_tree_without_kselftest(self, tmp_path, monkeypatch):
         (kernel,) = _tuxmake_invocations(tmp_path, monkeypatch, False)
 
         assert "--build-dir" not in kernel
+        assert "KSFT_BUILD_REPORT" not in kernel
 
     def test_no_kselftest_build_for_dtbs_check(self, tmp_path, monkeypatch):
         (kernel,) = _tuxmake_invocations(
