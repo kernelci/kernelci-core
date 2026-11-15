@@ -423,14 +423,20 @@ rootfs_configs:
       - armhf
       - riscv64
     extra_packages:
+      - bsdextrautils
       - btrfs-progs
       - ca-certificates
       - curl
+      - dhcpd
+      - dnsmasq
       - dosfstools
       - e2fsprogs
       - gdb-minimal
+      - inetutils-telnet
       - iproute2
+      - iputils-ping
       - jq
+      - libmnl-dev
       - libnuma-dev
       - net-tools
       - nfs-kernel-server
@@ -438,6 +444,8 @@ rootfs_configs:
       - parted
       - python3
       - quota
+      - tracepath
+      - traceroute
       - xfsprogs
     script: "scripts/trixie-ltp.sh"
     imagesize: 2GB
