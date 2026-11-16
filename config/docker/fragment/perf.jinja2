@@ -4,7 +4,11 @@
 RUN dpkg --add-architecture {{ sub_arch }}
 {%- endif %}
 # clang and llvm are host tools for BPF skeletons; libraries target the build arch.
-RUN apt-get update && apt-get install --no-install-recommends -y \
+# Keep the runtime bundle's copyright notice despite the base doc exclusions.
+RUN printf '%s\n' 'path-include=/usr/share/doc/libopencsd1' \
+        'path-include=/usr/share/doc/libopencsd1/copyright' \
+        >> /etc/dpkg/dpkg.cfg.d/excludes && \
+    apt-get update && apt-get install --no-install-recommends -y \
     clang \
     dpkg-dev \
     libc6-dev{{ pkgarch }} \
