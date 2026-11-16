@@ -1,55 +1,6 @@
 {%- extends 'base/debian.jinja2' -%}
 
-{% block multistage %}
-# Build custom kmod package with compression enabled
-
-# Add retries and deb-src entries
-RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries && \
-    echo "deb-src http://deb.debian.org/debian {{ debian_release | default('trixie') }} main non-free contrib" \
-        >> /etc/apt/sources.list && \
-    echo "deb-src http://deb.debian.org/debian-security/ {{ debian_release | default('trixie') }}-security main contrib non-free" \
-        >> /etc/apt/sources.list
-
-# Prepare environment for building packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-transport-https \
-    build-essential \
-    ca-certificates \
-    devscripts \
-    equivs \
-    fakeroot
-
-# Prepare kmod sources, patch, install dependencies, build
-RUN mkdir -p /root/patches
-# Workaround for apt-get source _apt permissions
-RUN chmod 777 /root/patches
-WORKDIR /root/patches
-
-# Get patch to enable compression
-#ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
-#kernelci.org/\
-#config/docker/data/kmod_kci_trixie.patch \
-#.
-ADD https://raw.githubusercontent.com/kernelci/kernelci-core/main/config/docker/data/kmod_kci_trixie.patch \
-.
-
-RUN apt-get source kmod
-WORKDIR /root/patches/kmod-34.2
-RUN patch -p1 < ../kmod_kci_trixie.patch
-RUN mk-build-deps -ir \
-    -t "apt-get -o Debug::pkgProblemResolver=yes -y --no-install-recommends"
-RUN debuild -b -uc -us
-
-FROM mirror.gcr.io/debian:{{ debian_release | default('trixie') }}
-MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
-ENV DEBIAN_FRONTEND=noninteractive
-{%- endblock %}
-
 {%- block packages %}
-# Fetch kmod deb package from previous stage
-COPY --from=0 /root/patches/*.deb /root/
-RUN dpkg -i /root/*.deb && rm /root/*.deb
-
 # Host build tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
     bash \
