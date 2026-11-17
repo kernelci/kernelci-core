@@ -30,11 +30,13 @@ import json
 import os
 import re
 import shlex
+import socket
 import subprocess
 import sys
 import tarfile
 import threading
 import time
+import urllib.parse
 from datetime import datetime, timedelta
 from typing import Tuple
 
@@ -174,6 +176,82 @@ def _download_file(url, file_path):
         time.sleep(5)
         retries -= 1
     return False
+
+
+DEFAULT_READINESS_DEADLINE_SEC = 60.0
+DEFAULT_REQUEST_TIMEOUT = (5.0, 15.0)
+DEFAULT_RETRY_INTERVAL_SEC = 2.0
+TRANSIENT_HTTP_STATUS_CODES = {429, 500, 502, 503, 504}
+
+
+class KBuildInfraError(RuntimeError):
+    """Raised when required network/infrastructure services are unreachable."""
+
+
+def _sanitize_service_name(url):
+    """Return scheme://host (or host) without paths, query strings, or credentials."""
+    parsed = urllib.parse.urlsplit(url)
+    if parsed.hostname:
+        if parsed.port:
+            return f"{parsed.hostname}:{parsed.port}"
+        return parsed.hostname
+    return url
+
+
+def _request_with_retry(
+    url,
+    *,
+    deadline_sec=DEFAULT_READINESS_DEADLINE_SEC,
+    timeout=DEFAULT_REQUEST_TIMEOUT,
+    retry_interval=DEFAULT_RETRY_INTERVAL_SEC,
+    stream=False,
+):
+    """Perform an HTTP GET bounded by an explicit monotonic wall-clock deadline.
+
+    Only retries transient network/DNS errors and transient HTTP status codes.
+    Programming and configuration errors (such as malformed URLs) fail fast.
+    """
+    service = _sanitize_service_name(url)
+    start = time.monotonic()
+    deadline = start + deadline_sec
+    last_error = "no attempts executed"
+
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+
+        attempt_timeout = (
+            min(timeout[0], remaining),
+            min(timeout[1], remaining),
+        )
+        try:
+            response = requests.get(url, stream=stream, timeout=attempt_timeout)
+        except (
+            requests.exceptions.Timeout,
+            requests.exceptions.ConnectionError,
+            socket.gaierror,
+        ) as exc:
+            last_error = f"{type(exc).__name__}: {exc}"
+        else:
+            if response.status_code == 200:
+                return response
+            if response.status_code not in TRANSIENT_HTTP_STATUS_CODES:
+                raise KBuildInfraError(
+                    f"Service '{service}' returned HTTP {response.status_code} "
+                    f"after {time.monotonic() - start:.1f}s"
+                )
+            last_error = f"HTTP {response.status_code}"
+
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        time.sleep(min(retry_interval, remaining))
+
+    elapsed = time.monotonic() - start
+    raise KBuildInfraError(
+        f"Service '{service}' unreachable after {elapsed:.1f}s ({last_error})"
+    )
 
 
 class KBuild:
@@ -562,14 +640,9 @@ trap - ERR
         self.addcmd("cd ..")
 
     def _download_file(self, url):
-        """Download file from url and return it in buffer"""
-        try:
-            response = requests.get(url, timeout=30)
-            if response.status_code == 200:
-                return response.content
-        except requests.exceptions.RequestException as e:
-            print(f"Error downloading file: {e}")
-        return None
+        """Download file from url with bounded network retries."""
+        response = _request_with_retry(url)
+        return response.content
 
     def _getcipfragment(self, fragment):
         """Get CIP specific configuration fragments"""
@@ -632,25 +705,6 @@ trap - ERR
         os.unlink(cros_config)
 
         return (buffer, fragment)
-
-    def _verify_network(self):
-        """Verify network connectivity"""
-        # TBD: Different URL? pool of urls?
-        retries = 10
-        while retries > 0:
-            try:
-                r = requests.get("https://google.com")
-            except Exception as e:
-                print(f"[_verify_network] Error: {e}")
-                time.sleep(5)
-                retries -= 1
-                continue
-            if r.status_code == 200:
-                return
-            time.sleep(5)
-
-        print("[_verify_network] Network is not available")
-        sys.exit(1)
 
     def extract_config(self, frag):
         """Extract config fragments from legacy config file"""
@@ -921,8 +975,12 @@ trap - ERR
 
     def write_script(self, filename):
         """Write shell compile script to file"""
-        self._verify_network()
-        self._generate_script()
+        try:
+            self._generate_script()
+        except KBuildInfraError as exc:
+            print(f"[write_script] Infrastructure error: {exc}")
+            self.submit_failure(str(exc))
+            raise
         fixed_header = """#!/bin/bash
 set -eE -o pipefail          # -E ⇒ trap inherits in functions/subshells
 

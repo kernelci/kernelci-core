@@ -55,15 +55,38 @@ STORAGE_CONFIG_YAML = """
 NODE = {{ node }}
 JOB_NAME = '{{ name }}'
 WORKSPACE = '/tmp/kci'
+READINESS_DEADLINE_SEC = 60.0
+REQUEST_TIMEOUT = (5.0, 15.0)
+RETRY_INTERVAL_SEC = 2.0
+TRANSIENT_HTTP_STATUS_CODES = {429, 500, 502, 503, 504}
 {%- endblock %}
 
 {% block python_base_job -%}
+class InfraReadinessError(RuntimeError):
+    """Raised when required KernelCI network services do not become ready in time."""
+
+
+def _sanitize_service_name(url_or_name):
+    parsed = urllib.parse.urlsplit(str(url_or_name))
+    if parsed.hostname:
+        if parsed.port:
+            return f"{parsed.hostname}:{parsed.port}"
+        return parsed.hostname
+    return str(url_or_name)
+
+
 class BaseJob:
 
     def __init__(self, api_config, node, workspace):
+        self._api_url = self._extract_api_url(api_config)
         self._api = self._get_api(api_config)
         self._node = node
         self._workspace = workspace
+
+    def _extract_api_url(self, api_config_yaml):
+        data = yaml.safe_load(api_config_yaml) or {}
+        api_data = data.get('api', data) if isinstance(data, dict) else {}
+        return api_data.get('url', 'kernelci-api')
 
     def _get_api(self, api_config_yaml):
         api_config = kernelci.config.api.API.load_from_yaml(
@@ -87,11 +110,55 @@ class BaseJob:
         storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
         return kernelci.storage.get_storage(storage_config, storage_cred)
 
+    def _call_with_retry(
+        self,
+        func,
+        service_url,
+        deadline_sec=READINESS_DEADLINE_SEC,
+        retry_interval=RETRY_INTERVAL_SEC,
+    ):
+        service = _sanitize_service_name(service_url)
+        start = time.monotonic()
+        deadline = start + deadline_sec
+        last_error = "no attempts executed"
+
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+
+            try:
+                return func(remaining)
+            except (
+                requests.exceptions.Timeout,
+                requests.exceptions.ConnectionError,
+                socket.gaierror,
+            ) as exc:
+                last_error = f"{type(exc).__name__}: {exc}"
+            except requests.exceptions.HTTPError as exc:
+                status = exc.response.status_code if exc.response is not None else None
+                if status not in TRANSIENT_HTTP_STATUS_CODES:
+                    raise
+                last_error = f"HTTP {status}"
+
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            time.sleep(min(retry_interval, remaining))
+
+        elapsed = time.monotonic() - start
+        raise InfraReadinessError(
+            f"Service '{service}' unreachable after {elapsed:.1f}s ({last_error})"
+        )
+
     def _get_artifact_url(self, node, artifact):
         if node.get('artifacts') and artifact in node['artifacts']:
             return node['artifacts'][artifact]
         if node.get('parent'):
-            parent = self._api.node.get(node['parent'])
+            parent = self._call_with_retry(
+                lambda _rem: self._api.node.get(node['parent']),
+                self._api_url,
+            )
             return self._get_artifact_url(parent, artifact)
         raise ValueError(f"'{artifact}' artifact not found in node {node['id']} ancestors")
 
@@ -103,8 +170,17 @@ class BaseJob:
             path = self._workspace
         # Ensure our destination folder exists
         os.makedirs(path, exist_ok=True)
-        resp = requests.get(url, stream=True)
-        resp.raise_for_status()
+
+        def _fetch(remaining):
+            attempt_timeout = (
+                min(REQUEST_TIMEOUT[0], remaining),
+                min(REQUEST_TIMEOUT[1], remaining),
+            )
+            r = requests.get(url, stream=True, timeout=attempt_timeout)
+            r.raise_for_status()
+            return r
+
+        resp = self._call_with_retry(_fetch, url)
         tarball_name = os.path.basename(urllib.parse.urlparse(url).path)
         base, ext = tarball_name.split('.tar.')
         with tarfile.open(fileobj=resp.raw, mode=f'r|{ext}') as tarball:
@@ -122,13 +198,29 @@ class BaseJob:
         raise NotImplementedError("_run() method required to run job")
 
     def _submit(self, result):
-        node_from_id = self._api.node.get(self._node['id'])
+        node_from_id = self._call_with_retry(
+            lambda _rem: self._api.node.get(self._node['id']),
+            self._api_url,
+        )
         self._node = node_from_id.copy()
         self._node.update({
             'result': result,
             'state': 'done',
         })
         self._api.node.update(self._node)
+
+    def _submit_infra_failure(self, message):
+        try:
+            node = self._node.copy()
+            node['result'] = 'incomplete'
+            node['state'] = 'done'
+            data = dict(node.get('data') or {})
+            data['error_code'] = 'infra_error'
+            data['error_msg'] = message
+            node['data'] = data
+            self._api.node.update(node)
+        except Exception as exc:
+            print(f"Failed to report infrastructure error to API: {exc}", file=sys.stderr)
 
     def run(self):
         if self._node.get('debug') and 'dry_run' in self._node['debug']:
@@ -160,25 +252,14 @@ class Job(BaseJob):
 
 {% block python_main -%}
 def main(args):
-    # Sometimes container DNS is failing if k8s node is still booting
-    # This is a workaround:
-    # test www.google.com until it works or retry 10 times
-    for _ in range(30):
-        try:
-            socket.gethostbyname('www.google.com')
-            break
-        except socket.gaierror:
-            pass
-        # sleep 1 second
-        time.sleep(1)
-    else:
-        print("DNS resolution failed, exiting", file=sys.stderr)
-        sys.exit(1)
-
     job = Job({% block python_job_constr %}api_config=API_CONFIG_YAML, node=NODE, workspace=WORKSPACE{% endblock %})
     try:
         results = job.run()
         job.submit(results)
+    except InfraReadinessError as ex:
+        print(f"Infrastructure readiness failure: {ex}", file=sys.stderr)
+        job._submit_infra_failure(str(ex))
+        results = None
     except requests.exceptions.HTTPError as ex:
         print(ex, file=sys.stderr)
         detail = ex.response.json().get('detail')
