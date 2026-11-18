@@ -7,79 +7,99 @@
    - LAVA postprocessing gaining access to the NFS path before mkbootimg
    Until one of these is confirmed to work, fastboot platforms must be
    excluded from NFS jobs in the scheduler configuration.  #}
+{# The profile packages artifacts; the device dictionary controls fastboot.
+   Only profiles preserving a legacy initramfs fallback accept NFS-labelled jobs. #}
+{% import 'fastboot/profiles/' + fastboot_image_profile|default('android') + '.jinja2' as profile with context %}
+{% if boot_commands == 'nfs' and not profile.allow_nfs_fallback|default(false) %}
+{{ kci_raise('fastboot requires an initramfs; NFS boot is not supported') }}
+{% endif %}
+{% if profile.host_boot_only|default(false) and fastboot_docker_image|default('') %}
+{{ kci_raise('this fastboot profile requires host-side device pre_os_command execution') }}
+{% endif %}
+{% set needs_kselftest = test_method|default('') in ['kselftest', 'kselftest-platform-parameters'] %}
+{% set ramdisk_url = node.artifacts.ramdisk|default('', true) %}
+{% if not ramdisk_url %}
+{% set ramdisk_url = ramdisk|default('', true) %}
+{% endif %}
+{% if not ramdisk_url %}
+{% set configured_ramdiskroot = ramdiskroot|default('', true) %}
+{% if configured_ramdiskroot %}
+{% set ramdisk_url = configured_ramdiskroot + '/rootfs.cpio.gz' %}
+{% endif %}
+{% endif %}
+{% if not ramdisk_url %}
+{{ kci_raise('fastboot requires a ramdisk from node artifacts or a rootfs_ref') }}
+{% endif %}
+{% if not node.artifacts.kernel or not node.artifacts.dtb %}
+{{ kci_raise('fastboot requires kernel and DTB artifact URLs') }}
+{% endif %}
+{% set kselftest_url = node.artifacts.kselftest_tar_xz|default(node.artifacts.kselftest_tar_gz, true) %}
+{% if needs_kselftest and not kselftest_url %}
+{{ kci_raise('kselftest requires a kselftest_tar_xz or kselftest_tar_gz artifact') }}
+{% endif %}
 - deploy:
+    to: downloads
+{% if profile.download_timeout %}
+    timeout:
+      minutes: {{ profile.download_timeout }}
+    timeouts:
+      download-retry:
+        minutes: {{ profile.download_timeout }}
+      http-download:
+        minutes: {{ profile.download_timeout }}
+{% endif %}
     images:
       image:
-        url: '{{ node.artifacts.kernel }}'
+        url: {{ node.artifacts.kernel|tojson }}
       dtb:
-        url: '{{ node.artifacts.dtb }}'
+        url: {{ node.artifacts.dtb|tojson }}
       ramdisk:
-        {% if boot_commands == "ramdisk" %}
-        url: '{{ ramdiskroot }}/rootfs.cpio.gz'
-        {% else %}
-        url: '{{ ramdisk }}'
-        {% endif %}
+        url: {{ ramdisk_url|tojson }}
         compression: gz
         format: cpio.newc
         overlays:
           lava: true
+{% if node.artifacts.modules %}
           modules:
-            url: '{{ node.artifacts.modules }}'
+            url: {{ node.artifacts.modules|tojson }}
             compression: xz
             format: tar
             path: /
-          {% if boot_commands == "ramdisk" %}
+{% endif %}
+{% if needs_kselftest %}
           kselftest:
-            compression: xz
+            compression: {{ 'xz' if node.artifacts.kselftest_tar_xz else 'gz' }}
             format: tar
             path: /opt/kselftests/mainline/
-            url: {{ node.artifacts.kselftest_tar_xz }}
-          {% endif %}
-{% set dtb = device_dtb.split('/')[-1] %}
-{% if boot_commands == "ramdisk" %}
-  {% set ramdisk_name = "rootfs.cpio.gz" %}
-{% else %}
-  {% set ramdisk_name = "rootfs.cpio.gz" %}
+            url: {{ kselftest_url|tojson }}
 {% endif %}
-{% set append_dtb = fastboot_boot_image_format|default('android-header-dtb') == 'appended-dtb' %}
-{% set kernel_image = 'Image.gz' if node.data.kernel_type.endswith('.gz') else 'Image' %}
-{% set boot_kernel_image = kernel_image + '+dtb' if append_dtb else 'Image' %}
     postprocess:
       docker:
-        image: ghcr.io/mwasilew/docker-mkbootimage:master
+        image: {{ profile.postprocess_image|tojson }}
         steps:
-{%- if append_dtb %}
-        - cat {{ kernel_image }} {{ dtb }} > {{ boot_kernel_image }}
-{%- elif node.data.kernel_type.endswith('.gz') %}
-        - gunzip Image.gz
-{%- endif %}
-{%- if append_dtb %}
-        - mkbootimg --kernel {{ boot_kernel_image }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk {{ ramdisk_name }} --pagesize {{ fastboot_mkbootimg_pagesize|default(4096) }} --base {{ fastboot_mkbootimg_base|default('0x80000000') }} --output boot.img
-{%- else %}
-        - mkbootimg --header_version 2 --kernel Image --dtb {{ dtb }} --cmdline "console=ttyMSM0,115200n8 earlycon qcom_geni_serial.con_enabled=1 mem_sleep_default=s2idle mitigations=auto video=efifb:off" --ramdisk {{ ramdisk_name }} --output boot.img
-{%- endif %}
-    to: downloads
+        - |
+{% set kernel = node.artifacts.kernel.split('?')[0].split('/')[-1] %}
+{% set dtb = node.artifacts.dtb.split('?')[0].split('/')[-1] %}
+{% set ramdisk_name = ramdisk_url.split('?')[0].split('/')[-1] %}
+{{ profile.prepare(kernel, dtb, ramdisk_name)|indent(12, true) }}
 
 - deploy:
+    to: {{ profile.deploy_to }}
     images:
-      boot:
-        url: 'downloads://boot.img'
-{% if fastboot_docker_image %}
+      {{ profile.image_label }}:
+        url: {{ ('downloads://' + profile.image_name)|tojson }}
+{% if fastboot_docker_image|default('') %}
     docker:
-      image: '{{ fastboot_docker_image }}'
+      image: {{ fastboot_docker_image|tojson }}
 {% endif %}
     timeout:
-      minutes: 2
-{% if fastboot_docker_image %}
-    to: fastboot
-{% else %}
-    to: download
-{% endif %}
+      minutes: {{ profile.deploy_timeout }}
 
 - boot:
     prompts:
     - '/ #'
     - '~ #'
+    - 'root@[^:]+:~#'
     failure_retry: 3
     timeout:
       minutes: 10
@@ -89,7 +109,7 @@
       auto-login-action:
         minutes: 2
     method: fastboot
-{% if fastboot_docker_image %}
+{% if fastboot_docker_image|default('') %}
     docker:
-      image: '{{ fastboot_docker_image }}'
+      image: {{ fastboot_docker_image|tojson }}
 {% endif %}

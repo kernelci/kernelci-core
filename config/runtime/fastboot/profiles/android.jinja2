@@ -1,0 +1,26 @@
+{# Preserve the Android image formats used by existing fastboot platforms. #}
+{# This stable branch also uses initramfs boot for jobs labelled NFS.
+   The job must still supply node.artifacts.ramdisk. #}
+{% set allow_nfs_fallback = true %}
+{% set image_name = 'boot.img' %}
+{% set image_label = 'boot' %}
+{% set deploy_to = 'fastboot' if fastboot_docker_image|default('') else 'download' %}
+{% set postprocess_image = 'ghcr.io/mwasilew/docker-mkbootimage:master' %}
+{# Preserve job/device timeout inheritance for existing Android platforms. #}
+{% set download_timeout = none %}
+{% set deploy_timeout = 2 %}
+
+{% macro prepare(kernel, dtb, ramdisk, firmware=none) -%}
+{% set append_dtb = fastboot_boot_image_format|default('android-header-dtb') == 'appended-dtb' %}
+{% set cmdline = fastboot_kernel_cmdline|default('console=ttyMSM0,115200n8 earlycon root=/dev/ram rw rootwait rdinit=/sbin/init ignore_loglevel clk_ignore_unused pd_ignore_unused fw_devlink=off no_console_suspend kernel.sched_pelt_multiplier=4 mem_sleep_default=s2idle mitigations=auto video=efifb:off') %}
+{% if append_dtb %}
+cat {{ kernel|shellquote }} {{ dtb|shellquote }} > kernel-with-dtb
+mkbootimg --kernel kernel-with-dtb --cmdline {{ cmdline|shellquote }} --ramdisk {{ ramdisk|shellquote }} --pagesize {{ fastboot_mkbootimg_pagesize|default(4096) }} --base {{ fastboot_mkbootimg_base|default('0x80000000') }} --output boot.img
+{% else %}
+{% if kernel.endswith('.gz') %}
+gzip -dc {{ kernel|shellquote }} > kernel-uncompressed
+{% set kernel = 'kernel-uncompressed' %}
+{% endif %}
+mkbootimg --header_version 2 --kernel {{ kernel|shellquote }} --dtb {{ dtb|shellquote }} --cmdline {{ cmdline|shellquote }} --ramdisk {{ ramdisk|shellquote }} --output boot.img
+{% endif %}
+{%- endmacro %}
