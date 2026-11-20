@@ -21,6 +21,7 @@ import kernelci.config
 import kernelci.legacy.lava
 import kernelci.runtime
 import kernelci.runtime.lava
+from kernelci.config.runtime import RuntimePullLabs
 from kernelci.runtime.pull_labs import compute_tuxrun_parameters
 
 
@@ -529,6 +530,34 @@ def test_compute_tuxrun_parameters_missing_branch():
     """Nodes lacking kernel_revision.branch get an empty parameter set."""
     assert compute_tuxrun_parameters("fvp-aemva", {}) == {}
     assert compute_tuxrun_parameters("fvp-aemva", {"data": {}}) == {}
+
+
+def test_pull_labs_pickup_state_defaults_to_available():
+    lab = RuntimePullLabs(name="pull-labs", lab_type="pull_labs")
+    assert lab.pickup_state == "available"
+
+
+def test_pull_labs_pickup_state_accepts_prepared():
+    lab = RuntimePullLabs(
+        name="pull-labs", lab_type="pull_labs", pickup_state="prepared"
+    )
+    assert lab.pickup_state == "prepared"
+
+
+def test_pull_labs_pickup_state_rejects_unknown_value():
+    with pytest.raises(ValueError):
+        RuntimePullLabs(
+            name="pull-labs", lab_type="pull_labs", pickup_state="bogus"
+        )
+
+
+def test_mixed_legacy_and_new_runtimes_coexist():
+    legacy = RuntimePullLabs(name="legacy-lab", lab_type="pull_labs")
+    new = RuntimePullLabs(
+        name="new-lab", lab_type="pull_labs", pickup_state="prepared"
+    )
+    assert legacy.pickup_state == "available"
+    assert new.pickup_state == "prepared"
 
 
 class _LivenessSession:

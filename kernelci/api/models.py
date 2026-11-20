@@ -47,6 +47,7 @@ class StateValues(str, enum.Enum):
     """Enumeration to declare values to be used for Node.state"""
 
     RUNNING = "running"
+    PREPARED = "prepared"
     AVAILABLE = "available"
     CLOSING = "closing"
     DONE = "done"
@@ -388,7 +389,8 @@ class Node(DatabaseModel):
                 No validation is required.",
             )
         state_transition_map = {
-            "running": ["available", "closing", "done"],
+            "running": ["available", "closing", "done", "prepared"],
+            "prepared": ["running", "done"],
             "available": ["closing", "done"],
             "closing": ["done"],
             "done": [],
