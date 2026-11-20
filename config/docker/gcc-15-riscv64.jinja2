@@ -1,0 +1,5 @@
+{%- set sub_arch = 'riscv64' %}
+{%- set triplet = 'riscv64-linux-gnu' %}
+{%- set gcc_version = '15' %}
+{%- set debian_release = 'forky' %}
+{%- extends 'base/gcc-cross.jinja2' %}
