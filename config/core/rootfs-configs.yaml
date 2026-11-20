@@ -439,6 +439,7 @@ rootfs_configs:
       - inetutils-telnet
       - iproute2
       - iputils-ping
+      - iputils-tracepath
       - jq
       - libaio1t64
       - libc6-dev
@@ -452,7 +453,6 @@ rootfs_configs:
       - psmisc
       - python3
       - quota
-      - tracepath
       - traceroute
       - unzip
       - xfsprogs
