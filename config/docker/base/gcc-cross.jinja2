@@ -1,0 +1,20 @@
+{%- extends 'base/host-tools.jinja2' %}
+{% block packages %}
+{%- set t = triplet %}
+{%- set v = gcc_version %}
+{{ super() }}
+RUN apt update && apt install --no-install-recommends -y \
+    gcc-{{ v }}-{{ t }} gcc-{{ v }}-plugin-dev-{{ t }}
+
+RUN update-alternatives \
+    --install /usr/bin/{{ t }}-gcc {{ t }}-gcc \
+              /usr/bin/{{ t }}-gcc-{{ v }} 500 \
+{%- for tool in ['ar', 'nm', 'ranlib'] %}
+    --slave /usr/bin/{{ t }}-gcc-{{ tool }} {{ t }}-{{ tool }} \
+            /usr/bin/{{ t }}-gcc-{{ tool }}-{{ v }} \
+{%- endfor %}
+{%- for tool in ['gcov', 'gcov-dump', 'gcov-tool'] %}
+    --slave /usr/bin/{{ t }}-gcc-{{ tool }} {{ t }}-{{ tool }} \
+            /usr/bin/{{ t }}-{{ tool }}-{{ v }}{{ ' \\' if not loop.last }}
+{%- endfor %}
+{%- endblock %}
