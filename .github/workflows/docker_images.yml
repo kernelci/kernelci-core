@@ -44,20 +44,13 @@ jobs:
             kcicmd: 'clang-21 kselftest kernelci'
           - kciarch: 'loongarch'
             kcicmd: 'clang-21 kselftest kernelci'
-          # gcc-15 (forky-based) is only rolled out on arm, x86 and arm64 for now
+          # no gcc-15 for arc (prebuilt toolchain), armv5 (armel dropped in forky)
+          # or mips (mips cross gcc-15 not in forky, Debian #1115574)
           - kciarch: 'arc'
             kcicmd: 'gcc-15 kselftest kernelci'
           - kciarch: 'armv5'
             kcicmd: 'gcc-15 kselftest kernelci'
           - kciarch: 'mips'
-            kcicmd: 'gcc-15 kselftest kernelci'
-          - kciarch: 'riscv64'
-            kcicmd: 'gcc-15 kselftest kernelci'
-          - kciarch: 'powerpc'
-            kcicmd: 'gcc-15 kselftest kernelci'
-          - kciarch: 's390'
-            kcicmd: 'gcc-15 kselftest kernelci'
-          - kciarch: 'loongarch'
             kcicmd: 'gcc-15 kselftest kernelci'
         include:
           - kciarch: 'arm64'
