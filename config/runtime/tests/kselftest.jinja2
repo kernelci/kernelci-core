@@ -18,7 +18,12 @@
 {% endif %}
     - repository: https://github.com/linaro/test-definitions.git
       from: git
+{% if kselftest_shallow_clone %}
+      branch: master
+      history: false
+{% else %}
       revision: master
+{% endif %}
       path: automated/linux/kselftest/kselftest.yaml
       name: '{{ node.name }}'
       parameters:

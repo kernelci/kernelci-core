@@ -1,0 +1,15 @@
+{# Package the caller's STAGE directory; no board layout or fastboot commands. #}
+{% macro create(image_name, label, capacity_mb, features, block_size=4096, minimum_mb=128) -%}
+PAYLOAD=$(du -sb "$STAGE" | cut -f1)
+PAYLOAD_MB=$(( (PAYLOAD + 1048575) / 1048576 ))
+# Payload + 15% + 16 MiB of metadata, rounded up to 16 MiB.
+SIZE=$(( (( (PAYLOAD_MB * 115 + 99) / 100 + 16 + 15) / 16) * 16 ))
+if [ "$SIZE" -lt {{ minimum_mb }} ]; then SIZE={{ minimum_mb }}; fi
+if [ "$SIZE" -gt {{ capacity_mb }} ]; then
+    echo "image needs ${SIZE} MiB (payload ${PAYLOAD_MB} MiB), partition capacity is {{ capacity_mb }} MiB" >&2
+    exit 1
+fi
+rm -f -- {{ image_name | shellquote }}
+mkfs.ext4 -F -q -L {{ label | shellquote }} -m 0 -b {{ block_size }} -O {{ features | shellquote }} -d "$STAGE" {{ image_name | shellquote }} "${SIZE}M"
+e2fsck -fn {{ image_name | shellquote }}
+{%- endmacro %}

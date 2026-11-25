@@ -10,6 +10,7 @@ import abc
 import importlib
 import os
 
+import shlex
 import requests
 import yaml
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader
@@ -129,6 +130,7 @@ class Runtime(abc.ABC):
             loader=ChoiceLoader(loaders), extensions=["jinja2.ext.do"]
         )
         jinja2_env.globals.update(self._get_jinja2_functions())
+        jinja2_env.filters["shellquote"] = shlex.quote
         return jinja2_env.get_template(job_config.template)
 
     @classmethod

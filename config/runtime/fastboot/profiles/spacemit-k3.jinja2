@@ -1,0 +1,59 @@
+{# SpacemiT K3 firmware/partition contract. All board assumptions live here. #}
+{% import 'fastboot/images/ext4.jinja2' as ext4 %}
+{% set image_name = 'bootfs.ext4' %}
+{% set image_label = 'bootfs' %}
+{% set deploy_to = 'fastboot' %}
+{% set host_boot_only = true %}
+{% set download_timeout = 30 %}
+{% set deploy_timeout = 10 %}
+{% set postprocess_image = 'artifacts.codelinaro.org/clo-420-qli-registry/kmake-image-ci:ver.1.0' %}
+{% set partition_size_mb = fastboot_bootfs_size_mb|default(256) %}
+{% set dtb_directory = 'spacemit' %}
+{% set environment_file = 'env_k3.txt' %}
+{% set ramdisk_address = '0x130000000' %}
+{% set large_ramdisk_threshold = 134217728 %}
+{% set relocated_dtb_address = '0x13ff00000' %}
+{% set maximum_ramdisk_size = 267386880 %}
+{# An explicit feature list works with older e2fsprogs, which reject even
+   ^orphan_file when they do not recognize orphan_file. Keep features readable
+   by the board's U-Boot, without orphan_file or metadata_csum_seed. #}
+{% set ext4_features = 'none,has_journal,ext_attr,resize_inode,dir_index,filetype,extent,64bit,flex_bg,sparse_super,large_file,huge_file,dir_nlink,extra_isize,metadata_csum' %}
+
+{% macro prepare(kernel, dtb, ramdisk, firmware=none) -%}
+KERNEL={{ kernel | shellquote }}
+DTB={{ dtb | shellquote }}
+RAMDISK={{ ramdisk | shellquote }}
+DTB_DIRECTORY={{ dtb_directory | shellquote }}
+ENVIRONMENT_FILE={{ environment_file | shellquote }}
+if gzip -t "$KERNEL" 2>/dev/null; then KCAT="gzip -dc"; else KCAT=cat; fi
+gzip -t "$RAMDISK"
+LIST=$(mktemp)
+STAGE=$(mktemp -d)
+trap 'rm -rf "$STAGE"; rm -f "$LIST"' EXIT
+gzip -dc "$RAMDISK" | cpio -it --quiet | sed 's#^\./##' > "$LIST"
+grep -qx init "$LIST" || { echo "ramdisk does not contain /init" >&2; exit 1; }
+# Prefer the kernel's version banner; accept one module release as fallback.
+MODVERS=$(sed -n 's#^\(usr/\)\{0,1\}lib/modules/\([^/]*\)/modules\.dep$#\2#p' "$LIST" | sort -u)
+KVER=$($KCAT "$KERNEL" | grep -a -o -m1 'Linux version [0-9][0-9]*\.[0-9][^ ]*' | cut -d' ' -f3)
+if [ -z "$KVER" ]; then
+    NMOD=$(echo "$MODVERS" | grep -c . || true)
+    [ "$NMOD" -eq 1 ] || { echo "cannot determine kernel release ($NMOD module releases)" >&2; exit 1; }
+    KVER=$MODVERS
+fi
+echo "Kernel release: $KVER"
+awk -v p="lib/modules/$KVER/" '{ sub(/^usr\//, "") } index($0, p) == 1 { f = 1 } END { exit !f }' "$LIST" || echo "WARNING: no modules for $KVER in the ramdisk"
+mkdir -p "$STAGE/$DTB_DIRECTORY/$KVER"
+install -m 0644 "$KERNEL" "$STAGE/vmlinuz-$KVER"
+install -m 0644 "$RAMDISK" "$STAGE/initrd.img-$KVER"
+install -m 0644 "$DTB" "$STAGE/$DTB_DIRECTORY/$KVER/$DTB"
+printf '%s\n' "knl_name=vmlinuz-$KVER" "ramdisk_name=initrd.img-$KVER" "dtb_dir=$DTB_DIRECTORY/$KVER" {{ ('ramdisk_addr=' + ramdisk_address) | shellquote }} 'loglevel=8' 'commonargs=setenv bootargs plymouth.prefer-fbcon plymouth.ignore-serial-consoles splash' > "$STAGE/$ENVIRONMENT_FILE"
+# Relocate the DTB before a large ramdisk would overwrite its default address.
+RDSIZE=$(stat -c %s "$RAMDISK")
+if [ "$RDSIZE" -gt {{ large_ramdisk_threshold }} ]; then
+    echo {{ ('fdt_addr_r=' + relocated_dtb_address) | shellquote }} >> "$STAGE/$ENVIRONMENT_FILE"
+fi
+[ "$RDSIZE" -le {{ maximum_ramdisk_size }} ] || { echo "ramdisk ($RDSIZE bytes) exceeds board load-address limits" >&2; exit 1; }
+chmod 0644 "$STAGE/$ENVIRONMENT_FILE"
+{{ ext4.create(image_name, image_label, partition_size_mb, ext4_features) }}
+find "$STAGE" -type f -printf '%P  %s bytes\n' | sort
+{%- endmacro %}

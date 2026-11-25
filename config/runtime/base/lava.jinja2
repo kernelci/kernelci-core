@@ -50,7 +50,7 @@ context:
 {%- else -%}
 {%-   set test_timeout = 15 + coverage_timeout -%}
 {%- endif -%}
-{%- set full_timeout = 15 + test_timeout -%}
+{%- set full_timeout = boot_deploy_timeout|default(15)|int + test_timeout -%}
 
 timeouts:
   action:
