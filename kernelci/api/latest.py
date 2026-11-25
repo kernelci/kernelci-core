@@ -17,6 +17,7 @@ class NodeStates(enum.Enum):
     """Node states names"""
 
     RUNNING = "running"
+    PREPARED = "prepared"
     AVAILABLE = "available"
     CLOSING = "closing"
     DONE = "done"
