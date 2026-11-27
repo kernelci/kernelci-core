@@ -33,6 +33,8 @@ import kernelci.elf
 from kernelci import __version__ as kernelci_version
 from kernelci import print_flush, shell_cmd
 
+MAX_COMMIT_MESSAGE_BYTES = 16 * 1024
+
 # This is used to get the mainline tags as a minimum for git describe
 TORVALDS_GIT_URL = (
     "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
@@ -263,15 +265,16 @@ def git_commit_message(path, commit):
     *path* is the path to the local git repository
     *commit* is the current checked out commit
 
-    Returns the git commit message consists of subject and body.
+    Return up to 16 KiB of the subject and body for checkout node metadata.
     """
     cmd = r"""
 set -e
 cd {path}
 git show -s --format=%B {commit}
 """.format(path=path, commit=commit)
-    message = shell_cmd(cmd)
-    return message.strip()
+    message = shell_cmd(cmd).strip().encode("utf-8")
+    # Drop any partial UTF-8 character at the end of the prefix.
+    return message[:MAX_COMMIT_MESSAGE_BYTES].decode("utf-8", errors="ignore")
 
 
 def git_branch_tip(path, commit, tree, branch):
