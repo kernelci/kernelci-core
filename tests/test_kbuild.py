@@ -592,6 +592,22 @@ class TestKselftestBuildReport:
             ("build.kselftest.net", "fail"),
         ]
 
+    @pytest.mark.parametrize(
+        "filename",
+        ["build_kselftest_report.tsv", "kselftest_report_version.txt"],
+    )
+    def test_undecodable_report_uses_file_presence(self, tmp_path, filename):
+        records = [("all", "accel", 2), ("all", "sparc64", 0)]
+        kbuild = _suite_artifacts(
+            tmp_path, ["accel", "sparc64"], self.FILES, records
+        )
+        (tmp_path / "artifacts" / filename).write_bytes(b"\xff")
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.accel", "pass"),
+            ("build.kselftest.sparc64", "fail"),
+        ]
+
     def test_subdirectory_records_count_for_suite(self, tmp_path):
         records = [
             ("all", "arm64", 0),

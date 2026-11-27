@@ -1246,13 +1246,13 @@ trap 'case $stage in
         )
         report_path = os.path.join(self._af_dir, KSELFTEST_BUILD_REPORT)
         try:
-            with open(version_path, "r") as f:
+            with open(version_path, encoding="utf-8") as f:
                 version = f.read().split()
-            with open(report_path, "r") as f:
+            if version[-1:] != [KSELFTEST_BUILD_REPORT_VERSION]:
+                return None
+            with open(report_path, encoding="utf-8") as f:
                 lines = f.read().splitlines()
-        except OSError:
-            return None
-        if version[-1:] != [KSELFTEST_BUILD_REPORT_VERSION]:
+        except (OSError, UnicodeDecodeError):
             return None
 
         statuses = {}
@@ -1311,6 +1311,13 @@ trap 'case $stage in
         if not expected:
             return []
 
+        # The leaf name identifies a build result even outside its node path.
+        names = [
+            "build.kselftest." + suite.replace("/", ".") for suite in expected
+        ]
+        if kselftest_result in ("skip", "fail"):
+            return [(name, kselftest_result) for name in names]
+
         # Files in the built tarball, from tuxmake's metadata.json. The key
         # is absent when no tarball was produced (nothing built).
         built_files = []
@@ -1325,28 +1332,12 @@ trap 'case $stage in
         built_files = [p[2:] if p.startswith("./") else p for p in built_files]
 
         statuses = self._kselftest_build_report(expected)
-        if kselftest_result == "pass":
-            mode = "build report" if statuses is not None else "installed files"
-            print(f"[_kselftest_suite_results] Using {mode}")
-
-        results = []
-        for suite in expected:
-            # These nodes report whether each kselftest suite was built; they
-            # are not results from executing the suite.  Keep that distinction
-            # visible when dashboards display the leaf name without its path.
-            # Use "." in the node name to keep path elements free of slashes.
-            name = "build.kselftest." + suite.replace("/", ".")
-            if kselftest_result == "skip":
-                result = "skip"
-            elif kselftest_result == "fail":
-                # No tarball at all, so nothing built.
-                result = "fail"
-            else:
-                result = self._kselftest_suite_result(
-                    suite, built_files, statuses
-                )
-            results.append((name, result))
-        return results
+        mode = "build report" if statuses is not None else "installed files"
+        print(f"[_kselftest_suite_results] Using {mode}")
+        return [
+            (name, self._kselftest_suite_result(suite, built_files, statuses))
+            for name, suite in zip(names, expected)
+        ]
 
     @staticmethod
     def _kselftest_suite_result(suite, built_files, statuses):
