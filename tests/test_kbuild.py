@@ -3,11 +3,14 @@
 
 import json
 import os
+import socket
 import subprocess
 import sys
 import types
+import unittest.mock
 
 import pytest
+import requests
 
 import kernelci.kbuild
 from kernelci.kbuild import KBuild
@@ -782,3 +785,173 @@ class TestTarballDownload:
         calls = log.read_text().splitlines()
         assert len(calls) == 1 and self.FILES_URL in calls[0]
         assert (tmp_path / "linux.tgz").exists()
+
+
+class TestBoundedNetworkRetry:
+    """Tests for bounded network readiness/retry handling in kernelci.kbuild."""
+
+    URL = "https://storage.kernelci.org/fragments/test.config?token=secret123"
+
+    @staticmethod
+    def _mock_response(status_code=200, content=b"CONFIG_FOO=y\n"):
+        resp = unittest.mock.MagicMock()
+        resp.status_code = status_code
+        resp.content = content
+        return resp
+
+    def test_immediate_success(self):
+        from kernelci.kbuild import _request_with_retry
+
+        with (
+            unittest.mock.patch(
+                "kernelci.kbuild.requests.get",
+                return_value=self._mock_response(200, b"ok"),
+            ) as mock_get,
+            unittest.mock.patch("kernelci.kbuild.time.sleep") as mock_sleep,
+        ):
+            resp = _request_with_retry(self.URL)
+            assert resp.content == b"ok"
+            assert mock_get.call_count == 1
+            assert mock_get.call_args.kwargs["timeout"] == (5.0, 15.0)
+            mock_sleep.assert_not_called()
+
+    def test_initial_failures_then_recovery(self):
+        from kernelci.kbuild import _request_with_retry
+
+        side_effects = [
+            socket.gaierror("Temporary failure in name resolution"),
+            requests.exceptions.ConnectTimeout("connect timed out"),
+            self._mock_response(503),
+            self._mock_response(200, b"recovered"),
+        ]
+        with (
+            unittest.mock.patch(
+                "kernelci.kbuild.requests.get", side_effect=side_effects
+            ) as mock_get,
+            unittest.mock.patch("kernelci.kbuild.time.sleep") as mock_sleep,
+        ):
+            resp = _request_with_retry(
+                self.URL, deadline_sec=30.0, retry_interval=2.0
+            )
+            assert resp.content == b"recovered"
+            assert mock_get.call_count == 4
+            assert mock_sleep.call_count == 3
+
+    @pytest.mark.parametrize(
+        "exc",
+        [
+            socket.gaierror("Name or service not known"),
+            requests.exceptions.ConnectTimeout("connect timed out"),
+            requests.exceptions.ReadTimeout("read timed out"),
+            requests.exceptions.ConnectionError("connection refused"),
+        ],
+    )
+    def test_transient_network_errors_exhaust_and_sanitize_url(self, exc):
+        from kernelci.kbuild import KBuildInfraError, _request_with_retry
+
+        with (
+            unittest.mock.patch(
+                "kernelci.kbuild.requests.get", side_effect=exc
+            ),
+            unittest.mock.patch(
+                "kernelci.kbuild.time.monotonic",
+                side_effect=[0.0, 0.1, 1.0, 2.0, 3.0, 6.0, 6.0],
+            ),
+            unittest.mock.patch("kernelci.kbuild.time.sleep"),
+        ):
+            with pytest.raises(KBuildInfraError) as info:
+                _request_with_retry(
+                    self.URL, deadline_sec=5.0, retry_interval=2.0
+                )
+            msg = str(info.value)
+            assert "storage.kernelci.org" in msg
+            assert "secret123" not in msg
+            assert "6.0s" in msg
+
+    def test_repeated_non_success_http_responses_bounded(self):
+        from kernelci.kbuild import KBuildInfraError, _request_with_retry
+
+        with (
+            unittest.mock.patch(
+                "kernelci.kbuild.requests.get",
+                return_value=self._mock_response(503),
+            ) as mock_get,
+            unittest.mock.patch(
+                "kernelci.kbuild.time.monotonic",
+                side_effect=[0.0, 0.5, 2.5, 3.0, 5.5, 5.5],
+            ),
+            unittest.mock.patch("kernelci.kbuild.time.sleep") as mock_sleep,
+        ):
+            with pytest.raises(KBuildInfraError):
+                _request_with_retry(
+                    self.URL, deadline_sec=5.0, retry_interval=2.0
+                )
+            assert mock_get.call_count == 2
+            assert mock_sleep.call_count == 1
+
+    def test_programming_error_not_swallowed(self):
+        from kernelci.kbuild import _request_with_retry
+
+        with unittest.mock.patch(
+            "kernelci.kbuild.requests.get",
+            side_effect=requests.exceptions.MissingSchema("Invalid URL"),
+        ):
+            with pytest.raises(requests.exceptions.MissingSchema):
+                _request_with_retry("not-a-valid-url")
+
+    def test_write_script_reports_infra_failure_on_network_exhaustion(
+        self, tmp_path
+    ):
+        from kernelci.kbuild import KBuildInfraError
+
+        kbuild = _kbuild(tmp_path)
+        with (
+            unittest.mock.patch.object(
+                kbuild,
+                "_generate_script",
+                side_effect=KBuildInfraError(
+                    "Service 'storage.kernelci.org' unreachable after 60.0s"
+                ),
+            ),
+            unittest.mock.patch.object(
+                kbuild, "submit_failure"
+            ) as mock_submit_failure,
+        ):
+            with pytest.raises(KBuildInfraError):
+                kbuild.write_script(str(tmp_path / "build.sh"))
+            mock_submit_failure.assert_called_once_with(
+                "Service 'storage.kernelci.org' unreachable after 60.0s"
+            )
+
+
+class TestPythonTemplateNetworkReadiness:
+    """Verify rendered runtime template uses bounded KernelCI service checks."""
+
+    @staticmethod
+    def _render_python_template():
+        from pathlib import Path
+
+        from jinja2 import Environment, FileSystemLoader
+
+        templates = Path(__file__).parents[1] / "config" / "runtime"
+        env = Environment(loader=FileSystemLoader(templates))
+        env.globals["kci_yaml_dump"] = lambda data: (
+            "api:\n  url: https://api.kernelci.org\n"
+        )
+        template = env.get_template("base/python.jinja2")
+        return template.render(
+            runtime="docker",
+            api_config={"url": "https://api.kernelci.org"},
+            storage_config={},
+            node={"id": "node-1", "kind": "kbuild"},
+            name="kbuild-test",
+            always_exit_0=False,
+        )
+
+    def test_no_google_probe_and_bounded_retry_present(self):
+        rendered = self._render_python_template()
+        assert "google.com" not in rendered
+        assert "time.monotonic()" in rendered
+        assert "REQUEST_TIMEOUT = (5.0, 15.0)" in rendered
+        assert "InfraReadinessError" in rendered
+        compile(rendered, "python.jinja2", "exec")
