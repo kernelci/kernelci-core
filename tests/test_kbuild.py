@@ -592,6 +592,39 @@ class TestKselftestBuildReport:
             ("build.kselftest.net", "fail"),
         ]
 
+    @pytest.mark.parametrize(
+        "version, x86_result", [("1", "skip"), ("", "pass")]
+    )
+    def test_nested_installed_files(self, tmp_path, version, x86_result):
+        targets = ["x86", "x86/bugs", "arm64"]
+        files = ["./x86/bugs/its_sysfs.py", "arm64/fp/fpmr"]
+        records = [
+            (phase, t, 0) for phase in ("all", "install") for t in targets
+        ]
+        kbuild = _suite_artifacts(tmp_path, targets, files, records, version)
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.x86", x86_result),
+            ("build.kselftest.x86.bugs", "pass"),
+            ("build.kselftest.arm64", "pass"),
+        ]
+
+    @pytest.mark.parametrize(
+        "filename",
+        ["build_kselftest_report.tsv", "kselftest_report_version.txt"],
+    )
+    def test_undecodable_report_uses_file_presence(self, tmp_path, filename):
+        records = [("all", "accel", 2), ("all", "sparc64", 0)]
+        kbuild = _suite_artifacts(
+            tmp_path, ["accel", "sparc64"], self.FILES, records
+        )
+        (tmp_path / "artifacts" / filename).write_bytes(b"\xff")
+
+        assert kbuild._kselftest_suite_results("pass") == [
+            ("build.kselftest.accel", "pass"),
+            ("build.kselftest.sparc64", "fail"),
+        ]
+
     def test_subdirectory_records_count_for_suite(self, tmp_path):
         records = [
             ("all", "arm64", 0),

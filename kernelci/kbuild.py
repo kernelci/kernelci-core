@@ -1229,6 +1229,14 @@ trap 'case $stage in
         )
         self.addcmd("cd ..")
 
+    @staticmethod
+    def _kselftest_matching_targets(path, targets):
+        """Yield matching TARGETs from the most specific path to its parents."""
+        while path:
+            if path in targets:
+                yield path
+            path = path.rpartition("/")[0]
+
     def _kselftest_build_report(self, expected):
         """Read the kselftest build report, if the kernel wrote one.
 
@@ -1246,13 +1254,13 @@ trap 'case $stage in
         )
         report_path = os.path.join(self._af_dir, KSELFTEST_BUILD_REPORT)
         try:
-            with open(version_path, "r") as f:
+            with open(version_path, encoding="utf-8") as f:
                 version = f.read().split()
-            with open(report_path, "r") as f:
+            if version[-1:] != [KSELFTEST_BUILD_REPORT_VERSION]:
+                return None
+            with open(report_path, encoding="utf-8") as f:
                 lines = f.read().splitlines()
-        except OSError:
-            return None
-        if version[-1:] != [KSELFTEST_BUILD_REPORT_VERSION]:
+        except (OSError, UnicodeDecodeError):
             return None
 
         statuses = {}
@@ -1264,13 +1272,10 @@ trap 'case $stage in
                 status = int(fields[2])
             except ValueError:
                 continue
-            owners = [
-                t
-                for t in expected
-                if fields[1] == t or fields[1].startswith(t + "/")
-            ]
-            if owners:
-                owner = max(owners, key=len)
+            owner = next(
+                self._kselftest_matching_targets(fields[1], expected), None
+            )
+            if owner:
                 statuses.setdefault(owner, []).append(status)
         return statuses or None
 
@@ -1311,6 +1316,13 @@ trap 'case $stage in
         if not expected:
             return []
 
+        # The leaf name identifies a build result even outside its node path.
+        names = [
+            "build.kselftest." + suite.replace("/", ".") for suite in expected
+        ]
+        if kselftest_result in ("skip", "fail"):
+            return [(name, kselftest_result) for name in names]
+
         # Files in the built tarball, from tuxmake's metadata.json. The key
         # is absent when no tarball was produced (nothing built).
         built_files = []
@@ -1321,44 +1333,37 @@ trap 'case $stage in
             built_files = meta.get("artifacts", {}).get("kselftest", [])
         except (OSError, ValueError):
             built_files = []
-        # Normalise any leading "./" so prefix matching is tar-agnostic.
-        built_files = [p[2:] if p.startswith("./") else p for p in built_files]
+        targets = set(expected)
+        statuses = self._kselftest_build_report(targets)
+        mode = "build report" if statuses is not None else "installed files"
+        print(f"[_kselftest_suite_results] Using {mode}")
 
-        statuses = self._kselftest_build_report(expected)
-        if kselftest_result == "pass":
-            mode = "build report" if statuses is not None else "installed files"
-            print(f"[_kselftest_suite_results] Using {mode}")
-
-        results = []
-        for suite in expected:
-            # These nodes report whether each kselftest suite was built; they
-            # are not results from executing the suite.  Keep that distinction
-            # visible when dashboards display the leaf name without its path.
-            # Use "." in the node name to keep path elements free of slashes.
-            name = "build.kselftest." + suite.replace("/", ".")
-            if kselftest_result == "skip":
-                result = "skip"
-            elif kselftest_result == "fail":
-                # No tarball at all, so nothing built.
-                result = "fail"
-            else:
-                result = self._kselftest_suite_result(
-                    suite, built_files, statuses
-                )
-            results.append((name, result))
-        return results
+        installed = set()
+        for path in built_files:
+            directory = path.removeprefix("./").rpartition("/")[0]
+            for suite in self._kselftest_matching_targets(directory, targets):
+                installed.add(suite)
+                # With a report, only the most specific TARGET owns the file.
+                # The legacy presence check counts it for every parent too.
+                if statuses is not None:
+                    break
+        return [
+            (
+                name,
+                self._kselftest_suite_result(
+                    suite, suite in installed, statuses
+                ),
+            )
+            for name, suite in zip(names, expected)
+        ]
 
     @staticmethod
-    def _kselftest_suite_result(suite, built_files, statuses):
+    def _kselftest_suite_result(suite, built, statuses):
         """Result of one suite of a kselftest build that produced a tarball.
 
         'statuses' is the output of _kselftest_build_report(), or None to
         judge the suite only by its installed files.
         """
-        # A TARGET may be a nested path (e.g. "net/mptcp"); it installed
-        # files if any file in the tarball lives under it.
-        prefix = suite.rstrip("/") + "/"
-        built = any(p.startswith(prefix) for p in built_files)
         if statuses is not None:
             codes = statuses.get(suite)
             if not codes or any(codes):
